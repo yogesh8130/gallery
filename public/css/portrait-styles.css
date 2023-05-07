@@ -1,0 +1,83 @@
+/* Styles for portrait screens */
+body {
+	max-width: 100%;
+	/* to account for the navigation bar */
+	overflow-wrap: break-word;
+	font-size: 20px;
+	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+#imageTitle {
+	font-size: 50px;
+	font-weight: bold;
+	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+a {
+	text-decoration: none;
+}
+
+#subTitle {
+	font-size: 40px;
+}
+
+img {
+	width: 100%;
+}
+
+video {
+	width: 100%;
+}
+
+#image-path {
+	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+#renameStatus {
+	font-size: 40px;
+}
+
+input {
+	padding: 10px;
+	border: 10px solid #d1d1d1;
+	border-width: 3px;
+	border-radius: 20px;
+	width: 600px;
+	height: 50px;
+	font-size: 36px;
+	margin: 10px 5px;
+}
+
+button {
+	padding: 10px;
+	border: 10px solid #d1d1d1;
+	border-width: 3px;
+	border-radius: 20px;
+	width: 250px;
+	height: 75px;
+	font-size: 36px;
+	margin: 10px 5px;
+}
+
+button:active {
+	background-color: black;
+}
+
+#navigationdiv {
+	width: 100%;
+	position: fixed;
+	bottom: 10px;
+}
+
+#navigationPlaceholder {
+	height: 190px;
+}
+
+.navigation {
+	display: flex;
+	justify-content: center;
+}
+
+#navigation button {
+	/* margin: 0 10px; */
+}

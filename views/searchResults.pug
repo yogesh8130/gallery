@@ -2,11 +2,12 @@ doctype html
 html
 	head
 		title Search Results
-		link(rel="stylesheet" href="/css/styles.css")
+		link(rel="stylesheet" href="/css/search-results.css")
 		script(src='/js/searchResults.js')
 	body
-		h1 Search Results for "#{searchText}"
-		h2 Showing #{matchingImagePaths.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
+		div.rowContainer
+			h1 Search Results for "#{searchText}"
+			h2 Showing #{matchingImagePaths.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
 		if matchingImagePaths.length === 0
 			p No matching images found.
 		else
@@ -14,14 +15,16 @@ html
 				- const lastSlashIndex = imagePath.lastIndexOf('\\')
 				- const folderName = imagePath.substring(0, lastSlashIndex)
 				- const imageName = imagePath.substring(lastSlashIndex + 1)
-				p
-					| #{imageName} 
-					span(style="font-size: 10px") #{folderName}
+				div.rowContainer
+					a#imageTitle.imageName(href='/search?searchText='+imageName, target='_blank') 
+						|#{imageName} 
+					a#subTitle.tinyText(href='/search?searchText='+folderName, target='_blank') 
+						|#{folderName}
 					br
-					if (imagePath.endsWith('.mp4') || imagePath.endsWith('.webm') || imagePath.endsWith('.mkv'))
-						video.searchvid(src=imagePath controls loop)
-					else
-						img.searchimg(src=imagePath)
+				if (imagePath.endsWith('.mp4') || imagePath.endsWith('.webm') || imagePath.endsWith('.mkv'))
+					video.searchvid(src=imagePath controls loop)
+				else
+					img.searchimg(src=imagePath)
 			if totalPages > 1
 				.pagination
 					if page > 1

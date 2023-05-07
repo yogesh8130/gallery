@@ -21,6 +21,10 @@ const imagePath = "./public/images";
 // Create an array to store all image paths recursively
 let imagePaths = [];
 
+const videoExtensions = ['.mp4', '.webm', '.mkv'];
+const imageExtensions = ['.jpeg', '.jpg', '.png', '.webp', '.gif']
+const allowedExtensions = [...videoExtensions, ...imageExtensions];
+
 // Function to read image files recursively and populate the imagePaths array
 let readImageFiles = (directory) => {
 	fs.readdirSync(directory).forEach((file) => {
@@ -31,14 +35,7 @@ let readImageFiles = (directory) => {
 		} else {
 			// Add the file path to the array only if it is an image file
 			const ext = path.extname(fullPath).toLowerCase();
-			if (ext === '.jpg'
-				|| ext === '.jpeg'
-				|| ext === '.png'
-				|| ext === '.gif'
-				|| ext === '.mp4'
-				|| ext === '.webm'
-				|| ext === '.mkv'
-			) {
+			if (allowedExtensions.includes(ext)) {
 				// imagePaths.push(fullPath.replace(/^public/, ''));
 				imagePaths.push(fullPath.replace(/^public/, ''));
 			}
@@ -78,9 +75,14 @@ app.get('/', (req, res) => {
 		index: randomIndex
 	};
 
-	// Render the main page with the selected image path as a parameter
-	// console.log(randomImagePath);
-	res.render('index', data);
+	// Detect screen orientation and render the appropriate page
+	const isPortrait = req.header('User-Agent').includes('Mobile');
+
+	if (isPortrait) {
+		res.render('portrait-index', data);
+	} else {
+		res.render('landscape-index', data);
+	}
 });
 
 // Define a route to handle requests for a random image
@@ -90,11 +92,22 @@ app.get('/random-image', (req, res) => {
 
 	const filename = path.basename(randomImagePath);
 	const directoryPath = path.dirname(randomImagePath);
+	const extension = path.extname(randomImagePath).toLowerCase();
+	let filetype = 'image';
+
+	if (videoExtensions.includes(extension)) {
+		filetype = 'video'
+	}
+
+	// console.log("extension: " + extension);
+	// console.log("filetype: " + filetype);
 
 	const responseData = {
 		randomImagePath: randomImagePath,
 		filename: filename,
 		directoryPath: directoryPath,
+		extension: extension,
+		filetype: filetype,
 		index: randomIndex
 	};
 
@@ -112,11 +125,19 @@ app.get('/next', (req, res) => {
 
 	const filename = path.basename(nextImagePath);
 	const directoryPath = path.dirname(nextImagePath);
+	const extension = path.extname(nextImagePath).toLowerCase();
+	let filetype = 'image';
+
+	if (videoExtensions.includes(extension)) {
+		filetype = 'video'
+	}
 
 	const responseData = {
 		nextImagePath: nextImagePath,
 		filename: filename,
 		directoryPath: directoryPath,
+		extension: extension,
+		filetype: filetype,
 		index: nextIndex
 	};
 
@@ -133,11 +154,19 @@ app.get('/previous', (req, res) => {
 
 	const filename = path.basename(previousImagePath);
 	const directoryPath = path.dirname(previousImagePath);
+	const extension = path.extname(previousImagePath).toLowerCase();
+	let filetype = 'image';
+
+	if (videoExtensions.includes(extension)) {
+		filetype = 'video'
+	}
 
 	const responseData = {
 		previousImagePath: previousImagePath,
 		filename: filename,
 		directoryPath: directoryPath,
+		extension: extension,
+		filetype: filetype,
 		index: previousIndex
 	};
 
@@ -285,7 +314,7 @@ app.get('/search', (req, res) => {
 		// TODO : handle || OR tokens
 
 
-	} else if (searchText.startsWith('/')) {
+	} else if (searchText.startsWith('//')) {
 		let pattern = searchText.slice(1); // remove the leading forward slash
 		console.log("pattern: " + pattern);
 		let regex = new RegExp(pattern, 'i'); // create a case-insensitive regular expression
@@ -298,7 +327,7 @@ app.get('/search', (req, res) => {
 	const totalResultCount = matchingImagePaths.length;
 
 	const page = req.query.page || 1;
-	const perPage = 500;
+	const perPage = 100;
 	const startIndex = (page - 1) * perPage;
 	const endIndex = startIndex + perPage;
 

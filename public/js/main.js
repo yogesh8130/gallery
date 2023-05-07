@@ -1,7 +1,8 @@
 window.addEventListener('load', () => {
 
 	// Add a click event listener to the random image
-	const randomImage = document.querySelector('#randomImage');
+	const mainContent = document.querySelector('#mainContent');
+	let randomImage = document.querySelector('#randomImage');
 	const imageTitle = document.querySelector('#imageTitle');
 	const subTitle = document.querySelector('#subTitle');
 	const searchButton = document.querySelector('#searchButton');
@@ -14,6 +15,9 @@ window.addEventListener('load', () => {
 	const previousbtn = document.querySelector('#previousbtn');
 	const randombtn = document.querySelector('#randombtn');
 	const nextbtn = document.querySelector('#nextbtn');
+
+	imageTitle.href = `/search?searchText=${encodeURIComponent(imageTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
+	subTitle.href = `/search?searchText=${encodeURIComponent(subTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
 
 	// when server is sending only one string ie image path in response
 	// randomImage.addEventListener('click', () => {
@@ -29,20 +33,41 @@ window.addEventListener('load', () => {
 	// server is sending an object json with various properties
 	randomImage.addEventListener('click', showrandom);
 	randombtn.addEventListener('click', showrandom);
+
 	function showrandom() {
 		fetch('/random-image')
-			.then(response => response.json()) // Expect JSON response
+			.then(response => response.json())
 			.then(data => {
-				imageTitle.textContent = data.filename; // Access filename from the JSON object
-				subTitle.textContent = data.directoryPath; // Access directoryName from the JSON object
-				randomImage.src = data.randomImagePath; // Access randomImagePath from the JSON object
-				console.log("randomImage (current):" + randomImage.src);
+				imageTitle.textContent = data.filename;
+				imageTitle.href = `/search?searchText=${encodeURIComponent(imageTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
+
+				subTitle.textContent = data.directoryPath;
+				subTitle.href = `/search?searchText=${encodeURIComponent(subTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
+
+				const filetype = data.filetype;
+				console.log(filetype);
+				if (filetype === 'video') {
+					mainContent.innerHTML = `
+				<video id="randomImage" src="${data.randomImagePath}" controls autoplay loop>
+				  Your browser does not support the video tag.
+				</video>
+			  `;
+					randomImage = document.querySelector('#randomImage');
+				} else {
+					mainContent.innerHTML = `
+				<img id="randomImage" src="${data.randomImagePath}" alt="">
+			  `;
+					randomImage = document.querySelector('#randomImage');
+				}
+				console.log('randomImage (current): ' + randomImage.src);
 			});
 	}
 
 
+
+
 	// Create a new Hammer.js instance
-	const mc = new Hammer(randomImage);
+	let mc = new Hammer(mainContent);
 
 	// Detect horizontal swipes
 	mc.on('swipeleft swiperight', (event) => {
@@ -53,17 +78,55 @@ window.addEventListener('load', () => {
 			fetch(`/next?currentImagePath=${currentImagePath}`)
 				.then(response => response.json())
 				.then(data => {
-					imageTitle.textContent = data.filename; // Access filename from the JSON object
-					subTitle.textContent = data.directoryPath; // Access directoryName from the JSON object
-					randomImage.src = data.nextImagePath;
+					imageTitle.textContent = data.filename;
+					imageTitle.href = `/search?searchText=${encodeURIComponent(imageTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
+
+					subTitle.textContent = data.directoryPath;
+					subTitle.href = `/search?searchText=${encodeURIComponent(subTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
+
+					const filetype = data.filetype;
+					console.log(filetype);
+					if (filetype === 'video') {
+						mainContent.innerHTML = `
+				<video id="randomImage" src="${data.nextImagePath}" controls autoplay loop>
+				  Your browser does not support the video tag.
+				</video>
+			  `;
+						randomImage = document.querySelector('#randomImage');
+					} else {
+						mainContent.innerHTML = `
+				<img id="randomImage" src="${data.nextImagePath}" alt="">
+			  `;
+						randomImage = document.querySelector('#randomImage');
+					}
+					console.log('randomImage (current): ' + randomImage.src);
 				});
 		} else if (event.type === 'swiperight') {
 			fetch(`/previous?currentImagePath=${currentImagePath}`)
 				.then(response => response.json())
 				.then(data => {
-					imageTitle.textContent = data.filename; // Access filename from the JSON object
-					subTitle.textContent = data.directoryPath; // Access directoryName from the JSON object
-					randomImage.src = data.previousImagePath;
+					imageTitle.textContent = data.filename;
+					imageTitle.href = `/search?searchText=${encodeURIComponent(imageTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
+
+					subTitle.textContent = data.directoryPath;
+					subTitle.href = `/search?searchText=${encodeURIComponent(subTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
+
+					const filetype = data.filetype;
+					console.log(filetype);
+					if (filetype === 'video') {
+						mainContent.innerHTML = `
+				<video id="randomImage" src="${data.previousImagePath}" controls autoplay loop>
+				  Your browser does not support the video tag.
+				</video>
+			  `;
+						randomImage = document.querySelector('#randomImage');
+					} else {
+						mainContent.innerHTML = `
+				<img id="randomImage" src="${data.previousImagePath}" alt="">
+			  `;
+						randomImage = document.querySelector('#randomImage');
+					}
+					console.log('randomImage (current): ' + randomImage.src);
 				});
 		}
 	});
@@ -71,25 +134,63 @@ window.addEventListener('load', () => {
 	previousbtn.addEventListener('click', showprevious);
 	nextbtn.addEventListener('click', shownext);
 
-	function showprevious() {
+	function shownext() {
 		const currentImagePath = randomImage.src.replace(origin, ''); // this removes "http://localhost:3000" form src
 		fetch(`/next?currentImagePath=${currentImagePath}`)
 			.then(response => response.json())
 			.then(data => {
-				imageTitle.textContent = data.filename; // Access filename from the JSON object
-				subTitle.textContent = data.directoryPath; // Access directoryName from the JSON object
-				randomImage.src = data.nextImagePath;
+				imageTitle.textContent = data.filename;
+				imageTitle.href = `/search?searchText=${encodeURIComponent(imageTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
+
+				subTitle.textContent = data.directoryPath;
+				subTitle.href = `/search?searchText=${encodeURIComponent(subTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
+
+				const filetype = data.filetype;
+				console.log(filetype);
+				if (filetype === 'video') {
+					mainContent.innerHTML = `
+				<video id="randomImage" src="${data.nextImagePath}" controls autoplay loop>
+				  Your browser does not support the video tag.
+				</video>
+			  `;
+					randomImage = document.querySelector('#randomImage');
+				} else {
+					mainContent.innerHTML = `
+				<img id="randomImage" src="${data.nextImagePath}" alt="">
+			  `;
+					randomImage = document.querySelector('#randomImage');
+				}
+				console.log('randomImage (current): ' + randomImage.src);
 			});
 	}
 
-	function shownext() {
+	function showprevious() {
 		const currentImagePath = randomImage.src.replace(origin, ''); // this removes "http://localhost:3000" form src
 		fetch(`/previous?currentImagePath=${currentImagePath}`)
 			.then(response => response.json())
 			.then(data => {
-				imageTitle.textContent = data.filename; // Access filename from the JSON object
-				subTitle.textContent = data.directoryPath; // Access directoryName from the JSON object
-				randomImage.src = data.previousImagePath;
+				imageTitle.textContent = data.filename;
+				imageTitle.href = `/search?searchText=${encodeURIComponent(imageTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
+
+				subTitle.textContent = data.directoryPath;
+				subTitle.href = `/search?searchText=${encodeURIComponent(subTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
+
+				const filetype = data.filetype;
+				console.log(filetype);
+				if (filetype === 'video') {
+					mainContent.innerHTML = `
+				<video id="randomImage" src="${data.previousImagePath}" controls autoplay loop>
+				  Your browser does not support the video tag.
+				</video>
+			  `;
+					randomImage = document.querySelector('#randomImage');
+				} else {
+					mainContent.innerHTML = `
+				<img id="randomImage" src="${data.previousImagePath}" alt="">
+			  `;
+					randomImage = document.querySelector('#randomImage');
+				}
+				console.log('randomImage (current): ' + randomImage.src);
 			});
 	}
 
@@ -184,7 +285,7 @@ window.addEventListener('load', () => {
 		if (searchText !== '') {
 			// window.location.href = `/search?searchText=${searchText}`; // opens in same window
 
-			const searchUrl = `/search?searchText=${searchText}`;
+			const searchUrl = `/search?searchText=${encodeURIComponent(searchText)}`;
 			window.open(searchUrl, '_blank');
 		}
 	});

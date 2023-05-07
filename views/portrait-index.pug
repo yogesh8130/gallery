@@ -1,0 +1,38 @@
+doctype html
+html
+	head
+		link(rel='stylesheet' href='/css/portrait-styles.css')
+		title Gallery
+		script(src='https://hammerjs.github.io/dist/hammer.min.js')
+		script(src='/js/main.js')
+	body
+		div#info
+			a#imageTitle(href='/search?searchText='+imageName, target='_blank')
+				|#{imageName}
+		div
+			input#searchText(type='text' placeholder='Search... (/... for regex)')
+			button#searchButton Search
+		div
+			input#newFileName(type='text' name='newFileName' placeholder='New name')
+			button#renameButton Rename
+			span#renameStatus
+		div#mainContent
+			if (imagePath.endsWith('.mp4') || imagePath.endsWith('.webm') || imagePath.endsWith('.mkv'))
+				video#randomImage(src=imagePath controls autoplay loop)
+			else
+				img#randomImage(src=imagePath)
+		div#info
+			a#subTitle(href='/search?searchText='+directoryPath, target='_blank')
+				|#{directoryPath}
+		//- div.navigation
+		//- 	button#similarButton Similar
+		//- 	button#refreshDB Refresh DB
+		div#navigationPlaceholder
+		div#navigationdiv
+			div.navigation
+				button#previousbtn
+					|Previous
+				button#randombtn
+					|Random
+				button#nextbtn
+					|Next
