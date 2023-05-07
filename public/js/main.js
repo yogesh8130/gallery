@@ -1,40 +1,5 @@
-<!DOCTYPE html>
-<html>
+window.addEventListener('load', () => {
 
-<head>
-	<link rel="stylesheet" href="/css/styles.css">
-	<title>Random Image Page</title>
-	<script src="https://hammerjs.github.io/dist/hammer.min.js"></script>
-</head>
-
-<body>
-	<h1 id="imageTitle">
-		<%= filename %>
-	</h1>
-
-	<h2 id="subTitle">
-		<%= directoryPath %>
-	</h2>
-
-	<div>
-		<input type="text" id="searchText" placeholder="Search...">
-		<button id="searchButton">Search</button>
-	</div>
-
-	<div>
-		<input type="text" id="newFileName" name="newFileName" placeholder="New name" />
-		<button id="renameButton">Rename</button>
-		<span id="renameStatus"></span>
-	</div>
-
-	<img id="randomImage" src="<%= imagePath %>">
-
-	<div>
-		<button id="refreshDB">Refresh DB</button>
-	</div>
-</body>
-
-<script>
 	// Add a click event listener to the random image
 	const randomImage = document.querySelector('#randomImage');
 	const imageTitle = document.querySelector('#imageTitle');
@@ -177,6 +142,4 @@
 	});
 
 
-</script>
-
-</html>
+});

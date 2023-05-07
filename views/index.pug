@@ -1,0 +1,20 @@
+doctype html
+html
+	head
+		link(rel='stylesheet' href='/css/styles.css')
+		title Gallery
+		script(src='https://hammerjs.github.io/dist/hammer.min.js')
+		script(src='/js/main.js')
+	body
+		h1#imageTitle=imageName
+		h2#subTitle=directoryPath
+		div
+			input#searchText(type='text' placeholder='Search...')
+			button#searchButton Search
+		div
+			input#newFileName(type='text' name='newFileName' placeholder='New name')
+			button#renameButton Rename
+			span#renameStatus
+		img#randomImage(src=imagePath)
+		div
+			button#refreshDB Refresh DB

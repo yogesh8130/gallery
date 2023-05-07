@@ -11,8 +11,8 @@ app.use(express.static('public'));
 // Specify the custom views directory
 app.set('views', './views');
 
-// Set the view engine to use EJS
-app.set('view engine', 'ejs');
+// Set the view engine to use Pug
+app.set('view engine', 'pug');
 
 // Define the path to the root image folder
 // const imagePath = path.join(__dirname, 'public', 'images');
@@ -60,13 +60,13 @@ app.get('/', (req, res) => {
 	const randomIndex = Math.floor(Math.random() * imagePaths.length);
 	const randomImagePath = imagePaths[randomIndex];
 
-	const filename = path.basename(randomImagePath);
+	const imageName = path.basename(randomImagePath);
 	const directoryPath = path.dirname(randomImagePath);
 
 	// Create an object to store the data
 	const data = {
 		imagePath: randomImagePath,
-		filename: filename,
+		imageName: imageName,
 		directoryPath: directoryPath,
 		index: randomIndex
 	};
