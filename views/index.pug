@@ -9,12 +9,25 @@ html
 		h1#imageTitle=imageName
 		h2#subTitle=directoryPath
 		div
-			input#searchText(type='text' placeholder='Search...')
+			input#searchText(type='text' placeholder='Search... (/... for regex)')
 			button#searchButton Search
 		div
 			input#newFileName(type='text' name='newFileName' placeholder='New name')
 			button#renameButton Rename
 			span#renameStatus
-		img#randomImage(src=imagePath)
-		div
+		if (imagePath.endsWith('.mp4') || imagePath.endsWith('.webm') || imagePath.endsWith('.mkv'))
+			video#randomImage(src=imagePath controls autoplay loop)
+		else
+			img#randomImage(src=imagePath)
+		div.navigation
+			button#similarButton Similar
 			button#refreshDB Refresh DB
+		div#navigationPlaceholder
+		div#navigationdiv
+			div.navigation
+				button#previousbtn
+					|Previous
+				button#randombtn
+					|Random
+				button#nextbtn
+					|Next

@@ -1,0 +1,32 @@
+doctype html
+html
+	head
+		title Search Results
+		link(rel="stylesheet" href="/css/styles.css")
+		script(src='/js/searchResults.js')
+	body
+		h1 Search Results for "#{searchText}"
+		h2 Showing #{matchingImagePaths.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
+		if matchingImagePaths.length === 0
+			p No matching images found.
+		else
+			each imagePath in matchingImagePaths
+				- const lastSlashIndex = imagePath.lastIndexOf('\\')
+				- const folderName = imagePath.substring(0, lastSlashIndex)
+				- const imageName = imagePath.substring(lastSlashIndex + 1)
+				p
+					| #{imageName} 
+					span(style="font-size: 10px") #{folderName}
+					br
+					if (imagePath.endsWith('.mp4') || imagePath.endsWith('.webm') || imagePath.endsWith('.mkv'))
+						video.searchvid(src=imagePath controls loop)
+					else
+						img.searchimg(src=imagePath)
+			if totalPages > 1
+				.pagination
+					if page > 1
+						a(href=`/search?searchText=${searchText}&page=1`) <<
+						a(href=`/search?searchText=${searchText}&page=${page - 1}`) <
+					if page < totalPages
+						a(href=`/search?searchText=${searchText}&page=${page - (-1)}`) >
+						a(href=`/search?searchText=${searchText}&page=${totalPages}`) >>

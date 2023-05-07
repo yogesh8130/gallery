@@ -31,7 +31,14 @@ let readImageFiles = (directory) => {
 		} else {
 			// Add the file path to the array only if it is an image file
 			const ext = path.extname(fullPath).toLowerCase();
-			if (ext === '.jpg' || ext === '.jpeg' || ext === '.png' || ext === '.gif') {
+			if (ext === '.jpg'
+				|| ext === '.jpeg'
+				|| ext === '.png'
+				|| ext === '.gif'
+				|| ext === '.mp4'
+				|| ext === '.webm'
+				|| ext === '.mkv'
+			) {
 				// imagePaths.push(fullPath.replace(/^public/, ''));
 				imagePaths.push(fullPath.replace(/^public/, ''));
 			}
@@ -198,15 +205,100 @@ app.get('/rename', (req, res) => {
 // });
 
 app.get('/search', (req, res) => {
+
 	const searchText = req.query.searchText;
-	const matchingImagePaths = imagePaths.filter((imagePath) =>
-		imagePath.toLowerCase().includes(searchText.toLowerCase())
-	);
+	console.log("searchText: " + searchText);
+
+	let matchingImagePaths = [];
+
+	if (searchText.includes('&&')
+		|| searchText.includes('||')
+		|| searchText.includes('!!')) {
+
+		let splitIndexes = [];
+
+		let splitIndex = searchText.indexOf('&&');
+		while (splitIndex !== -1) {
+			splitIndexes.push(splitIndex);
+			splitIndex = searchText.indexOf('&&', splitIndex + 1);
+		}
+		splitIndex = searchText.indexOf('||');
+		while (splitIndex !== -1) {
+			splitIndexes.push(splitIndex);
+			splitIndex = searchText.indexOf('||', splitIndex + 1);
+		}
+		splitIndex = searchText.indexOf('!!');
+		while (splitIndex !== -1) {
+			splitIndexes.push(splitIndex);
+			splitIndex = searchText.indexOf('!!', splitIndex + 1);
+		}
+
+		splitIndexes = splitIndexes.sort((a, b) => a - b); // sort numerically
+		// console.log("splitIndexes: " + splitIndexes);
+
+		let searchTokens = [];
+		let lastIndex = 0;
+		for (let i = 0; i < splitIndexes.length; i++) {
+			searchTokens.push(searchText.substr(lastIndex, splitIndexes[i] - lastIndex));
+			lastIndex = splitIndexes[i];
+		}
+		searchTokens.push(searchText.substr(lastIndex));
+		// console.log("searchTokens: " + searchTokens); // apple pie ,|| banana ,&& orange ,!! peach ,&& cherry
+
+		let andTokens = [];
+		let orTokens = [];
+		let notTokens = [];
+
+		searchTokens.forEach(searchToken => {
+			if (searchToken.startsWith('&&')) {
+				andTokens.push(searchToken.replace('&&', '').trim());
+			} else if (searchToken.startsWith('||')) {
+				orTokens.push(searchToken.replace('||', '').trim());
+			} else if (searchToken.startsWith('!!')) {
+				notTokens.push(searchToken.replace('!!', '').trim());
+			} else {
+				andTokens.push(searchToken.trim());
+			}
+		});
+
+		// console.log("andTokens: " + andTokens);
+		// console.log("orTokens: " + orTokens);
+		// console.log("notTokens: " + notTokens);
+
+		// console.log("Processing AND tokens");
+		imagePaths.forEach(imagePath => {
+			let containsAll = andTokens.every(andToken => imagePath.toLowerCase().includes(andToken.toLowerCase()));
+			if (containsAll) {
+				matchingImagePaths.push(imagePath);
+			}
+		});
+
+		// console.log("Processing NOT tokens");
+		for (let i = matchingImagePaths.length - 1; i >= 0; i--) {
+			let matchingPath = matchingImagePaths[i];
+			let containsAny = notTokens.some(notToken => matchingPath.toLowerCase().includes(notToken.toLowerCase()));
+			if (containsAny) {
+				matchingImagePaths.splice(i, 1);
+			}
+		}
+
+		// TODO : handle || OR tokens
+
+
+	} else if (searchText.startsWith('/')) {
+		let pattern = searchText.slice(1); // remove the leading forward slash
+		console.log("pattern: " + pattern);
+		let regex = new RegExp(pattern, 'i'); // create a case-insensitive regular expression
+		matchingImagePaths = imagePaths.filter((imagePath) => regex.test(imagePath));
+	} else {
+		matchingImagePaths = imagePaths.filter((imagePath) =>
+			imagePath.toLowerCase().includes(searchText.toLowerCase().trim()));
+	}
 
 	const totalResultCount = matchingImagePaths.length;
 
 	const page = req.query.page || 1;
-	const perPage = 100;
+	const perPage = 500;
 	const startIndex = (page - 1) * perPage;
 	const endIndex = startIndex + perPage;
 

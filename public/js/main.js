@@ -9,7 +9,11 @@ window.addEventListener('load', () => {
 	const newFileName = document.querySelector('#newFileName');
 	const renameButton = document.querySelector('#renameButton');
 	const renameStatus = document.querySelector('#renameStatus');
-	const refreshButton = document.getElementById('refreshDB');
+	const refreshButton = document.querySelector('#refreshDB');
+	// navigation
+	const previousbtn = document.querySelector('#previousbtn');
+	const randombtn = document.querySelector('#randombtn');
+	const nextbtn = document.querySelector('#nextbtn');
 
 	// when server is sending only one string ie image path in response
 	// randomImage.addEventListener('click', () => {
@@ -23,7 +27,9 @@ window.addEventListener('load', () => {
 	// });
 
 	// server is sending an object json with various properties
-	randomImage.addEventListener('click', () => {
+	randomImage.addEventListener('click', showrandom);
+	randombtn.addEventListener('click', showrandom);
+	function showrandom() {
 		fetch('/random-image')
 			.then(response => response.json()) // Expect JSON response
 			.then(data => {
@@ -32,7 +38,7 @@ window.addEventListener('load', () => {
 				randomImage.src = data.randomImagePath; // Access randomImagePath from the JSON object
 				console.log("randomImage (current):" + randomImage.src);
 			});
-	});
+	}
 
 
 	// Create a new Hammer.js instance
@@ -61,6 +67,31 @@ window.addEventListener('load', () => {
 				});
 		}
 	});
+
+	previousbtn.addEventListener('click', showprevious);
+	nextbtn.addEventListener('click', shownext);
+
+	function showprevious() {
+		const currentImagePath = randomImage.src.replace(origin, ''); // this removes "http://localhost:3000" form src
+		fetch(`/next?currentImagePath=${currentImagePath}`)
+			.then(response => response.json())
+			.then(data => {
+				imageTitle.textContent = data.filename; // Access filename from the JSON object
+				subTitle.textContent = data.directoryPath; // Access directoryName from the JSON object
+				randomImage.src = data.nextImagePath;
+			});
+	}
+
+	function shownext() {
+		const currentImagePath = randomImage.src.replace(origin, ''); // this removes "http://localhost:3000" form src
+		fetch(`/previous?currentImagePath=${currentImagePath}`)
+			.then(response => response.json())
+			.then(data => {
+				imageTitle.textContent = data.filename; // Access filename from the JSON object
+				subTitle.textContent = data.directoryPath; // Access directoryName from the JSON object
+				randomImage.src = data.previousImagePath;
+			});
+	}
 
 	// Disable vertical swipes
 	// mc.get('swipe').set({ direction: Hammer.DIRECTION_HORIZONTAL });
@@ -131,9 +162,26 @@ window.addEventListener('load', () => {
 			});
 	});
 
+	// SEARCH
 	searchButton.addEventListener('click', () => {
 		const searchText = document.querySelector('#searchText').value;
 		if (searchText.trim() !== '') {
+			// window.location.href = `/search?searchText=${searchText}`; // opens in same window
+
+			const searchUrl = `/search?searchText=${encodeURIComponent(searchText)}`;
+			window.open(searchUrl, '_blank');
+		}
+	});
+
+	const similarButton = document.getElementById('similarButton');
+	similarButton.addEventListener('click', () => {
+		var searchText = imageTitle.textContent; // using current image name to search similar images
+		searchText = searchText.replace(/\.[^/.]+$/, ""); // remove file extension (e.g. ".jpg")
+		searchText = searchText.replace(/\d+$/, ""); // remove any trailing numbers
+		searchText = searchText.replace(/\(\d*\)|\d+$/g, "");
+		searchText = searchText.trim();
+
+		if (searchText !== '') {
 			// window.location.href = `/search?searchText=${searchText}`; // opens in same window
 
 			const searchUrl = `/search?searchText=${searchText}`;
