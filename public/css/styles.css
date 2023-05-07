@@ -1,0 +1,86 @@
+/* test */
+
+body {
+	max-width: 100vw;
+	overflow-wrap: break-word;
+	font-size: 20px;
+	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+h1 {
+	font-size: 50px;
+	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+img {
+	margin-bottom: 20px;
+	width: 100vw;
+	/* height: 100vh; */
+	/* max-width: 500px; */
+	/* max-height: 500px; */
+}
+
+#image-path {
+	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+#renameStatus {
+	font-size: 40px;
+}
+
+input {
+	padding: 10px;
+	border: 10px solid #d1d1d1;
+	border-width: 3px;
+	border-radius: 20px;
+	width: 600px;
+	height: 50px;
+	font-size: 36px;
+	margin: 10px 5px;
+}
+
+button {
+	padding: 10px;
+	border: 10px solid #d1d1d1;
+	border-width: 3px;
+	border-radius: 20px;
+	width: 250px;
+	height: 75px;
+	font-size: 36px;
+	margin: 10px 5px;
+}
+
+button:active {
+	background-color: black;
+}
+
+/* search results page */
+
+.pagination {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	text-align: center;
+	padding: 20px;
+	background-color: #f1f1f1;
+  }
+  .pagination a {
+	display: inline-block;
+	margin: 0 5px;
+	padding: 5px 10px;
+	background-color: #ddd;
+	color: black;
+	border-radius: 5px;
+	text-decoration: none;
+	font-size: 40px;
+  }
+  .pagination a.active {
+	background-color: #4CAF50;
+	color: white;
+  }
+  .pagination a.disabled {
+	background-color: #aaa;
+	color: white;
+	cursor: default;
+  }
