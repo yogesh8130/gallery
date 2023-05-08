@@ -3,7 +3,7 @@ html
 	head
 		link(rel='stylesheet' href='/css/landscape-styles.css')
 		title Gallery
-		script(src='https://hammerjs.github.io/dist/hammer.min.js')
+		script(src='/js/hammer.js')
 		script(src='/js/main.js')
 	body
 		div#mainContent
@@ -18,22 +18,19 @@ html
 				br
 				a#subTitle(href='/search?searchText='+directoryPath, target='_blank')
 					|#{directoryPath}
-			div#forms
-				div
-					input#searchText(type='text' placeholder='Search... (/... for regex)')
-					button#searchButton Search
-				div
-					input#newFileName(type='text' name='newFileName' placeholder='New name')
-					button#renameButton Rename
-					span#renameStatus
 			div#navigationdiv
 				div.navigation
-					button#similarButton Similar
-					button#refreshDB Refresh DB
+					input#searchText(type='text' placeholder='Search... (/... for regex)')
+					button#searchButton 🔎
+					button#similarButton ≅
+					button#refreshDB ↻
 				div.navigation
+					input#newFileName(type='text' name='newFileName' placeholder='New name')
+					button#renameButton ✒
+					span#renameStatus
 					button#previousbtn
-						|Previous
+						|<
 					button#randombtn
-						|Random
+						|🔀
 					button#nextbtn
-						|Next
+						|>

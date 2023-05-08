@@ -242,12 +242,14 @@ app.get('/rename', (req, res) => {
 // 	res.render('searchResults', { matchingImagePaths });
 // });
 
+// want the searched images to be available everywhere
+let matchingImagePaths = [];
+
+
 app.get('/search', (req, res) => {
 
 	const searchText = req.query.searchText;
 	console.log("searchText: " + searchText);
-
-	let matchingImagePaths = [];
 
 	if (searchText.includes('&&')
 		|| searchText.includes('||')
@@ -333,6 +335,12 @@ app.get('/search', (req, res) => {
 			imagePath.toLowerCase().includes(searchText.toLowerCase().trim()));
 	}
 
+	// to find the index of images that were added to the search results
+	let matchingImageIndexes = matchingImagePaths.map((matchingPath) =>
+		imagePaths.indexOf(matchingPath)
+	);
+
+
 	const totalResultCount = matchingImagePaths.length;
 
 	const page = req.query.page || 1;
@@ -341,12 +349,15 @@ app.get('/search', (req, res) => {
 	const endIndex = startIndex + perPage;
 
 	const pageImagePaths = matchingImagePaths.slice(startIndex, endIndex);
+	const pageImageIndexes = matchingImageIndexes.slice(startIndex, endIndex);
+
 	const totalPages = Math.ceil(matchingImagePaths.length / perPage);
 
 	res.render('searchResults', {
 		searchText,
 		totalResultCount,
 		matchingImagePaths: pageImagePaths,
+		matchingImageIndexes: pageImageIndexes,
 		page,
 		totalPages,
 	});

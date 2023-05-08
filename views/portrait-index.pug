@@ -3,18 +3,18 @@ html
 	head
 		link(rel='stylesheet' href='/css/portrait-styles.css')
 		title Gallery
-		script(src='https://hammerjs.github.io/dist/hammer.min.js')
+		script(src='/js/hammer.js')
 		script(src='/js/main.js')
 	body
+		div.searchBar
+			input#searchText(type='text' placeholder='Search... (/... for regex)')
+			button#searchButton Search
+		div.renameBar
+			input#newFileName(type='text' name='newFileName' placeholder='New name')
+			button#renameButton Rename
 		div#info
 			a#imageTitle(href='/search?searchText='+imageName, target='_blank')
 				|#{imageName}
-		div
-			input#searchText(type='text' placeholder='Search... (/... for regex)')
-			button#searchButton Search
-		div
-			input#newFileName(type='text' name='newFileName' placeholder='New name')
-			button#renameButton Rename
 			span#renameStatus
 		div#mainContent
 			if (imagePath.endsWith('.mp4') || imagePath.endsWith('.webm') || imagePath.endsWith('.mkv'))
@@ -30,9 +30,9 @@ html
 		div#navigationPlaceholder
 		div#navigationdiv
 			div.navigation
-				button#previousbtn
-					|Previous
-				button#randombtn
-					|Random
-				button#nextbtn
-					|Next
+				button.navigation#previousbtn
+					|<
+				button.navigation#randombtn
+					|∞
+				button.navigation#nextbtn
+					|>

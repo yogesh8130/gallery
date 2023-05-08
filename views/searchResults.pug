@@ -24,10 +24,10 @@ html
 						|#{folderName}
 					br
 				div#mainContent
-					if (imagePath.endsWith('.mp4') || imagePath.endsWith('.webm') || imagePath.endsWith('.mkv'))
-						video.searchvid(src=imagePath controls loop)
-					else
-						a(href='/?index=' + index)
+					a#contentLink(href='/?index=' + matchingImageIndexes[index], target='_blank')
+						if (imagePath.endsWith('.mp4') || imagePath.endsWith('.webm') || imagePath.endsWith('.mkv'))
+							video.searchvid(src=imagePath controls loop)
+						else
 							img.searchimg(src=imagePath)
 			if totalPages > 1
 				div.pagination
@@ -44,3 +44,4 @@ html
 						if page < totalPages
 							a(href=`/search?searchText=${searchText}&page=${page - (-1)}`) >
 							a(href=`/search?searchText=${searchText}&page=${totalPages}`) >>
+		div.dummyFooter

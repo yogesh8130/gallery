@@ -8,7 +8,7 @@ h1 {
 	font-size: 50px;
 }
 
-h2{
+h2 {
 	color: lightgray;
 }
 
@@ -24,17 +24,16 @@ body {
 	max-width: 100%;
 }
 
-#imageTitle{
+#imageTitle {
 	color: white;
 }
 
-#subTitle{
+#subTitle {
 	color: lightgrey;
 }
 
 #mainContent {
 	background-color: black;
-	margin: 0 20px;
 }
 
 a {
@@ -75,17 +74,15 @@ div.pageButtons::-webkit-scrollbar {
 	/* CSS rules for landscape orientation go here */
 
 	/* search results page */
+	body {
+		margin: 0 20px;
+	}
 
-	img {
+	img,
+	video {
 		height: calc(100vh - 110px);
 		max-width: 100%;
 		margin: 0 auto 30px;
-		display: block;
-	}
-
-	video {
-		height: calc(100vh - 110px);
-		margin: 0 auto;
 		display: block;
 	}
 
@@ -204,5 +201,9 @@ div.pageButtons::-webkit-scrollbar {
 		font-size: 8px;
 		margin: 0;
 		padding: 0;
+	}
+
+	.dummyFooter {
+		height: 70vw;
 	}
 }

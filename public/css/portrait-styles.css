@@ -1,16 +1,31 @@
 /* Styles for portrait screens */
+* {
+	box-sizing: border-box;
+}
+
 body {
 	max-width: 100vw;
+	/* min-height: calc(100vh-5px); */
 	/* to account for the navigation bar */
 	overflow-wrap: break-word;
 	font-size: 20px;
-	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+	font-family: 'Tahoma', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+#info {
+	display: flex;
 }
 
 #imageTitle {
+	flex: 1;
 	font-size: 50px;
-	font-weight: bold;
-	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+	font-weight: bolder;
+	font-family: 'Tahoma', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+	color: white;
+}
+
+#renameStatus {
+	font-size: 40px;
 }
 
 a {
@@ -18,7 +33,8 @@ a {
 }
 
 #subTitle {
-	font-size: 40px;
+	font-size: 30px;
+	color: white;
 }
 
 img {
@@ -30,37 +46,25 @@ video {
 }
 
 #image-path {
-	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+	font-family: 'Tahoma', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
-#renameStatus {
-	font-size: 40px;
+
+.searchBar,
+.renameBar {
+	display: flex;
 }
 
 input {
+	flex: 1;
 	padding: 10px;
 	border: 10px solid #d1d1d1;
 	border-width: 3px;
-	border-radius: 20px;
-	width: 600px;
-	height: 50px;
+	/* border-radius: 20px; */
+	/* width: 600px; */
+	height: 85px;
 	font-size: 36px;
-	margin: 10px 5px;
-}
-
-button {
-	padding: 10px;
-	border: 10px solid #d1d1d1;
-	border-width: 3px;
-	border-radius: 20px;
-	width: 250px;
-	height: 75px;
-	font-size: 36px;
-	margin: 10px 5px;
-}
-
-button:active {
-	background-color: black;
+	margin: 0;
 }
 
 #navigationdiv {
@@ -69,15 +73,44 @@ button:active {
 	bottom: 10px;
 }
 
+button {
+	padding: 10px;
+	border: 10px solid #d1d1d1;
+	border-width: 3px;
+	/* border-radius: 20px; */
+	width: 250px;
+	height: 85px;
+	font-size: 36px;
+	margin: 0;
+}
+
+button.navigation {
+	border: 10px solid #d1d1d1;
+	border-width: 3px;
+	border-radius: 80px;
+	width: 150px;
+	height: 150px;
+	font-size: 36px;
+	margin: 10px 5px;
+	font-size: 100px;
+	font-weight: bold;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+
+button:active {
+	background-color: black;
+}
+
+
 #navigationPlaceholder {
-	height: 190px;
+	/* should be equal to the navigation buttons' height */
+	height: 90px;
 }
 
 .navigation {
 	display: flex;
-	justify-content: center;
-}
-
-#navigation button {
-	/* margin: 0 10px; */
+	justify-content: right
 }

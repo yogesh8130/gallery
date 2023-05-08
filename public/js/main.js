@@ -44,6 +44,9 @@ document.addEventListener("DOMContentLoaded", function () {
 				subTitle.textContent = data.directoryPath;
 				subTitle.href = `/search?searchText=${encodeURIComponent(subTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
 
+				let index = data.index;
+				history.pushState(null, '', `/?index=${encodeURIComponent(index)}`); // updating the url with index of the file, this doesnt load anything only changes the url
+
 				const filetype = data.filetype;
 				console.log(filetype);
 				if (filetype === 'video') {
@@ -59,7 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			  `;
 					randomImage = document.querySelector('#randomImage');
 				}
-				console.log('randomImage (current): ' + randomImage.src);
+				// console.log('randomImage (current): ' + randomImage.src);
 			});
 	}
 
@@ -84,6 +87,9 @@ document.addEventListener("DOMContentLoaded", function () {
 					subTitle.textContent = data.directoryPath;
 					subTitle.href = `/search?searchText=${encodeURIComponent(subTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
 
+					let index = data.index;
+					history.pushState(null, '', `/?index=${encodeURIComponent(index)}`);
+
 					const filetype = data.filetype;
 					console.log(filetype);
 					if (filetype === 'video') {
@@ -99,7 +105,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			  `;
 						randomImage = document.querySelector('#randomImage');
 					}
-					console.log('randomImage (current): ' + randomImage.src);
+					// console.log('randomImage (current): ' + randomImage.src);
 				});
 		} else if (event.type === 'swiperight') {
 			fetch(`/previous?currentImagePath=${currentImagePath}`)
@@ -110,6 +116,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 					subTitle.textContent = data.directoryPath;
 					subTitle.href = `/search?searchText=${encodeURIComponent(subTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
+
+					let index = data.index;
+					history.pushState(null, '', `/?index=${encodeURIComponent(index)}`);
 
 					const filetype = data.filetype;
 					console.log(filetype);
@@ -126,7 +135,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			  `;
 						randomImage = document.querySelector('#randomImage');
 					}
-					console.log('randomImage (current): ' + randomImage.src);
+					// console.log('randomImage (current): ' + randomImage.src);
 				});
 		}
 	});
@@ -145,6 +154,9 @@ document.addEventListener("DOMContentLoaded", function () {
 				subTitle.textContent = data.directoryPath;
 				subTitle.href = `/search?searchText=${encodeURIComponent(subTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
 
+				let index = data.index;
+				history.pushState(null, '', `/?index=${encodeURIComponent(index)}`);
+
 				const filetype = data.filetype;
 				console.log(filetype);
 				if (filetype === 'video') {
@@ -160,7 +172,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			  `;
 					randomImage = document.querySelector('#randomImage');
 				}
-				console.log('randomImage (current): ' + randomImage.src);
+				// console.log('randomImage (current): ' + randomImage.src);
 			});
 	}
 
@@ -174,6 +186,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 				subTitle.textContent = data.directoryPath;
 				subTitle.href = `/search?searchText=${encodeURIComponent(subTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
+
+				let index = data.index;
+				history.pushState(null, '', `/?index=${encodeURIComponent(index)}`);
 
 				const filetype = data.filetype;
 				console.log(filetype);
@@ -190,7 +205,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			  `;
 					randomImage = document.querySelector('#randomImage');
 				}
-				console.log('randomImage (current): ' + randomImage.src);
+				// console.log('randomImage (current): ' + randomImage.src);
 			});
 	}
 
@@ -277,15 +292,21 @@ document.addEventListener("DOMContentLoaded", function () {
 	});
 
 	// SEARCH
-	searchButton.addEventListener('click', () => {
+	searchButton.addEventListener('click', search);
+	searchText.addEventListener('keyup', function (event) {
+		if (event.key === 'Enter') {
+			search();
+		}
+	});
+
+	function search() {
 		const searchText = document.querySelector('#searchText').value;
 		if (searchText.trim() !== '') {
 			// window.location.href = `/search?searchText=${searchText}`; // opens in same window
-
 			const searchUrl = `/search?searchText=${encodeURIComponent(searchText)}`;
 			window.open(searchUrl, '_blank');
 		}
-	});
+	}
 
 	const similarButton = document.getElementById('similarButton');
 	similarButton.addEventListener('click', () => {
