@@ -1,4 +1,4 @@
-window.addEventListener('load', () => {
+document.addEventListener("DOMContentLoaded", function () {
 
 	// Add a click event listener to the random image
 	const mainContent = document.querySelector('#mainContent');
@@ -31,7 +31,7 @@ window.addEventListener('load', () => {
 	// });
 
 	// server is sending an object json with various properties
-	randomImage.addEventListener('click', showrandom);
+	mainContent.addEventListener('click', showrandom);
 	randombtn.addEventListener('click', showrandom);
 
 	function showrandom() {
@@ -193,6 +193,19 @@ window.addEventListener('load', () => {
 				console.log('randomImage (current): ' + randomImage.src);
 			});
 	}
+
+	document.addEventListener('keydown', function (event) {
+		if (event.ctrlKey) {
+			if (event.key === 'ArrowLeft') {
+				showprevious();
+			} else if (event.key === 'ArrowRight') {
+				shownext();
+			} else if (event.key === 'ArrowDown') {
+				showrandom();
+			}
+		}
+	});
+
 
 	// Disable vertical swipes
 	// mc.get('swipe').set({ direction: Hammer.DIRECTION_HORIZONTAL });

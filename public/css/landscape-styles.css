@@ -4,16 +4,26 @@ body {
 	/* to account for the navigation bar */
 	overflow-wrap: break-word;
 	font-size: 20px;
-	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+	font-family: 'Tahoma', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+	background-color: rgb(39, 39, 39);
 }
 
 a {
 	text-decoration: none;
 }
 
+#mainContent{
+	background-color: black;
+}
+
 #imageTitle {
 	font-size: 50px;
-	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+	font-family: 'Tahoma', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+	font-weight: bold;
+	color: white;
+}
+#subTitle {
+	color: rgb(194, 194, 194);
 }
 
 img {
@@ -29,7 +39,7 @@ video {
 }
 
 #image-path {
-	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+	font-family: 'Tahoma', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
 #renameStatus {
@@ -65,23 +75,28 @@ button:active {
 #container {
 	display: flex;
 	flex-direction: row;
+	max-width: 100%;
 }
 
 #info,
 #forms,
-#buttons {
+#navigationdiv {
 	height: 100px;
 	/* adjust height as needed */
 }
 
 #info {
 	flex: 2;
+	overflow-x: hidden;
+	white-space: nowrap;
 }
 
 #forms {
-	flex: 1;
+	margin: auto;
+	white-space: nowrap;
 }
 
-#buttons {
-	flex: 1;
+#navigationdiv {
+	margin: auto;
+	white-space: nowrap;
 }

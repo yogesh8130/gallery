@@ -11,25 +11,36 @@ html
 		if matchingImagePaths.length === 0
 			p No matching images found.
 		else
-			each imagePath in matchingImagePaths
+			each imagePath, index in matchingImagePaths
 				- const lastSlashIndex = imagePath.lastIndexOf('\\')
 				- const folderName = imagePath.substring(0, lastSlashIndex)
 				- const imageName = imagePath.substring(lastSlashIndex + 1)
 				div.rowContainer
-					a#imageTitle.imageName(href='/search?searchText='+imageName, target='_blank') 
-						|#{imageName} 
-					a#subTitle.tinyText(href='/search?searchText='+folderName, target='_blank') 
+					- let imagelink = encodeURIComponent(imageName.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())
+					a#imageTitle.imageName(href='/search?searchText='+imagelink, target='_blank')
+						| #{imageName} 
+					- let folderlink = encodeURIComponent(folderName)
+					a#subTitle.tinyText(href='/search?searchText='+folderlink, target='_blank')
 						|#{folderName}
 					br
-				if (imagePath.endsWith('.mp4') || imagePath.endsWith('.webm') || imagePath.endsWith('.mkv'))
-					video.searchvid(src=imagePath controls loop)
-				else
-					img.searchimg(src=imagePath)
+				div#mainContent
+					if (imagePath.endsWith('.mp4') || imagePath.endsWith('.webm') || imagePath.endsWith('.mkv'))
+						video.searchvid(src=imagePath controls loop)
+					else
+						a(href='/?index=' + index)
+							img.searchimg(src=imagePath)
 			if totalPages > 1
-				.pagination
-					if page > 1
-						a(href=`/search?searchText=${searchText}&page=1`) <<
-						a(href=`/search?searchText=${searchText}&page=${page - 1}`) <
-					if page < totalPages
-						a(href=`/search?searchText=${searchText}&page=${page - (-1)}`) >
-						a(href=`/search?searchText=${searchText}&page=${totalPages}`) >>
+				div.pagination
+					div.pageButtons(onwheel="this.scrollLeft += event.deltaY" onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")
+						each page_num in Array(totalPages).fill().map((_, i) => i + 1)
+							if page_num == page
+								a.pageButton.active(href=`/search?searchText=${searchText}&page=${page_num}`)= page_num
+							else
+								a.pageButton(href=`/search?searchText=${searchText}&page=${page_num}`)= page_num
+					div.navigationButtons
+						if page > 1
+							a(href=`/search?searchText=${searchText}&page=1`) <<
+							a(href=`/search?searchText=${searchText}&page=${page - 1}`) <
+						if page < totalPages
+							a(href=`/search?searchText=${searchText}&page=${page - (-1)}`) >
+							a(href=`/search?searchText=${searchText}&page=${totalPages}`) >>

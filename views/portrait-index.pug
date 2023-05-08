@@ -24,9 +24,9 @@ html
 		div#info
 			a#subTitle(href='/search?searchText='+directoryPath, target='_blank')
 				|#{directoryPath}
-		//- div.navigation
-		//- 	button#similarButton Similar
-		//- 	button#refreshDB Refresh DB
+		div.navigation
+			button#similarButton(style="visibility:hidden") Similar
+			button#refreshDB(style="visibility:hidden") Refresh DB
 		div#navigationPlaceholder
 		div#navigationdiv
 			div.navigation

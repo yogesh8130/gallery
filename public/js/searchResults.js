@@ -1,10 +1,10 @@
-window.addEventListener('load', () => {
+document.addEventListener("DOMContentLoaded", function () {
 
-	const imageTitle = document.querySelector('#imageTitle');
-	const subTitle = document.querySelector('#subTitle');
+	// const imageTitle = document.querySelector('#imageTitle');
+	// const subTitle = document.querySelector('#subTitle');
 
-	imageTitle.href = `/search?searchText=${encodeURIComponent(imageTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
-	subTitle.href = `/search?searchText=${encodeURIComponent(subTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
+	// imageTitle.href = `/search?searchText=${encodeURIComponent(imageTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
+	// subTitle.href = `/search?searchText=${encodeURIComponent(subTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
 
 	const videos = document.querySelectorAll('.searchvid');
 	let centerVideo = null;
@@ -40,10 +40,6 @@ window.addEventListener('load', () => {
 		video.addEventListener('dblclick', () => {
 			if (video.requestFullscreen) {
 				video.requestFullscreen();
-			} else if (video.webkitRequestFullscreen) { /* Safari */
-				video.webkitRequestFullscreen();
-			} else if (video.msRequestFullscreen) { /* IE11 */
-				video.msRequestFullscreen();
 			}
 		});
 	});
@@ -67,4 +63,18 @@ window.addEventListener('load', () => {
 			centerVideo.play();
 		}
 	});
+
 });
+
+
+function stopMainScroll() {
+	window.addEventListener('wheel', preventDefault, { passive: false });
+}
+
+function allowMainScroll() {
+	window.removeEventListener('wheel', preventDefault);
+}
+
+function preventDefault(e) {
+	e.preventDefault();
+}

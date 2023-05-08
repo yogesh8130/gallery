@@ -60,10 +60,19 @@ app.get('/refreshDB', (req, res) => {
 
 // Define a route to handle requests for the main page
 app.get('/', (req, res) => {
-	// Select a random image from the array of image paths
-	const randomIndex = Math.floor(Math.random() * imagePaths.length);
-	const randomImagePath = imagePaths[randomIndex];
+	let requestedIndex = req.query.index;
 
+	let randomIndex;
+
+	if (requestedIndex) {
+		randomIndex = requestedIndex;
+	} else {
+		randomIndex = Math.floor(Math.random() * imagePaths.length);
+	}
+
+
+	// Select a random image from the array of image paths
+	const randomImagePath = imagePaths[randomIndex];
 	const imageName = path.basename(randomImagePath);
 	const directoryPath = path.dirname(randomImagePath);
 
