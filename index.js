@@ -15,7 +15,6 @@ app.set('views', './views');
 app.set('view engine', 'pug');
 
 // Define the path to the root image folder
-// const imagePath = path.join(__dirname, 'public', 'images');
 const imagePath = "./public/images";
 
 // Create an array to store all image paths recursively
@@ -25,35 +24,50 @@ const videoExtensions = ['.mp4', '.webm', '.mkv'];
 const imageExtensions = ['.jpeg', '.jpg', '.png', '.webp', '.gif']
 const allowedExtensions = [...videoExtensions, ...imageExtensions];
 
+console.log('Loading files...');
 // Function to read image files recursively and populate the imagePaths array
-let readImageFiles = (directory) => {
-	fs.readdirSync(directory).forEach((file) => {
-		const fullPath = path.join(directory, file);
+const readImageFiles = async (directory, depth = 0, maxDepth = 20) => {
+	const files = await fs.promises.readdir(directory);
+	const subDirectories = [];
 
-		if (fs.statSync(fullPath).isDirectory()) {
-			readImageFiles(fullPath);
-		} else {
-			// Add the file path to the array only if it is an image file
-			const ext = path.extname(fullPath).toLowerCase();
-			if (allowedExtensions.includes(ext)) {
-				// imagePaths.push(fullPath.replace(/^public/, ''));
-				imagePaths.push(fullPath.replace(/^public/, ''));
+	await Promise.all(
+		files.map(async (file) => {
+			const fullPath = path.join(directory, file);
+			const stat = await fs.promises.stat(fullPath);
+
+			if (stat.isDirectory()) {
+				if (depth < maxDepth) {
+					subDirectories.push(fullPath);
+				}
+			} else {
+				const ext = path.extname(fullPath).toLowerCase();
+				if (allowedExtensions.includes(ext)) {
+					imagePaths.push(fullPath.replace(/^public/, ''));
+				}
 			}
-		}
-	});
+		})
+	);
+
+	await Promise.all(
+		subDirectories.map(async (subDirectory) => {
+			await readImageFiles(subDirectory, depth + 1, maxDepth);
+		})
+	);
 };
 
 // Capture the start time
 const startTime = Date.now();
 
-// Call the readImageFiles function with the root image folder path
-readImageFiles(imagePath);
+// Wrap the call to readImageFiles in an async function
+(async () => {
+	await readImageFiles(imagePath);
 
-// Capture the end time
-const endTime = Date.now();
+	// Capture the end time
+	const endTime = Date.now();
 
-// Log the time it took to load the files in seconds
-console.log(`Loaded ${imagePaths.length} files in ${(endTime - startTime) / 1000} seconds.`)
+	// Log the time it took to load the files in seconds
+	console.log(`Loaded ${imagePaths.length} files in ${(endTime - startTime) / 1000} seconds.`);
+})();
 
 app.get('/refreshDB', (req, res) => {
 	try {
