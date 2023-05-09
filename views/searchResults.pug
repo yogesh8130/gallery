@@ -5,30 +5,32 @@ html
 		link(rel="stylesheet" href="/css/search-results.css")
 		script(src='/js/searchResults.js')
 	body
-		div.rowContainer
-			h1 Search Results for "#{searchText}"
-			h2 Showing #{matchingImagePaths.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
-		if matchingImagePaths.length === 0
-			p No matching images found.
-		else
-			each imagePath, index in matchingImagePaths
-				- const lastSlashIndex = imagePath.lastIndexOf('\\')
-				- const folderName = imagePath.substring(0, lastSlashIndex)
-				- const imageName = imagePath.substring(lastSlashIndex + 1)
-				div.rowContainer
-					- let imagelink = encodeURIComponent(imageName.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())
-					a#imageTitle.imageName(href='/search?searchText='+imagelink, target='_blank')
-						| #{imageName} 
-					- let folderlink = encodeURIComponent(folderName)
-					a#subTitle.tinyText(href='/search?searchText='+folderlink, target='_blank')
-						|#{folderName}
-					br
-				div#mainContent
-					a#contentLink(href='/?index=' + matchingImageIndexes[index], target='_blank')
-						if (imagePath.endsWith('.mp4') || imagePath.endsWith('.webm') || imagePath.endsWith('.mkv'))
-							video.searchvid(src=imagePath controls loop)
-						else
-							img.searchimg(src=imagePath)
+		div.mainDiv
+			div.headdingDiv
+				h1 Search Results for "#{searchText}"
+				h2 Showing #{matchingImagePaths.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
+			div.results(onwheel="this.scrollLeft += event.deltaY * 2" onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")
+				if matchingImagePaths.length === 0
+					p No matching images found.
+				else
+					each imagePath, index in matchingImagePaths
+						- const lastSlashIndex = imagePath.lastIndexOf('\\')
+						- const folderName = imagePath.substring(0, lastSlashIndex)
+						- const imageName = imagePath.substring(lastSlashIndex + 1)
+						div.infoDiv
+							- let similarImageLink = encodeURIComponent(imageName.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())
+							a#imageTitle.imageName(href='/search?searchText='+similarImageLink, target='_blank')
+								| #{imageName} 
+							- let folderlink = encodeURIComponent(folderName)
+							a#subTitle.tinyText(href='/search?searchText='+folderlink, target='_blank')
+								|#{folderName}
+						div#mainContent
+							- let imageBackLink = encodeURIComponent(imagePath)
+							a#contentLink(href='/?imageBackLink=' + imageBackLink, target='_blank')
+								if (imagePath.endsWith('.mp4') || imagePath.endsWith('.webm') || imagePath.endsWith('.mkv'))
+									video.searchvid(src=imagePath controls loop)
+								else
+									img.searchimg(src=imagePath)
 			if totalPages > 1
 				div.pagination
 					div.pageButtons(onwheel="this.scrollLeft += event.deltaY" onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")
@@ -39,9 +41,9 @@ html
 								a.pageButton(href=`/search?searchText=${searchText}&page=${page_num}`)= page_num
 					div.navigationButtons
 						if page > 1
-							a(href=`/search?searchText=${searchText}&page=1`) <<
+							a(href=`/search?searchText=${searchText}&page=1`) [<
 							a(href=`/search?searchText=${searchText}&page=${page - 1}`) <
 						if page < totalPages
 							a(href=`/search?searchText=${searchText}&page=${page - (-1)}`) >
-							a(href=`/search?searchText=${searchText}&page=${totalPages}`) >>
-		div.dummyFooter
+							a(href=`/search?searchText=${searchText}&page=${totalPages}`) >]
+			div.dummyFooter

@@ -1,5 +1,11 @@
 document.addEventListener("DOMContentLoaded", function () {
 
+	// if (!document.querySelector('div.pagination')) {
+	// 	document.querySelectorAll('img, video').forEach((el) => {
+	// 		el.style.maxHeight = '99vh';
+	// 	});
+	// }
+
 	// const imageTitle = document.querySelector('#imageTitle');
 	// const subTitle = document.querySelector('#subTitle');
 

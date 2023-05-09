@@ -43,8 +43,17 @@ let readImageFiles = (directory) => {
 	});
 };
 
+// Capture the start time
+const startTime = Date.now();
+
 // Call the readImageFiles function with the root image folder path
 readImageFiles(imagePath);
+
+// Capture the end time
+const endTime = Date.now();
+
+// Log the time it took to load the files in seconds
+console.log(`Loaded ${imagePaths.length} files in ${(endTime - startTime) / 1000} seconds.`)
 
 app.get('/refreshDB', (req, res) => {
 	try {
@@ -61,24 +70,30 @@ app.get('/refreshDB', (req, res) => {
 // Define a route to handle requests for the main page
 app.get('/', (req, res) => {
 	let requestedIndex = req.query.index;
+	let imageBackLink = req.query.imageBackLink;
 
 	let randomIndex;
+	let imagePath;
 
 	if (requestedIndex) {
+		console.log("requestedIndex: " + requestedIndex);
 		randomIndex = requestedIndex;
+		imagePath = imagePaths[randomIndex];
+	} else if (imageBackLink) {
+		console.log("imageBackLink: " + imageBackLink);
+		imagePath = imageBackLink;
 	} else {
+		// Select a random image from the array of image paths
 		randomIndex = Math.floor(Math.random() * imagePaths.length);
+		imagePath = imagePaths[randomIndex];
 	}
 
-
-	// Select a random image from the array of image paths
-	const randomImagePath = imagePaths[randomIndex];
-	const imageName = path.basename(randomImagePath);
-	const directoryPath = path.dirname(randomImagePath);
+	const imageName = path.basename(imagePath);
+	const directoryPath = path.dirname(imagePath);
 
 	// Create an object to store the data
 	const data = {
-		imagePath: randomImagePath,
+		imagePath: imagePath,
 		imageName: imageName,
 		directoryPath: directoryPath,
 		index: randomIndex
@@ -243,10 +258,10 @@ app.get('/rename', (req, res) => {
 // });
 
 // want the searched images to be available everywhere
-let matchingImagePaths = [];
 
 
 app.get('/search', (req, res) => {
+	let matchingImagePaths = [];
 
 	const searchText = req.query.searchText;
 	console.log("searchText: " + searchText);
@@ -254,6 +269,8 @@ app.get('/search', (req, res) => {
 	if (searchText.includes('&&')
 		|| searchText.includes('||')
 		|| searchText.includes('!!')) {
+
+		console.log('Wildcard search started');
 
 		let splitIndexes = [];
 
@@ -336,9 +353,10 @@ app.get('/search', (req, res) => {
 	}
 
 	// to find the index of images that were added to the search results
-	let matchingImageIndexes = matchingImagePaths.map((matchingPath) =>
-		imagePaths.indexOf(matchingPath)
-	);
+	// fucks up search performance
+	// let matchingImageIndexes = matchingImagePaths.map((matchingPath) =>
+	// 	imagePaths.indexOf(matchingPath)
+	// );
 
 
 	const totalResultCount = matchingImagePaths.length;
@@ -349,7 +367,7 @@ app.get('/search', (req, res) => {
 	const endIndex = startIndex + perPage;
 
 	const pageImagePaths = matchingImagePaths.slice(startIndex, endIndex);
-	const pageImageIndexes = matchingImageIndexes.slice(startIndex, endIndex);
+	// const pageImageIndexes = matchingImageIndexes.slice(startIndex, endIndex);
 
 	const totalPages = Math.ceil(matchingImagePaths.length / perPage);
 
@@ -357,7 +375,7 @@ app.get('/search', (req, res) => {
 		searchText,
 		totalResultCount,
 		matchingImagePaths: pageImagePaths,
-		matchingImageIndexes: pageImageIndexes,
+		// matchingImageIndexes: pageImageIndexes,
 		page,
 		totalPages,
 	});

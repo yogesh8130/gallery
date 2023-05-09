@@ -1,3 +1,7 @@
+* {
+	box-sizing: border-box;
+}
+
 h1,
 h2 {
 	font-family: 'Tahoma', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
@@ -20,8 +24,8 @@ body {
 	background-color: rgb(39, 39, 39);
 }
 
-.rowContainer {
-	max-width: 100%;
+.rowDiv {
+	/* max-width: 100%; */
 }
 
 #imageTitle {
@@ -34,6 +38,7 @@ body {
 
 #mainContent {
 	background-color: black;
+	object-fit: contain;
 }
 
 a {
@@ -75,24 +80,97 @@ div.pageButtons::-webkit-scrollbar {
 
 	/* search results page */
 	body {
-		margin: 0 20px;
+		margin: 0 0px;
+		background-color: black;
+	}
+
+	h1,
+	h2 {
+		margin: 5px;
+	}
+
+	.mainDiv {
+		/* display: flex; */
+		/* flex-direction: column; */
+		max-height: 99vh;
+	}
+
+	.infoDiv {
+		display: flex;
+		align-items: flex-start;
+	}
+
+	.imageName,
+	.tinyText {
+		margin: 0;
+		padding: 0;
+		writing-mode: vertical-lr;
+		transform: rotate(180deg);
+	}
+
+	.imageName {
+		font-weight: bold;
+		font-size: 35px;
+	}
+
+	.tinyText {
+		font-size: 25px;
+	}
+
+	.results {
+		display: flex;
+		flex: 1;
+		margin: auto 0;
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		justify-content: flex-start;
+		/* -webkit-overflow-scrolling: touch; */
+		/* scroll-behavior: smooth; */
+		/* transform: translateZ(0); */
+	}
+
+	*::-webkit-scrollbar {
+		width: 20px;
+	}
+
+	*::-webkit-scrollbar-track {
+		background: #202020;
+		border-radius: 10px;
+	}
+
+	*::-webkit-scrollbar-thumb {
+		background-color: rgb(80, 80, 80);
+		border-radius: 10px;
+		border: 2px solid #f1f1f1;
+	}
+
+	*::-webkit-scrollbar-thumb:hover {
+		background-color: #555;
+	}
+
+
+	.mainContent {
+		height: 200%;
 	}
 
 	img,
 	video {
-		height: calc(100vh - 110px);
-		max-width: 100%;
-		margin: 0 auto 30px;
-		display: block;
+		max-height: calc(99vh - 120px);
+		/* max-height: calc(99vh - 150px); */
+		/* margin: 10px 5px; */
+		/* width: auto; */
+		/* max-width: 100%; */
+		/* margin:auto; */
+		/* display: block; */
 	}
 
 	.pagination {
 		position: fixed;
-		bottom: 0;
+		bottom: 25px;
 		left: 0;
 		right: 0;
 		text-align: center;
-		padding: 20px;
+		padding: 5px;
 		/* background-color: #f1f1f1; */
 	}
 
@@ -104,8 +182,8 @@ div.pageButtons::-webkit-scrollbar {
 		color: black;
 		border-radius: 15px;
 		text-decoration: none;
-		font-size: 30px;
-		min-width: 70px;
+		font-size: 20px;
+		min-width: 50px;
 	}
 
 	.pagination a.active {
@@ -119,19 +197,6 @@ div.pageButtons::-webkit-scrollbar {
 		cursor: default;
 	}
 
-	.imageName {
-		font-size: 35px;
-		font-weight: bold;
-		margin: 0;
-		padding: 0;
-	}
-
-	.tinyText {
-		font-size: 25px;
-		margin: 0;
-		padding: 0;
-	}
-
 	.searchvid {
 		max-height: 80vh;
 	}
@@ -139,11 +204,17 @@ div.pageButtons::-webkit-scrollbar {
 	.pageButton {
 		border: solid;
 		border-color: black;
+		/* opacity: 30%; */
 	}
 
 	.navigationButtons {
 		background-color: rgb(29, 29, 29);
-		padding: 10px 6px
+		padding: 6px 3px;
+		font-weight: bold;
+	}
+
+	.dummyFooter {
+		display: none;
 	}
 }
 
@@ -151,6 +222,9 @@ div.pageButtons::-webkit-scrollbar {
 @media screen and (orientation: portrait) {
 
 	/* search results page */
+	body {
+		background-color: black;
+	}
 
 	img {
 		width: 100%;

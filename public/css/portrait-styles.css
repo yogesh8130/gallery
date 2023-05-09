@@ -4,6 +4,7 @@
 }
 
 body {
+	background-color: black;
 	max-width: 100vw;
 	/* min-height: calc(100vh-5px); */
 	/* to account for the navigation bar */
