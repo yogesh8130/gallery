@@ -76,9 +76,9 @@ document.addEventListener("DOMContentLoaded", function () {
 function stopMainScroll() {
 	// check if screen layout is landscape
 	if (window.matchMedia("(orientation: landscape)").matches) {
-	  window.addEventListener('wheel', preventDefault, { passive: false });
+		window.addEventListener('wheel', preventDefault, { passive: false });
 	}
-  }
+}
 
 function allowMainScroll() {
 	window.removeEventListener('wheel', preventDefault);
@@ -110,15 +110,16 @@ function showHideHeadingDiv() {
 
 	const searchImgElements = document.querySelectorAll('.searchimg');
 	const searchVidElements = document.querySelectorAll('.searchvid');
-	
-	
+
+
 	if (headingDiv.style.display === 'none') {
 		toggleButton.innerText = '🢅'
 		headingDiv.style.display = 'block';
-		pageButtons.style.display = 'block';
-		results.classList.add('scrollbarVisible');
-		results.classList.remove('scrollbarHidden');
-		
+
+		if (pageButtons) {
+			pageButtons.style.display = 'block';
+		}
+
 		searchImgElements.forEach(element => {
 			element.style.maxHeight = 'calc(99vh - 120px)';
 		});
@@ -126,13 +127,17 @@ function showHideHeadingDiv() {
 			element.style.maxHeight = 'calc(99vh - 120px)';
 		});
 		document.exitFullscreen();
+
+		results.classList.add('scrollbarVisible');
+		results.classList.remove('scrollbarHidden');
 	} else {
 		toggleButton.innerText = '🢇'
 		headingDiv.style.display = 'none';
-		pageButtons.style.display = 'none';
-		results.classList.add('scrollbarHidden');
-		results.classList.remove('scrollbarVisible');
-		
+
+		if (pageButtons) {
+			pageButtons.style.display = 'none';
+		}
+
 		searchImgElements.forEach(element => {
 			element.style.maxHeight = '100vh';
 		});
@@ -140,6 +145,8 @@ function showHideHeadingDiv() {
 			element.style.maxHeight = '100vh';
 		});
 		document.documentElement.requestFullscreen();
-		mainHorizontalScrollbar.style.display = 'none';
+
+		results.classList.add('scrollbarHidden');
+		results.classList.remove('scrollbarVisible');
 	}
 }

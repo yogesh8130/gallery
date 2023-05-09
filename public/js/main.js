@@ -209,16 +209,26 @@ document.addEventListener("DOMContentLoaded", function () {
 			});
 	}
 
+	function showLastFromHistory() {
+		window.history.back();
+		setTimeout(function () {
+			location.reload();
+		}, 50);
+	}
+
+
 	document.addEventListener('keydown', function (event) {
-		if (event.ctrlKey) {
-			if (event.key === 'ArrowLeft') {
-				showprevious();
-			} else if (event.key === 'ArrowRight') {
-				shownext();
-			} else if (event.key === 'ArrowDown') {
-				showrandom();
-			}
+		// if (event.ctrlKey) {
+		if (event.key === 'ArrowLeft') {
+			showprevious();
+		} else if (event.key === 'ArrowRight') {
+			shownext();
+		} else if (event.key === 'ArrowDown') {
+			showrandom();
+		} else if (event.key === 'ArrowUp') {
+			showLastFromHistory();
 		}
+		// }
 	});
 
 
