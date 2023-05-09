@@ -13,7 +13,7 @@ body {
 	/* to account for the navigation bar */
 	overflow-wrap: break-word;
 	font-size: 20px;
-	font-family: 'Tahoma', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 a {
@@ -26,13 +26,14 @@ a {
 
 #imageTitle {
 	font-size: 50px;
-	font-family: 'Tahoma', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-	font-weight: bold;
+	font-weight: bolder;
 	color: white;
 }
 
 #subTitle {
-	color: rgb(194, 194, 194);
+	font-size: larger;
+	color: lightgray;
+	font-weight: lighter;
 }
 
 img,
@@ -42,10 +43,6 @@ video {
 	margin: 0 auto;
 	display: block;
 	object-fit: contain;
-}
-
-#image-path {
-	font-family: 'Tahoma', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
 #renameStatus {

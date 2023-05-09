@@ -106,13 +106,19 @@ function showHideHeadingDiv() {
 
 	const headingDiv = document.querySelector('.headingDiv');
 	const pageButtons = document.querySelector('.pageButtons');
+	const results = document.querySelector('.results');
 
 	const searchImgElements = document.querySelectorAll('.searchimg');
 	const searchVidElements = document.querySelectorAll('.searchvid');
-
+	
+	
 	if (headingDiv.style.display === 'none') {
+		toggleButton.innerText = '🢅'
 		headingDiv.style.display = 'block';
-
+		pageButtons.style.display = 'block';
+		results.classList.add('scrollbarVisible');
+		results.classList.remove('scrollbarHidden');
+		
 		searchImgElements.forEach(element => {
 			element.style.maxHeight = 'calc(99vh - 120px)';
 		});
@@ -120,17 +126,20 @@ function showHideHeadingDiv() {
 			element.style.maxHeight = 'calc(99vh - 120px)';
 		});
 		document.exitFullscreen();
-		toggleButton.innerText = '🢅'
 	} else {
+		toggleButton.innerText = '🢇'
 		headingDiv.style.display = 'none';
-
+		pageButtons.style.display = 'none';
+		results.classList.add('scrollbarHidden');
+		results.classList.remove('scrollbarVisible');
+		
 		searchImgElements.forEach(element => {
-			element.style.maxHeight = 'calc(99vh - 17px)';
+			element.style.maxHeight = '100vh';
 		});
 		searchVidElements.forEach(element => {
-			element.style.maxHeight = 'calc(99vh) - 17px';
+			element.style.maxHeight = '100vh';
 		});
 		document.documentElement.requestFullscreen();
-		toggleButton.innerText = '🢇'
+		mainHorizontalScrollbar.style.display = 'none';
 	}
 }
