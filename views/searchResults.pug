@@ -6,7 +6,7 @@ html
 		script(src='/js/searchResults.js')
 	body
 		div.mainDiv
-			div.headdingDiv
+			div.headingDiv
 				h1 Search Results for "#{searchText}"
 				h2 Showing #{matchingImagePaths.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
 			div.results(onwheel="this.scrollLeft += event.deltaY * 2" onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")
@@ -47,3 +47,4 @@ html
 							a(href=`/search?searchText=${searchText}&page=${page - (-1)}`) >
 							a(href=`/search?searchText=${searchText}&page=${totalPages}`) >]
 			div.dummyFooter
+		button#showHideHeadingBtn(title='Fullscreen (Alt + Enter)', onclick='showHideHeadingDiv()') 🢅

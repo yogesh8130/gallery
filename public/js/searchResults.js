@@ -74,8 +74,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 function stopMainScroll() {
-	window.addEventListener('wheel', preventDefault, { passive: false });
-}
+	// check if screen layout is landscape
+	if (window.matchMedia("(orientation: landscape)").matches) {
+	  window.addEventListener('wheel', preventDefault, { passive: false });
+	}
+  }
 
 function allowMainScroll() {
 	window.removeEventListener('wheel', preventDefault);
@@ -83,4 +86,51 @@ function allowMainScroll() {
 
 function preventDefault(e) {
 	e.preventDefault();
+}
+
+document.addEventListener('keydown', function (event) {
+	if (event.altKey && event.code === 'Enter') {
+		showHideHeadingDiv()
+	}
+});
+
+document.addEventListener('keydown', function (event) {
+	if (event.key === 'f' || event.key === 'F') {
+		showHideHeadingDiv()
+	}
+});
+
+
+function showHideHeadingDiv() {
+	const toggleButton = document.getElementById('showHideHeadingBtn');
+
+	const headingDiv = document.querySelector('.headingDiv');
+	const pageButtons = document.querySelector('.pageButtons');
+
+	const searchImgElements = document.querySelectorAll('.searchimg');
+	const searchVidElements = document.querySelectorAll('.searchvid');
+
+	if (headingDiv.style.display === 'none') {
+		headingDiv.style.display = 'block';
+
+		searchImgElements.forEach(element => {
+			element.style.maxHeight = 'calc(99vh - 120px)';
+		});
+		searchVidElements.forEach(element => {
+			element.style.maxHeight = 'calc(99vh - 120px)';
+		});
+		document.exitFullscreen();
+		toggleButton.innerText = '🢅'
+	} else {
+		headingDiv.style.display = 'none';
+
+		searchImgElements.forEach(element => {
+			element.style.maxHeight = 'calc(99vh - 17px)';
+		});
+		searchVidElements.forEach(element => {
+			element.style.maxHeight = 'calc(99vh) - 17px';
+		});
+		document.documentElement.requestFullscreen();
+		toggleButton.innerText = '🢇'
+	}
 }

@@ -98,13 +98,14 @@ div.pageButtons::-webkit-scrollbar {
 	.infoDiv {
 		display: flex;
 		align-items: flex-start;
+		max-height: 80vh;
 	}
 
 	.imageName,
 	.tinyText {
 		margin: 0;
 		padding: 0;
-		writing-mode: vertical-lr;
+		writing-mode: vertical-rl;
 		transform: rotate(180deg);
 	}
 
@@ -148,13 +149,8 @@ div.pageButtons::-webkit-scrollbar {
 		background-color: #555;
 	}
 
-
-	.mainContent {
-		height: 200%;
-	}
-
-	img,
-	video {
+	.searchimg,
+	.searchvid {
 		max-height: calc(99vh - 120px);
 		/* max-height: calc(99vh - 150px); */
 		/* margin: 10px 5px; */
@@ -201,6 +197,10 @@ div.pageButtons::-webkit-scrollbar {
 		max-height: 80vh;
 	}
 
+	.pageButtons {
+		display: block;
+	}
+
 	.pageButton {
 		border: solid;
 		border-color: black;
@@ -215,6 +215,14 @@ div.pageButtons::-webkit-scrollbar {
 
 	.dummyFooter {
 		display: none;
+	}
+
+	#showHideHeadingBtn {
+		position: fixed;
+		right: 0px;
+		top: 0px;
+		font-size: 25px;
+		/* color: tomato; */
 	}
 }
 
@@ -279,5 +287,9 @@ div.pageButtons::-webkit-scrollbar {
 
 	.dummyFooter {
 		height: 70vw;
+	}
+
+	#showHideHeadingBtn {
+		display: none;
 	}
 }
