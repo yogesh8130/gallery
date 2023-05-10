@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	// imageTitle.href = `/search?searchText=${encodeURIComponent(imageTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
 	// subTitle.href = `/search?searchText=${encodeURIComponent(subTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
 
-	const videos = document.querySelectorAll('.searchvid');
+	const videos = document.querySelectorAll('.searchVid');
 	let centerVideo = null;
 
 	const observer = new IntersectionObserver(entries => {
