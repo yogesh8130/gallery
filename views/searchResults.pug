@@ -32,12 +32,11 @@ html
 									|#{folderName}
 						div.mainContent.scrollbarVisible
 							- let imageLinkEscaped = encodeURIComponent(imagePath)
-
-							a#contentLink(href='/?imageBackLink=' + imageBackLink, target='_blank')
+							a#contentLink(href='/?imageBackLink=' + imageLinkEscaped, target='_blank')
 								if (imagePath.endsWith('.mp4') || imagePath.endsWith('.webm') || imagePath.endsWith('.mkv'))
-									video.resultfile(id='image'+index,src=imageLinkEscaped controls loop)
+									video.resultFile(id='image'+index,src=imageLinkEscaped controls loop)
 								else
-									img.resultfile(id='image'+index,src=imageLinkEscaped)
+									img.resultFile(id='image'+index,src=imageLinkEscaped)
 			if totalPages > 1
 				div.pagination
 					div.pageButtons(onwheel="this.scrollLeft += event.deltaY" onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")

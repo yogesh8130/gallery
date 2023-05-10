@@ -95,37 +95,49 @@ document.addEventListener('keydown', function (event) {
 });
 
 document.addEventListener('keydown', function (event) {
+	if (event.key === 'f') {
+		showHideHeadingDiv()
+	}
+});
+
+document.addEventListener('keydown', function (event) {
 	if (event.key === 'f' || event.key === 'F') {
 		showHideHeadingDiv()
 	}
 });
 
+document.addEventListener('keydown', function (event) {
+	if (event.key === '1') {
+		showAllImagesAtActualSize();
+	}
+});
+document.addEventListener('keydown', function (event) {
+	if (event.key === '2') {
+		showAllImagesStreched();
+	}
+});
+document.addEventListener('keydown', function (event) {
+	if (event.key === '3') {
+		showAllImagesAtDefaultScale();
+	}
+});
 
 function showHideHeadingDiv() {
 	const toggleButton = document.getElementById('showHideHeadingBtn');
 
 	const headingDiv = document.querySelector('.headingDiv');
 	const pageButtons = document.querySelector('.pageButtons');
-	const results = document.querySelector('.results');
-
-	// const resultfiles = document.querySelectorAll('.resultfile');
-
 
 	if (headingDiv.style.display === 'none') {
 		toggleButton.innerText = '🢅'
-		headingDiv.style.display = 'block';
+		headingDiv.style.display = 'flex';
 
 		if (pageButtons) {
 			pageButtons.style.display = 'block';
 		}
 
-		// resultfiles.forEach(element => {
-		// 	element.style.maxHeight = 'calc(99vh - 125px)';
-		// });
 		document.exitFullscreen();
 
-		results.classList.add('scrollbarVisible');
-		results.classList.remove('scrollbarHidden');
 	} else {
 		toggleButton.innerText = '🢇'
 		headingDiv.style.display = 'none';
@@ -133,14 +145,7 @@ function showHideHeadingDiv() {
 		if (pageButtons) {
 			pageButtons.style.display = 'none';
 		}
-
-		// resultfiles.forEach(element => {
-		// 	element.style.maxHeight = 'calc(100vh - 15px)';
-		// });
 		document.documentElement.requestFullscreen();
-
-		results.classList.add('scrollbarHidden');
-		results.classList.remove('scrollbarVisible');
 	}
 }
 
@@ -155,10 +160,30 @@ function showAtActualScale(index) {
 		image.style.maxHeight = 'fit-content'
 	} else {
 		image.style.maxHeight = '100%'
-		// if (headingDiv.style.display === 'none') {
-		// 	image.style.maxHeight = 'calc(100vh - 4px)'
-		// } else {
-		// 	image.style.maxHeight = 'calc(99vh - 120px)'
-		// }
 	}
+}
+
+function showAllImagesAtActualSize() {
+	let resultFiles = document.querySelectorAll('.resultFile');
+	// console.log(resultFiles.length);
+	resultFiles.forEach(resultFile => {
+		resultFile.style.minHeight = '0';
+		resultFile.style.maxHeight = 'fit-content';
+	});
+}
+function showAllImagesStreched() {
+	let resultFiles = document.querySelectorAll('.resultFile');
+	// console.log(resultFiles.length);
+	resultFiles.forEach(resultFile => {
+		resultFile.style.minHeight = '100%';
+		resultFile.style.maxHeight = '100%';
+	});
+}
+function showAllImagesAtDefaultScale() {
+	let resultFiles = document.querySelectorAll('.resultFile');
+	// console.log(resultFiles.length);
+	resultFiles.forEach(resultFile => {
+		resultFile.style.minHeight = '75%';
+		resultFile.style.maxHeight = '100%';
+	});
 }

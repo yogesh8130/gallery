@@ -1,4 +1,5 @@
 * {
+	margin: 0;
 	box-sizing: border-box;
 }
 
@@ -20,15 +21,12 @@ h2 {
 }
 
 body {
-	max-width: 100vw;
+	margin: 0;
+	max-width: 100%;
 	/* to account for the navigation bar */
 	overflow-wrap: break-word;
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	background-color: rgb(39, 39, 39);
-}
-
-.rowDiv {
-	/* max-width: 100%; */
 }
 
 .mainContent {
@@ -76,7 +74,7 @@ div.pageButtons::-webkit-scrollbar {
 
 	html{
 		height: 100%;
-		margin: 0 0px;
+		margin: 0;
 	}
 
 	/* search results page */
@@ -103,7 +101,7 @@ div.pageButtons::-webkit-scrollbar {
 
 	h1,
 	h2 {
-		margin: 5px;
+		margin: 0px;
 		font-size: 30px;
 		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	}
@@ -153,7 +151,7 @@ div.pageButtons::-webkit-scrollbar {
 		display: flex;
 		flex-grow: 1;
 		align-content: flex-start;
-		max-height: 100%;
+		max-height: 90%;
 	}
 
 	.imageTitle,
@@ -179,16 +177,8 @@ div.pageButtons::-webkit-scrollbar {
 		font-size: 25px;
 	}
 
-	.scrollbarHidden::-webkit-scrollbar {
-		display: block;
-	}
-
-	.scrollbarVisible::-webkit-scrollbar {
-		display: block;
-	}
-
 	*::-webkit-scrollbar {
-		width: 5px;
+		width: 10px;
 	}
 
 	*::-webkit-scrollbar-track {
@@ -213,14 +203,12 @@ div.pageButtons::-webkit-scrollbar {
 		height: 100%;
 	}
 
-	.resultfile {
-		/* remove below line to disable upscaling of small images */f
+	.resultFile {
 		padding: 0;
 		margin: 0;
-		min-height: 60vh;
+		/* remove below line to disable upscaling of small images */
+		min-height: auto;
 		max-height: 100%;
-		/* max-height: calc(99vh - 125px); */
-		/* max-height: calc(99vh - 150px); */
 	}
 
 	.pagination {
@@ -348,7 +336,7 @@ div.pageButtons::-webkit-scrollbar {
 		font-weight: lighter;
 	}
 
-	.resultfile {
+	.resultFile {
 		width: 100vw;
 	}
 
