@@ -311,10 +311,13 @@ app.get('/rename', (req, res) => {
 
 app.get('/search', (req, res) => {
 	let matchingImagePaths = [];
+	let imageList = imagePaths;
 
 	const searchText = req.query.searchText;
 	console.log("searchText: " + searchText);
-
+	
+	const shuffleFlag = req.query.shuffle;
+	
 	if (searchText.includes('&&')
 		|| searchText.includes('||')
 		|| searchText.includes('!!')) {
@@ -372,13 +375,13 @@ app.get('/search', (req, res) => {
 		// console.log("notTokens: " + notTokens);
 
 		// console.log("Processing AND tokens");
-		imagePaths.forEach(imagePath => {
+		imageList.forEach(imagePath => {
 			let containsAll = andTokens.every(andToken => imagePath.toLowerCase().includes(andToken.toLowerCase()));
 			if (containsAll) {
 				matchingImagePaths.push(imagePath);
 			}
 		});
-		
+
 		// console.log("Processing NOT tokens");
 		for (let i = matchingImagePaths.length - 1; i >= 0; i--) {
 			let matchingPath = matchingImagePaths[i];
@@ -387,23 +390,23 @@ app.get('/search', (req, res) => {
 				matchingImagePaths.splice(i, 1);
 			}
 		}
-		
+
 		// console.log("Processing OR tokens");
-		imagePaths.forEach(imagePath => {
+		imageList.forEach(imagePath => {
 			let containsSome = orTokens.some(orToken => imagePath.toLowerCase().includes(orToken.toLowerCase()));
 			if (containsSome) {
 				matchingImagePaths.push(imagePath);
 			}
 		});
-		
+
 
 	} else if (searchText.startsWith('//')) {
 		let pattern = searchText.slice(1); // remove the leading forward slash
 		console.log("pattern: " + pattern);
 		let regex = new RegExp(pattern, 'i'); // create a case-insensitive regular expression
-		matchingImagePaths = imagePaths.filter((imagePath) => regex.test(imagePath));
+		matchingImagePaths = imageList.filter((imagePath) => regex.test(imagePath));
 	} else {
-		matchingImagePaths = imagePaths.filter((imagePath) =>
+		matchingImagePaths = imageList.filter((imagePath) =>
 			imagePath.toLowerCase().includes(searchText.toLowerCase().trim()));
 	}
 
@@ -413,6 +416,9 @@ app.get('/search', (req, res) => {
 	// 	imagePaths.indexOf(matchingPath)
 	// );
 
+	if (shuffleFlag && shuffleFlag === 'true') {
+		shuffle(matchingImagePaths);
+	}
 
 	const totalResultCount = matchingImagePaths.length;
 

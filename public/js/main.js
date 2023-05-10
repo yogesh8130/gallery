@@ -310,15 +310,6 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
 	});
 
-	function search() {
-		const searchText = document.querySelector('#searchText').value;
-		if (searchText.trim() !== '') {
-			// window.location.href = `/search?searchText=${searchText}`; // opens in same window
-			const searchUrl = `/search?searchText=${encodeURIComponent(searchText)}`;
-			window.open(searchUrl, '_blank');
-		}
-	}
-
 	const similarButton = document.getElementById('similarButton');
 	similarButton.addEventListener('click', () => {
 		var searchText = imageTitle.textContent; // using current image name to search similar images
@@ -366,5 +357,23 @@ function hideNavigation() {
 			fullscreenButton.innerText = '🢇'
 			document.documentElement.requestFullscreen();
 		}
+	}
+}
+
+function search() {
+	const searchText = document.querySelector('#searchText').value;
+	if (searchText.trim() !== '') {
+		// window.location.href = `/search?searchText=${searchText}`; // opens in same window
+		const searchUrl = `/search?searchText=${encodeURIComponent(searchText)}`;
+		window.open(searchUrl, '_blank');
+	}
+}
+
+function searchShuffled() {
+	const searchText = document.querySelector('#searchText').value;
+	if (searchText.trim() !== '') {
+		// window.location.href = `/search?searchText=${searchText}`; // opens in same window
+		const searchUrl = `/search?shuffle=true&searchText=${encodeURIComponent(searchText)}`;
+		window.open(searchUrl, '_blank');
 	}
 }

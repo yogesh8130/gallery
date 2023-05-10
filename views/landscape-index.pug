@@ -23,16 +23,14 @@ html
 				div.navigation
 					input#searchText(type='text' placeholder='Search... (/... for regex)')
 					button#searchButton 🔎
+					button#searchShuffledButton(onclick='searchShuffled()') 🔍
 					button#similarButton ≅
 					button#refreshDB ↻
 				div.navigation
+					span#renameStatus
 					input#newFileName(type='text' name='newFileName' placeholder='New name')
 					button#renameButton ✒
-					span#renameStatus
-					button#previousbtn
-						|<
-					button#randombtn
-						|🔀
-					button#nextbtn
-						|>
+					button#previousbtn <
+					button#randombtn 🔀
+					button#nextbtn >
 		button#fullscreenButton(title='Fullscreen (F)', onclick='hideNavigation()') 🢅
