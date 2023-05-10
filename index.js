@@ -378,7 +378,7 @@ app.get('/search', (req, res) => {
 				matchingImagePaths.push(imagePath);
 			}
 		});
-
+		
 		// console.log("Processing NOT tokens");
 		for (let i = matchingImagePaths.length - 1; i >= 0; i--) {
 			let matchingPath = matchingImagePaths[i];
@@ -387,9 +387,15 @@ app.get('/search', (req, res) => {
 				matchingImagePaths.splice(i, 1);
 			}
 		}
-
-		// TODO : handle || OR tokens
-
+		
+		// console.log("Processing OR tokens");
+		imagePaths.forEach(imagePath => {
+			let containsSome = orTokens.some(orToken => imagePath.toLowerCase().includes(orToken.toLowerCase()));
+			if (containsSome) {
+				matchingImagePaths.push(imagePath);
+			}
+		});
+		
 
 	} else if (searchText.startsWith('//')) {
 		let pattern = searchText.slice(1); // remove the leading forward slash
