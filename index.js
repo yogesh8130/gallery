@@ -62,6 +62,8 @@ const startTime = Date.now();
 (async () => {
 	await readImageFiles(imagePath);
 
+	imagePaths.sort();
+
 	// Capture the end time
 	const endTime = Date.now();
 
@@ -72,7 +74,22 @@ const startTime = Date.now();
 app.get('/refreshDB', (req, res) => {
 	try {
 		imagePaths = [];
-		readImageFiles(imagePath);
+
+		// Capture the start time
+		const startTime = Date.now();
+
+		(async () => {
+			await readImageFiles(imagePath);
+
+			imagePaths.sort();
+
+			// Capture the end time
+			const endTime = Date.now();
+
+			// Log the time it took to load the files in seconds
+			console.log(`Loaded ${imagePaths.length} files in ${(endTime - startTime) / 1000} seconds.`);
+		})();
+
 		res.sendStatus(200); // send a success response to the client
 	} catch (error) {
 		console.error(error);

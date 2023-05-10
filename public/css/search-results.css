@@ -157,6 +157,8 @@ div.pageButtons::-webkit-scrollbar {
 
 	.searchimg,
 	.searchvid {
+		/* remove below line to disable upscaling of small images */
+		min-height: 80vh;
 		max-height: calc(99vh - 120px);
 		/* max-height: calc(99vh - 150px); */
 		/* margin: 10px 5px; */

@@ -78,7 +78,7 @@ button:active {
 	background-color: black;
 }
 
-#container {
+#bottomContainer {
 	display: flex;
 	flex-direction: row;
 	max-width: 100%;
@@ -86,6 +86,7 @@ button:active {
 
 #info,
 #navigationdiv {
+	display: block;
 	height: 100px;
 	/* adjust height as needed */
 }

@@ -291,7 +291,8 @@ document.addEventListener("DOMContentLoaded", function () {
 			.then(response => {
 				if (response.ok) {
 					console.log('Database refreshed successfully');
-					location.reload(); // reload the page after the database is refreshed
+					// location.reload(); // reload the page after the database is refreshed
+					location = '/';
 				} else {
 					throw new Error('Error refreshing database');
 				}
@@ -333,5 +334,6 @@ document.addEventListener("DOMContentLoaded", function () {
 			window.open(searchUrl, '_blank');
 		}
 	});
+
 
 });

@@ -41,10 +41,10 @@ html
 								a.pageButton(href=`/search?searchText=${searchText}&page=${page_num}`)= page_num
 					div.navigationButtons
 						if page > 1
-							a(href=`/search?searchText=${searchText}&page=1`) [<
-							a(href=`/search?searchText=${searchText}&page=${page - 1}`) <
+							a#firstPageButtom(href=`/search?searchText=${searchText}&page=1`, title='First Page') [1<
+							a#previousPageButton(href=`/search?searchText=${searchText}&page=${page - 1}`, title='Previous Page') #{page - 1}<
 						if page < totalPages
-							a(href=`/search?searchText=${searchText}&page=${page - (-1)}`) >
-							a(href=`/search?searchText=${searchText}&page=${totalPages}`) >]
+							a#nextPageButton(href=`/search?searchText=${searchText}&page=${page - (-1)}`, title='Next Page') >#{page - (-1)}
+							a#lastPageButton(href=`/search?searchText=${searchText}&page=${totalPages}`, title='Last Page') >#{totalPages}]
 			div.dummyFooter
 		button#showHideHeadingBtn(title='Fullscreen (Alt + Enter)', onclick='showHideHeadingDiv()') 🢅
