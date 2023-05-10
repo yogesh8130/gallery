@@ -6,9 +6,14 @@ html
 		script(src='/js/searchResults.js')
 	body
 		div.mainDiv
-			div.headingDiv
-				h1 Search Results for "#{searchText}"
-				h2 Showing #{matchingImagePaths.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
+			div.header
+				div.headingDiv
+					h1 Search Results for "#{searchText}"
+					h2 Showing #{matchingImagePaths.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
+				div.controlsDiv
+					div.shuffleDiv
+						label(for="shuffle") Shuffle
+						input(type="checkbox" id="shuffle" name="shuffle" onclick="shuffle()")
 			//- uncomment this if you want to scroll horizontally with mousewheen
 			//- - div.results(onwheel="this.scrollLeft += event.deltaY * 2" onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")
 			div.results

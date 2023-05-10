@@ -1,5 +1,14 @@
 document.addEventListener("DOMContentLoaded", function () {
 
+	// check if already in shuffle mode
+	
+	const shuffleCheckbox = document.getElementById("shuffle");
+	const currentUrl = window.location.href;
+
+	if (currentUrl.includes("&shuffle=true")) {
+		shuffleCheckbox.checked = true;
+	}
+
 	// if (!document.querySelector('div.pagination')) {
 	// 	document.querySelectorAll('img, video').forEach((el) => {
 	// 		el.style.maxHeight = '99vh';
@@ -69,7 +78,6 @@ document.addEventListener("DOMContentLoaded", function () {
 			centerVideo.play();
 		}
 	});
-
 });
 
 
@@ -180,4 +188,17 @@ function showAllImagesAtDefaultScale() {
 		resultFile.style.minHeight = '75%';
 		resultFile.style.maxHeight = '100%';
 	});
+}
+
+function shuffle() {
+	let shuffleCheckbox = document.getElementById('shuffle');
+	const currentUrl = window.location.href;
+
+	if (shuffleCheckbox.checked) {
+		const newUrl = `${currentUrl}&shuffle=true`;
+		window.location.href = newUrl;
+	} else {
+		const newUrl = currentUrl.replace("&shuffle=true", "");
+		window.location.href = newUrl;
+	}
 }

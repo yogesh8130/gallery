@@ -93,10 +93,20 @@ div.pageButtons::-webkit-scrollbar {
 		height: 100%;
 	}
 
+	.header {
+		display: flex;
+		flex-direction: row;
+	}
+
 	.headingDiv {
 		margin: 0;
+		flex-grow: 1;
 		display: flex;
 		align-items: center;
+	}
+
+	.shuffleDiv {
+		margin: auto;
 	}
 
 	h1,
@@ -104,6 +114,13 @@ div.pageButtons::-webkit-scrollbar {
 		margin: 0px;
 		font-size: 30px;
 		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	}
+
+	.controlsDiv {
+		display: flex;
+		margin-right: 40px;
+		color: white;
+		align-content: center;
 	}
 
 	.results {
@@ -294,8 +311,29 @@ div.pageButtons::-webkit-scrollbar {
 		max-width: 100vw;
 	}
 
+	h1 {
+		font-weight: bolder;
+	}
+
 	h2 {
+		font-size: 40px;
+		margin-bottom: 40px;
+	}
+
+	.controlsDiv {
 		margin-bottom: 2em;
+	}
+
+	.shuffleDiv{
+		display: flex;
+		flex-direction: row;
+		font-size: 40px;
+		align-content: center;
+	}
+
+	#shuffle {
+		transform: scale(2);
+		margin: 15px;
 	}
 
 	.imageSidebar {
