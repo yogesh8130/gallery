@@ -9,7 +9,9 @@ html
 			div.headingDiv
 				h1 Search Results for "#{searchText}"
 				h2 Showing #{matchingImagePaths.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
-			div.results(onwheel="this.scrollLeft += event.deltaY * 2" onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")
+			//- uncomment this if you want to scroll horizontally with mousewheen
+			//- - div.results(onwheel="this.scrollLeft += event.deltaY * 2" onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")
+			div.results
 				if matchingImagePaths.length === 0
 					p No matching images found.
 				else
@@ -17,20 +19,24 @@ html
 						- const lastSlashIndex = imagePath.lastIndexOf('\\')
 						- const folderName = imagePath.substring(0, lastSlashIndex)
 						- const imageName = imagePath.substring(lastSlashIndex + 1)
-						div.infoDiv
-							- let similarImageLink = encodeURIComponent(imageName.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())
-							a#imageTitle.imageName(href='/search?searchText='+similarImageLink, target='_blank')
-								| #{imageName} 
-							- let folderlink = encodeURIComponent(folderName)
-							a#subTitle.tinyText(href='/search?searchText='+folderlink, target='_blank')
-								|#{folderName}
-						div#mainContent.scrollbarVisible
+						div.imageSidebar
+							div.actionButtons
+								button.hideSimilarButton ⛔
+								button.showAtActualScaleButton(onclick=`showAtActualScale(${index})`) ⭕
+							div.infoDiv
+								- let similarImageLink = encodeURIComponent(imageName.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())
+								a.imageTitle(href='/search?searchText='+similarImageLink, target='_blank')
+									| #{imageName} 
+								- let folderlink = encodeURIComponent(folderName)
+								a.subTitle(href='/search?searchText='+folderlink, target='_blank')
+									|#{folderName}
+						div.mainContent.scrollbarVisible
 							- let imageBackLink = encodeURIComponent(imagePath)
 							a#contentLink(href='/?imageBackLink=' + imageBackLink, target='_blank')
 								if (imagePath.endsWith('.mp4') || imagePath.endsWith('.webm') || imagePath.endsWith('.mkv'))
-									video.searchvid(src=imagePath controls loop)
+									video.resultfile(id='image'+index,src=imagePath controls loop)
 								else
-									img.searchimg(src=imagePath)
+									img.resultfile(id='image'+index,src=imagePath)
 			if totalPages > 1
 				div.pagination
 					div.pageButtons(onwheel="this.scrollLeft += event.deltaY" onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")
@@ -47,4 +53,4 @@ html
 							a#nextPageButton(href=`/search?searchText=${searchText}&page=${page - (-1)}`, title='Next Page') >#{page - (-1)}
 							a#lastPageButton(href=`/search?searchText=${searchText}&page=${totalPages}`, title='Last Page') >#{totalPages}]
 			div.dummyFooter
-		button#showHideHeadingBtn(title='Fullscreen (Alt + Enter)', onclick='showHideHeadingDiv()') 🢅
+		button#showHideHeadingBtn(title='Fullscreen (Alt + Enter)' onclick='showHideHeadingDiv()') 🢅

@@ -31,7 +31,7 @@ body {
 	/* max-width: 100%; */
 }
 
-#mainContent {
+.mainContent {
 	background-color: black;
 	object-fit: contain;
 }
@@ -86,32 +86,58 @@ div.pageButtons::-webkit-scrollbar {
 	}
 
 	.mainDiv {
-		/* display: flex; */
-		/* flex-direction: column; */
 		max-height: 99vh;
 	}
 
-	.infoDiv {
+	.imageSidebar {
 		display: flex;
+		flex-direction: column;
 		align-items: flex-start;
 		max-height: 80vh;
 	}
+	
+	.actionButtons{
+		width: 100%;
+		display: flex;
+		justify-content: flex-end;
+	}
+	
+	.actionButtons>* {
+		padding: 0;
+		font-size: 22px;
+		width: 40px;
+		height: 40px;
+		background-color: black;
+		border: solid;
+		border-color: gray;
+		border-width: 1px;
+		border-radius: 5px;
+		margin-bottom: 10px;
+	}
 
-	.imageName,
-	.tinyText {
+	.infoDiv {
+		align-items: flex-start;
+		display: flex;
+		max-height: 80vh;
+	}
+
+	.imageTitle,
+	.subTitle {
+		word-wrap: break-word;
 		margin: 0;
 		padding: 0;
 		writing-mode: vertical-rl;
 		transform: rotate(180deg);
+		max-height: 100%;
 	}
 
-	.imageName {
+	.imageTitle {
 		color: white;
 		font-weight: bold;
 		font-size: 35px;
 	}
 
-	.tinyText {
+	.subTitle {
 		color: gray;
 		font-size: 25px;
 	}
@@ -129,36 +155,35 @@ div.pageButtons::-webkit-scrollbar {
 	}
 
 	.scrollbarHidden::-webkit-scrollbar {
-		display: none;
+		display: block;
 	}
 
 	.scrollbarVisible::-webkit-scrollbar {
 		display: block;
 	}
 
-	.results::-webkit-scrollbar {
+	*::-webkit-scrollbar {
 		width: 20px;
 	}
 
-	.results::-webkit-scrollbar-track {
-		background: #202020;
+	*::-webkit-scrollbar-track {
+		background: nonef;
 		border-radius: 10px;
 	}
 
-	.results::-webkit-scrollbar-thumb {
-		background-color: rgb(80, 80, 80);
+	*::-webkit-scrollbar-thumb {
+		background-color: rgb(29, 29, 29);
 		border-radius: 10px;
-		border: 2px solid #f1f1f1;
+		border: 2px solid rgb(51, 51, 51);
 	}
 
-	.results::-webkit-scrollbar-thumb:hover {
-		background-color: #555;
+	*::-webkit-scrollbar-thumb:hover {
+		background-color: white;
 	}
 
-	.searchimg,
-	.searchvid {
+	.resultfile {
 		/* remove below line to disable upscaling of small images */
-		min-height: 80vh;
+		min-height: 60vh;
 		max-height: calc(99vh - 120px);
 		/* max-height: calc(99vh - 150px); */
 		/* margin: 10px 5px; */
@@ -240,30 +265,60 @@ div.pageButtons::-webkit-scrollbar {
 	/* search results page */
 	body {
 		background-color: black;
+		max-width: 100vw;
 	}
 
 	h2 {
 		margin-bottom: 2em;
 	}
 
-	#imageTitle {
-		font-size: large;
+	.imageSidebar {
+		display: flex;
+		flex-direction: row-reverse;
+		max-width: 100vw;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	/* force title and subtitle on separate lines */
+	.infoDiv {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.actionButtons>* {
+		font-size: 40px;
+		width: 70px;
+		height: 70px;
+		background-color: black;
+		border: solid;
+		border-color: gray;
+		border-width: 4px;
+		border-radius: 5px;
+	}
+
+	.mainContent{
+		max-width: 100vw;
+	}
+
+	.showAtActualScaleButton {
+		display: none;
+	}
+
+	.imageTitle {
+		font-size: 40px;
 		color: white;
 		font-weight: bolder;
 	}
 
-	#subTitle {
-		font-size: medium;
+	.subTitle {
+		font-size: 40px;
 		color: lightgrey;
 		font-weight: lighter;
 	}
 
-	img {
-		width: 100%;
-	}
-
-	video {
-		width: 100%;
+	.resultfile {
+		width: 100vw;
 	}
 
 	.pagination {

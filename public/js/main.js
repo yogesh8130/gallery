@@ -335,5 +335,36 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
 	});
 
-
+	document.addEventListener('keydown', function (event) {
+		if (event.key === 'f') {
+			hideNavigation()
+		}
+	});
 });
+
+function hideNavigation() {
+	const focusedElement = document.activeElement;
+	const bottomContainer = document.getElementById('bottomContainer');
+	const mainContent = document.getElementById('mainContent');
+	const fullscreenButton = document.getElementById('fullscreenButton');
+
+	if (focusedElement.nodeName === 'INPUT') {
+		console.log('Currently focused element is an input field');
+		return
+	} else {
+		console.log('Currently focused element is not an input field');
+		if (document.fullscreenElement) {
+			console.log('In fullscreen');
+			bottomContainer.style.display = 'flex';
+			mainContent.style.height = 'calc(100vh - 110px)';
+			fullscreenButton.innerText = '🢅'
+			document.exitFullscreen();
+		} else {
+			console.log('Not in fullscreen');
+			bottomContainer.style.display = 'none';
+			mainContent.style.height = 'calc(100vh - 10px)';
+			fullscreenButton.innerText = '🢇'
+			document.documentElement.requestFullscreen();
+		}
+	}
+}
