@@ -177,20 +177,20 @@ div.pageButtons::-webkit-scrollbar {
 
 	.imageTitle,
 	.subTitle {
-		word-wrap: break-word;
+		width: max-content;
 		margin: 0;
 		padding: 0;
 		writing-mode: vertical-rl;
 		transform: rotate(180deg);
 		max-height: 100%;
 		align-self: flex-start;
+		text-align: right;
 	}
 
 	.imageTitle {
 		color: white;
 		font-weight: bold;
 		font-size: 35px;
-		text-align: right;
 	}
 
 	.subTitle {

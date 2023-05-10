@@ -84,12 +84,22 @@ document.addEventListener("DOMContentLoaded", function () {
 	let scrollable = document.querySelector('.results');
 	let isDown = false;
 	let startX;
+	let startY;
 	let scrollLeft;
+	let scrollTop;
+	let velocityX = 0;
+	let velocityY = 0;
+	let lastTime = null;
 
 	scrollable.addEventListener('mousedown', function (e) {
 		isDown = true;
 		startX = e.pageX - scrollable.offsetLeft;
+		startY = e.pageY - scrollable.offsetTop;
 		scrollLeft = scrollable.scrollLeft;
+		scrollTop = scrollable.scrollTop;
+		velocityX = 0;
+		velocityY = 0;
+		lastTime = null;
 	});
 
 	scrollable.addEventListener('mouseleave', function () {
@@ -98,16 +108,47 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	scrollable.addEventListener('mouseup', function () {
 		isDown = false;
+		animateScroll();
 	});
 
 	scrollable.addEventListener('mousemove', function (e) {
 		if (!isDown) return;
 		e.preventDefault();
 		let x = e.pageX - scrollable.offsetLeft;
-		let walk = (x - startX) * 3;
-		scrollable.scrollLeft = scrollLeft - walk;
+		let y = e.pageY - scrollable.offsetTop;
+		let walkX = (x - startX);
+		let walkY = (y - startY);
+		scrollable.scrollLeft = scrollLeft - walkX;
+		scrollable.scrollTop = scrollTop - walkY;
+		updateVelocity();
 	});
 
+	function updateVelocity() {
+		if (lastTime == null) {
+			lastTime = performance.now();
+			return;
+		}
+		let currentTime = performance.now();
+		let deltaTime = currentTime - lastTime;
+		lastTime = currentTime;
+		let deltaX = scrollable.scrollLeft - scrollLeft;
+		let deltaY = scrollable.scrollTop - scrollTop;
+		velocityX = deltaX / deltaTime;
+		velocityY = deltaY / deltaTime;
+	}
+
+	function animateScroll() {
+		if (Math.abs(velocityX) < 0.1 && Math.abs(velocityY) < 0.1) {
+			velocityX = 0;
+			velocityY = 0;
+			return;
+		}
+		scrollable.scrollLeft += velocityX;
+		scrollable.scrollTop += velocityY;
+		velocityX *= 0.95;
+		velocityY *= 0.95;
+		requestAnimationFrame(animateScroll);
+	}
 
 });
 
