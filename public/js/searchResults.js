@@ -108,7 +108,7 @@ function showHideHeadingDiv() {
 	const pageButtons = document.querySelector('.pageButtons');
 	const results = document.querySelector('.results');
 
-	const resultfiles = document.querySelectorAll('.resultfile');
+	// const resultfiles = document.querySelectorAll('.resultfile');
 
 
 	if (headingDiv.style.display === 'none') {
@@ -119,9 +119,9 @@ function showHideHeadingDiv() {
 			pageButtons.style.display = 'block';
 		}
 
-		resultfiles.forEach(element => {
-			element.style.maxHeight = 'calc(99vh - 120px)';
-		});
+		// resultfiles.forEach(element => {
+		// 	element.style.maxHeight = 'calc(99vh - 125px)';
+		// });
 		document.exitFullscreen();
 
 		results.classList.add('scrollbarVisible');
@@ -134,9 +134,9 @@ function showHideHeadingDiv() {
 			pageButtons.style.display = 'none';
 		}
 
-		resultfiles.forEach(element => {
-			element.style.maxHeight = 'calc(100vh - 4px)';
-		});
+		// resultfiles.forEach(element => {
+		// 	element.style.maxHeight = 'calc(100vh - 15px)';
+		// });
 		document.documentElement.requestFullscreen();
 
 		results.classList.add('scrollbarHidden');
@@ -154,10 +154,11 @@ function showAtActualScale(index) {
 	if (image.style.maxHeight !== 'fit-content') {
 		image.style.maxHeight = 'fit-content'
 	} else {
-		if (headingDiv.style.display === 'none') {
-			image.style.maxHeight = 'calc(100vh - 4px)'
-		} else {
-			image.style.maxHeight = 'calc(99vh - 120px)'
-		}
+		image.style.maxHeight = '100%'
+		// if (headingDiv.style.display === 'none') {
+		// 	image.style.maxHeight = 'calc(100vh - 4px)'
+		// } else {
+		// 	image.style.maxHeight = 'calc(99vh - 120px)'
+		// }
 	}
 }

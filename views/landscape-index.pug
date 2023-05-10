@@ -7,10 +7,11 @@ html
 		script(src='/js/main.js')
 	body
 		div#mainContent
+			- let imageLinkEscaped = encodeURIComponent(imagePath)
 			if (imagePath.endsWith('.mp4') || imagePath.endsWith('.webm') || imagePath.endsWith('.mkv'))
-				video#randomImage(src=imagePath controls autoplay loop)
+				video#randomImage(src=imageLinkEscaped controls autoplay loop)
 			else
-				img#randomImage(src=imagePath)
+				img#randomImage(src=imageLinkEscaped)
 		div#bottomContainer
 			div#info
 				a#imageTitle(href='/search?searchText='+imageName, target='_blank')
