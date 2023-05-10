@@ -218,17 +218,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 	document.addEventListener('keydown', function (event) {
-		// if (event.ctrlKey) {
-		if (event.key === 'ArrowLeft') {
-			showprevious();
-		} else if (event.key === 'ArrowRight') {
-			shownext();
-		} else if (event.key === 'ArrowDown') {
-			showrandom();
-		} else if (event.key === 'ArrowUp') {
-			showLastFromHistory();
+		const focusedElement = document.activeElement;
+		if (focusedElement.nodeName === 'INPUT') {
+			// console.log('Currently focused element is an input field');
+			return
+		} else {
+			if (event.key === 'ArrowLeft') {
+				showprevious();
+			} else if (event.key === 'ArrowRight') {
+				shownext();
+			} else if (event.key === 'ArrowDown') {
+				showrandom();
+			} else if (event.key === 'ArrowUp') {
+				showLastFromHistory();
+			}
 		}
-		// }
 	});
 
 
@@ -340,7 +344,7 @@ function hideNavigation() {
 	const fullscreenButton = document.getElementById('fullscreenButton');
 
 	if (focusedElement.nodeName === 'INPUT') {
-		console.log('Currently focused element is an input field');
+		// console.log('Currently focused element is an input field');
 		return
 	} else {
 		console.log('Currently focused element is not an input field');

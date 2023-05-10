@@ -8,7 +8,8 @@ html
 		div.mainDiv
 			div.header
 				div.headingDiv
-					h1 Search Results for "#{searchText}"
+					a(href='/', title='HOME')
+						h1 Search Results for "#{searchText}"
 					h2 Showing #{matchingImagePaths.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
 				div.controlsDiv
 					div.shuffleDiv

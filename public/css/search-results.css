@@ -109,6 +109,10 @@ div.pageButtons::-webkit-scrollbar {
 		margin: auto;
 	}
 
+	#shuffle {
+		margin: 5px;
+	}
+
 	h1,
 	h2 {
 		margin: 0px;
@@ -168,7 +172,7 @@ div.pageButtons::-webkit-scrollbar {
 		display: flex;
 		flex-grow: 1;
 		align-content: flex-start;
-		max-height: 90%;
+		max-height: 100%;
 	}
 
 	.imageTitle,
@@ -239,16 +243,30 @@ div.pageButtons::-webkit-scrollbar {
 		/* background-color: #f1f1f1; */
 	}
 
-	.pagination a {
+	.navigationButtons a {
 		display: inline-block;
 		margin: 0 5px;
 		padding: 5px 10px;
 		background-color: #ddd;
 		color: black;
+		border-width: 0;
+		border-radius: 13px;
+		text-decoration: none;
+		font-size: 15px;
+		min-width: 50px;
+	}
+
+	.pageButtons a {
+		display: inline-block;
+		margin: 0 5px;
+		padding: 4px;
+		background-color: #dddddd33;
+		color: black;
+		border-width: 0;
 		border-radius: 15px;
 		text-decoration: none;
-		font-size: 20px;
-		min-width: 50px;
+		font-size: 13px;
+		min-width: 27px;
 	}
 
 	.pagination a.active {

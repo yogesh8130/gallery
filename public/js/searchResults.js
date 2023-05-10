@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
 
 	// check if already in shuffle mode
-	
+
 	const shuffleCheckbox = document.getElementById("shuffle");
 	const currentUrl = window.location.href;
 
@@ -127,12 +127,12 @@ document.addEventListener('keydown', function (event) {
 function goFullscreen() {
 	const toggleButton = document.getElementById('fullscreenButton');
 
-	const headingDiv = document.querySelector('.headingDiv');
+	const header = document.querySelector('.header');
 	const pageButtons = document.querySelector('.pageButtons');
 
-	if (headingDiv.style.display === 'none') {
+	if (header.style.display === 'none') {
 		toggleButton.innerText = '🢅'
-		headingDiv.style.display = 'flex';
+		header.style.display = 'flex';
 
 		if (pageButtons) {
 			pageButtons.style.display = 'block';
@@ -142,7 +142,7 @@ function goFullscreen() {
 
 	} else {
 		toggleButton.innerText = '🢇'
-		headingDiv.style.display = 'none';
+		header.style.display = 'none';
 
 		if (pageButtons) {
 			pageButtons.style.display = 'none';
