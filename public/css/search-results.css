@@ -72,7 +72,7 @@ div.pageButtons::-webkit-scrollbar {
 @media screen and (orientation: landscape) {
 	/* CSS rules for landscape orientation go here */
 
-	html{
+	html {
 		height: 100%;
 		margin: 0;
 	}
@@ -92,7 +92,7 @@ div.pageButtons::-webkit-scrollbar {
 		align-content: flex-start;
 		height: 100%;
 	}
-	
+
 	.headingDiv {
 		margin: 0;
 		display: flex;
@@ -105,7 +105,7 @@ div.pageButtons::-webkit-scrollbar {
 		font-size: 30px;
 		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	}
-	
+
 	.results {
 		display: flex;
 		flex-grow: 1;
@@ -269,12 +269,19 @@ div.pageButtons::-webkit-scrollbar {
 		display: none;
 	}
 
-	#showHideHeadingBtn {
+	#fullscreenButton {
+		height: 30px;
+		width: 30px;
 		position: fixed;
+		border-radius: 0;
+		border-width: 0;
+		margin: 0;
+		padding: 0;
 		right: 0px;
 		top: 0px;
-		font-size: 25px;
-		/* color: tomato; */
+		font-size: 20px;
+		background-color: rgb(41, 41, 41);
+		color: white;
 	}
 }
 

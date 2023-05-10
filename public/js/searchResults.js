@@ -90,13 +90,13 @@ function preventDefault(e) {
 
 document.addEventListener('keydown', function (event) {
 	if (event.altKey && event.code === 'Enter') {
-		showHideHeadingDiv()
+		goFullscreen()
 	}
 });
 
 document.addEventListener('keydown', function (event) {
 	if (event.key === 'f') {
-		showHideHeadingDiv()
+		goFullscreen()
 	}
 });
 
@@ -116,8 +116,8 @@ document.addEventListener('keydown', function (event) {
 	}
 });
 
-function showHideHeadingDiv() {
-	const toggleButton = document.getElementById('showHideHeadingBtn');
+function goFullscreen() {
+	const toggleButton = document.getElementById('fullscreenButton');
 
 	const headingDiv = document.querySelector('.headingDiv');
 	const pageButtons = document.querySelector('.pageButtons');
