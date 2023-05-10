@@ -74,34 +74,67 @@ div.pageButtons::-webkit-scrollbar {
 @media screen and (orientation: landscape) {
 	/* CSS rules for landscape orientation go here */
 
+	html{
+		height: 100%;
+		margin: 0 0px;
+	}
+
 	/* search results page */
 	body {
-		margin: 0 0px;
+		margin: 0;
 		background-color: black;
+		height: 100%;
+	}
+
+
+	.mainDiv {
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		align-content: flex-start;
+		height: 100%;
+	}
+	
+	.headingDiv {
+		margin: 0;
+		display: flex;
+		align-items: center;
 	}
 
 	h1,
 	h2 {
 		margin: 5px;
+		font-size: 30px;
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	}
-
-	.mainDiv {
-		max-height: 99vh;
+	
+	.results {
+		display: flex;
+		flex-grow: 1;
+		margin: 0;
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		justify-content: flex-start;
+		height: 100%;
+		/* -webkit-overflow-scrolling: touch; */
+		/* scroll-behavior: smooth; */
+		/* transform: translateZ(0); */
 	}
 
 	.imageSidebar {
 		display: flex;
 		flex-direction: column;
+		margin: 0;
 		align-items: flex-start;
-		max-height: 80vh;
+		height: 100%;
 	}
-	
-	.actionButtons{
+
+	.actionButtons {
 		width: 100%;
 		display: flex;
 		justify-content: flex-end;
 	}
-	
+
 	.actionButtons>* {
 		padding: 0;
 		font-size: 22px;
@@ -112,13 +145,15 @@ div.pageButtons::-webkit-scrollbar {
 		border-color: gray;
 		border-width: 1px;
 		border-radius: 5px;
+		margin: 0px 2.5px;
 		margin-bottom: 10px;
 	}
 
 	.infoDiv {
-		align-items: flex-start;
 		display: flex;
-		max-height: 80vh;
+		flex-grow: 1;
+		align-content: flex-start;
+		max-height: 100%;
 	}
 
 	.imageTitle,
@@ -129,29 +164,19 @@ div.pageButtons::-webkit-scrollbar {
 		writing-mode: vertical-rl;
 		transform: rotate(180deg);
 		max-height: 100%;
+		align-self: flex-start;
 	}
 
 	.imageTitle {
 		color: white;
 		font-weight: bold;
 		font-size: 35px;
+		text-align: right;
 	}
 
 	.subTitle {
 		color: gray;
 		font-size: 25px;
-	}
-
-	.results {
-		display: flex;
-		flex: 1;
-		margin: auto 0;
-		flex-wrap: nowrap;
-		overflow-x: auto;
-		justify-content: flex-start;
-		/* -webkit-overflow-scrolling: touch; */
-		/* scroll-behavior: smooth; */
-		/* transform: translateZ(0); */
 	}
 
 	.scrollbarHidden::-webkit-scrollbar {
@@ -163,12 +188,13 @@ div.pageButtons::-webkit-scrollbar {
 	}
 
 	*::-webkit-scrollbar {
-		width: 20px;
+		width: 5px;
 	}
 
 	*::-webkit-scrollbar-track {
-		background: nonef;
+		box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
 		border-radius: 10px;
+		background-color: transparent;
 	}
 
 	*::-webkit-scrollbar-thumb {
@@ -181,25 +207,30 @@ div.pageButtons::-webkit-scrollbar {
 		background-color: white;
 	}
 
+	.mainContent {
+		display: flex;
+		align-content: flex-start;
+		height: 100%;
+	}
+
 	.resultfile {
-		/* remove below line to disable upscaling of small images */
+		/* remove below line to disable upscaling of small images */f
+		padding: 0;
+		margin: 0;
 		min-height: 60vh;
-		max-height: calc(99vh - 120px);
+		max-height: 100%;
+		/* max-height: calc(99vh - 125px); */
 		/* max-height: calc(99vh - 150px); */
-		/* margin: 10px 5px; */
-		/* width: auto; */
-		/* max-width: 100%; */
-		/* margin:auto; */
-		/* display: block; */
 	}
 
 	.pagination {
 		position: fixed;
-		bottom: 25px;
+		bottom: 20px;
 		left: 0;
 		right: 0;
 		text-align: center;
 		padding: 5px;
+		margin-right: 10px;
 		/* background-color: #f1f1f1; */
 	}
 
@@ -297,7 +328,7 @@ div.pageButtons::-webkit-scrollbar {
 		border-radius: 5px;
 	}
 
-	.mainContent{
+	.mainContent {
 		max-width: 100vw;
 	}
 
