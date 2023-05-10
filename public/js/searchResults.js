@@ -78,6 +78,37 @@ document.addEventListener("DOMContentLoaded", function () {
 			centerVideo.play();
 		}
 	});
+
+	// Click and drag to scroll
+
+	let scrollable = document.querySelector('.results');
+	let isDown = false;
+	let startX;
+	let scrollLeft;
+
+	scrollable.addEventListener('mousedown', function (e) {
+		isDown = true;
+		startX = e.pageX - scrollable.offsetLeft;
+		scrollLeft = scrollable.scrollLeft;
+	});
+
+	scrollable.addEventListener('mouseleave', function () {
+		isDown = false;
+	});
+
+	scrollable.addEventListener('mouseup', function () {
+		isDown = false;
+	});
+
+	scrollable.addEventListener('mousemove', function (e) {
+		if (!isDown) return;
+		e.preventDefault();
+		let x = e.pageX - scrollable.offsetLeft;
+		let walk = (x - startX) * 3;
+		scrollable.scrollLeft = scrollLeft - walk;
+	});
+
+
 });
 
 
