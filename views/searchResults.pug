@@ -38,11 +38,11 @@ html
 									|#{folderName}
 						div.mainContent.scrollbarVisible
 							- let imageLinkEscaped = encodeURIComponent(imagePath)
-							//- a#contentLink(href='/?imageBackLink=' + imageLinkEscaped, target='_blank')
-							if (imagePath.endsWith('.mp4') || imagePath.endsWith('.webm') || imagePath.endsWith('.mkv'))
-								video.searchVid.resultFile(id='image'+index,src=imageLinkEscaped controls loop)
-							else
-								img.searchImg.resultFile(id='image'+index,src=imageLinkEscaped)
+							a#contentLink(href='/?imageBackLink=' + imageLinkEscaped, target='_blank')
+								if (imagePath.endsWith('.mp4') || imagePath.endsWith('.webm') || imagePath.endsWith('.mkv'))
+									video.searchVid.resultFile(id='image'+index,src=imageLinkEscaped controls loop)
+								else
+									img.searchImg.resultFile(id='image'+index,src=imageLinkEscaped)
 			if totalPages > 1
 				div.pagination
 					div.pageButtons(onwheel="this.scrollLeft += event.deltaY" onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")
