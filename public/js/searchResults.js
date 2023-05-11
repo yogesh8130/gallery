@@ -1,28 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-	// check if already in shuffle mode
-
-	const shuffleCheckbox = document.getElementById("shuffle");
-	const currentUrl = window.location.href;
-	const pagination = document.querySelector('.pagination');
-
-	if (currentUrl.includes("&shuffle=true")) {
-		shuffleCheckbox.checked = true;
-		pagination.style.display = 'none';
-	}
-
-	// if (!document.querySelector('div.pagination')) {
-	// 	document.querySelectorAll('img, video').forEach((el) => {
-	// 		el.style.maxHeight = '99vh';
-	// 	});
-	// }
-
-	// const imageTitle = document.querySelector('#imageTitle');
-	// const subTitle = document.querySelector('#subTitle');
-
-	// imageTitle.href = `/search?searchText=${encodeURIComponent(imageTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
-	// subTitle.href = `/search?searchText=${encodeURIComponent(subTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
-
 	const videos = document.querySelectorAll('.searchVid');
 	let centerVideo = null;
 
@@ -80,50 +57,48 @@ document.addEventListener("DOMContentLoaded", function () {
 			centerVideo.play();
 		}
 	});
-});
 
-
-function stopMainScroll() {
-	// check if screen layout is landscape
-	if (window.matchMedia("(orientation: landscape)").matches) {
-		window.addEventListener('wheel', preventDefault, { passive: false });
+	function stopMainScroll() {
+		// check if screen layout is landscape
+		if (window.matchMedia("(orientation: landscape)").matches) {
+			window.addEventListener('wheel', preventDefault, { passive: false });
+		}
 	}
-}
 
-function allowMainScroll() {
-	window.removeEventListener('wheel', preventDefault);
-}
+	function allowMainScroll() {
+		window.removeEventListener('wheel', preventDefault);
+	}
 
-function preventDefault(e) {
-	e.preventDefault();
-}
+	function preventDefault(e) {
+		e.preventDefault();
+	}
 
-document.addEventListener('keydown', function (event) {
-	if (event.altKey && event.code === 'Enter') {
-		goFullscreen()
-	}
-});
+	document.addEventListener('keydown', function (event) {
+		const focusedElement = document.activeElement;
+		if (focusedElement.nodeName === 'INPUT') {
+			// console.log('Currently focused element is an input field');
+			return
+		}
 
-document.addEventListener('keydown', function (event) {
-	if (event.key === 'f') {
-		goFullscreen()
-	}
-});
+		if (event.key === 'f') {
+			goFullscreen()
+		}
+		if (event.key === '1') {
+			showAllImagesAtActualSize();
+		}
+		if (event.key === '2') {
+			showAllImagesStreched();
+		}
+		if (event.key === '3') {
+			showAllImagesAtDefaultScale();
+		}
+		if (event.key === 's') {
+			const shuffleCheckbox = document.getElementById("shuffle");
+			shuffleCheckbox.checked = !shuffleCheckbox.checked;
+			shuffleToggle();
+		}
+	});
 
-document.addEventListener('keydown', function (event) {
-	if (event.key === '1') {
-		showAllImagesAtActualSize();
-	}
-});
-document.addEventListener('keydown', function (event) {
-	if (event.key === '2') {
-		showAllImagesStreched();
-	}
-});
-document.addEventListener('keydown', function (event) {
-	if (event.key === '3') {
-		showAllImagesAtDefaultScale();
-	}
 });
 
 function goFullscreen() {
@@ -163,7 +138,7 @@ function showAtActualScale(index) {
 	if (image.style.maxHeight !== 'fit-content') {
 		image.style.maxHeight = 'fit-content'
 	} else {
-		image.style.maxHeight = '100%'
+		image.style.maxHeight = '99%'
 	}
 }
 
@@ -175,24 +150,26 @@ function showAllImagesAtActualSize() {
 		resultFile.style.maxHeight = 'fit-content';
 	});
 }
+
 function showAllImagesStreched() {
 	let resultFiles = document.querySelectorAll('.resultFile');
 	// console.log(resultFiles.length);
 	resultFiles.forEach(resultFile => {
-		resultFile.style.minHeight = '100%';
-		resultFile.style.maxHeight = '100%';
+		resultFile.style.minHeight = '99%';
+		resultFile.style.maxHeight = '99%';
 	});
 }
+
 function showAllImagesAtDefaultScale() {
 	let resultFiles = document.querySelectorAll('.resultFile');
 	// console.log(resultFiles.length);
 	resultFiles.forEach(resultFile => {
 		resultFile.style.minHeight = '75%';
-		resultFile.style.maxHeight = '100%';
+		resultFile.style.maxHeight = '99%';
 	});
 }
 
-function shuffle() {
+function shuffleToggle() {
 	let shuffleCheckbox = document.getElementById('shuffle');
 	const currentUrl = window.location.href;
 
@@ -200,7 +177,7 @@ function shuffle() {
 		const newUrl = `${currentUrl}&shuffle=true`;
 		window.location.href = newUrl;
 	} else {
-		const newUrl = currentUrl.replace("&shuffle=true", "");
+		const newUrl = currentUrl.replace("&shuffle=true", "").replace("&shuffle=on", "");
 		window.location.href = newUrl;
 	}
 }

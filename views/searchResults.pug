@@ -12,12 +12,24 @@ html
 						h1 Search Results for "#{searchText}"
 					h2 Showing #{matchingImagePaths.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
 				div.controlsDiv
-					div.shuffleDiv
-						label(for="shuffle") Shuffle
-						input(type="checkbox" id="shuffle" name="shuffle" onclick="shuffle()")
 			//- uncomment this if you want to scroll horizontally with mousewheen
 			//- - div.results(onwheel="this.scrollLeft += event.deltaY * 2" onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")
 			div.results
+				div.forms
+					div.searchForm
+						form(action="", method="get")
+							input(type="text", name='searchText', id='search', placeholder='Search')
+							div.shuffleDiv
+								label(for="shuffle") Shuffle
+								if shuffle
+									input(type="checkbox", id="shuffle", name="shuffle", onclick='shuffleToggle()', checked)
+								else
+									input(type="checkbox", id="shuffle", name="shuffle", onclick='shuffleToggle()')
+					div.scaleButtons
+						button(onclick='showAllImagesAtActualSize()') Actual
+						button(onclick='showAllImagesStreched()') Fit
+						button(onclick='showAllImagesAtDefaultScale()') Default
+					div.dummyForm
 				if matchingImagePaths.length === 0
 					p No matching images found.
 				else
@@ -44,7 +56,7 @@ html
 										video.searchVid.resultFile(id='image'+index,src=imageLinkEscaped controls loop)
 									else
 										img.searchImg.resultFile(id='image'+index,src=imageLinkEscaped)
-			if totalPages > 1
+			if totalPages > 1 && !shuffle
 				div.pagination
 					div.pageButtons(onwheel="this.scrollLeft += event.deltaY" onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")
 						each page_num in Array(totalPages).fill().map((_, i) => i + 1)
@@ -60,4 +72,4 @@ html
 							a#nextPageButton(href=`/search?searchText=${searchText}&page=${page - (-1)}`, title='Next Page') >#{page - (-1)}
 							a#lastPageButton(href=`/search?searchText=${searchText}&page=${totalPages}`, title='Last Page') >#{totalPages}]
 			div.dummyFooter
-		button#fullscreenButton(title='Fullscreen (Alt + Enter)' onclick='showHideHeadingDiv()') 🢅
+		button#fullscreenButton(title='Fullscreen (Alt + Enter)' onclick='goFullscreen()') 🢅

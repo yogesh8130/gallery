@@ -1,6 +1,7 @@
 * {
 	margin: 0;
 	box-sizing: border-box;
+	transition: all 0.5s ease;
 }
 
 h1,
@@ -105,9 +106,6 @@ div.pageButtons::-webkit-scrollbar {
 		align-items: center;
 	}
 
-	.shuffleDiv {
-		margin: auto;
-	}
 
 	#shuffle {
 		margin: 5px;
@@ -138,6 +136,73 @@ div.pageButtons::-webkit-scrollbar {
 		height: 100%;
 	}
 
+	div.forms {
+		display: flex;
+		align-items: flex-start;
+		flex-direction: column;
+		height: 100%;
+		color: white;
+	}
+
+	input {
+		width: 250px;
+		height: 30px;
+		font-size: 20px;
+		background-color: rgb(29, 29, 29);
+		border: none;
+		margin: 2.5px 5px;
+		padding: 5px;
+		color: white;
+	}
+
+	label {
+		margin: 0 5px;
+		font-size: 20px;
+		color: gray;
+	}
+
+	input[type='checkbox'] {
+		width: 20px;
+		height: 20px;
+	}
+
+
+	div.searchForm {
+		display: flex;
+	}
+
+	div.shuffleDiv {
+		background-color: rgb(29, 29, 29);
+		display: flex;
+		justify-content: space-between;
+		width: 250px;
+		height: 30px;
+		flex-direction: row;
+		margin: 2.5px 5px;
+	}
+
+	div.scaleButtons {
+		margin: 2.5px 5px;
+		width: 250px;
+		height: 30px;
+		display: flex;
+		gap: 5px;
+	}
+
+	button {
+		font-size: 20px;
+		color: gray;
+		background-color: rgb(29, 29, 29);
+		border: none;
+		flex: 1;
+		padding: 5px;
+	}
+
+	button:hover {
+		background-color: white;
+		color: black;
+	}
+
 	.result {
 		display: flex;
 		flex-direction: row;
@@ -160,15 +225,15 @@ div.pageButtons::-webkit-scrollbar {
 
 	.actionButtons>* {
 		padding: 0;
-		font-size: 22px;
-		width: 40px;
-		height: 40px;
+		font-size: 17px;
+		width: 26px;
+		height: 26px;
 		background-color: black;
 		border: solid;
 		border-color: gray;
 		border-width: 1px;
 		border-radius: 5px;
-		margin: 0px 2.5px;
+		margin: 0px 1.5px;
 		margin-bottom: 10px;
 		max-height: 100%;
 	}
@@ -178,7 +243,6 @@ div.pageButtons::-webkit-scrollbar {
 		flex-grow: 1;
 		align-content: flex-start;
 		height: 89%;
-		word-wrap: break-word;
 		word-break: break-word;
 		text-align: right;
 	}
@@ -192,19 +256,18 @@ div.pageButtons::-webkit-scrollbar {
 		max-height: 100%;
 		align-self: flex-start;
 		width: fit-content;
+		font-size: 22px;
 	}
 
 	.imageTitle {
 		color: white;
 		font-weight: bold;
-		font-size: 35px;
 	}
 
 	.subTitle {
 		color: gray;
-		font-size: 25px;
-	}	
-	
+	}
+
 	.mainContent {
 		display: flex;
 		align-content: flex-start;
@@ -217,11 +280,12 @@ div.pageButtons::-webkit-scrollbar {
 		/* remove below line to disable upscaling of small images */
 		min-height: auto;
 		max-height: 99%;
+		background-color: #4CAF50;
 	}
 
 	*::-webkit-scrollbar {
 		width: 10px;
-	}	
+	}
 
 	/* *::-webkit-scrollbar-track {
 		box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
@@ -233,11 +297,11 @@ div.pageButtons::-webkit-scrollbar {
 		background-color: rgb(29, 29, 29);
 		border-radius: 10px;
 		border: 2px solid rgb(51, 51, 51);
-	}	
+	}
 
 	*::-webkit-scrollbar-thumb:hover {
 		background-color: white;
-	}	
+	}
 
 	.pagination {
 		position: fixed;
@@ -333,7 +397,7 @@ div.pageButtons::-webkit-scrollbar {
 	/* search results page */
 	body {
 		background-color: black;
-		max-width: 100vw;
+		max-width: 100%;
 	}
 
 	h1 {
@@ -349,16 +413,55 @@ div.pageButtons::-webkit-scrollbar {
 		margin-bottom: 2em;
 	}
 
-	.shuffleDiv {
+	div.forms {
 		display: flex;
-		flex-direction: row;
-		font-size: 40px;
-		align-content: center;
+		align-items: flex-start;
+		flex-direction: column;
+		width: 100%;
+		color: white;
+		margin-bottom: 40px;
 	}
 
-	#shuffle {
-		transform: scale(2);
-		margin: 15px;
+	input {
+		width: 100%;
+		height: 80px;
+		font-size: 40px;
+		background-color: rgb(29, 29, 29);
+		border: none;
+		margin: 5px 10px;
+		padding: 5px 20px;
+		color: white;
+	}
+
+	label {
+		margin: 15px 20px;
+		font-size: 40px;
+		color: gray;
+	}
+
+	input[type='checkbox'] {
+		margin-top: 10px;
+		width: 60px;
+		height: 60px;
+	}
+
+
+	div.searchForm {
+		display: flex;
+	}
+
+	div.shuffleDiv {
+		background-color: rgb(29, 29, 29);
+		display: flex;
+		justify-content: space-between;
+		width: 100%;
+		height: 80px;
+		flex-direction: row;
+		margin: 5px 10px;
+	}
+
+	div.scaleButtons{
+		display: none;
 	}
 
 	.results {
@@ -383,6 +486,7 @@ div.pageButtons::-webkit-scrollbar {
 	/* force title and subtitle on separate lines */
 	.infoDiv {
 		display: flex;
+		flex-grow: 1;
 		flex-direction: column;
 	}
 
@@ -419,7 +523,7 @@ div.pageButtons::-webkit-scrollbar {
 	}
 
 	.resultFile {
-		width: 100vw;
+		width: 100%;
 	}
 
 	.pagination {

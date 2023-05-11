@@ -315,9 +315,14 @@ app.get('/search', (req, res) => {
 
 	const searchText = req.query.searchText;
 	console.log("searchText: " + searchText);
-	
-	const shuffleFlag = req.query.shuffle;
-	
+
+	let shuffleFlag = false;
+	if (req.query.shuffle
+		&& (req.query.shuffle === 'true'
+			|| req.query.shuffle === 'on')) {
+		shuffleFlag = true;
+	}
+
 	if (searchText.includes('&&')
 		|| searchText.includes('||')
 		|| searchText.includes('!!')) {
@@ -382,6 +387,14 @@ app.get('/search', (req, res) => {
 			}
 		});
 
+		// console.log("Processing OR tokens");
+		imageList.forEach(imagePath => {
+			let containsSome = orTokens.some(orToken => imagePath.toLowerCase().includes(orToken.toLowerCase()));
+			if (containsSome) {
+				matchingImagePaths.push(imagePath);
+			}
+		});
+		
 		// console.log("Processing NOT tokens");
 		for (let i = matchingImagePaths.length - 1; i >= 0; i--) {
 			let matchingPath = matchingImagePaths[i];
@@ -390,15 +403,6 @@ app.get('/search', (req, res) => {
 				matchingImagePaths.splice(i, 1);
 			}
 		}
-
-		// console.log("Processing OR tokens");
-		imageList.forEach(imagePath => {
-			let containsSome = orTokens.some(orToken => imagePath.toLowerCase().includes(orToken.toLowerCase()));
-			if (containsSome) {
-				matchingImagePaths.push(imagePath);
-			}
-		});
-
 
 	} else if (searchText.startsWith('//')) {
 		let pattern = searchText.slice(1); // remove the leading forward slash
@@ -416,7 +420,7 @@ app.get('/search', (req, res) => {
 	// 	imagePaths.indexOf(matchingPath)
 	// );
 
-	if (shuffleFlag && shuffleFlag === 'true') {
+	if (shuffleFlag) {
 		shuffle(matchingImagePaths);
 	}
 
@@ -439,6 +443,7 @@ app.get('/search', (req, res) => {
 		// matchingImageIndexes: pageImageIndexes,
 		page,
 		totalPages,
+		shuffle: shuffleFlag
 	});
 });
 
