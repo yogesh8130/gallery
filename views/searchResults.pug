@@ -25,24 +25,25 @@ html
 						- const lastSlashIndex = imagePath.lastIndexOf('\\')
 						- const folderName = imagePath.substring(0, lastSlashIndex)
 						- const imageName = imagePath.substring(lastSlashIndex + 1)
-						div.imageSidebar
-							div.actionButtons
-								button.hideSimilarButton ⛔
-								button.showAtActualScaleButton(onclick=`showAtActualScale(${index})`) ⭕
-							div.infoDiv
-								- let similarImageLink = encodeURIComponent(imageName.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())
-								a.imageTitle(href='/search?searchText='+similarImageLink)
-									| #{imageName} 
-								- let folderlink = encodeURIComponent(folderName)
-								a.subTitle(href='/search?searchText='+folderlink)
-									|#{folderName}
-						div.mainContent.scrollbarVisible
-							- let imageLinkEscaped = encodeURIComponent(imagePath)
-							a#contentLink(href='/?imageBackLink=' + imageLinkEscaped)
-								if (imagePath.endsWith('.mp4') || imagePath.endsWith('.webm') || imagePath.endsWith('.mkv'))
-									video.searchVid.resultFile(id='image'+index,src=imageLinkEscaped controls loop)
-								else
-									img.searchImg.resultFile(id='image'+index,src=imageLinkEscaped)
+						div.result
+							div.imageSidebar
+								div.actionButtons
+									button.hideSimilarButton ⛔
+									button.showAtActualScaleButton(onclick=`showAtActualScale(${index})`) ⭕
+								div.infoDiv
+									- let similarImageLink = encodeURIComponent(imageName.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())
+									a.imageTitle(href='/search?searchText='+similarImageLink)
+										| #{imageName} 
+									- let folderlink = encodeURIComponent(folderName)
+									a.subTitle(href='/search?searchText='+folderlink)
+										|#{folderName}
+							div.mainContent.scrollbarVisible
+								- let imageLinkEscaped = encodeURIComponent(imagePath)
+								a#contentLink(href='/?imageBackLink=' + imageLinkEscaped)
+									if (imagePath.endsWith('.mp4') || imagePath.endsWith('.webm') || imagePath.endsWith('.mkv'))
+										video.searchVid.resultFile(id='image'+index,src=imageLinkEscaped controls loop)
+									else
+										img.searchImg.resultFile(id='image'+index,src=imageLinkEscaped)
 			if totalPages > 1
 				div.pagination
 					div.pageButtons(onwheel="this.scrollLeft += event.deltaY" onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")

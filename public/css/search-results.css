@@ -140,6 +140,11 @@ div.pageButtons::-webkit-scrollbar {
 		/* transform: translateZ(0); */
 	}
 
+	.result {
+		display: flex;
+		flex-direction: row;
+	}
+
 	.imageSidebar {
 		display: flex;
 		flex-direction: column;
@@ -342,7 +347,7 @@ div.pageButtons::-webkit-scrollbar {
 		margin-bottom: 2em;
 	}
 
-	.shuffleDiv{
+	.shuffleDiv {
 		display: flex;
 		flex-direction: row;
 		font-size: 40px;
@@ -354,10 +359,21 @@ div.pageButtons::-webkit-scrollbar {
 		margin: 15px;
 	}
 
+	.results {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.result {
+		display: flex;
+		flex-direction: column;
+	}
+
 	.imageSidebar {
 		display: flex;
+		order: 2;
 		flex-direction: row-reverse;
-		max-width: 100vw;
+		max-width: 100%;
 		justify-content: space-between;
 		align-items: center;
 	}
@@ -380,6 +396,7 @@ div.pageButtons::-webkit-scrollbar {
 	}
 
 	.mainContent {
+		order: 1;
 		max-width: 100vw;
 	}
 
