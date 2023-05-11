@@ -326,7 +326,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			// window.location.href = `/search?searchText=${searchText}`; // opens in same window
 
 			const searchUrl = `/search?searchText=${encodeURIComponent(searchText)}`;
-			window.open(searchUrl, '_blank');
+			window.open(searchUrl);
 		}
 	});
 
@@ -369,7 +369,7 @@ function search() {
 	if (searchText.trim() !== '') {
 		// window.location.href = `/search?searchText=${searchText}`; // opens in same window
 		const searchUrl = `/search?searchText=${encodeURIComponent(searchText)}`;
-		window.open(searchUrl, '_blank');
+		window.open(searchUrl);
 	}
 }
 
@@ -378,6 +378,6 @@ function searchShuffled() {
 	if (searchText.trim() !== '') {
 		// window.location.href = `/search?searchText=${searchText}`; // opens in same window
 		const searchUrl = `/search?searchText=${encodeURIComponent(searchText)}&shuffle=true`;
-		window.open(searchUrl, '_blank');
+		window.open(searchUrl);
 	}
 }

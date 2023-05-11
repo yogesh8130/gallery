@@ -4,9 +4,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	const shuffleCheckbox = document.getElementById("shuffle");
 	const currentUrl = window.location.href;
+	const pagination = document.querySelector('.pagination');
 
 	if (currentUrl.includes("&shuffle=true")) {
 		shuffleCheckbox.checked = true;
+		pagination.style.display = 'none';
 	}
 
 	// if (!document.querySelector('div.pagination')) {

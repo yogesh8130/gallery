@@ -14,7 +14,7 @@ html
 			input#newFileName(type='text' name='newFileName' placeholder='New name')
 			button#renameButton Rename
 		div#info
-			a#imageTitle(href='/search?searchText='+imageName, target='_blank')
+			a#imageTitle(href='/search?searchText='+imageName)
 				|#{imageName}
 			span#renameStatus
 		div#mainContent
@@ -24,7 +24,7 @@ html
 			else
 				img#randomImage(src=imageLinkEscaped)
 		div#info
-			a#subTitle(href='/search?searchText='+directoryPath, target='_blank')
+			a#subTitle(href='/search?searchText='+directoryPath)
 				|#{directoryPath}
 		div.navigation
 			button#similarButton(style="visibility:hidden") Similar

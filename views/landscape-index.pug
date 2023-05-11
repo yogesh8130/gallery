@@ -14,10 +14,10 @@ html
 				img#randomImage(src=imageLinkEscaped)
 		div#bottomContainer
 			div#info
-				a#imageTitle(href='/search?searchText='+imageName, target='_blank')
+				a#imageTitle(href='/search?searchText='+imageName)
 					|#{imageName}
 				br
-				a#subTitle(href='/search?searchText='+directoryPath, target='_blank')
+				a#subTitle(href='/search?searchText='+directoryPath)
 					|#{directoryPath}
 			div#navigationdiv
 				div.navigation
