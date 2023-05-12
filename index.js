@@ -115,9 +115,12 @@ app.get('/refreshDB', (req, res) => {
 	}
 });
 
-
 // Define a route to handle requests for the main page
 app.get('/', (req, res) => {
+	res.redirect('/search?searchText=.&shuffle=true');
+})
+
+app.get('/singleView', (req, res) => {
 	let requestedIndex = req.query.index;
 	let imageBackLink = req.query.imageBackLink;
 

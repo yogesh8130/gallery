@@ -3,7 +3,6 @@ html
 	head
 		title Search Results
 		link(rel="stylesheet" href="/css/search-results.css")
-		script(src='/js/searchResults.js')
 	body
 		div.mainDiv
 			div.header
@@ -53,7 +52,7 @@ html
 										|#{folderName}
 							div.mainContent
 								- let imageLinkEscaped = encodeURIComponent(imagePath)
-								a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped, ondblclick=`location.href="/?imageBackLink=${imageLinkEscaped}"`)
+								a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped, ondblclick=`location.href="/singleView?imageBackLink=${imageLinkEscaped}"`)
 									if (imagePath.endsWith('.mp4') || imagePath.endsWith('.webm') || imagePath.endsWith('.mkv'))
 										video.searchVid.resultFile(id='image'+index,src=imageLinkEscaped controls loop)
 									else
@@ -75,3 +74,4 @@ html
 							a#lastPageButton(href=`/search?searchText=${searchText}&page=${totalPages}`, title='Last Page') >#{totalPages}]
 			div.dummyFooter
 		button#fullscreenButton(title='Fullscreen (Alt + Enter)' onclick='goFullscreen()') 🢅
+		script(src='/js/searchResults.js')

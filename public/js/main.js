@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
 				subTitle.href = `/search?searchText=${encodeURIComponent(subTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
 
 				let index = data.index;
-				history.pushState(null, '', `/?index=${encodeURIComponent(index)}`); // updating the url with index of the file, this doesnt load anything only changes the url
+				history.pushState(null, '', `/singleView?index=${encodeURIComponent(index)}`); // updating the url with index of the file, this doesnt load anything only changes the url
 
 				const filetype = data.filetype;
 				console.log(filetype);
@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
 					subTitle.href = `/search?searchText=${encodeURIComponent(subTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
 
 					let index = data.index;
-					history.pushState(null, '', `/?index=${encodeURIComponent(index)}`);
+					history.pushState(null, '', `/singleView?index=${encodeURIComponent(index)}`);
 
 					const filetype = data.filetype;
 					console.log(filetype);
@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", function () {
 					subTitle.href = `/search?searchText=${encodeURIComponent(subTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
 
 					let index = data.index;
-					history.pushState(null, '', `/?index=${encodeURIComponent(index)}`);
+					history.pushState(null, '', `/singleView?index=${encodeURIComponent(index)}`);
 
 					const filetype = data.filetype;
 					console.log(filetype);
@@ -155,7 +155,7 @@ document.addEventListener("DOMContentLoaded", function () {
 				subTitle.href = `/search?searchText=${encodeURIComponent(subTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
 
 				let index = data.index;
-				history.pushState(null, '', `/?index=${encodeURIComponent(index)}`);
+				history.pushState(null, '', `/singleView?index=${encodeURIComponent(index)}`);
 
 				const filetype = data.filetype;
 				console.log(filetype);
@@ -188,7 +188,7 @@ document.addEventListener("DOMContentLoaded", function () {
 				subTitle.href = `/search?searchText=${encodeURIComponent(subTitle.textContent.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())}`
 
 				let index = data.index;
-				history.pushState(null, '', `/?index=${encodeURIComponent(index)}`);
+				history.pushState(null, '', `/singleView?index=${encodeURIComponent(index)}`);
 
 				const filetype = data.filetype;
 				console.log(filetype);
@@ -296,7 +296,7 @@ document.addEventListener("DOMContentLoaded", function () {
 				if (response.ok) {
 					console.log('Database refreshed successfully');
 					// location.reload(); // reload the page after the database is refreshed
-					location = '/';
+					// location = '/';
 				} else {
 					throw new Error('Error refreshing database');
 				}
