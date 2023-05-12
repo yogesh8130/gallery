@@ -1,9 +1,21 @@
-Place the hardlinks / folders in /public/images/
+## Introduction
+This is just a gallery that works in yout browser, and is meant for viewing your images and videos without being constrained to the directory structures.
+Makes discovering stuff easier with instant search and exploring fun with shuffle mode.
+The text you see on the screen is always hyperlinked and will take you to similar content based on the file/directory names.
 
-`cd` to the project folder
-Run with `node .\index.js`
+Currently this does not read the file tags but may integrate that in furture, so currently it is important that your image names and folder names are meaningful for search to work.
 
-Homepage: `Localhost:3000`
+## Getting Started
+Place the hardlinks / junctions / symlinks / folders containing images in `<project folder>/public/images/<here>`  
+
+Using a terminal `cd` to the project folder where `index.js` file is located  
+Run the server with `node .\index.js`
+
+The gallery website can then be accessed on the same system with below url:  
+`Localhost:3000`  
+or you can access on your lan with
+`<ip address where server is running>:3000`
+
 ## Searching
 Searching is done in three modes (case insensitive)
 1. Normal: entire string is searched in all filenames
