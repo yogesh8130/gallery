@@ -25,10 +25,12 @@ html
 									input(type="checkbox", id="shuffle", name="shuffle", onclick='shuffleToggle()', checked)
 								else
 									input(type="checkbox", id="shuffle", name="shuffle", onclick='shuffleToggle()')
-					div.scaleButtons
-						button(onclick='showAllImagesAtActualSize()') Actual
-						button(onclick='showAllImagesStreched()') Fit
-						button(onclick='showAllImagesAtDefaultScale()') Default
+					div.scaleButtons.buttonControls
+						button.default(onclick='showAllImagesAtActualSize()') Actual
+						button.default(onclick='showAllImagesStreched()') Fit
+						button.default(onclick='showAllImagesAtDefaultScale()') Default
+					div.refreshDBDiv.buttonControls
+						button.default(id='refreshDBButton', onclick='refreshDB()') Refresh DB
 					div.dummyForm
 				if matchingImagePaths.length === 0
 					p No matching images found.
@@ -51,7 +53,7 @@ html
 										|#{folderName}
 							div.mainContent
 								- let imageLinkEscaped = encodeURIComponent(imagePath)
-								a#contentLink(href='/?imageBackLink=' + imageLinkEscaped)
+								a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped, ondblclick=`location.href="/?imageBackLink=${imageLinkEscaped}"`)
 									if (imagePath.endsWith('.mp4') || imagePath.endsWith('.webm') || imagePath.endsWith('.mkv'))
 										video.searchVid.resultFile(id='image'+index,src=imageLinkEscaped controls loop)
 									else

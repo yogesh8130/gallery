@@ -106,9 +106,9 @@ app.get('/refreshDB', (req, res) => {
 
 			// Log the time it took to load the files in seconds
 			console.log(`Loaded ${imagePaths.length} files in ${(endTime - startTime) / 1000} seconds.`);
+			res.sendStatus(200); // send a success response to the client
 		})();
 
-		res.sendStatus(200); // send a success response to the client
 	} catch (error) {
 		console.error(error);
 		res.status(500).send('Error refreshing database'); // send an error response to the client

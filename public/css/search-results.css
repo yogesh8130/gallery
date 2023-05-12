@@ -1,7 +1,7 @@
 * {
 	margin: 0;
 	box-sizing: border-box;
-	transition: all 0.5s ease;
+	transition: all 0.3s ease;
 }
 
 h1,
@@ -181,7 +181,7 @@ div.pageButtons::-webkit-scrollbar {
 		margin: 2.5px 5px;
 	}
 
-	div.scaleButtons {
+	div.buttonControls {
 		margin: 2.5px 5px;
 		width: 250px;
 		height: 30px;
@@ -189,10 +189,9 @@ div.pageButtons::-webkit-scrollbar {
 		gap: 5px;
 	}
 
+
 	button {
 		font-size: 20px;
-		color: gray;
-		background-color: rgb(29, 29, 29);
 		border: none;
 		flex: 1;
 		padding: 5px;
@@ -202,6 +201,27 @@ div.pageButtons::-webkit-scrollbar {
 		background-color: white;
 		color: black;
 	}
+
+	.default {
+		color: gray;
+		background-color: rgb(29, 29, 29);
+	}
+
+	.processing{
+		background-color: orange;
+		color: white;
+	}
+
+	.success {
+		background-color: green;
+		color: white;
+	}
+
+	.error {
+		background-color: red;
+		color: white;
+	}
+
 
 	.result {
 		display: flex;
@@ -459,7 +479,7 @@ div.pageButtons::-webkit-scrollbar {
 		margin: 5px 10px;
 	}
 
-	div.scaleButtons{
+	div.scaleButtons {
 		display: none;
 	}
 

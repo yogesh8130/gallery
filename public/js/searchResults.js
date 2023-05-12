@@ -1,7 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
-
+	
+	dragToScrollEnable();
+	
 	const videos = document.querySelectorAll('.searchVid');
-	let centerVideo = null;
+	let centerVideo = null
 
 	const observer = new IntersectionObserver(entries => {
 		entries.forEach(entry => {
@@ -180,4 +182,94 @@ function shuffleToggle() {
 		const newUrl = currentUrl.replace("&shuffle=true", "").replace("&shuffle=on", "");
 		window.location.href = newUrl;
 	}
+}
+
+function removeImageLinksAndSave() {
+	// Get all the img elements on the page
+	const images = document.querySelectorAll('.contentLink');
+
+	// Loop through each img element and store its href attribute value in a data attribute
+	for (const image of images) {
+		if (image.hasAttribute('href')) {
+			image.setAttribute('data-original-href', image.getAttribute('href'));
+			image.removeAttribute('href');
+		}
+	}
+}
+
+// Return a function to restore the original href attribute values
+function restoreImageLinks() {
+	const images = document.querySelectorAll('.contentLink');
+	// Loop through each img element and restore its href attribute value from the data attribute
+	for (const image of images) {
+		const originalHref = image.getAttribute('data-original-href');
+		if (originalHref) {
+			image.setAttribute('href', originalHref);
+			image.removeAttribute('data-original-href');
+		}
+	}
+}
+
+
+function dragToScrollEnable() {
+	let scrollable = document.querySelector('.results');
+	let isDown = false;
+	let startX;
+	let scrollLeft;
+
+	// removeImageLinksAndSave();
+
+	scrollable.addEventListener('mousedown', function (e) {
+		isDown = true;
+		startX = e.pageX - scrollable.offsetLeft;
+		scrollLeft = scrollable.scrollLeft;
+	});
+
+	scrollable.addEventListener('mouseleave', function () {
+		isDown = false;
+	});
+
+	scrollable.addEventListener('mouseup', function () {
+		isDown = false;
+	});
+
+	scrollable.addEventListener('mousemove', function (e) {
+		if (!isDown) return;
+		e.preventDefault();
+		let x = e.pageX - scrollable.offsetLeft;
+		let walk = (x - startX) * 2;
+		scrollable.scrollLeft = scrollLeft - walk;
+	});
+}
+
+function refreshDB() {
+
+	const refreshDBButton = document.getElementById('refreshDBButton');
+	refreshDBButton.classList.add('processing');
+
+	fetch('/refreshDB')
+		.then(response => {
+			if (response.ok) {
+				console.log('Database refreshed successfully');
+				refreshDBButton.classList.add('success');
+				refreshDBButton.classList.remove('processing');
+				refreshDBButton.classList.remove('default');
+				setTimeout(() => {
+					refreshDBButton.classList.remove('success');
+					refreshDBButton.classList.add('default');
+				}, 3000);
+			} else {
+				refreshDBButton.classList.add('error');
+				refreshDBButton.classList.remove('default');
+				refreshDBButton.classList.remove('processing');
+				setTimeout(() => {
+					refreshDBButton.classList.remove('error');
+					refreshDBButton.classList.add('default');
+				}, 3000);
+				throw new Error('Error refreshing database');
+			}
+		})
+		.catch(error => {
+			console.error(error);
+		});
 }
