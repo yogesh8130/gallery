@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
-	
+
 	dragToScrollEnable();
-	
+
 	const videos = document.querySelectorAll('.searchVid');
 	let centerVideo = null
 
@@ -215,14 +215,16 @@ function dragToScrollEnable() {
 	let scrollable = document.querySelector('.results');
 	let isDown = false;
 	let startX;
+	let startY;
 	let scrollLeft;
-
-	// removeImageLinksAndSave();
+	let scrollTop;
 
 	scrollable.addEventListener('mousedown', function (e) {
 		isDown = true;
 		startX = e.pageX - scrollable.offsetLeft;
+		startY = e.pageY - scrollable.offsetTop;
 		scrollLeft = scrollable.scrollLeft;
+		scrollTop = scrollable.scrollTop;
 	});
 
 	scrollable.addEventListener('mouseleave', function () {
@@ -237,8 +239,11 @@ function dragToScrollEnable() {
 		if (!isDown) return;
 		e.preventDefault();
 		let x = e.pageX - scrollable.offsetLeft;
-		let walk = (x - startX) * 2;
-		scrollable.scrollLeft = scrollLeft - walk;
+		let y = e.pageY - scrollable.offsetTop;
+		let walkX = (x - startX) * 2;
+		let walkY = (y - startY) * 2;
+		scrollable.scrollLeft = scrollLeft - walkX;
+		scrollable.scrollTop = scrollTop - walkY;
 	});
 }
 

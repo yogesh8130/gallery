@@ -292,6 +292,7 @@ div.pageButtons::-webkit-scrollbar {
 		display: flex;
 		align-content: flex-start;
 		height: 100%;
+		/* overflow-y: scroll; */
 	}
 
 	.resultFile {
@@ -300,6 +301,7 @@ div.pageButtons::-webkit-scrollbar {
 		/* remove below line to disable upscaling of small images */
 		min-height: auto;
 		max-height: 99%;
+		z-index: 1;
 	}
 
 	*::-webkit-scrollbar {
