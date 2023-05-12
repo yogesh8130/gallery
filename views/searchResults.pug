@@ -15,15 +15,14 @@ html
 			//- - div.results(onwheel="this.scrollLeft += event.deltaY * 2" onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")
 			div.results
 				div.forms
-					div.searchForm
-						form(action="", method="get")
-							input(type="text", name='searchText', id='search', placeholder='Search')
-							div.shuffleDiv
-								label(for="shuffle") Shuffle
-								if shuffle
-									input(type="checkbox", id="shuffle", name="shuffle", onclick='shuffleToggle()', checked)
-								else
-									input(type="checkbox", id="shuffle", name="shuffle", onclick='shuffleToggle()')
+					form.searchForm(action="", method="get")
+						input(type="text", name='searchText', id='search', placeholder='Search')
+						div.shuffleDiv
+							label(for="shuffle") Shuffle
+							if shuffle
+								input(type="checkbox", id="shuffle", name="shuffle", onclick='shuffleToggle()', checked)
+							else
+								input(type="checkbox", id="shuffle", name="shuffle", onclick='shuffleToggle()')
 					div.scaleButtons.buttonControls
 						button.default(onclick='showAllImagesAtActualSize()') Actual
 						button.default(onclick='showAllImagesStreched()') Fit

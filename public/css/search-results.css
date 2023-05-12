@@ -39,6 +39,26 @@ a {
 	text-decoration: none;
 }
 
+button.default {
+	color: gray;
+	background-color: rgb(29, 29, 29);
+}
+
+button.processing {
+	background-color: orange;
+	color: white;
+}
+
+button.success {
+	background-color: green;
+	color: white;
+}
+
+button.error {
+	background-color: red;
+	color: white;
+}
+
 .pagination {
 	display: flex;
 	flex-direction: row;
@@ -201,27 +221,6 @@ div.pageButtons::-webkit-scrollbar {
 		background-color: white;
 		color: black;
 	}
-
-	.default {
-		color: gray;
-		background-color: rgb(29, 29, 29);
-	}
-
-	.processing{
-		background-color: orange;
-		color: white;
-	}
-
-	.success {
-		background-color: green;
-		color: white;
-	}
-
-	.error {
-		background-color: red;
-		color: white;
-	}
-
 
 	.result {
 		display: flex;
@@ -415,10 +414,23 @@ div.pageButtons::-webkit-scrollbar {
 /* Styles for portrait orientation */
 @media screen and (orientation: portrait) {
 
-	/* search results page */
+	html {
+		width: 100%;
+		margin: 0;
+	}
+
 	body {
+		display: flex;
+		flex-direction: column;
+		padding: 10px;
 		background-color: black;
-		max-width: 100%;
+		width: 100%;
+	}
+
+	.mainDiv {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
 	}
 
 	h1 {
@@ -434,60 +446,79 @@ div.pageButtons::-webkit-scrollbar {
 		margin-bottom: 2em;
 	}
 
-	div.forms {
+	.results {
+		width: 100%;
 		display: flex;
-		align-items: flex-start;
+		flex-direction: column;
+	}
+
+	.forms {
+		display: flex;
 		flex-direction: column;
 		width: 100%;
 		color: white;
 		margin-bottom: 40px;
+		padding: 10px;
+		gap: 20px;
+	}
+
+	.searchForm {
+		display: flex;
+		flex-direction: row-reverse;
+		gap: 20px;
+	}
+
+	.searchForm>* {
+		width: 50%;
 	}
 
 	input {
-		width: 100%;
 		height: 80px;
 		font-size: 40px;
 		background-color: rgb(29, 29, 29);
 		border: none;
-		margin: 5px 10px;
-		padding: 5px 20px;
 		color: white;
+		padding: 20px;
 	}
 
 	label {
-		margin: 15px 20px;
 		font-size: 40px;
 		color: gray;
+		padding: 20px;
 	}
 
 	input[type='checkbox'] {
 		margin-top: 10px;
 		width: 60px;
 		height: 60px;
+		margin: 10px;
 	}
 
-
-	div.searchForm {
+	div.buttonControls {
+		height: 80px;
 		display: flex;
 	}
 
-	div.shuffleDiv {
+	button {
+		font-size: 40px;
+		border: none;
+		flex: 1;
+	}
+
+	.searchForm {
+		display: flex;
+	}
+
+	.shuffleDiv {
 		background-color: rgb(29, 29, 29);
 		display: flex;
 		justify-content: space-between;
-		width: 100%;
 		height: 80px;
 		flex-direction: row;
-		margin: 5px 10px;
 	}
 
 	div.scaleButtons {
 		display: none;
-	}
-
-	.results {
-		display: flex;
-		flex-direction: column;
 	}
 
 	.result {
