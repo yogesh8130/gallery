@@ -280,7 +280,6 @@ div.pageButtons::-webkit-scrollbar {
 		/* remove below line to disable upscaling of small images */
 		min-height: auto;
 		max-height: 99%;
-		background-color: #4CAF50;
 	}
 
 	*::-webkit-scrollbar {
