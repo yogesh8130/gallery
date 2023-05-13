@@ -103,6 +103,27 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
 	});
 
+	const slider = document.querySelector('#slider');
+	const results = document.querySelectorAll('.result');
+
+	slider.addEventListener('input', () => {
+		// Get the current slider value
+		const multiplier = parseFloat(slider.value);
+
+		// Loop over all the result elements
+		results.forEach(result => {
+			// Get the current width and flex-grow values
+			const defaultWidth = parseFloat(result.getAttribute('data-width'));
+
+			// Calculate the new width and flex-grow values based on the multiplier
+			const newWidth = defaultWidth * multiplier;
+
+			// Set the new values on the element's style
+			result.style.width = `${newWidth}rem`;
+			result.style.flexGrow = newWidth;
+		});
+	});
+
 });
 
 function goFullscreen() {
@@ -284,4 +305,35 @@ function refreshDB() {
 		.catch(error => {
 			console.error(error);
 		});
+}
+
+function switchToTileView() {
+	// this code used to preserve the set of random images that were being viewed
+	// now it will reload a new set from server because this was slow due to client js processing
+
+	// const switchToTileViewButton = document.getElementById('switchToTileViewButton');
+	// switchToTileViewButton.classList.add('processing')
+
+	// const stylesheet = document.getElementById("stylesheet");
+	// stylesheet.href = "/css/search-results-tiles.css";
+
+	// const ielements = document.querySelectorAll('i');
+	// const resultDivs = document.querySelectorAll('.result');
+
+	// resultDivs.forEach(result => {
+	// 	const width = parseFloat(result.getAttribute('data-width'));
+
+	// 	result.style.width = `${width}rem`;
+	// 	result.style.flexGrow = width;
+	// });
+
+	// ielements.forEach(ielement => {
+	// 	const padding = parseFloat(ielement.getAttribute('data-padding'));
+	// 	ielement.style.paddingBottom = `${padding}%`;
+	// });
+
+	const currenturl = document.location.href;
+	if (!currenturl.includes('view=tiles')) {
+		window.location.href += '&view=tiles'
+	}
 }

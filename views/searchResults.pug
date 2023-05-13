@@ -2,12 +2,15 @@ doctype html
 html
 	head
 		title Search Results
-		link(rel="stylesheet" href="/css/search-results.css")
+		if view && view === 'tiles'
+			link(id='stylesheet' rel='stylesheet' href="/css/search-results-tiles.css")
+		else
+			link(id='stylesheet' rel='stylesheet' href="/css/search-results.css")
 	body
 		div.mainDiv
 			div.header
 				div.headingDiv
-					a(href='/', title='HOME')
+					a(href='/' title='HOME')
 						h1 Search Results for "#{searchText}"
 					h2 Showing #{images.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
 				div.controlsDiv
@@ -15,20 +18,24 @@ html
 			//- - div.results(onwheel="this.scrollLeft += event.deltaY * 2" onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")
 			div.results
 				div.forms
-					form.searchForm(action="", method="get")
-						input(type="text", name='searchText', id='search', placeholder='Search')
+					form.searchForm(action="" method="get")
+						input(type="text" name='searchText' id='search' placeholder='Search')
 						div.shuffleDiv
 							label(for="shuffle") Shuffle
 							if shuffle
-								input(type="checkbox", id="shuffle", name="shuffle", onclick='shuffleToggle()', checked)
+								input(type="checkbox" id="shuffle" name="shuffle" onclick='shuffleToggle()', checked)
 							else
-								input(type="checkbox", id="shuffle", name="shuffle", onclick='shuffleToggle()')
+								input(type="checkbox" id="shuffle" name="shuffle" onclick='shuffleToggle()')
 					div.scaleButtons.buttonControls
 						button.default(onclick='showAllImagesAtActualSize()') Actual
 						button.default(onclick='showAllImagesStreched()') Fit
 						button.default(onclick='showAllImagesAtDefaultScale()') Default
 					div.refreshDBDiv.buttonControls
-						button.default(id='refreshDBButton', onclick='refreshDB()') Refresh DB
+						button.default(id='refreshDBButton' onclick='refreshDB()') Refresh DB
+					div.switchViews.buttonControls
+						button.default(id='switchToTileViewButton' onclick='switchToTileView()') Tile View
+					div.slider-container
+						input(type="range" min="0.3" max="1.7" step="0.1" value="1" id="slider")
 					div.dummyForm
 				if images.length === 0
 					p No matching images found.
@@ -37,17 +44,25 @@ html
 						- const folderName = image.directory
 						- const imageName = image.baseName
 						- const imageLinkEscaped = encodeURIComponent(image.path)
-						div.result
+						//- this sets the approximate size of a row height in tiles mode
+						//- it is in rem units and 25 is around 50% of a 1080p screen with the provided css
+						- const baseSize = 25
+						- const width = image.width * baseSize / image.height
+						- const padding = image.height / image.width * 100
+						- resultStyle = `width: ${width}rem; flex-grow: ${width}`
+						- istyle = `padding-bottom: ${padding}%`
+						div.result(title=`${imageName}\n${folderName}`, data-width=width, style=`${view && view === 'tiles' ? resultStyle : ""}`)
+							i(data-padding=padding, style=`${view && view === 'tiles' ? istyle : ""}`)
 							div.imageSidebar
 								div.actionButtons
 									button.hideSimilarButton ⛔
 									button.showAtActualScaleButton(onclick=`showAtActualScale(${index})`) ⭕
 								div.infoDiv
 									- let similarImageLink = encodeURIComponent(imageName.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())
-									a.imageTitle(href='/search?searchText='+similarImageLink)
+									a.imageTitle(href='/search?searchText='+similarImageLink + '&view=' + view)
 										| #{imageName} 
 									- let folderlink = encodeURIComponent(folderName)
-									a.subTitle(href='/search?searchText='+folderlink)
+									a.subTitle(href='/search?searchText='+folderlink + '&view=' + view)
 										|#{folderName}
 							div.mainContent
 								a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped, ondblclick=`location.href="/singleView?imageBackLink=${imageLinkEscaped}"`)
@@ -60,16 +75,16 @@ html
 					div.pageButtons(onwheel="this.scrollLeft += event.deltaY" onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")
 						each page_num in Array(totalPages).fill().map((_, i) => i + 1)
 							if page_num == page
-								a.pageButton.active(href=`/search?searchText=${searchText}&page=${page_num}`)= page_num
+								a.pageButton.active(href=`/search?searchText=${searchText}&view=${view}&page=${page_num}`)= page_num
 							else
-								a.pageButton(href=`/search?searchText=${searchText}&page=${page_num}`)= page_num
+								a.pageButton(href=`/search?searchText=${searchText}&view=${view}&page=${page_num}`)= page_num
 					div.navigationButtons
 						if page > 1
-							a#firstPageButtom(href=`/search?searchText=${searchText}&page=1`, title='First Page') [1<
-							a#previousPageButton(href=`/search?searchText=${searchText}&page=${page - 1}`, title='Previous Page') #{page - 1}<
+							a#firstPageButtom(href=`/search?searchText=${searchText}&view=${view}&page=1`, title='First Page') [1<
+							a#previousPageButton(href=`/search?searchText=${searchText}&view=${view}&page=${page - 1}`, title='Previous Page') #{page - 1}<
 						if page < totalPages
-							a#nextPageButton(href=`/search?searchText=${searchText}&page=${page - (-1)}`, title='Next Page') >#{page - (-1)}
-							a#lastPageButton(href=`/search?searchText=${searchText}&page=${totalPages}`, title='Last Page') >#{totalPages}]
+							a#nextPageButton(href=`/search?searchText=${searchText}&view=${view}&page=${page - (-1)}`, title='Next Page') >#{page - (-1)}
+							a#lastPageButton(href=`/search?searchText=${searchText}&view=${view}&page=${totalPages}`, title='Last Page') >#{totalPages}]
 			div.dummyFooter
 		button#fullscreenButton(title='Fullscreen (Alt + Enter)' onclick='goFullscreen()') ◹
 		script(src='/js/searchResults.js')

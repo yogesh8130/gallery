@@ -671,3 +671,7 @@ div.pageButtons::-webkit-scrollbar {
 		color: white;
 	}
 }
+
+#slider {
+	display: none;
+}

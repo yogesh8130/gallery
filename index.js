@@ -323,6 +323,8 @@ app.get('/rename', (req, res) => {
 app.get('/search', async (req, res) => {
 	let matchingImagePaths = [];
 	let imageList = imagePaths;
+	
+	const view = req.query.view;
 
 	const searchText = req.query.searchText;
 	console.log("searchText: " + searchText);
@@ -465,7 +467,8 @@ app.get('/search', async (req, res) => {
 		// matchingImageIndexes: pageImageIndexes,
 		page,
 		totalPages,
-		shuffle: shuffleFlag
+		shuffle: shuffleFlag,
+		view
 	});
 });
 

@@ -1,0 +1,119 @@
+/* layout */
+
+* {
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	margin: 0;
+	box-sizing: border-box;
+	transition: all 0.3s ease;
+}
+
+.results {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.results::after {
+	content: '';
+	flex-grow: 999999999;
+}
+
+.result {
+	margin: 2px;
+	position: relative;
+}
+
+i {
+	display: block;
+}
+
+img,
+video {
+	position: absolute;
+	top: 0;
+	width: 100%;
+	vertical-align: bottom;
+}
+
+.forms {
+	background-color: rgb(40, 40, 40);
+	margin: 2px;
+}
+
+.imageSidebar {
+	display: none;
+}
+
+/* base style not dependent on scaling or device */
+body {
+	background-color: black;
+}
+
+h2 {
+	color: white;
+	font-weight: lighter;
+}
+
+a {
+	text-decoration: none;
+	color: white;
+}
+
+/* scaling */
+
+@media screen and (orientation: landscape) {
+	/* CSS rules for landscape orientation go here */
+
+	/* phone */
+	@media screen and (min-resolution: 100dpi) {
+		html {
+			font-size: 80%;
+		}
+	}
+
+	/* pc */
+	@media screen and (max-resolution: 100dpi) {
+		html {
+			font-size: 100%;
+		}
+	}
+
+	.header {
+		display: flex;
+		flex-direction: row;
+	}
+
+	.headingDiv {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: 1rem;
+	}
+
+	h1,
+	h2 {
+		font-size: 2rem;
+	}
+
+}
+
+@media screen and (orientation: portrait) {
+
+	/* phone */
+	@media screen and (min-resolution: 100dpi) {
+		html {
+			font-size: 200%;
+		}
+	}
+
+	/* pc */
+	@media screen and (max-resolution: 100dpi) {
+		html {
+			font-size: 100%;
+		}
+	}
+
+}
+
+#switchToTileViewButton {
+	display: none;
+}
