@@ -103,7 +103,7 @@ div.pageButtons::-webkit-scrollbar {
 			font-size: 4.6875%;
 		}
 	}
-	
+
 	@media screen and (max-resolution: 100dpi) {
 		html {
 			font-size: 6.25%;
@@ -432,12 +432,14 @@ div.pageButtons::-webkit-scrollbar {
 
 	}
 
+	/* phone */
 	@media screen and (min-resolution: 100dpi) {
 		html {
 			font-size: 6.25%;
 		}
 	}
 
+	/* pc */
 	@media screen and (max-resolution: 100dpi) {
 		html {
 			font-size: 3.125%;
@@ -652,5 +654,20 @@ div.pageButtons::-webkit-scrollbar {
 
 	#showHideHeadingBtn {
 		display: none;
+	}
+
+	#fullscreenButton {
+		height: 80rem;
+		width: 80rem;
+		position: fixed;
+		border-radius: 0;
+		border-width: 0;
+		margin: 0;
+		padding: 0;
+		right: 0rem;
+		top: 0rem;
+		font-size: 60rem;
+		background-color: rgb(41, 41, 41);
+		color: white;
 	}
 }

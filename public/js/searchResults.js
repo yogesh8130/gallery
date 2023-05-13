@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	const videos = document.querySelectorAll('.searchVid');
 	let centerVideo = null
 
+	const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
 	const observer = new IntersectionObserver(entries => {
 		entries.forEach(entry => {
 			if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
@@ -110,21 +112,26 @@ function goFullscreen() {
 	const pageButtons = document.querySelector('.pageButtons');
 
 	if (header.style.display === 'none') {
-		toggleButton.innerText = '🢅'
+		toggleButton.innerText = '◹'
 		header.style.display = 'flex';
 
 		if (pageButtons) {
 			pageButtons.style.display = 'block';
 		}
-
+		if (isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+			document.documentElement.style.fontSize = "6.15%";
+		}
 		document.exitFullscreen();
 
 	} else {
-		toggleButton.innerText = '🢇'
+		toggleButton.innerText = '◺'
 		header.style.display = 'none';
 
 		if (pageButtons) {
 			pageButtons.style.display = 'none';
+		}
+		if (isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+			document.documentElement.style.fontSize = "2.5%";
 		}
 		document.documentElement.requestFullscreen();
 	}
