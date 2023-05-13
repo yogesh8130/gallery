@@ -2,8 +2,16 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 
+// for reading image and video metadata
+// const sharp = require('sharp');
+// const ffprobe = require('ffprobe');
+// const ffprobeStatic = require('ffprobe-static');
+const { readMediaAttributes } = require('leather'); // much smaller
+
 const app = express();
 const port = 3000;
+
+const pwd = process.cwd();
 
 // Serve the static files in the public folder
 app.use(express.static('public'));
@@ -312,7 +320,7 @@ app.get('/rename', (req, res) => {
 // want the searched images to be available everywhere
 
 
-app.get('/search', (req, res) => {
+app.get('/search', async (req, res) => {
 	let matchingImagePaths = [];
 	let imageList = imagePaths;
 
@@ -397,7 +405,7 @@ app.get('/search', (req, res) => {
 				matchingImagePaths.push(imagePath);
 			}
 		});
-		
+
 		// console.log("Processing NOT tokens");
 		for (let i = matchingImagePaths.length - 1; i >= 0; i--) {
 			let matchingPath = matchingImagePaths[i];
@@ -437,12 +445,23 @@ app.get('/search', (req, res) => {
 	const pageImagePaths = matchingImagePaths.slice(startIndex, endIndex);
 	// const pageImageIndexes = matchingImageIndexes.slice(startIndex, endIndex);
 
+	console.log('getting image metadata');
+	let images;
+	try {
+		images = await getImagesMetadata(pageImagePaths);
+		// console.log(images);
+	} catch (error) {
+		console.error(`Error testing getImagesMetadata: ${error}`);
+	}
+
 	const totalPages = Math.ceil(matchingImagePaths.length / perPage);
+
+	console.log('rendering search results');
 
 	res.render('searchResults', {
 		searchText,
 		totalResultCount,
-		matchingImagePaths: pageImagePaths,
+		images,
 		// matchingImageIndexes: pageImageIndexes,
 		page,
 		totalPages,
@@ -451,6 +470,49 @@ app.get('/search', (req, res) => {
 });
 
 
+function getImageMetadata(imagePath) {
+	// console.log(`Getting metadata for ${imagePath}`);
+	// get basename, path, width, height, type (image/video) for an image or video
+	const absolutePath = path.join(pwd, "public", imagePath)
+	const baseName = path.basename(imagePath);
+	const directory = path.dirname(imagePath);
+	const extension = path.extname(imagePath);
+	const isVideo = videoExtensions.includes(extension.toLowerCase());
+	const isImage = imageExtensions.includes(extension.toLowerCase());
+
+	if (!isVideo && !isImage) {
+		throw new Error(`Unsupported file format: ${extension}`);
+	}
+
+	try {
+		// console.log(absolutePath);
+		const fileAttrs = readMediaAttributes(absolutePath);
+		// console.log(fileAttrs);
+		return {
+			baseName,
+			path: imagePath,
+			directory,
+			width: fileAttrs.width,
+			height: fileAttrs.height,
+			size: fileAttrs.size,
+			mime: fileAttrs.mime,
+			type: isImage?'image':'video',
+		}
+	} catch (error) {
+		console.error(`Error getting metadata for the file (${imagePath}): ${error}`);
+	}
+
+}
+
+async function getImagesMetadata(imagePaths) {
+	try {
+		// takes an array of image/video paths and returns array of image objects by calling getImageMetadata for each file
+		const promises = imagePaths.map(imagePath => getImageMetadata(imagePath));
+		return Promise.all(promises);
+	} catch (error) {
+		console.error(`Error getting metadata: ${error}`);
+	}
+}
 
 // Start the server
 app.listen(port, () => console.log(`Server listening on port ${port}`));

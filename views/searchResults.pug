@@ -9,7 +9,7 @@ html
 				div.headingDiv
 					a(href='/', title='HOME')
 						h1 Search Results for "#{searchText}"
-					h2 Showing #{matchingImagePaths.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
+					h2 Showing #{images.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
 				div.controlsDiv
 			//- uncomment this if you want to scroll horizontally with mousewheen
 			//- - div.results(onwheel="this.scrollLeft += event.deltaY * 2" onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")
@@ -30,13 +30,13 @@ html
 					div.refreshDBDiv.buttonControls
 						button.default(id='refreshDBButton', onclick='refreshDB()') Refresh DB
 					div.dummyForm
-				if matchingImagePaths.length === 0
+				if images.length === 0
 					p No matching images found.
 				else
-					each imagePath, index in matchingImagePaths
-						- const lastSlashIndex = imagePath.lastIndexOf('\\')
-						- const folderName = imagePath.substring(0, lastSlashIndex)
-						- const imageName = imagePath.substring(lastSlashIndex + 1)
+					each image, index in images
+						- const folderName = image.directory
+						- const imageName = image.baseName
+						- const imageLinkEscaped = encodeURIComponent(image.path)
 						div.result
 							div.imageSidebar
 								div.actionButtons
@@ -50,9 +50,8 @@ html
 									a.subTitle(href='/search?searchText='+folderlink)
 										|#{folderName}
 							div.mainContent
-								- let imageLinkEscaped = encodeURIComponent(imagePath)
 								a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped, ondblclick=`location.href="/singleView?imageBackLink=${imageLinkEscaped}"`)
-									if (imagePath.endsWith('.mp4') || imagePath.endsWith('.webm') || imagePath.endsWith('.mkv'))
+									if (image.type === 'video')
 										video.searchVid.resultFile(id='image'+index,src=imageLinkEscaped controls loop)
 									else
 										img.searchImg.resultFile(id='image'+index,src=imageLinkEscaped)
