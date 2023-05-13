@@ -96,7 +96,18 @@ div.pageButtons::-webkit-scrollbar {
 	html {
 		height: 100%;
 		margin: 0;
-		font-size: .1vh;
+	}
+
+	@media screen and (min-resolution: 100dpi) {
+		html {
+			font-size: 4.6875%;
+		}
+	}
+	
+	@media screen and (max-resolution: 100dpi) {
+		html {
+			font-size: 6.25%;
+		}
 	}
 
 	/* search results page */
@@ -418,7 +429,19 @@ div.pageButtons::-webkit-scrollbar {
 	html {
 		width: 100%;
 		margin: 0;
-		font-size: .05vh;
+
+	}
+
+	@media screen and (min-resolution: 100dpi) {
+		html {
+			font-size: 6.25%;
+		}
+	}
+
+	@media screen and (max-resolution: 100dpi) {
+		html {
+			font-size: 3.125%;
+		}
 	}
 
 	body {
