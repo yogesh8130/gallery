@@ -12,7 +12,7 @@ h2 {
 
 h1 {
 	color: white;
-	font-size: 50px;
+	font-size: 50rem;
 	font-weight: bolder;
 }
 
@@ -82,9 +82,9 @@ div.pageButtons::-webkit-scrollbar {
 .navigationButtons {
 	margin-left: auto;
 	border: solid;
-	border-width: 4px;
-	border-radius: 20px;
-	padding: 10px;
+	border-width: 4rem;
+	border-radius: 20rem;
+	padding: 10rem;
 	border-color: rgb(51, 51, 51);
 }
 
@@ -96,6 +96,7 @@ div.pageButtons::-webkit-scrollbar {
 	html {
 		height: 100%;
 		margin: 0;
+		font-size: .1vh;
 	}
 
 	/* search results page */
@@ -128,20 +129,20 @@ div.pageButtons::-webkit-scrollbar {
 
 
 	#shuffle {
-		margin: 5px;
+		margin: 5rem;
 	}
 
 	h1,
 	h2 {
 		word-break: break-all;
-		margin: 0px;
-		font-size: 30px;
+		margin: 0rem;
+		font-size: 30rem;
 		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	}
 
 	.controlsDiv {
 		display: flex;
-		margin-right: 40px;
+		margin-right: 40rem;
 		color: white;
 		align-content: center;
 	}
@@ -165,25 +166,25 @@ div.pageButtons::-webkit-scrollbar {
 	}
 
 	input {
-		width: 250px;
-		height: 30px;
-		font-size: 20px;
+		width: 250rem;
+		height: 30rem;
+		font-size: 20rem;
 		background-color: rgb(29, 29, 29);
 		border: none;
-		margin: 2.5px 5px;
-		padding: 5px;
+		margin: 2.5rem 5rem;
+		padding: 5rem;
 		color: white;
 	}
 
 	label {
-		margin: 0 5px;
-		font-size: 20px;
+		margin: 0 5rem;
+		font-size: 20rem;
 		color: gray;
 	}
 
 	input[type='checkbox'] {
-		width: 20px;
-		height: 20px;
+		width: 20rem;
+		height: 20rem;
 	}
 
 
@@ -195,26 +196,26 @@ div.pageButtons::-webkit-scrollbar {
 		background-color: rgb(29, 29, 29);
 		display: flex;
 		justify-content: space-between;
-		width: 250px;
-		height: 30px;
+		width: 250rem;
+		height: 30rem;
 		flex-direction: row;
-		margin: 2.5px 5px;
+		margin: 2.5rem 5rem;
 	}
 
 	div.buttonControls {
-		margin: 2.5px 5px;
-		width: 250px;
-		height: 30px;
+		margin: 2.5rem 5rem;
+		width: 250rem;
+		height: 30rem;
 		display: flex;
-		gap: 5px;
+		gap: 5rem;
 	}
 
 
 	button {
-		font-size: 20px;
+		font-size: 20rem;
 		border: none;
 		flex: 1;
-		padding: 5px;
+		padding: 5rem;
 	}
 
 	button:hover {
@@ -244,16 +245,16 @@ div.pageButtons::-webkit-scrollbar {
 
 	.actionButtons>* {
 		padding: 0;
-		font-size: 17px;
-		width: 26px;
-		height: 26px;
+		font-size: 17rem;
+		width: 26rem;
+		height: 26rem;
 		background-color: black;
 		border: solid;
 		border-color: gray;
-		border-width: 1px;
-		border-radius: 5px;
-		margin: 0px 1.5px;
-		margin-bottom: 10px;
+		border-width: 1rem;
+		border-radius: 5rem;
+		margin: 0rem 1.5rem;
+		margin-bottom: 10rem;
 		max-height: 100%;
 	}
 
@@ -275,7 +276,7 @@ div.pageButtons::-webkit-scrollbar {
 		max-height: 100%;
 		align-self: flex-start;
 		width: fit-content;
-		font-size: 22px;
+		font-size: 22rem;
 	}
 
 	.imageTitle {
@@ -304,19 +305,19 @@ div.pageButtons::-webkit-scrollbar {
 	}
 
 	*::-webkit-scrollbar {
-		width: 10px;
+		width: 10rem;
 	}
 
 	/* *::-webkit-scrollbar-track {
-		box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
-		border-radius: 10px;
+		box-shadow: inset 0 0 5rem rgba(0, 0, 0, 0.3);
+		border-radius: 10rem;
 		background-color: transparent;
 	}	 */
 
 	*::-webkit-scrollbar-thumb {
 		background-color: rgb(29, 29, 29);
-		border-radius: 10px;
-		border: 2px solid rgb(51, 51, 51);
+		border-radius: 10rem;
+		border: 2rem solid rgb(51, 51, 51);
 	}
 
 	*::-webkit-scrollbar-thumb:hover {
@@ -325,39 +326,39 @@ div.pageButtons::-webkit-scrollbar {
 
 	.pagination {
 		position: fixed;
-		bottom: 20px;
+		bottom: 20rem;
 		left: 0;
 		right: 0;
 		text-align: center;
-		padding: 5px;
-		margin-right: 10px;
+		padding: 5rem;
+		margin-right: 10rem;
 		/* background-color: #f1f1f1; */
 	}
 
 	.navigationButtons a {
 		display: inline-block;
-		margin: 0 5px;
-		padding: 5px 10px;
+		margin: 0 5rem;
+		padding: 5rem 10rem;
 		background-color: #ddd;
 		color: black;
 		border-width: 0;
-		border-radius: 13px;
+		border-radius: 13rem;
 		text-decoration: none;
-		font-size: 15px;
-		min-width: 50px;
+		font-size: 15rem;
+		min-width: 50rem;
 	}
 
 	.pageButtons a {
 		display: inline-block;
-		margin: 0 5px;
-		padding: 4px;
+		margin: 0 5rem;
+		padding: 4rem;
 		background-color: #dddddd33;
 		color: black;
 		border-width: 0;
-		border-radius: 15px;
+		border-radius: 15rem;
 		text-decoration: none;
-		font-size: 13px;
-		min-width: 27px;
+		font-size: 13rem;
+		min-width: 27rem;
 	}
 
 	.pagination a.active {
@@ -387,7 +388,7 @@ div.pageButtons::-webkit-scrollbar {
 
 	.navigationButtons {
 		background-color: rgb(29, 29, 29);
-		padding: 6px 3px;
+		padding: 6rem 3rem;
 		font-weight: bold;
 	}
 
@@ -396,16 +397,16 @@ div.pageButtons::-webkit-scrollbar {
 	}
 
 	#fullscreenButton {
-		height: 30px;
-		width: 30px;
+		height: 30rem;
+		width: 30rem;
 		position: fixed;
 		border-radius: 0;
 		border-width: 0;
 		margin: 0;
 		padding: 0;
-		right: 0px;
-		top: 0px;
-		font-size: 20px;
+		right: 0rem;
+		top: 0rem;
+		font-size: 20rem;
 		background-color: rgb(41, 41, 41);
 		color: white;
 	}
@@ -417,12 +418,13 @@ div.pageButtons::-webkit-scrollbar {
 	html {
 		width: 100%;
 		margin: 0;
+		font-size: .05vh;
 	}
 
 	body {
 		display: flex;
 		flex-direction: column;
-		padding: 10px;
+		padding: 10rem;
 		background-color: black;
 		width: 100%;
 	}
@@ -438,8 +440,8 @@ div.pageButtons::-webkit-scrollbar {
 	}
 
 	h2 {
-		font-size: 40px;
-		margin-bottom: 40px;
+		font-size: 40rem;
+		margin-bottom: 40rem;
 	}
 
 	.controlsDiv {
@@ -457,15 +459,15 @@ div.pageButtons::-webkit-scrollbar {
 		flex-direction: column;
 		width: 100%;
 		color: white;
-		margin-bottom: 40px;
-		padding: 10px;
-		gap: 20px;
+		margin-bottom: 40rem;
+		padding: 10rem;
+		gap: 20rem;
 	}
 
 	.searchForm {
 		display: flex;
 		flex-direction: row-reverse;
-		gap: 20px;
+		gap: 20rem;
 	}
 
 	.searchForm>* {
@@ -473,34 +475,34 @@ div.pageButtons::-webkit-scrollbar {
 	}
 
 	input {
-		height: 80px;
-		font-size: 40px;
+		height: 80rem;
+		font-size: 40rem;
 		background-color: rgb(29, 29, 29);
 		border: none;
 		color: white;
-		padding: 20px;
+		padding: 20rem;
 	}
 
 	label {
-		font-size: 40px;
+		font-size: 40rem;
 		color: gray;
-		padding: 20px;
+		padding: 20rem;
 	}
 
 	input[type='checkbox'] {
-		margin-top: 10px;
-		width: 60px;
-		height: 60px;
-		margin: 10px;
+		margin-top: 10rem;
+		width: 60rem;
+		height: 60rem;
+		margin: 10rem;
 	}
 
 	div.buttonControls {
-		height: 80px;
+		height: 80rem;
 		display: flex;
 	}
 
 	button {
-		font-size: 40px;
+		font-size: 40rem;
 		border: none;
 		flex: 1;
 	}
@@ -513,7 +515,7 @@ div.pageButtons::-webkit-scrollbar {
 		background-color: rgb(29, 29, 29);
 		display: flex;
 		justify-content: space-between;
-		height: 80px;
+		height: 80rem;
 		flex-direction: row;
 	}
 
@@ -543,14 +545,14 @@ div.pageButtons::-webkit-scrollbar {
 	}
 
 	.actionButtons>* {
-		font-size: 40px;
-		width: 70px;
-		height: 70px;
+		font-size: 40rem;
+		width: 70rem;
+		height: 70rem;
 		background-color: black;
 		border: solid;
 		border-color: gray;
-		border-width: 4px;
-		border-radius: 5px;
+		border-width: 4rem;
+		border-radius: 5rem;
 	}
 
 	.mainContent {
@@ -563,13 +565,13 @@ div.pageButtons::-webkit-scrollbar {
 	}
 
 	.imageTitle {
-		font-size: 40px;
+		font-size: 40rem;
 		color: white;
 		font-weight: bolder;
 	}
 
 	.subTitle {
-		font-size: 40px;
+		font-size: 40rem;
 		color: lightgrey;
 		font-weight: lighter;
 	}
@@ -584,20 +586,20 @@ div.pageButtons::-webkit-scrollbar {
 		left: 0;
 		right: 0;
 		text-align: center;
-		padding: 10px;
+		padding: 10rem;
 		background-color: black;
 	}
 
 	.pagination a {
 		display: inline-block;
-		margin: 0 5px;
-		padding: 5px 10px;
+		margin: 0 5rem;
+		padding: 5rem 10rem;
 		background-color: #ddd;
 		color: black;
-		border-radius: 5px;
+		border-radius: 5rem;
 		text-decoration: none;
-		font-size: 50px;
-		min-width: 80px;
+		font-size: 50rem;
+		min-width: 80rem;
 	}
 
 	.pagination a.active {
@@ -616,7 +618,7 @@ div.pageButtons::-webkit-scrollbar {
 	}
 
 	.tinyText {
-		font-size: 8px;
+		font-size: 8rem;
 		margin: 0;
 		padding: 0;
 	}
