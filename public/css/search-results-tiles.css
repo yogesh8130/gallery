@@ -35,8 +35,8 @@ video {
 }
 
 .forms {
-	background-color: rgb(40, 40, 40);
-	margin: 2px;
+	background-color: black;
+	color: white;
 }
 
 .imageSidebar {
@@ -55,6 +55,26 @@ h2 {
 
 a {
 	text-decoration: none;
+	color: white;
+}
+
+button.default {
+	color: gray;
+	background-color: rgb(29, 29, 29);
+}
+
+button.processing {
+	background-color: orange;
+	color: white;
+}
+
+button.success {
+	background-color: green;
+	color: white;
+}
+
+button.error {
+	background-color: red;
 	color: white;
 }
 
@@ -80,6 +100,8 @@ a {
 	.header {
 		display: flex;
 		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
 	}
 
 	.headingDiv {
@@ -89,11 +111,146 @@ a {
 		gap: 1rem;
 	}
 
+	.controlsDiv {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		height: 100%;
+		padding-right: 2.7rem;
+	}
+
 	h1,
 	h2 {
 		font-size: 2rem;
 	}
 
+	.forms {
+		padding: 2px;
+		display: flex;
+		flex-direction: column;
+		width: 15rem;
+		gap: 5px;
+	}
+
+	.searchForm {
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+	}
+
+	input {
+		padding: 5px;
+		height: 2.2rem;
+		width: 100%;
+		font-size: 1.3rem;
+		background-color: rgb(29, 29, 29);
+		border: none;
+	}
+
+	.shuffleDiv {
+		height: 2.2rem;
+		width: 100%;
+		display: flex;
+		flex-direction: row;
+		align-content: center;
+		justify-content: space-between;
+		padding: 5px;
+		background-color: rgb(29, 29, 29);
+	}
+
+	label {
+		font-size: 1.3rem;
+		color: gray;
+	}
+
+	input[type='checkbox'] {
+		width: 1.3rem;
+		height: 1.3rem;
+		margin: 2px 0;
+	}
+
+	.scaleButtons {
+		display: none;
+	}
+
+	button {
+		width: 100%;
+		height: 2.2rem;
+		font-size: 1.3rem;
+		border: none;
+	}
+
+	button:hover {
+		background-color: white;
+		color: black;
+	}
+
+	#fullscreenButton {
+		height: 2.5rem;
+		width: 2.5rem;
+		position: fixed;
+		border-radius: 0;
+		border-width: 0;
+		margin: 0;
+		padding: 0;
+		right: 0rem;
+		top: 0rem;
+		font-size: 1.2rem;
+		background-color: rgb(41, 41, 41);
+		color: white;
+	}
+
+	*::-webkit-scrollbar {
+		width: .5rem;
+	}
+
+	*::-webkit-scrollbar-thumb {
+		background-color: rgb(29, 29, 29);
+		border-radius: 1rem;
+		border: 1rem solid rgb(51, 51, 51);
+	}
+
+	*::-webkit-scrollbar-thumb:hover {
+		background-color: white;
+	}
+
+	.slider-container {
+		padding: 0 5px;
+		display: flex;
+		align-items: center;
+		height: 2.2rem;
+		gap: 0.3rem;
+		background-color: rgb(29, 29, 29);
+	}
+
+	.slider {
+		appearance: none;
+		width: 100%;
+		height: 80%;
+		background: rgb(29, 29, 29);
+		outline: none;
+		-webkit-transition: .2s;
+		transition: opacity .2s;
+	}
+	
+	.slider:hover {
+		opacity: 1;
+	}
+
+	.slider::-webkit-slider-thumb {
+		appearance: none;
+		width: 2rem;
+		height: 2rem;
+		background: white;
+		cursor: pointer;
+	}
+
+	.slider::-moz-range-thumb {
+		width: 2rem;
+		height: 2rem;
+		background: white;
+		cursor: pointer;
+	}
 }
 
 @media screen and (orientation: portrait) {
@@ -115,5 +272,9 @@ a {
 }
 
 #switchToTileViewButton {
+	display: none;
+}
+
+#scaleButtons {
 	display: none;
 }

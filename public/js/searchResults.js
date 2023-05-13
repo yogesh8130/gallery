@@ -1,11 +1,21 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-	dragToScrollEnable();
+	const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+	let view;
+	if (window.location.href.includes('tiles')) {
+		view = 'tiles';
+	} else {
+		view = 'normal';
+	}
+
+	if (view !== 'tiles') {
+		dragToScrollEnable();
+	}
 
 	const videos = document.querySelectorAll('.searchVid');
 	let centerVideo = null
 
-	const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
 	const observer = new IntersectionObserver(entries => {
 		entries.forEach(entry => {
@@ -101,27 +111,6 @@ document.addEventListener("DOMContentLoaded", function () {
 			shuffleCheckbox.checked = !shuffleCheckbox.checked;
 			shuffleToggle();
 		}
-	});
-
-	const slider = document.querySelector('#slider');
-	const results = document.querySelectorAll('.result');
-
-	slider.addEventListener('input', () => {
-		// Get the current slider value
-		const multiplier = parseFloat(slider.value);
-
-		// Loop over all the result elements
-		results.forEach(result => {
-			// Get the current width and flex-grow values
-			const defaultWidth = parseFloat(result.getAttribute('data-width'));
-
-			// Calculate the new width and flex-grow values based on the multiplier
-			const newWidth = defaultWidth * multiplier;
-
-			// Set the new values on the element's style
-			result.style.width = `${newWidth}rem`;
-			result.style.flexGrow = newWidth;
-		});
 	});
 
 });
@@ -240,6 +229,8 @@ function restoreImageLinks() {
 
 
 function dragToScrollEnable() {
+	// console.log('enabling drag to scroll');
+
 	let scrollable = document.querySelector('.results');
 	let isDown = false;
 	let startX;
@@ -336,4 +327,26 @@ function switchToTileView() {
 	if (!currenturl.includes('view=tiles')) {
 		window.location.href += '&view=tiles'
 	}
+}
+
+function changeTileSize() {
+	const slider = document.getElementById('slider');
+	const results = document.querySelectorAll('.result');
+
+	// Get the current slider value
+	// 'this' refers to the calling element
+	const multiplier = parseFloat(slider.value);
+
+	// Loop over all the result elements
+	results.forEach(result => {
+		// Get the current width and flex-grow values
+		const defaultWidth = parseFloat(result.getAttribute('data-width'));
+
+		// Calculate the new width and flex-grow values based on the multiplier
+		const newWidth = defaultWidth * multiplier;
+
+		// Set the new values on the element's style
+		result.style.width = `${newWidth}rem`;
+		result.style.flexGrow = newWidth;
+	});
 }
