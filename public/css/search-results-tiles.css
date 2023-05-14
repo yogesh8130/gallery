@@ -20,7 +20,7 @@
 }
 
 .result {
-	margin: 2px;
+	margin: 1px;
 	position: relative;
 	font-size: 1rem;
 }
@@ -54,7 +54,7 @@ video {
 	width: 100%;
 	height: 15%;
 	justify-content: space-between;
-	background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0));
+	background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0));
 	word-wrap: break-word;
 	word-break: break-all;
 	opacity: 0%;
