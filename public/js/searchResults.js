@@ -335,7 +335,7 @@ function changeTileSize() {
 
 	// Get the current slider value
 	// 'this' refers to the calling element
-	const multiplier = parseFloat(slider0.value);
+	const multiplier = parseFloat(slider.value);
 
 	// Loop over all the result elements
 	results.forEach(result => {
