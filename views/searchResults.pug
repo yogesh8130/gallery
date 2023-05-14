@@ -14,9 +14,6 @@ html
 						h1 Search Results for "#{searchText}"
 					h2 Showing #{images.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
 				div.controlsDiv
-					div.slider-container
-						label(for="slider") Zoom
-						input.slider(type="range" min="0.3" max="1.7" step="0.1" value="1" id="slider" name=slider oninput='changeTileSize()')
 			//- uncomment this if you want to scroll horizontally with mousewheen
 			//- - div.results(onwheel="this.scrollLeft += event.deltaY * 2" onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")
 			div.results
@@ -37,6 +34,9 @@ html
 						button.default(id='refreshDBButton' onclick='refreshDB()') Refresh DB
 					div.switchViews.buttonControls
 						button.default(id='switchToTileViewButton' onclick='switchToTileView()') Tile View
+					div.slider-container.buttonControls
+						label(for="slider") Zoom
+						input.slider(type="range" min="0.3" max="1.7" step="0.1" value="1" id="slider" name=slider oninput='changeTileSize()')
 					div.dummyForm
 				if images.length === 0
 					p No matching images found.
