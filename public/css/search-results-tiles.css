@@ -78,6 +78,133 @@ button.error {
 	color: white;
 }
 
+/* common layout */
+
+.forms {
+	padding: 2px;
+	display: flex;
+	flex-direction: column;
+	width: 15rem;
+	gap: .4rem
+}
+
+.searchForm {
+	display: flex;
+	flex-direction: column;
+	gap: .4rem;
+}
+
+input {
+	padding: .4rem;
+	height: 2.2rem;
+	width: 100%;
+	font-size: 1.3rem;
+	background-color: rgb(29, 29, 29);
+	border: none;
+}
+
+.shuffleDiv {
+	height: 2.2rem;
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	align-content: center;
+	justify-content: space-between;
+	padding: .4rem;
+	background-color: rgb(29, 29, 29);
+}
+
+label {
+	font-size: 1.3rem;
+	color: gray;
+	align-self: center;
+}
+
+input[type='checkbox'] {
+	align-self: center;
+	width: 1.3rem;
+	height: 1.3rem;
+	margin: 2px 0;
+}
+
+button {
+	width: 100%;
+	height: 2.2rem;
+	font-size: 1.3rem;
+	border: none;
+}
+
+button:hover {
+	background-color: white;
+	color: black;
+}
+
+#fullscreenButton {
+	height: 2.5rem;
+	width: 2.5rem;
+	position: fixed;
+	border-radius: 0;
+	border-width: 0;
+	margin: 0;
+	padding: 0;
+	right: 0rem;
+	top: 0rem;
+	font-size: 1.2rem;
+	background-color: rgb(41, 41, 41);
+	color: white;
+}
+
+*::-webkit-scrollbar {
+	width: .5rem;
+}
+
+*::-webkit-scrollbar-thumb {
+	background-color: rgb(29, 29, 29);
+	border-radius: 1rem;
+	border: 1rem solid rgb(51, 51, 51);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+	background-color: white;
+}
+
+#sliderContainer {
+	padding: 0 .4rem;
+	display: flex;
+	align-items: center;
+	height: 1.8rem;
+	gap: 0.3rem;
+	background-color: rgb(29, 29, 29);
+}
+
+.slider {
+	appearance: none;
+	height: 1.8rem;
+	background: rgb(29, 29, 29);
+	outline: none;
+	-webkit-transition: .2s;
+	transition: opacity .2s;
+}
+
+.slider:hover {
+	opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+	appearance: none;
+	width: 2.2rem;
+	height: 2.2rem;
+	background: white;
+	cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+	width: 2.2rem;
+	height: 2.2rem;
+	background: white;
+	cursor: pointer;
+}
+
 /* scaling */
 
 @media screen and (orientation: landscape) {
@@ -124,132 +251,6 @@ button.error {
 		font-size: 2rem;
 	}
 
-	.forms {
-		padding: 2px;
-		display: flex;
-		flex-direction: column;
-		width: 15rem;
-		gap: 5px;
-	}
-
-	.searchForm {
-		display: flex;
-		flex-direction: column;
-		gap: 5px;
-	}
-
-	input {
-		padding: 5px;
-		height: 2.2rem;
-		width: 100%;
-		font-size: 1.3rem;
-		background-color: rgb(29, 29, 29);
-		border: none;
-	}
-
-	.shuffleDiv {
-		height: 2.2rem;
-		width: 100%;
-		display: flex;
-		flex-direction: row;
-		align-content: center;
-		justify-content: space-between;
-		padding: 5px;
-		background-color: rgb(29, 29, 29);
-	}
-
-	label {
-		font-size: 1.3rem;
-		color: gray;
-	}
-
-	input[type='checkbox'] {
-		width: 1.3rem;
-		height: 1.3rem;
-		margin: 2px 0;
-	}
-
-	.scaleButtons {
-		display: none;
-	}
-
-	button {
-		width: 100%;
-		height: 2.2rem;
-		font-size: 1.3rem;
-		border: none;
-	}
-
-	button:hover {
-		background-color: white;
-		color: black;
-	}
-
-	#fullscreenButton {
-		height: 2.5rem;
-		width: 2.5rem;
-		position: fixed;
-		border-radius: 0;
-		border-width: 0;
-		margin: 0;
-		padding: 0;
-		right: 0rem;
-		top: 0rem;
-		font-size: 1.2rem;
-		background-color: rgb(41, 41, 41);
-		color: white;
-	}
-
-	*::-webkit-scrollbar {
-		width: .5rem;
-	}
-
-	*::-webkit-scrollbar-thumb {
-		background-color: rgb(29, 29, 29);
-		border-radius: 1rem;
-		border: 1rem solid rgb(51, 51, 51);
-	}
-
-	*::-webkit-scrollbar-thumb:hover {
-		background-color: white;
-	}
-
-	.slider-container {
-		padding: 0 5px;
-		display: flex;
-		align-items: center;
-		height: 1.8rem;
-		gap: 0.3rem;
-		background-color: rgb(29, 29, 29);
-	}
-
-	.slider {
-		appearance: none;
-		height: 1.8rem;
-		background: rgb(29, 29, 29);
-		outline: none;
-		-webkit-transition: .2s;
-		transition: opacity .2s;
-	}
-	
-	.slider:hover {
-		opacity: 1;
-	}
-
-	.slider::-webkit-slider-thumb {
-		appearance: none;
-		width: 2.2rem;
-		height: 2.2rem;
-		background: white;
-		cursor: pointer;
-	}
-
-	.slider::-moz-range-thumb {
-		width: 2.2rem;
-		height: 2.2rem;
-		background: white;
-		cursor: pointer;
-	}
 }
 
 @media screen and (orientation: portrait) {
@@ -274,6 +275,6 @@ button.error {
 	display: none;
 }
 
-#scaleButtons {
+.scaleButtons {
 	display: none;
 }
