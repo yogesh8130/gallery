@@ -1,9 +1,10 @@
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+const baseSize = 25;
+
 document.addEventListener("DOMContentLoaded", function () {
 
-	const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
 	let view;
-	if (window.location.href.includes('tiles')) {
+	if (window.location.href.includes('view=tiles')) {
 		view = 'tiles';
 	} else {
 		view = 'normal';
@@ -15,7 +16,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	const videos = document.querySelectorAll('.searchVid');
 	let centerVideo = null
-
 
 	const observer = new IntersectionObserver(entries => {
 		entries.forEach(entry => {
@@ -349,4 +349,126 @@ function changeTileSize() {
 		result.style.width = `${newWidth}rem`;
 		result.style.flexGrow = newWidth;
 	});
+}
+
+// set page to 1 on every page load
+let currentPage = 1;
+const results = document.querySelector('.results')
+window.addEventListener('scroll', () => {
+	const scrollPosition = window.scrollY;
+	const documentHeight = document.documentElement.scrollHeight;
+	const viewportHeight = window.innerHeight;
+	if (window.location.href.includes('view=tiles') && scrollPosition >= documentHeight - viewportHeight) {
+		currentPage++;
+		fetch(`/getNextResults?page=${currentPage}`)
+			.then(response => response.json())
+			.then(data => {
+				appendResults(data.images);
+				if (currentPage > data.totalPages) {
+					console.log('no more results');
+				}
+			})
+			.catch(error => {
+				console.error(`Error loading more results: ${error}`);
+				// handle the error appropriately
+			});
+
+	}
+});
+
+// function to append image data to the result container
+function appendResults(images) {
+	for (const image of images) {
+		const resultElement = createResultElement(image);
+		// console.log(image);
+		results.appendChild(resultElement);
+	}
+}
+
+// function to create an image element from the image data
+function createResultElement(image) {
+	const baseName = image.baseName;
+	const path = image.path;
+	const directory = image.directory;
+	const trueWidth = parseFloat(image.width);
+	const trueHeight = parseFloat(image.height);
+	const type = image.type;
+
+	const width = trueWidth * baseSize / trueHeight;
+
+	const imageLinkEscaped = encodeURIComponent(path);
+	const view = 'tiles';
+
+	const containerDiv = document.createElement("div");
+	containerDiv.classList.add("result");
+	containerDiv.title = `${baseName}\n${directory}`;
+	containerDiv.setAttribute("data-width", width);
+	containerDiv.style.width = `${width}rem`;
+	containerDiv.style.flexGrow = width;
+
+	const padding = trueHeight / trueWidth * 100;
+
+	const imageDiv = document.createElement("i");
+	imageDiv.setAttribute("data-padding", padding);
+	imageDiv.style.paddingBottom = `${padding}%`;
+	containerDiv.appendChild(imageDiv);
+
+	const imageSidebarDiv = document.createElement("div");
+	imageSidebarDiv.classList.add("imageSidebar");
+	containerDiv.appendChild(imageSidebarDiv);
+
+	const infoDiv = document.createElement("div");
+	infoDiv.classList.add("infoDiv");
+	imageSidebarDiv.appendChild(infoDiv);
+
+	const similarImageLink = encodeURIComponent(
+		baseName
+			.replace(/\.[^/.]+$/, "")
+			.replace(/\d+$/, "")
+			.replace(/\(\d*\)|\d+$/g, "")
+			.trim()
+	);
+	const imageTitleLink = document.createElement("a");
+	imageTitleLink.classList.add("imageTitle");
+	imageTitleLink.href = `/search?searchText=${similarImageLink}&view=${view}`;
+	imageTitleLink.textContent = baseName;
+	infoDiv.appendChild(imageTitleLink);
+
+	const folderlink = encodeURIComponent(directory);
+	const subTitleLink = document.createElement("a");
+	subTitleLink.classList.add("subTitle");
+	subTitleLink.href = `/search?searchText=${folderlink}&view=${view}`;
+	subTitleLink.textContent = directory;
+	infoDiv.appendChild(subTitleLink);
+
+	const mainContentDiv = document.createElement("div");
+	mainContentDiv.classList.add("mainContent");
+	containerDiv.appendChild(mainContentDiv);
+
+	const contentLink = document.createElement("a");
+	contentLink.setAttribute("data-href", `/?imageBackLink=${imageLinkEscaped}`);
+	contentLink.ondblclick = function () {
+		location.href = `/singleView?imageBackLink=${imageLinkEscaped}`;
+	};
+	mainContentDiv.appendChild(contentLink);
+
+	if (type === "image") {
+		const imageElement = document.createElement("img");
+		imageElement.classList.add("searchImg");
+		imageElement.classList.add("resultFile");
+		// imageElement.id = `image${index}`;  not getting index from API
+		imageElement.src = imageLinkEscaped;
+		contentLink.appendChild(imageElement);
+	} else {
+		const videoElement = document.createElement("video");
+		videoElement.classList.add("searchVid");
+		videoElement.classList.add("resultFile");
+		// videoElement.id = `image${index}`;
+		videoElement.src = imageLinkEscaped;
+		videoElement.controls = true;
+		videoElement.loop = true;
+		contentLink.appendChild(videoElement);
+	}
+
+	return containerDiv;
 }

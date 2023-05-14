@@ -67,10 +67,10 @@ html
 										|#{folderName}
 							div.mainContent
 								a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped, ondblclick=`location.href="/singleView?imageBackLink=${imageLinkEscaped}"`)
-									if (image.type === 'video')
-										video.searchVid.resultFile(id='image'+index,src=imageLinkEscaped controls loop)
-									else
+									if (image.type === 'image')
 										img.searchImg.resultFile(id='image'+index,src=imageLinkEscaped)
+									else
+										video.searchVid.resultFile(id='image'+index,src=imageLinkEscaped controls loop)
 			if totalPages > 1 && !shuffle
 				div.pagination
 					div.pageButtons(onwheel="this.scrollLeft += event.deltaY" onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")
