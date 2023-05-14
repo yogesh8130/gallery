@@ -1,5 +1,6 @@
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const baseSize = 25;
+let multiplier = 1 // zoom slider value
 
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -386,7 +387,7 @@ function changeTileSize() {
 
 	// Get the current slider value
 	// 'this' refers to the calling element
-	const multiplier = parseFloat(slider.value);
+	multiplier = parseFloat(slider.value);
 
 	// Loop over all the result elements
 	results.forEach(result => {
@@ -452,7 +453,7 @@ function createResultElement(image) {
 	const trueHeight = parseFloat(image.height);
 	const type = image.type;
 
-	const width = trueWidth * baseSize / trueHeight;
+	const width = trueWidth * (baseSize * multiplier) / trueHeight;
 
 	const imageLinkEscaped = encodeURIComponent(path);
 	const view = 'tiles';
