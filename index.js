@@ -12,6 +12,7 @@ const app = express();
 const port = 3000;
 
 const pwd = process.cwd();
+const searchResultBatchSize = 50;
 
 // Serve the static files in the public folder
 app.use(express.static('public'));
@@ -320,10 +321,11 @@ app.get('/rename', (req, res) => {
 // want the searched images to be available everywhere
 
 
+let matchingImagePaths = [];
 app.get('/search', async (req, res) => {
-	let matchingImagePaths = [];
+	matchingImagePaths = [];
 	let imageList = imagePaths;
-	
+
 	const view = req.query.view;
 
 	const searchText = req.query.searchText;
@@ -440,7 +442,7 @@ app.get('/search', async (req, res) => {
 	const totalResultCount = matchingImagePaths.length;
 
 	const page = req.query.page || 1;
-	const perPage = 100;
+	const perPage = searchResultBatchSize;
 	const startIndex = (page - 1) * perPage;
 	const endIndex = startIndex + perPage;
 
@@ -472,6 +474,40 @@ app.get('/search', async (req, res) => {
 	});
 });
 
+app.get('/getNextResults', async (req, res) => {
+	const totalResultCount = matchingImagePaths.length;
+
+	const page = req.query.page || 1;
+	const perPage = searchResultBatchSize;
+	const startIndex = (page - 1) * perPage;
+	const endIndex = startIndex + perPage;
+
+	const pageImagePaths = matchingImagePaths.slice(startIndex, endIndex);
+	// const pageImageIndexes = matchingImageIndexes.slice(startIndex, endIndex);
+
+	console.log('getting image metadata');
+	let images;
+	try {
+		images = await getImagesMetadata(pageImagePaths);
+		// console.log(images);
+	} catch (error) {
+		console.error(`Error testing getImagesMetadata: ${error}`);
+	}
+
+	const totalPages = Math.ceil(matchingImagePaths.length / perPage);
+
+	const responseData = {
+		totalResultCount,
+		images,
+		page,
+		totalPages,
+	};
+
+	// console.log("responseData: " + responseData);
+
+	res.send(responseData);
+})
+
 
 function getImageMetadata(imagePath) {
 	// console.log(`Getting metadata for ${imagePath}`);
@@ -499,7 +535,7 @@ function getImageMetadata(imagePath) {
 			height: fileAttrs.height,
 			size: fileAttrs.size,
 			mime: fileAttrs.mime,
-			type: isImage?'image':'video',
+			type: isImage ? 'image' : 'video',
 		}
 	} catch (error) {
 		console.error(`Error getting metadata for the file (${imagePath}): ${error}`);
