@@ -10,6 +10,8 @@
 .results {
 	display: flex;
 	flex-wrap: wrap;
+	overflow-x: hidden;
+	padding: 1rem;
 }
 
 .results::after {
@@ -20,6 +22,7 @@
 .result {
 	margin: 2px;
 	position: relative;
+	font-size: 1rem;
 }
 
 i {
@@ -40,7 +43,54 @@ video {
 }
 
 .imageSidebar {
+	display: flex;
+	position: absolute;
+	top: 0;
+	left: 0;
+	padding: 0.2rem .4rem;
+	z-index: 999;
+	order: 1;
+	flex-direction: row-reverse;
+	width: 100%;
+	height: 15%;
+	justify-content: space-between;
+	background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0));
+	word-wrap: break-word;
+	word-break: break-all;
+	opacity: 0%;
+}
+
+.result:hover {
+	scale: 102%;
+	z-index: 10;
+	box-shadow: rgb(0, 0, 0) 0px 20px 30px -10px;
+}
+
+.result:hover>.imageSidebar {
+	opacity: 100%;
+}
+
+.infoDiv {
+	display: flex;
+	flex-grow: 1;
+	flex-direction: column;
+}
+
+.actionButtons {
 	display: none;
+	flex-direction: column;
+}
+
+.actionButtons>* {
+	font-size: 1rem;
+	width: 1.8rem;
+	height: 1.8rem;
+	background-color: black;
+	border: solid;
+	border-color: gray;
+	border-width: 1px;
+	border-radius: 5px;
+	padding: 0;
 }
 
 /* base style not dependent on scaling or device */
@@ -76,6 +126,10 @@ button.success {
 button.error {
 	background-color: red;
 	color: white;
+}
+
+.imageTitle {
+	font-weight: bold;
 }
 
 /* common layout */
@@ -172,14 +226,14 @@ button:hover {
 	padding: 0 .4rem;
 	display: flex;
 	align-items: center;
-	height: 1.8rem;
+	height: 2.2rem;
 	gap: 0.3rem;
 	background-color: rgb(29, 29, 29);
 }
 
 .slider {
 	appearance: none;
-	height: 1.8rem;
+	height: 2.2rem;
 	background: rgb(29, 29, 29);
 	outline: none;
 	-webkit-transition: .2s;
@@ -192,15 +246,19 @@ button:hover {
 
 .slider::-webkit-slider-thumb {
 	appearance: none;
-	width: 2.2rem;
-	height: 2.2rem;
+	width: 1.6rem;
+	height: 1.6rem;
 	background: white;
 	cursor: pointer;
 }
 
+.slider::-webkit-slider-thumb:hover {
+	scale: 120%;
+}
+
 .slider::-moz-range-thumb {
-	width: 2.2rem;
-	height: 2.2rem;
+	width: 1.6rem;
+	height: 1.6rem;
 	background: white;
 	cursor: pointer;
 }

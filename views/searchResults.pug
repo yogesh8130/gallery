@@ -32,11 +32,11 @@ html
 						button.default(onclick='showAllImagesAtDefaultScale()') Default
 					div.refreshDBDiv.buttonControls
 						button.default(id='refreshDBButton' onclick='refreshDB()') Refresh DB
-					div.switchViews.buttonControls
-						button.default(id='switchToTileViewButton' onclick='switchToTileView()') Tile View
 					div.buttonControls#sliderContainer
 						label(for="slider") Zoom
 						input.slider(type="range" min="0.3" max="1.7" step="0.1" value="1" id="slider" name=slider oninput='changeTileSize()')
+					div.switchViews.buttonControls
+						button.default(id='switchToTileViewButton' onclick='switchToTileView()') Tile View
 					div.dummyForm
 				if images.length === 0
 					p No matching images found.
