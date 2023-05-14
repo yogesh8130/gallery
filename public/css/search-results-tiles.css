@@ -48,7 +48,7 @@ video {
 	top: 0;
 	left: 0;
 	padding: 0.2rem .4rem;
-	z-index: 999;
+	z-index: 2;
 	order: 1;
 	flex-direction: row-reverse;
 	width: 100%;
@@ -62,7 +62,7 @@ video {
 
 .result:hover {
 	scale: 102%;
-	z-index: 10;
+	z-index: 1;
 	box-shadow: rgb(0, 0, 0) 0px 20px 30px -10px;
 }
 
@@ -91,6 +91,82 @@ video {
 	border-width: 1px;
 	border-radius: 5px;
 	padding: 0;
+}
+
+/* The Modal (background) */
+#modal {
+	width: 100vw;
+	height: 100vh;
+	margin: auto;
+	background-color: rgba(0, 0, 0, 0.9);
+	overflow: auto;
+}
+
+#modalImage.actual {
+	position: absolute;
+	margin: auto;
+	width: auto;
+}
+
+#modalImage.fitWidth {
+	position: absolute;
+	max-width: 100%;
+	height: auto;
+}
+
+#modalImage.fitAll {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	object-fit: fill;
+	max-height: 100%;
+	width: auto;
+}
+
+#modalCloseButton {
+	position: fixed;
+	right: 1.5rem;
+	top: 0rem;
+	color: white;
+	font-size: 4rem;
+	font-weight: bold;
+}
+
+#modalCloseButton:hover,
+#modalCloseButton:focus {
+	color: tomato;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+#modalNextButton {
+	position: fixed;
+	right: 2rem;
+	top: 40%;
+	color: white;
+	font-size: 4rem;
+	font-weight: bold;
+	padding: 50px;
+}
+
+#modalPreviousButton {
+	position: fixed;
+	left: 2rem;
+	top: 40%;
+	color: white;
+	font-size: 4rem;
+	font-weight: bold;
+	padding: 50px;
+}
+
+#modalNextButton:hover,
+#modalNextButton:focus,
+#modalPreviousButton:hover,
+#modalPreviousButton:focus {
+	color: cornflowerblue;
+	text-decoration: none;
+	cursor: pointer;
 }
 
 /* base style not dependent on scaling or device */
@@ -211,6 +287,7 @@ button:hover {
 
 *::-webkit-scrollbar {
 	width: .5rem;
+	height: .5rem;
 }
 
 *::-webkit-scrollbar-thumb {

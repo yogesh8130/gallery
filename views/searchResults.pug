@@ -128,7 +128,6 @@ html
 										img.searchImg.resultFile(
 											id = 'image'+index
 											src = imageLinkEscaped
-											onclick = 'viewImage()'
 											)
 									else
 										video.searchVid.resultFile(
@@ -175,4 +174,14 @@ html
 			title = 'Fullscreen (Alt + Enter)'
 			onclick = 'goFullscreen()'
 			) ◹
+		dialog.modal#modal
+			img#modalImage.fitAll(
+				src = ''
+			)
+			span#modalCloseButton
+				| &times;
+			span#modalNextButton
+				| &RightAngleBracket;
+			span#modalPreviousButton
+				| &LeftAngleBracket;
 		script(src = '/js/searchResults.js')

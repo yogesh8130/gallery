@@ -113,6 +113,57 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
 	});
 
+	// MODAL SINGLE IMAGE VIEWER
+
+	// Get the parent element that contains all the images
+	const resultsContainer = document.querySelector('.results');
+
+	// Attach a click event listener to the parent element
+	resultsContainer.addEventListener('click', function (event) {
+		const modal = document.getElementById("modal");
+		const modalImage = document.getElementById("modalImage");
+		const modalCloseButton = document.getElementById('modalCloseButton');
+		const modalNextButton = document.getElementById('modalNextButton');
+		const modalPreviousButton = document.getElementById('modalPreviousButton');
+
+		modalCloseButton.onclick = function () {
+			modal.close();
+		}
+
+		modalNextButton.onclick = function () {
+			modal.close();
+		}
+
+		modalPreviousButton.onclick = function () {
+			modal.close();
+		}
+
+		modalImage.onclick = function () {
+			if (modalImage.classList.contains('fitAll')) {
+				modalImage.classList.remove('fitAll');
+				modalImage.classList.add('actual');
+			} else if (modalImage.classList.contains('actual')) {
+				modalImage.classList.remove('actual');
+				modalImage.classList.add('fitwidth');
+			} else if (modalImage.classList.contains('fitwidth')) {
+				modalImage.classList.remove('fitwidth');
+				modalImage.classList.add('fitAll');
+			}
+		}
+
+		// drag scrolling for modal image
+		// TODO
+
+		// setting modal image src to the clicked image
+		let image = event.target;
+		// console.log(image);
+
+		if (image.classList.contains('resultFile')) {
+			modal.showModal();
+			modalImage.src = image.src;
+		}
+	});
+
 });
 
 function goFullscreen() {
