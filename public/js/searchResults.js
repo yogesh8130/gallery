@@ -127,6 +127,12 @@ document.addEventListener("DOMContentLoaded", function () {
 		const modalNextButton = document.getElementById('modalNextButton');
 		const modalPreviousButton = document.getElementById('modalPreviousButton');
 
+		modal.onclick = function (event) {
+			if(event.target.id === 'modal') { // making sure the empty area was clicked and not the image part
+				modal.close();
+			}
+		}
+
 		modalCloseButton.onclick = function () {
 			modal.close();
 		}
