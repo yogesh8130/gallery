@@ -354,23 +354,30 @@ function changeTileSize() {
 // set page to 1 on every page load
 let currentPage = 1;
 const results = document.querySelector('.results')
+let isLoading = false;
+
 window.addEventListener('scroll', () => {
 	const scrollPosition = window.scrollY;
 	const documentHeight = document.documentElement.scrollHeight;
 	const viewportHeight = window.innerHeight;
-	if (window.location.href.includes('view=tiles') && scrollPosition >= documentHeight - viewportHeight) {
+	if (!isLoading && window.location.href.includes('view=tiles') && scrollPosition >= documentHeight - (viewportHeight * 2)) {
+		isLoading = true;
 		currentPage++;
+		// console.log('getting next results, page: ' + currentPage);
 		fetch(`/getNextResults?page=${currentPage}`)
 			.then(response => response.json())
 			.then(data => {
 				appendResults(data.images);
 				if (currentPage > data.totalPages) {
-					console.log('no more results');
+					// console.log('no more results');
 				}
 			})
 			.catch(error => {
 				console.error(`Error loading more results: ${error}`);
 				// handle the error appropriately
+			})
+			.finally(() => {
+				isLoading = false;
 			});
 
 	}
