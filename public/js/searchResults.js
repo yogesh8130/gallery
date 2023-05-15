@@ -4,14 +4,22 @@ let multiplier = 1 // zoom slider value
 
 document.addEventListener("DOMContentLoaded", function () {
 
-	let view;
-	if (window.location.href.includes('view=tiles')) {
-		view = 'tiles';
-	} else {
-		view = 'normal';
+	// convertin URL query params to
+	const queryString = window.location.search;
+	const searchParams = new URLSearchParams(queryString);
+	const queryParams = {};
+	for (const [key, value] of searchParams) {
+		queryParams[key] = value;
 	}
+	// console.log(queryParams);
 
-	if (view !== 'tiles') {
+	// setting form fields on load
+	const view = document.getElementById('view');
+	const searchText = document.getElementById('searchText');
+	view.value = queryParams.view;
+	searchText.value = queryParams.searchText;
+
+	if (view.value !== 'tiles') {
 		dragToScrollEnable();
 	}
 

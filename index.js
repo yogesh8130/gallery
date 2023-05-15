@@ -348,13 +348,10 @@ let matchingImagePaths = [];
 app.get('/search', async (req, res) => {
 	matchingImagePaths = [];
 	let imageList = imagePaths;
-
 	const view = req.query.view;
-
 	const searchText = req.query.searchText;
-	console.log("searchText: " + searchText);
-
 	let shuffleFlag = false;
+
 	if (req.query.shuffle
 		&& (req.query.shuffle === 'true'
 			|| req.query.shuffle === 'on')) {
