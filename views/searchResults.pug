@@ -178,10 +178,14 @@ html
 			img#modalImage.fitAll(
 				src = ''
 			)
-			span#modalCloseButton
+			span#modalCloseButton(title = 'Close')
 				| &times;
-			span#modalNextButton
+			span#modalNextFromResultsButton(title = 'Next from search results (right)')
 				| &RightAngleBracket;
-			span#modalPreviousButton
+			span#modalPreviousFromResultsButton(title = 'Previous from search results (left)')
 				| &LeftAngleBracket;
+			span#modalNextButton(title = 'Next from directory (shift + right)')
+				| &Rang;
+			span#modalPreviousButton(title = 'Previous from directory (shift + left)')
+				| &Lang;
 		script(src = '/js/searchResults.js')

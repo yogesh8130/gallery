@@ -141,30 +141,45 @@ video {
 	cursor: pointer;
 }
 
-#modalNextButton {
+#modalNextButton,
+#modalPreviousButton,
+#modalNextFromResultsButton,
+#modalPreviousFromResultsButton {
 	position: fixed;
-	right: 2rem;
-	top: 40%;
 	color: white;
 	font-size: 4rem;
 	font-weight: bold;
 	padding: 50px;
 }
 
+#modalNextButton {
+	right: 2rem;
+	top: 50%;
+}
+
 #modalPreviousButton {
-	position: fixed;
 	left: 2rem;
-	top: 40%;
-	color: white;
-	font-size: 4rem;
-	font-weight: bold;
-	padding: 50px;
+	top: 50%;
+}
+
+#modalNextFromResultsButton {
+	right: 2rem;
+	top: 30%;
+}
+
+#modalPreviousFromResultsButton {
+	left: 2rem;
+	top: 30%;
 }
 
 #modalNextButton:hover,
 #modalNextButton:focus,
 #modalPreviousButton:hover,
-#modalPreviousButton:focus {
+#modalPreviousButton:focus,
+#modalNextFromResultsButton:hover,
+#modalNextFromResultsButton:focus,
+#modalPreviousFromResultsButton:hover,
+#modalPreviousFromResultsButton:focus {
 	color: cornflowerblue;
 	text-decoration: none;
 	cursor: pointer;

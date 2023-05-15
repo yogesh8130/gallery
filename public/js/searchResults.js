@@ -126,8 +126,16 @@ document.addEventListener("DOMContentLoaded", function () {
 		const modalCloseButton = document.getElementById('modalCloseButton');
 		const modalNextButton = document.getElementById('modalNextButton');
 		const modalPreviousButton = document.getElementById('modalPreviousButton');
+		const modalNextFromResultsButton = document.getElementById('modalNextFromResultsButton');
+		const modalPreviousFromResultsButton = document.getElementById('modalPreviousFromResultsButton');
 
 		let clickedElement = event.target;
+
+		// setting modal image src to the clicked image
+		if (clickedElement.classList.contains('resultFile')) {
+			modal.showModal();
+			modalImage.src = clickedElement.src;
+		}
 
 		modal.onclick = function (event) {
 			if (clickedElement.id === 'modal') { // making sure the empty area was clicked and not the image part
@@ -165,6 +173,32 @@ document.addEventListener("DOMContentLoaded", function () {
 				.catch(error => console.error(error));
 		}
 
+		modalNextFromResultsButton.onclick = function () {
+			// remove localhost and leading slash
+			currentImagePath = modalImage.src.replace(origin, '').replace(/^\//, '');
+
+			fetch(`/next?fromResults=true&currentImagePath=${(currentImagePath)}`)
+				.then(response => response.json())
+				.then(data => {
+					modalImage.src = data.nextImagePath;
+					currentImagePath = data.nextImagePath;
+				})
+				.catch(error => console.error(error));
+		}
+
+		modalPreviousFromResultsButton.onclick = function () {
+			// remove localhost and leading slash
+			currentImagePath = modalImage.src.replace(origin, '').replace(/^\//, '');
+
+			fetch(`/previous?fromResults=true&currentImagePath=${(currentImagePath)}`)
+				.then(response => response.json())
+				.then(data => {
+					modalImage.src = data.previousImagePath;
+					currentImagePath = data.previousImagePath;
+				})
+				.catch(error => console.error(error));
+		}
+
 		modalImage.onclick = function () {
 			if (modalImage.classList.contains('fitAll')) {
 				modalImage.classList.remove('fitAll');
@@ -178,14 +212,28 @@ document.addEventListener("DOMContentLoaded", function () {
 			}
 		}
 
+		document.addEventListener('keydown', function (event) {
+			const focusedElement = document.activeElement;
+			if (focusedElement.nodeName === 'INPUT') {
+				// console.log('Currently focused element is an input field');
+				return
+			} else {
+				if (event.shiftKey && event.key === 'ArrowRight') {
+					modalNextButton.click();
+				} else if (event.shiftKey && event.key === 'ArrowLeft') {
+					modalPreviousButton.click();
+				} else if (event.key === 'ArrowRight') {
+					modalNextFromResultsButton.click();
+				} else if (event.key === 'ArrowLeft') {
+					modalPreviousFromResultsButton.click();
+				}
+			}
+		});
+
+
 		// drag scrolling for modal image
 		// TODO
 
-		// setting modal image src to the clicked image
-		if (clickedElement.classList.contains('resultFile')) {
-			modal.showModal();
-			modalImage.src = clickedElement.src;
-		}
 	});
 
 });

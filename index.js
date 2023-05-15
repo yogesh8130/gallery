@@ -205,13 +205,21 @@ app.get('/next', (req, res) => {
 	// client should remove 'origin' from the image url ie "http://localhost:3000"
 	const currentImagePath = decodeURIComponent(req.query.currentImagePath
 		.replace(/\//g, '\\'));
+	const fromResults = req.query.fromResults;
+
+	let imageList;
+	if (fromResults && fromResults === 'true') {
+		imageList = matchingImagePaths;
+	} else {
+		imageList = imagePaths;
+	}
 
 	// console.log("currentImagePath:" + currentImagePath);
-	const currentIndex = imagePaths.indexOf(currentImagePath);
+	const currentIndex = imageList.indexOf(currentImagePath);
 	// console.log('currentIndex: ' + currentIndex);
 
-	const nextIndex = (currentIndex + 1) % imagePaths.length;
-	const nextImagePath = imagePaths[nextIndex];
+	const nextIndex = (currentIndex + 1) % imageList.length;
+	const nextImagePath = imageList[nextIndex];
 
 	const filename = path.basename(nextImagePath);
 	const directoryPath = path.dirname(nextImagePath);
@@ -239,10 +247,18 @@ app.get('/previous', (req, res) => {
 	// client should remove 'origin' from the image url ie "http://localhost:3000"
 	const currentImagePath = decodeURIComponent(req.query.currentImagePath
 		.replace(/\//g, '\\'));
-	console.log("currentImagePath:" + currentImagePath);
-	const currentIndex = imagePaths.indexOf(currentImagePath);
-	const previousIndex = (currentIndex - 1 + imagePaths.length) % imagePaths.length;
-	const previousImagePath = imagePaths[previousIndex];
+	const fromResults = req.query.fromResults;
+
+	let imageList;
+	if (fromResults && fromResults === 'true') {
+		imageList = matchingImagePaths;
+	} else {
+		imageList = imagePaths;
+	}
+
+	const currentIndex = imageList.indexOf(currentImagePath);
+	const previousIndex = (currentIndex - 1 + imageList.length) % imageList.length;
+	const previousImagePath = imageList[previousIndex];
 
 	const filename = path.basename(previousImagePath);
 	const directoryPath = path.dirname(previousImagePath);
