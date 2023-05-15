@@ -23,11 +23,18 @@
 	margin: 1px;
 	position: relative;
 	font-size: 1rem;
+	z-index: 3;
+}
+
+.result:hover {
+	scale: 102%;
+	z-index: 4;
+	box-shadow: rgb(0, 0, 0) 0px 20px 30px -10px;
 }
 
 i {
 	display: block;
-}
+}	
 
 img,
 video {
@@ -35,20 +42,20 @@ video {
 	top: 0;
 	width: 100%;
 	vertical-align: bottom;
-}
+}	
 
 .forms {
 	background-color: black;
 	color: white;
-}
+}	
 
 .imageSidebar {
 	display: flex;
 	position: fixed;
-	top: 100%;
+	top: 90%;
 	left: 0;
 	padding: 0.2rem .4rem;
-	z-index: 2;
+	z-index: 0;
 	order: 1;
 	flex-direction: row-reverse;
 	justify-content: space-between;
@@ -56,16 +63,12 @@ video {
 	word-wrap: break-word;
 	word-break: break-all;
 	opacity: 0%;
-}
-
-.result:hover {
-	scale: 102%;
-	z-index: 1;
-	box-shadow: rgb(0, 0, 0) 0px 20px 30px -10px;
-}
+}	
 
 .result:hover>.imageSidebar {
 	opacity: 100%;
+	top: 100%;
+	z-index: 0;
 }
 
 .infoDiv {
@@ -102,8 +105,6 @@ video {
 
 #modalImage.actual {
 	position: absolute;
-	margin: auto;
-	width: auto;
 }
 
 #modalImage.fitWidth {
