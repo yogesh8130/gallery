@@ -3,7 +3,16 @@ const baseSize = 25;
 let multiplier = 1 // zoom slider value
 
 document.addEventListener("DOMContentLoaded", function () {
-
+	// load slider values from localStorage
+	const slider = document.getElementById('slider')
+	if (localStorage.sliderValue) {
+		multiplier = localStorage.sliderValue;
+		slider.value = localStorage.sliderValue;
+	} else {
+		console.log('sliderValue not found in local storage');
+		localStorage.sliderValue = 1;
+	}
+	
 	// convertin URL query params to
 	const queryString = window.location.search;
 	const searchParams = new URLSearchParams(queryString);
@@ -22,6 +31,9 @@ document.addEventListener("DOMContentLoaded", function () {
 	if (view.value !== 'tiles') {
 		dragToScrollEnable();
 	}
+
+	// Setting image size as per stored slider value 'on load' i.e. 1
+	changeTileSize(1);
 
 	const videos = document.querySelectorAll('.searchVid');
 	let centerVideo = null
@@ -146,7 +158,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
 
 		modal.onclick = function (event) {
-			if (clickedElement.id === 'modal') { // making sure the empty area was clicked and not the image part
+			if (event.target.id === 'modal') { // making sure the empty area was clicked and not the image part
 				modal.close();
 			}
 		}
@@ -460,13 +472,16 @@ function switchToTileView() {
 	}
 }
 
-function changeTileSize() {
+function changeTileSize(initialPageLoad) {
 	const slider = document.getElementById('slider');
 	const results = document.querySelectorAll('.result');
 
-	// Get the current slider value
-	// 'this' refers to the calling element
-	multiplier = parseFloat(slider.value);
+	if (!initialPageLoad) {
+		// Get the current slider value
+		multiplier = parseFloat(slider.value);
+	} else {
+		multiplier = localStorage.sliderValue;
+	}
 
 	// Loop over all the result elements
 	results.forEach(result => {
@@ -480,6 +495,9 @@ function changeTileSize() {
 		result.style.width = `${newWidth}rem`;
 		result.style.flexGrow = newWidth;
 	});
+
+	// storing current slider value to localStorage
+	localStorage.sliderValue = multiplier;
 }
 
 // set page to 1 on every page load
