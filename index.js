@@ -202,9 +202,14 @@ app.get('/random-image', (req, res) => {
 
 // Define a route to handle requests for the next image
 app.get('/next', (req, res) => {
-	const currentImagePath = req.query.currentImagePath.replace(/\//g, '\\');
-	console.log("currentImagePath:" + currentImagePath);
+	// client should remove 'origin' from the image url ie "http://localhost:3000"
+	const currentImagePath = decodeURIComponent(req.query.currentImagePath
+		.replace(/\//g, '\\'));
+
+	// console.log("currentImagePath:" + currentImagePath);
 	const currentIndex = imagePaths.indexOf(currentImagePath);
+	// console.log('currentIndex: ' + currentIndex);
+
 	const nextIndex = (currentIndex + 1) % imagePaths.length;
 	const nextImagePath = imagePaths[nextIndex];
 
@@ -218,7 +223,7 @@ app.get('/next', (req, res) => {
 	}
 
 	const responseData = {
-		nextImagePath: nextImagePath,
+		nextImagePath: encodeURIComponent(nextImagePath),
 		filename: filename,
 		directoryPath: directoryPath,
 		extension: extension,
@@ -231,7 +236,9 @@ app.get('/next', (req, res) => {
 
 // Define a route to handle requests for the previous image
 app.get('/previous', (req, res) => {
-	const currentImagePath = req.query.currentImagePath.replace(/\//g, '\\');
+	// client should remove 'origin' from the image url ie "http://localhost:3000"
+	const currentImagePath = decodeURIComponent(req.query.currentImagePath
+		.replace(/\//g, '\\'));
 	console.log("currentImagePath:" + currentImagePath);
 	const currentIndex = imagePaths.indexOf(currentImagePath);
 	const previousIndex = (currentIndex - 1 + imagePaths.length) % imagePaths.length;
@@ -247,7 +254,7 @@ app.get('/previous', (req, res) => {
 	}
 
 	const responseData = {
-		previousImagePath: previousImagePath,
+		previousImagePath: encodeURIComponent(previousImagePath),
 		filename: filename,
 		directoryPath: directoryPath,
 		extension: extension,

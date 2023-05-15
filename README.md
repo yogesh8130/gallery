@@ -5,6 +5,9 @@ The text you see on the screen is always hyperlinked and will take you to simila
 
 Currently this does not read the file tags but may integrate that in furture, so currently it is important that your image names and folder names are meaningful for search to work.
 
+Notes:
+1. Images are only shuffled once per every search and list is not shuffled untill next search
+
 ## Getting Started
 Place the hardlinks / junctions / symlinks / folders containing images in `<project folder>/public/images/<here>`  
 

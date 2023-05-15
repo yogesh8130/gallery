@@ -121,6 +121,7 @@ video {
 	transform: translate(-50%, -50%);
 	object-fit: fill;
 	max-height: 100%;
+	max-width: 100%;
 	width: auto;
 }
 

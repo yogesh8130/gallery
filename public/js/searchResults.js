@@ -127,8 +127,10 @@ document.addEventListener("DOMContentLoaded", function () {
 		const modalNextButton = document.getElementById('modalNextButton');
 		const modalPreviousButton = document.getElementById('modalPreviousButton');
 
+		let clickedElement = event.target;
+
 		modal.onclick = function (event) {
-			if(event.target.id === 'modal') { // making sure the empty area was clicked and not the image part
+			if (clickedElement.id === 'modal') { // making sure the empty area was clicked and not the image part
 				modal.close();
 			}
 		}
@@ -138,11 +140,29 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
 
 		modalNextButton.onclick = function () {
-			modal.close();
+			// remove localhost and leading slash
+			currentImagePath = modalImage.src.replace(origin, '').replace(/^\//, '');
+
+			fetch(`/next?currentImagePath=${(currentImagePath)}`)
+				.then(response => response.json())
+				.then(data => {
+					modalImage.src = data.nextImagePath;
+					currentImagePath = data.nextImagePath;
+				})
+				.catch(error => console.error(error));
 		}
 
 		modalPreviousButton.onclick = function () {
-			modal.close();
+			// remove localhost and leading slash
+			currentImagePath = modalImage.src.replace(origin, '').replace(/^\//, '');
+
+			fetch(`/previous?currentImagePath=${(currentImagePath)}`)
+				.then(response => response.json())
+				.then(data => {
+					modalImage.src = data.previousImagePath;
+					currentImagePath = data.previousImagePath;
+				})
+				.catch(error => console.error(error));
 		}
 
 		modalImage.onclick = function () {
@@ -162,12 +182,9 @@ document.addEventListener("DOMContentLoaded", function () {
 		// TODO
 
 		// setting modal image src to the clicked image
-		let image = event.target;
-		// console.log(image);
-
-		if (image.classList.contains('resultFile')) {
+		if (clickedElement.classList.contains('resultFile')) {
 			modal.showModal();
-			modalImage.src = image.src;
+			modalImage.src = clickedElement.src;
 		}
 	});
 
