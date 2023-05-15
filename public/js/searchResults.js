@@ -138,18 +138,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
 		// setting modal image src to the clicked image
 		if (clickedElement.classList.contains('resultFile')) {
-			modal.showModal();
+			showModal();
 			modalImage.src = clickedElement.src;
 		}
 
 		modal.onclick = function (event) {
 			if (event.target.id === 'modal') { // making sure the empty area was clicked and not the image part
-				modal.close();
+				closeModal();
 			}
 		}
 
 		modalCloseButton.onclick = function () {
-			modal.close();
+			closeModal();
 		}
 
 		modalNextButton.onclick = function () {
@@ -228,10 +228,19 @@ document.addEventListener("DOMContentLoaded", function () {
 					modalNextFromResultsButton.click();
 				} else if (event.key === 'ArrowLeft') {
 					modalPreviousFromResultsButton.click();
+				} else if (event.key === 'Escape') {
+					closeModal();
 				}
 			}
 		});
 
+		function showModal() {
+			modal.style.display = 'block';
+		}
+
+		function closeModal() {
+			modal.style.display = 'none';
+		}
 
 		// drag scrolling for modal image
 		// TODO

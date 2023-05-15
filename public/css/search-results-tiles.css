@@ -35,7 +35,7 @@
 
 i {
 	display: block;
-}	
+}
 
 img,
 video {
@@ -43,12 +43,12 @@ video {
 	top: 0;
 	width: 100%;
 	vertical-align: bottom;
-}	
+}
 
 .forms {
 	background-color: black;
 	color: white;
-}	
+}
 
 .imageSidebar {
 	display: flex;
@@ -64,7 +64,7 @@ video {
 	word-wrap: break-word;
 	word-break: break-all;
 	opacity: 0%;
-}	
+}
 
 .result:hover>.imageSidebar {
 	opacity: 100%;
@@ -97,40 +97,56 @@ video {
 
 /* The Modal (background) */
 #modal {
-	width: 100vw;
-	height: 100vh;
-	margin: auto;
-	background-color: rgba(0, 0, 0, 0.9);
+	position: fixed;
+	display: none;
+	z-index: 10;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
 	overflow: auto;
+	background-color: rgba(0, 0, 0, 0.6);
+}
+
+.modalImageContainer {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	justify-content: center;
+	align-content: center;
+	background-color: rgba(55, 173, 124, 0.6);
+}
+
+.filler {
+	flex-grow: 2;
+	width: 100px;
+	color: red;
 }
 
 #modalImage.actual {
-	position: absolute;
-	height: auto;
+	flex: 1;
+	display: block;
+	max-width: none;
+	max-height: none;
 	width: auto;
+	height: auto;
 }
 
 #modalImage.fitWidth {
-	position: absolute;
 	max-width: 100%;
 	height: auto;
 }
 
 #modalImage.fitHeight {
-	position: absolute;
-	max-height: 100%;
+	height: 100%;
 	width: auto;
 }
 
 #modalImage.fitAll {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	object-fit: fill;
 	max-height: 100%;
 	max-width: 100%;
-	width: auto;
+	object-fit: contain;
 }
 
 #modalCloseButton {

@@ -183,10 +183,11 @@ html
 			title = 'Fullscreen (Alt + Enter)'
 			onclick = 'goFullscreen()'
 			) ◹
-		dialog.modal#modal
-			img#modalImage.fitAll(
-				src = ''
-			)
+		div.modal#modal
+			div.modalImageContainer
+				img#modalImage.fitAll(
+					src = ''
+				)
 			span#modalCloseButton(title = 'Close')
 				| &times;
 			span#modalNextFromResultsButton(title = 'Next from search results (right)')
