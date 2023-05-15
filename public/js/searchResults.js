@@ -93,21 +93,6 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
 	});
 
-	function stopMainScroll() {
-		// check if screen layout is landscape
-		if (window.matchMedia("(orientation: landscape)").matches) {
-			window.addEventListener('wheel', preventDefault, { passive: false });
-		}
-	}
-
-	function allowMainScroll() {
-		window.removeEventListener('wheel', preventDefault);
-	}
-
-	function preventDefault(e) {
-		e.preventDefault();
-	}
-
 	document.addEventListener('keydown', function (event) {
 		const focusedElement = document.activeElement;
 		if (focusedElement.nodeName === 'INPUT') {
