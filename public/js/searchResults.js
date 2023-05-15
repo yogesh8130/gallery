@@ -205,16 +205,13 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
 
 		modalImage.onclick = function () {
-			if (modalImage.classList.contains('fitAll')) {
-				modalImage.classList.remove('fitAll');
-				modalImage.classList.add('actual');
-			} else if (modalImage.classList.contains('actual')) {
-				modalImage.classList.remove('actual');
-				modalImage.classList.add('fitwidth');
-			} else if (modalImage.classList.contains('fitwidth')) {
-				modalImage.classList.remove('fitwidth');
-				modalImage.classList.add('fitAll');
-			}
+			const imageModes = ['fitAll', 'fitWidth', 'fitHeight', 'actual'];
+			const currentMode = Array.from(modalImage.classList)
+				.find(cls => imageModes.includes(cls));
+			const currentIndex = imageModes.indexOf(currentMode);
+			const nextIndex = (currentIndex + 1) % imageModes.length;
+			modalImage.classList.remove(currentMode);
+			modalImage.classList.add(imageModes[nextIndex]);
 		}
 
 		document.addEventListener('keydown', function (event) {

@@ -12,6 +12,7 @@
 	flex-wrap: wrap;
 	overflow-x: hidden;
 	padding: 1rem;
+	padding-bottom: 3rem;
 }
 
 .results::after {
@@ -105,12 +106,20 @@ video {
 
 #modalImage.actual {
 	position: absolute;
+	height: auto;
+	width: auto;
 }
 
 #modalImage.fitWidth {
 	position: absolute;
 	max-width: 100%;
 	height: auto;
+}
+
+#modalImage.fitHeight {
+	position: absolute;
+	max-height: 100%;
+	width: auto;
 }
 
 #modalImage.fitAll {
