@@ -3,16 +3,6 @@ const baseSize = 25;
 let multiplier = 1 // zoom slider value
 
 document.addEventListener("DOMContentLoaded", function () {
-	// load slider values from localStorage
-	const slider = document.getElementById('slider')
-	if (localStorage.sliderValue) {
-		multiplier = localStorage.sliderValue;
-		slider.value = localStorage.sliderValue;
-	} else {
-		console.log('sliderValue not found in local storage');
-		localStorage.sliderValue = 1;
-	}
-	
 	// convertin URL query params to
 	const queryString = window.location.search;
 	const searchParams = new URLSearchParams(queryString);
@@ -30,10 +20,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	if (view.value !== 'tiles') {
 		dragToScrollEnable();
-	}
+	} else {
+		// load slider values from localStorage
+		const slider = document.getElementById('slider')
+		if (localStorage.sliderValue) {
+			multiplier = localStorage.sliderValue;
+			slider.value = localStorage.sliderValue;
+		} else {
+			console.log('sliderValue not found in local storage');
+			localStorage.sliderValue = 1;
+		}
 
-	// Setting image size as per stored slider value 'on load' i.e. 1
-	changeTileSize(1);
+		// Setting image size as per stored slider value 'on load' i.e. 1
+		changeTileSize(1);
+	}
 
 	const videos = document.querySelectorAll('.searchVid');
 	let centerVideo = null
