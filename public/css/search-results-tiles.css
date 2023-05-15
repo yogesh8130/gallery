@@ -44,19 +44,15 @@ video {
 
 .imageSidebar {
 	display: flex;
-	position: absolute;
-	top: 0;
+	position: fixed;
+	top: 100%;
 	left: 0;
 	padding: 0.2rem .4rem;
 	z-index: 2;
 	order: 1;
 	flex-direction: row-reverse;
-	width: 100%;
-	height: 15%;
 	justify-content: space-between;
-	/* background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0)); */
-	text-shadow: 3px 0px 6px black,
-		-3px 0px 6px black;
+	background-image: linear-gradient(to bottom, rgba(0, 0, 0, .9), rgba(0, 0, 0, .7));
 	word-wrap: break-word;
 	word-break: break-all;
 	opacity: 0%;
