@@ -122,22 +122,13 @@ html
 										href = '/search?searchText=' + folderlink + '&view=' + view)
 										|#{folderName}
 							div.mainContent
-								a.contentLink(
-									data-href='/?imageBackLink=' + imageLinkEscaped
+								a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped
 									ondblclick=`location.href="/singleView?imageBackLink=${imageLinkEscaped}"`
 									)
 									if (image.type === 'image')
-										img.searchImg.resultFile(
-											id = 'image'+index
-											src = imageLinkEscaped
-											)
+										img.searchImg.resultFile(id = 'image'+index src = imageLinkEscaped)
 									else
-										video.searchVid.resultFile(
-											id = 'image'+index
-											src = imageLinkEscaped 
-											controls 
-											loop
-											)
+										video.searchVid.resultFile.videoFile(id = 'image'+index src = imageLinkEscaped controls loop)
 			if totalPages > 1 && !shuffle
 				div.pagination
 					div.pageButtons(
@@ -178,9 +169,8 @@ html
 			) ◹
 		div.modal#modal
 			div.modalImageContainer
-				//- img#modalImage.fitAll(
-				//- 	src = ''
-				//- )
+			div.modalVideoContainer
+				video.modalVideo.videoFile(src = '' controls loop autoplay)
 			span#modalCloseButton(title = 'Close')
 				| &times;
 			span#modalNextFromResultsButton(title = 'Next from search results (right)')

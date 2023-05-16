@@ -109,7 +109,9 @@ video {
 	background-color: rgba(0, 0, 0, 0.9);
 }
 
-.modalImageContainer {
+.modalImageContainer,
+.modalVideoContainer {
+	display: none;
 	height: 100%;
 }
 
@@ -119,26 +121,7 @@ video {
 	color: red;
 }
 
-#modalImage.actual {
-	flex: 1;
-	display: block;
-	max-width: none;
-	max-height: none;
-	width: auto;
-	height: auto;
-}
-
-#modalImage.fitWidth {
-	max-width: 100%;
-	height: auto;
-}
-
-#modalImage.fitHeight {
-	height: 100%;
-	width: auto;
-}
-
-#modalImage.fitAll {
+.modalVideo {
 	max-height: 100%;
 	max-width: 100%;
 	object-fit: contain;
@@ -151,6 +134,7 @@ video {
 	color: white;
 	font-size: 4rem;
 	font-weight: bold;
+	opacity: 10%;
 }
 
 #modalCloseButton:hover,
@@ -158,6 +142,7 @@ video {
 	color: tomato;
 	text-decoration: none;
 	cursor: pointer;
+	opacity: 100%;
 }
 
 #modalNextButton,
@@ -169,6 +154,7 @@ video {
 	font-size: 4rem;
 	font-weight: bold;
 	padding: 50px;
+	opacity: 10%;
 }
 
 #modalNextButton {
@@ -203,6 +189,7 @@ video {
 	text-decoration: none;
 	cursor: pointer;
 	transition: all 0.3s ease;
+	opacity: 100%;
 }
 
 /* base style not dependent on scaling or device */

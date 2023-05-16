@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		changeTileSize(1);
 	}
 
-	const videos = document.querySelectorAll('.searchVid');
+	const videos = document.querySelectorAll('.videoFile');
 	let centerVideo = null
 
 	const observer = new IntersectionObserver(entries => {
@@ -126,9 +126,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	// Attach a click event listener to the parent element
 	resultsContainer.addEventListener('click', function (event) {
+		event.preventDefault();
+
 		const modal = document.getElementById("modal");
 		const modalImageContainer = document.querySelector('.modalImageContainer');
-		const modalImage = document.getElementById("modalImage");
+		const modalVideoContainer = document.querySelector('.modalVideoContainer');
+		const modalVideo = document.querySelector('.modalVideo');
 		const modalCloseButton = document.getElementById('modalCloseButton');
 		const modalNextButton = document.getElementById('modalNextButton');
 		const modalPreviousButton = document.getElementById('modalPreviousButton');
@@ -136,21 +139,27 @@ document.addEventListener("DOMContentLoaded", function () {
 		const modalPreviousFromResultsButton = document.getElementById('modalPreviousFromResultsButton');
 
 		let clickedElement = event.target;
-		const viewer = new ImageViewer(modalImageContainer);
-
 		let currentImagePath;
+
+		const viewer = new ImageViewer(modalImageContainer);
 
 		// setting modal image src to the clicked image
 		if (clickedElement.classList.contains('resultFile')) {
-			showModal();
-			// modalImage.src = clickedElement.src;
-			viewer.load(clickedElement.src);
+			showModal(clickedElement.src);
 			currentImagePath = clickedElement.src;
 		}
 
 		modal.onclick = function (event) {
-			if (event.target.id === 'modal') { // making sure the empty area was clicked and not the image part
+			if (event.target.classList.contains('iv-image-view')) {
 				closeModal();
+				// } else if (event.target.classList.contains('modalVideo')) {
+				// 	if (modalVideo.paused) {
+				// 		console.log('vide is pause');
+				// 		modalVideo.play();
+				// 	} else {
+				// 		console.log('vide is play');
+				// 		modalVideo.pause();
+				// 	}
 			}
 		}
 
@@ -165,7 +174,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			fetch(`/next?currentImagePath=${(currentImagePath)}`)
 				.then(response => response.json())
 				.then(data => {
-					viewer.load(data.nextImagePath);
+					showModal(data.nextImagePath);
 					currentImagePath = data.nextImagePath;
 				})
 				.catch(error => console.error(error));
@@ -178,7 +187,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			fetch(`/previous?currentImagePath=${(currentImagePath)}`)
 				.then(response => response.json())
 				.then(data => {
-					viewer.load(data.previousImagePath);
+					showModal(data.previousImagePath);
 					currentImagePath = data.previousImagePath;
 				})
 				.catch(error => console.error(error));
@@ -191,7 +200,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			fetch(`/next?fromResults=true&currentImagePath=${(currentImagePath)}`)
 				.then(response => response.json())
 				.then(data => {
-					viewer.load(data.nextImagePath);
+					showModal(data.nextImagePath);
 					currentImagePath = data.nextImagePath;
 				})
 				.catch(error => console.error(error));
@@ -204,7 +213,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			fetch(`/previous?fromResults=true&currentImagePath=${(currentImagePath)}`)
 				.then(response => response.json())
 				.then(data => {
-					viewer.load(data.previousImagePath);
+					showModal(data.previousImagePath);
 					currentImagePath = data.previousImagePath;
 				})
 				.catch(error => console.error(error));
@@ -230,13 +239,25 @@ document.addEventListener("DOMContentLoaded", function () {
 			}
 		});
 
-		function showModal() {
+		function showModal(fileLink) {
 			modal.style.display = 'block';
+			if (fileLink.endsWith('.mp4') || fileLink.endsWith('.mkv') || fileLink.endsWith('.webm')) {
+				modalVideoContainer.style.display = 'block';
+				modalImageContainer.style.display = 'none';
+				modalVideo.src = fileLink;
+				modalVideo.play();
+			} else {
+				modalVideoContainer.style.display = 'none';
+				modalVideo.pause();
+				modalImageContainer.style.display = 'block';
+				viewer.load(fileLink);
+			}
 		}
 
 		function closeModal() {
 			modal.style.display = 'none';
 			viewer.destroy();
+			modalVideo.pause();
 		}
 
 		// drag scrolling for modal image
