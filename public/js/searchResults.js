@@ -75,7 +75,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	// Attach a click event listener to the parent element
 	resultsContainer.addEventListener('click', function (event) {
-		event.preventDefault();
 
 		const modal = document.getElementById("modal");
 		const modalImageContainer = document.querySelector('.modalImageContainer');
@@ -96,6 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		if (clickedElement.classList.contains('resultFile')) {
 			showModal(clickedElement.src);
 			currentImagePath = clickedElement.src;
+			event.preventDefault(); // this makes the videos play on click and keeps info links working
 		}
 
 		modal.onclick = function (event) {
