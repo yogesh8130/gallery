@@ -547,12 +547,15 @@ function getImageMetadata(imagePath) {
 		// console.log(absolutePath);
 		const fileAttrs = readMediaAttributes(absolutePath);
 		// console.log(fileAttrs);
+		if (!fileAttrs.mime) {
+			console.warn('Possible issues reading the file attributes for: ',absolutePath)
+		}
 		return {
 			baseName,
 			path: imagePath,
 			directory,
-			width: fileAttrs.width,
-			height: fileAttrs.height,
+			width: fileAttrs.width || 400,
+			height: fileAttrs.height || 300,
 			size: fileAttrs.size,
 			mime: fileAttrs.mime,
 			type: isImage ? 'image' : 'video',
