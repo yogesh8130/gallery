@@ -11,7 +11,7 @@
 	flex-wrap: wrap;
 	overflow-x: hidden;
 	padding: 1rem;
-	padding-bottom: 3rem;
+	padding-bottom: 50vh;
 }
 
 .results::after {
@@ -60,10 +60,12 @@ video {
 	order: 1;
 	flex-direction: row-reverse;
 	justify-content: space-between;
+	align-items: center;
 	background-image: linear-gradient(to bottom, rgba(0, 0, 0, .9), rgba(0, 0, 0, .7));
 	word-wrap: break-word;
 	word-break: break-all;
 	opacity: 0%;
+	gap: .3rem
 }
 
 .result:hover>.imageSidebar {
@@ -94,6 +96,12 @@ video {
 	border-width: 1px;
 	border-radius: 5px;
 	padding: 0;
+}
+
+.renameButton {
+	background-color: cornflowerblue;
+	color: white;
+	font-weight: bold;
 }
 
 /* The Modal (background) */
@@ -190,6 +198,15 @@ video {
 	cursor: pointer;
 	transition: all 0.3s ease;
 	opacity: 100%;
+}
+
+.renameDialog {
+	padding: 0;
+	width: 100%;
+}
+
+.renameForm>* {
+	font-size: 1rem;
 }
 
 /* base style not dependent on scaling or device */
@@ -419,6 +436,11 @@ button:hover {
 	@media screen and (min-resolution: 100dpi) {
 		html {
 			font-size: 200%;
+		}
+
+		.imageSidebar {
+			position: static;
+			opacity: 100%;
 		}
 	}
 

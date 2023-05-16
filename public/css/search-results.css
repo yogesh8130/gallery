@@ -674,3 +674,7 @@ div.pageButtons::-webkit-scrollbar {
 #sliderContainer {
 	display: none;
 }
+
+.modal {
+	display: none;
+}

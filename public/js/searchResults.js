@@ -623,6 +623,42 @@ function createResultElement(image) {
 	subTitleLink.textContent = directory;
 	infoDiv.appendChild(subTitleLink);
 
+	// creating rename div
+	const renameDiv = document.createElement('div');
+	renameDiv.classList.add('rename');
+	const renameButton = document.createElement('button');
+	renameButton.classList.add('renameButton');
+	renameButton.setAttribute('onclick', 'showRenameDialog(this)');
+	renameButton.innerHTML = '&#9998;';
+	const renameDialog = document.createElement('dialog');
+	renameDialog.classList.add('renameDialog');
+	const renameForm = document.createElement('form');
+	renameForm.setAttribute('action', '/rename');
+	renameForm.setAttribute('method', 'post');
+	renameDialog.appendChild(renameForm);
+	const currentFilePathInput = document.createElement('input');
+	currentFilePathInput.setAttribute('type', 'text');
+	currentFilePathInput.setAttribute('name', 'currentFilePath');
+	currentFilePathInput.setAttribute('id', 'currentFilePath');
+	currentFilePathInput.setAttribute('placeholder', 'Current File Path');
+	currentFilePathInput.setAttribute('value', imageLinkEscaped);
+	currentFilePathInput.setAttribute('readonly', 'readonly');
+	currentFilePathInput.setAttribute('hidden', 'hidden');
+	renameForm.appendChild(currentFilePathInput);
+	const newFileNameInput = document.createElement('input');
+	newFileNameInput.setAttribute('type', 'text');
+	newFileNameInput.setAttribute('name', 'newFileName');
+	newFileNameInput.setAttribute('id', 'newFileName');
+	newFileNameInput.setAttribute('placeholder', 'New File Name');
+	renameForm.appendChild(newFileNameInput);
+	const submitInput = document.createElement('input');
+	submitInput.setAttribute('type', 'submit');
+	submitInput.setAttribute('hidden', 'hidden');
+	renameForm.appendChild(submitInput);
+	renameDiv.appendChild(renameButton);
+	renameDiv.appendChild(renameDialog);
+	imageSidebarDiv.appendChild(renameDiv);
+
 	const mainContentDiv = document.createElement("div");
 	mainContentDiv.classList.add("mainContent");
 	containerDiv.appendChild(mainContentDiv);
@@ -654,4 +690,24 @@ function createResultElement(image) {
 	}
 
 	return containerDiv;
+}
+
+function showRenameDialog(button) {
+	if (button.nextSibling.classList.contains('renameDialog')) {
+		const renameDialog = button.nextSibling;
+		if (renameDialog.open) {
+			renameDialog.close();
+		} else {
+			renameDialog.show();
+		}
+
+		// yes the dialogs can be submitted too
+		renameDialog.onsubmit = function (event) {
+			event.preventDefault(); // else the form will submit normally and reload the page
+			console.log('submitting with fetch');
+			//TODO
+
+			renameDialog.close();
+		}
+	}
 }

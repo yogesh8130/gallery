@@ -310,25 +310,25 @@ app.get('/rename', (req, res) => {
 	// console.log("currentFilePathRelative: " + currentFilePathRelative);
 	console.log("newFilePathRelative: " + newFilePathRelative);
 	// Check if a file with the new file name already exists
-	fs.access(newFilePathRelative, (err) => {
-		if (err) {
-			// Rename the file using the fs module
-			fs.rename(currentFilePathRelative, newFilePathRelative, (err) => {
-				if (err) {
-					console.error(err);
-					res.status(500).send('Error renaming file');
-				} else {
-					console.log("File renamed successfully");
-					res.status(200).json({
-						newFilePath: newFilePathRelative
-					});
-				}
-			});
-		} else {
-			// If the file already exists, send an error response
-			res.status(400).send('A file with the same name already exists.');
-		}
-	});
+	// fs.access(newFilePathRelative, (err) => {
+	// 	if (err) {
+	// 		// Rename the file using the fs module
+	// 		fs.rename(currentFilePathRelative, newFilePathRelative, (err) => {
+	// 			if (err) {
+	// 				console.error(err);
+	// 				res.status(500).send('Error renaming file');
+	// 			} else {
+	// 				console.log("File renamed successfully");
+	// 				res.status(200).json({
+	// 					newFilePath: newFilePathRelative
+	// 				});
+	// 			}
+	// 		});
+	// 	} else {
+	// 		// If the file already exists, send an error response
+	// 		res.status(400).send('A file with the same name already exists.');
+	// 	}
+	// });
 });
 
 

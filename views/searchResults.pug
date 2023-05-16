@@ -23,20 +23,9 @@ html
 				onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")
 			div.results
 				div.forms
-					form.searchForm(
-						action = "" 
-						method = "get")
-						input(
-							type = "text" 
-							name = 'searchText' 
-							id = 'searchText' 
-							placeholder = 'Search'
-							)
-						input(
-							type = "hidden" 
-							name = 'view' 
-							id = 'view' 
-							)
+					form.searchForm(action = "" method = "get")
+						input(type = "text" name = 'searchText' id = 'searchText' placeholder = 'Search')
+						input(type = "hidden" name = 'view' id = 'view')
 						div.shuffleDiv
 							label(for="shuffle") Shuffle
 							if shuffle
@@ -122,6 +111,15 @@ html
 									a.subTitle(
 										href = '/search?searchText=' + folderlink + '&view=' + view)
 										|#{folderName}
+								div.rename
+									button.renameButton(onclick = 'showRenameDialog(this)') &#9998;
+									dialog.renameDialog
+										form.renameForm
+											input(type = "text" name = 'currentFilePath' id = 'currentFilePath' 
+												placeholder = 'Curent File Path' value = imageLinkEscaped readonly hidden)
+											input(type = "text" name = 'newFileName' id = 'newFileName'
+												placeholder = 'New File Name')
+											input(type="submit" hidden)
 							div.mainContent
 								a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped
 									ondblclick=`location.href="/singleView?imageBackLink=${imageLinkEscaped}"`
