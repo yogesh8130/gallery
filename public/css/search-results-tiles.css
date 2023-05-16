@@ -4,7 +4,6 @@
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	margin: 0;
 	box-sizing: border-box;
-	transition: all 0.3s ease;
 }
 
 .results {
@@ -31,6 +30,7 @@
 	scale: 102%;
 	z-index: 4;
 	box-shadow: rgb(0, 0, 0) 0px 20px 30px -10px;
+	transition: all 0.3s ease;
 }
 
 i {
@@ -70,6 +70,7 @@ video {
 	opacity: 100%;
 	top: 100%;
 	z-index: 0;
+	transition: all 0.3s ease;
 }
 
 .infoDiv {
@@ -109,10 +110,7 @@ video {
 }
 
 .modalImageContainer {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-content: center;
+	height: 100%;
 }
 
 .filler {
@@ -204,6 +202,7 @@ video {
 	color: cornflowerblue;
 	text-decoration: none;
 	cursor: pointer;
+	transition: all 0.3s ease;
 }
 
 /* base style not dependent on scaling or device */
@@ -369,6 +368,7 @@ button:hover {
 
 .slider::-webkit-slider-thumb:hover {
 	scale: 120%;
+	transition: all 0.3s ease;
 }
 
 .slider::-moz-range-thumb {

@@ -127,6 +127,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	// Attach a click event listener to the parent element
 	resultsContainer.addEventListener('click', function (event) {
 		const modal = document.getElementById("modal");
+		const modalImageContainer = document.querySelector('.modalImageContainer');
 		const modalImage = document.getElementById("modalImage");
 		const modalCloseButton = document.getElementById('modalCloseButton');
 		const modalNextButton = document.getElementById('modalNextButton');
@@ -135,11 +136,16 @@ document.addEventListener("DOMContentLoaded", function () {
 		const modalPreviousFromResultsButton = document.getElementById('modalPreviousFromResultsButton');
 
 		let clickedElement = event.target;
+		const viewer = new ImageViewer(modalImageContainer);
+
+		let currentImagePath;
 
 		// setting modal image src to the clicked image
 		if (clickedElement.classList.contains('resultFile')) {
 			showModal();
-			modalImage.src = clickedElement.src;
+			// modalImage.src = clickedElement.src;
+			viewer.load(clickedElement.src);
+			currentImagePath = clickedElement.src;
 		}
 
 		modal.onclick = function (event) {
@@ -154,12 +160,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
 		modalNextButton.onclick = function () {
 			// remove localhost and leading slash
-			currentImagePath = modalImage.src.replace(origin, '').replace(/^\//, '');
+			currentImagePath = currentImagePath.replace(origin, '').replace(/^\//, '');
 
 			fetch(`/next?currentImagePath=${(currentImagePath)}`)
 				.then(response => response.json())
 				.then(data => {
-					modalImage.src = data.nextImagePath;
+					viewer.load(data.nextImagePath);
 					currentImagePath = data.nextImagePath;
 				})
 				.catch(error => console.error(error));
@@ -167,12 +173,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
 		modalPreviousButton.onclick = function () {
 			// remove localhost and leading slash
-			currentImagePath = modalImage.src.replace(origin, '').replace(/^\//, '');
+			currentImagePath = currentImagePath.replace(origin, '').replace(/^\//, '');
 
 			fetch(`/previous?currentImagePath=${(currentImagePath)}`)
 				.then(response => response.json())
 				.then(data => {
-					modalImage.src = data.previousImagePath;
+					viewer.load(data.previousImagePath);
 					currentImagePath = data.previousImagePath;
 				})
 				.catch(error => console.error(error));
@@ -180,12 +186,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
 		modalNextFromResultsButton.onclick = function () {
 			// remove localhost and leading slash
-			currentImagePath = modalImage.src.replace(origin, '').replace(/^\//, '');
+			currentImagePath = currentImagePath.replace(origin, '').replace(/^\//, '');
 
 			fetch(`/next?fromResults=true&currentImagePath=${(currentImagePath)}`)
 				.then(response => response.json())
 				.then(data => {
-					modalImage.src = data.nextImagePath;
+					viewer.load(data.nextImagePath);
 					currentImagePath = data.nextImagePath;
 				})
 				.catch(error => console.error(error));
@@ -193,25 +199,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
 		modalPreviousFromResultsButton.onclick = function () {
 			// remove localhost and leading slash
-			currentImagePath = modalImage.src.replace(origin, '').replace(/^\//, '');
+			currentImagePath = currentImagePath.replace(origin, '').replace(/^\//, '');
 
 			fetch(`/previous?fromResults=true&currentImagePath=${(currentImagePath)}`)
 				.then(response => response.json())
 				.then(data => {
-					modalImage.src = data.previousImagePath;
+					viewer.load(data.previousImagePath);
 					currentImagePath = data.previousImagePath;
 				})
 				.catch(error => console.error(error));
-		}
-
-		modalImage.onclick = function () {
-			const imageModes = ['fitAll', 'fitWidth', 'fitHeight', 'actual'];
-			const currentMode = Array.from(modalImage.classList)
-				.find(cls => imageModes.includes(cls));
-			const currentIndex = imageModes.indexOf(currentMode);
-			const nextIndex = (currentIndex + 1) % imageModes.length;
-			modalImage.classList.remove(currentMode);
-			modalImage.classList.add(imageModes[nextIndex]);
 		}
 
 		document.addEventListener('keydown', function (event) {
@@ -240,6 +236,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 		function closeModal() {
 			modal.style.display = 'none';
+			viewer.destroy();
 		}
 
 		// drag scrolling for modal image

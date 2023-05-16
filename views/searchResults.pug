@@ -3,17 +3,10 @@ html
 	head
 		title Search Results
 		if view && view === 'tiles'
-			link(
-				id = 'stylesheet' 
-				rel = 'stylesheet' 
-				href = "/css/search-results-tiles.css"
-				)
+			link(id = 'stylesheet' rel = 'stylesheet' href = "/css/search-results-tiles.css")
 		else
-			link(
-				id = 'stylesheet' 
-				rel = 'stylesheet' 
-				href = "/css/search-results.css"
-				)
+			link(id = 'stylesheet' rel = 'stylesheet' href = "/css/search-results.css")
+		link(rel = 'stylesheet' href = '/css/iv-viewer.css')
 	body
 		div.mainDiv
 			div.header
@@ -185,9 +178,9 @@ html
 			) ◹
 		div.modal#modal
 			div.modalImageContainer
-				img#modalImage.fitAll(
-					src = ''
-				)
+				//- img#modalImage.fitAll(
+				//- 	src = ''
+				//- )
 			span#modalCloseButton(title = 'Close')
 				| &times;
 			span#modalNextFromResultsButton(title = 'Next from search results (right)')
@@ -199,3 +192,4 @@ html
 			span#modalPreviousButton(title = 'Previous from directory (shift + left)')
 				| &Lang;
 		script(src = '/js/searchResults.js')
+		script(src = '/js/iv-viewer.js')
