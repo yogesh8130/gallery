@@ -89,10 +89,11 @@ document.addEventListener("DOMContentLoaded", function () {
 		let clickedElement = event.target;
 		let currentImagePath;
 
-		const viewer = new ImageViewer(modalImageContainer);
+		let viewer;
 
 		// setting modal image src to the clicked image
 		if (clickedElement.classList.contains('resultFile')) {
+			viewer = new ImageViewer(modalImageContainer);
 			showModal(clickedElement.src);
 			currentImagePath = clickedElement.src;
 			event.preventDefault(); // this makes the videos play on click and keeps info links working
