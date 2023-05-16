@@ -470,12 +470,14 @@
 					var image = _elements.image,
 						zoomHandle = _elements.zoomHandle;
 					var maxZoom = _options.maxZoom;
+					var scrollPosition = window.pageYOffset;
 					perc = Math.round(Math.max(100, perc));
 					perc = Math.min(maxZoom, perc);
 					point = point || {
 						x: containerDim.w / 2,
 						y: containerDim.h / 2
 					};
+					point.y = point.y - scrollPosition;
 					var curLeft = parseFloat(css(image, 'left'));
 					var curTop = parseFloat(css(image, 'top')); // clear any panning frames
 
