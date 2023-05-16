@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 		function showModal(fileLink) {
 			modal.style.display = 'block';
-			if (fileLink.endsWith('.mp4') || fileLink.endsWith('.mkv') || fileLink.endsWith('.webm')) {
+			if (fileLink.toLowerCase().endsWith('.mp4') || fileLink.toLowerCase().endsWith('.mkv') || fileLink.toLowerCase().endsWith('.webm')) {
 				modalVideoContainer.style.display = 'block';
 				modalImageContainer.style.display = 'none';
 				modalVideo.src = fileLink;
