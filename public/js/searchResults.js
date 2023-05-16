@@ -1,5 +1,6 @@
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const baseSize = 25;
+let videos; // to keep track of all videos on the page, even as they load
 let multiplier = 1 // zoom slider value
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -33,65 +34,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
 		// Setting image size as per stored slider value 'on load' i.e. 1
 		changeTileSize(1);
+
+		// add lazy load listener
+		window.addEventListener('scroll', loadMore);
 	}
 
-	const videos = document.querySelectorAll('.videoFile');
-	let centerVideo = null
-
-	const observer = new IntersectionObserver(entries => {
-		entries.forEach(entry => {
-			if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-				centerVideo = entry.target;
-			}
-		});
-	}, { threshold: 0.5 });
-
-	videos.forEach((video) => {
-		observer.observe(video);
-
-		video.addEventListener('play', () => {
-			// Stop other videos from playing
-			videos.forEach((v) => {
-				if (v !== video) {
-					v.pause();
-				}
-			});
-		});
-
-		// Pause video if clicked while playing
-		video.addEventListener('click', () => {
-			if (!video.paused) {
-				video.pause();
-			}
-		});
-
-		// Maximize video on double click
-		video.addEventListener('dblclick', () => {
-			if (video.requestFullscreen) {
-				video.requestFullscreen();
-			}
-		});
-	});
-
-	window.addEventListener('scroll', () => {
-		const windowHeight = window.innerHeight;
-		const center = windowHeight / 2;
-
-		videos.forEach(video => {
-			const rect = video.getBoundingClientRect();
-			const videoTop = rect.top;
-			const videoBottom = rect.bottom;
-			const videoHeight = rect.height;
-
-			if (videoTop < center && videoBottom > center && videoHeight < windowHeight) {
-				centerVideo = video;
-			}
-		});
-
-		if (centerVideo && centerVideo.paused) {
-			centerVideo.play();
-		}
-	});
+	videos = document.querySelectorAll('.videoFile');
+	updateVideoListeners(videos);
 
 	document.addEventListener('keydown', function (event) {
 		const focusedElement = document.activeElement;
@@ -509,12 +458,76 @@ function changeTileSize(initialPageLoad) {
 	localStorage.sliderValue = multiplier;
 }
 
+function updateVideoListeners(newVideos) {
+	// this is reponsible for autoplaying the visible video as you scroll
+	// and for pausing all other videos when you play one, ensuring only one play
+	// at a time.
+	const videos = document.querySelectorAll('.videoFile');
+	let centerVideo = null;
+
+	const observer = new IntersectionObserver((entries) => {
+		entries.forEach((entry) => {
+			if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+				centerVideo = entry.target;
+			}
+		});
+	}, { threshold: 0.5 });
+
+	videos.forEach((video) => {
+		observer.observe(video);
+
+		video.addEventListener('play', () => {
+			// Stop other videos from playing
+			videos.forEach((v) => {
+				if (v !== video) {
+					v.pause();
+				}
+			});
+		});
+
+		// Pause video if clicked while playing
+		video.addEventListener('click', () => {
+			if (!video.paused) {
+				video.pause();
+			}
+		});
+
+		// Maximize video on double click
+		video.addEventListener('dblclick', () => {
+			if (video.requestFullscreen) {
+				video.requestFullscreen();
+			}
+		});
+	});
+
+	window.addEventListener('scroll', () => {
+		const windowHeight = window.innerHeight;
+		const center = windowHeight / 2;
+
+		newVideos.forEach((video) => {
+			const rect = video.getBoundingClientRect();
+			const videoTop = rect.top;
+			const videoBottom = rect.bottom;
+			const videoHeight = rect.height;
+
+			if (videoTop < center && videoBottom > center && videoHeight < windowHeight) {
+				centerVideo = video;
+			}
+		});
+
+		if (centerVideo && centerVideo.paused) {
+			centerVideo.play();
+		}
+	});
+}
+
+
 // set page to 1 on every page load
 let currentPage = 1;
 const results = document.querySelector('.results')
 let isLoading = false;
 
-window.addEventListener('scroll', () => {
+function loadMore() {
 	const scrollPosition = window.scrollY;
 	const documentHeight = document.documentElement.scrollHeight;
 	const viewportHeight = window.innerHeight;
@@ -525,9 +538,13 @@ window.addEventListener('scroll', () => {
 		fetch(`/getNextResults?page=${currentPage}`)
 			.then(response => response.json())
 			.then(data => {
-				appendResults(data.images);
 				if (currentPage > data.totalPages) {
 					// console.log('no more results');
+				} else {
+					appendResults(data.images);
+					// rebuild video list
+					videos = document.querySelectorAll('.videoFile');
+					updateVideoListeners(videos);
 				}
 			})
 			.catch(error => {
@@ -537,9 +554,8 @@ window.addEventListener('scroll', () => {
 			.finally(() => {
 				isLoading = false;
 			});
-
 	}
-});
+}
 
 // function to append image data to the result container
 function appendResults(images) {
@@ -628,6 +644,7 @@ function createResultElement(image) {
 		const videoElement = document.createElement("video");
 		videoElement.classList.add("searchVid");
 		videoElement.classList.add("resultFile");
+		videoElement.classList.add("videoFile");
 		// videoElement.id = `image${index}`;
 		videoElement.src = imageLinkEscaped;
 		videoElement.controls = true;
