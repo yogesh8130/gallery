@@ -2,6 +2,13 @@ doctype html
 html(lang="en")
 	head
 		meta(charset="UTF-8")
-		meta(name="viewport", content="width=device-width, initial-scale=1.0")
+		meta(name="viewport" content="width=device-width, initial-scale=1.0")
 		title Settings
-	body 
+		link(rel = 'stylesheet' href = '/css/config.css')
+	body
+		div.refreshDBDiv.buttonControls
+			button.default(
+				id = 'refreshDBButton' 
+				onclick = 'refreshDB()'
+				) Refresh DB
+		script(src = '/js/config.js')

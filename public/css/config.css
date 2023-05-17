@@ -1,0 +1,27 @@
+body {
+	background-color: black;
+}
+
+button {
+	font-size: 1rem;
+}
+
+button.default {
+	color: gray;
+	background-color: rgb(29, 29, 29);
+}
+
+button.processing {
+	background-color: orange;
+	color: white;
+}
+
+button.success {
+	background-color: green;
+	color: white;
+}
+
+button.error {
+	background-color: red;
+	color: white;
+}
