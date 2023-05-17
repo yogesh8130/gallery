@@ -20,7 +20,7 @@
 }
 
 .result {
-	margin: 1px;
+	margin: 2px;
 	position: relative;
 	font-size: 1rem;
 	z-index: 3;
@@ -435,13 +435,26 @@ button:hover {
 	/* phone */
 	@media screen and (min-resolution: 100dpi) {
 		html {
-			font-size: 200%;
+			font-size: 100%;
 		}
 
-		.imageSidebar {
+		.results {
+			padding: 0;
+		}
+
+		.result:hover {
+			scale: 100%;
+			z-index: 4;
+			box-shadow: none;
+			transition: none;
+		}
+
+		/* To permanently show the image title and actions*/
+		/* .imageSidebar {
 			position: static;
 			opacity: 100%;
-		}
+		} */
+
 	}
 
 	/* pc */

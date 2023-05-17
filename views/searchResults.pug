@@ -1,6 +1,8 @@
 doctype html
 html
 	head
+		meta(charset="UTF-8")
+		meta(name="viewport", content="width=device-width, initial-scale=1.0")
 		title Search Results
 		if view && view === 'tiles'
 			link(id = 'stylesheet' rel = 'stylesheet' href = "/css/search-results-tiles.css")
@@ -102,15 +104,6 @@ html
 									button.showAtActualScaleButton(
 										onclick = `showAtActualScale(${index})`
 										) ⭕
-								div.infoDiv
-									- let similarImageLink = encodeURIComponent(imageName.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())
-									a.imageTitle(
-										href = '/search?searchText=' + similarImageLink + '&view=' + view)
-										| #{imageName} 
-									- let folderlink = encodeURIComponent(folderName)
-									a.subTitle(
-										href = '/search?searchText=' + folderlink + '&view=' + view)
-										|#{folderName}
 								div.rename
 									button.renameButton(onclick = 'showRenameDialog(this)') &#9998;
 									dialog.renameDialog
@@ -120,6 +113,15 @@ html
 											input(type = "text" name = 'newFileName' id = 'newFileName'
 												placeholder = 'New File Name')
 											input(type="submit" hidden)
+								div.infoDiv
+									- let similarImageLink = encodeURIComponent(imageName.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())
+									a.imageTitle(
+										href = '/search?searchText=' + similarImageLink + '&view=' + view)
+										| #{imageName} 
+									- let folderlink = encodeURIComponent(folderName)
+									a.subTitle(
+										href = '/search?searchText=' + folderlink + '&view=' + view)
+										|#{folderName}
 							div.mainContent
 								a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped
 									ondblclick=`location.href="/singleView?imageBackLink=${imageLinkEscaped}"`

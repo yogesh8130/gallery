@@ -528,6 +528,9 @@ app.get('/getNextResults', async (req, res) => {
 	res.send(responseData);
 })
 
+app.get('/config', async (req, res) => {
+	res.render('config');
+})
 
 function getImageMetadata(imagePath) {
 	// console.log(`Getting metadata for ${imagePath}`);
@@ -548,7 +551,7 @@ function getImageMetadata(imagePath) {
 		const fileAttrs = readMediaAttributes(absolutePath);
 		// console.log(fileAttrs);
 		if (!fileAttrs.mime) {
-			console.warn('Possible issues reading the file attributes for: ',absolutePath)
+			console.warn('Possible issues reading the file attributes for: ', absolutePath)
 		}
 		return {
 			baseName,
