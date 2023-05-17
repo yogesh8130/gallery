@@ -560,6 +560,7 @@ div.pageButtons::-webkit-scrollbar {
 		max-width: 100%;
 		justify-content: space-between;
 		align-items: center;
+		gap: 5px;
 	}
 
 	/* force title and subtitle on separate lines */
@@ -574,10 +575,20 @@ div.pageButtons::-webkit-scrollbar {
 		width: 70rem;
 		height: 70rem;
 		background-color: black;
-		border: solid;
-		border-color: gray;
-		border-width: 4rem;
+		border-width: 0;
 		border-radius: 5rem;
+		background-color: coral;
+		color: white;
+		font-weight: bold;
+	}
+
+	.renameButton {
+		font-size: 40rem;
+		width: 70rem;
+		height: 70rem;
+		background-color: cornflowerblue;
+		color: white;
+		font-weight: bold;
 	}
 
 	.mainContent {
