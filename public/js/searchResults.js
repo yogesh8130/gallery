@@ -39,8 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		window.addEventListener('scroll', loadMore);
 	}
 
-	videos = document.querySelectorAll('.videoFile');
-	updateVideoListeners(videos);
+	updateVideoListeners();
 
 	document.addEventListener('keydown', function (event) {
 		const focusedElement = document.activeElement;
@@ -459,65 +458,77 @@ function changeTileSize(initialPageLoad) {
 	localStorage.sliderValue = multiplier;
 }
 
-function updateVideoListeners(newVideos) {
-	// this is reponsible for autoplaying the visible video as you scroll
-	// and for pausing all other videos when you play one, ensuring only one play
-	// at a time.
-	const videos = document.querySelectorAll('.videoFile');
+// Create a global IntersectionObserver instance
+const observer = new IntersectionObserver((entries) => {
 	let centerVideo = null;
+	entries.forEach((entry) => {
+		if (entry.isIntersecting && entry.intersectionRatio >= 1) {
+			centerVideo = entry.target;
+		}
+	});
 
-	const observer = new IntersectionObserver((entries) => {
-		entries.forEach((entry) => {
-			if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-				centerVideo = entry.target;
-			}
-		});
-	}, { threshold: 0.5 });
+	if (centerVideo && centerVideo.paused) {
+		centerVideo.play();
+	}
+}, { threshold: 1 });
+
+function updateVideoListeners() {
+	const videos = document.querySelectorAll('.videoFile');
 
 	videos.forEach((video) => {
-		observer.observe(video);
+		// Check if the video already has a listener and observer
+		if (!video.hasListener && !video.hasObserver) {
+			video.addEventListener('play', () => {
+				// Stop other videos from playing
+				videos.forEach((v) => {
+					if (v !== video) {
+						v.pause();
+					}
+				});
+			});
 
-		video.addEventListener('play', () => {
-			// Stop other videos from playing
-			videos.forEach((v) => {
-				if (v !== video) {
-					v.pause();
+			// Pause video if clicked while playing
+			video.addEventListener('click', () => {
+				if (!video.paused) {
+					video.pause();
 				}
 			});
-		});
 
-		// Pause video if clicked while playing
-		video.addEventListener('click', () => {
-			if (!video.paused) {
-				video.pause();
-			}
-		});
+			// Maximize video on double click
+			video.addEventListener('dblclick', () => {
+				if (video.requestFullscreen) {
+					video.requestFullscreen();
+				}
+			});
 
-		// Maximize video on double click
-		video.addEventListener('dblclick', () => {
-			if (video.requestFullscreen) {
-				video.requestFullscreen();
-			}
-		});
+			// Add the observer to the video
+			observer.observe(video);
+
+			// Set the flags indicating the video has a listener and observer
+			video.hasListener = true;
+			video.hasObserver = true;
+		} else {
+			console.log('video already has obeserver and listener: ', video);
+		}
 	});
 
 	window.addEventListener('scroll', () => {
 		const windowHeight = window.innerHeight;
 		const center = windowHeight / 2;
 
-		newVideos.forEach((video) => {
+		videos.forEach((video) => {
 			const rect = video.getBoundingClientRect();
 			const videoTop = rect.top;
 			const videoBottom = rect.bottom;
 			const videoHeight = rect.height;
 
 			if (videoTop < center && videoBottom > center && videoHeight < windowHeight) {
-				centerVideo = video;
+				observer.centerVideo = video;
 			}
 		});
 
-		if (centerVideo && centerVideo.paused) {
-			centerVideo.play();
+		if (observer.centerVideo && observer.centerVideo.paused) {
+			observer.centerVideo.play();
 		}
 	});
 }
@@ -543,9 +554,8 @@ function loadMore() {
 					// console.log('no more results');
 				} else {
 					appendResults(data.images);
-					// rebuild video list
-					videos = document.querySelectorAll('.videoFile');
-					updateVideoListeners(videos);
+					// rebuild video list and listeners on those videos
+					updateVideoListeners();
 				}
 			})
 			.catch(error => {

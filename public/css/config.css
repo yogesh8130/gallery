@@ -3,12 +3,13 @@ body {
 }
 
 button {
-	font-size: 1rem;
+	font-size: 1.2rem;
+	border: none;
 }
 
 button.default {
-	color: gray;
-	background-color: rgb(29, 29, 29);
+	color: white;
+	background-color: cornflowerblue;
 }
 
 button.processing {
@@ -24,4 +25,9 @@ button.success {
 button.error {
 	background-color: red;
 	color: white;
+}
+
+button:active {
+	color: white;
+	background-color: gray;
 }
