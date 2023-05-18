@@ -1,6 +1,8 @@
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const baseSize = 25;
 const videosList = []; // to keep track of all videos on the page, even as they load
+const searchResultBatchSize = 50 // should be same as server for correct image id
+let imageIndex = 51 // newly loaded images will be assigned id numbers from here on
 let multiplier = 1 // zoom slider value
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -78,6 +80,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	// Get the parent element that contains all the images
 	const resultsContainer = document.querySelector('.results');
 
+	let lastSelectedImageIndex;
+
 	// Attach a click event listener to the parent element
 	resultsContainer.addEventListener('click', function (event) {
 
@@ -96,12 +100,43 @@ document.addEventListener("DOMContentLoaded", function () {
 
 		let viewer;
 
-		if (clickedElement.classList.contains('resultFile') && event.ctrlKey) {
+		if (lastSelectedImageIndex > -1 &&
+			clickedElement.classList.contains('resultFile') && event.shiftKey) {
+			let currentImageIndex = parseInt(clickedElement.id.replace('image', ''));
+
+			// let startingIndex = Math.min(lastSelectedImageIndex, currentImageIndex);
+			// let endingIndex = Math.max(lastSelectedImageIndex, currentImageIndex);
+
+			if (lastSelectedImageIndex < currentImageIndex) {
+				startingIndex = lastSelectedImageIndex;
+				endingIndex = currentImageIndex;
+			} else if (lastSelectedImageIndex > currentImageIndex) {
+				startingIndex = currentImageIndex - 1;
+				endingIndex = lastSelectedImageIndex - 1;
+
+			}
+
+			for (let index = startingIndex + 1; index <= endingIndex; index++) {
+				let image = document.getElementById(`image${index}`);
+
+				if (image.classList.contains('selectedImage')) {
+					image.classList.remove('selectedImage');
+				} else {
+					image.classList.add('selectedImage');
+					lastSelectedImageIndex = parseInt(image.id.replace('image', ''));
+				}
+			}
+
+			lastSelectedImageIndex = undefined;
+
+		} else if (clickedElement.classList.contains('resultFile') && event.ctrlKey) {
 			// select unselect with ctrl key
 			if (clickedElement.classList.contains('selectedImage')) {
 				clickedElement.classList.remove('selectedImage');
 			} else {
 				clickedElement.classList.add('selectedImage');
+				lastSelectedImageIndex = parseInt(clickedElement.id.replace('image', ''));
+				// console.log('lastSelectedImageIndex:', lastSelectedImageIndex);
 			}
 
 		} else if (clickedElement.classList.contains('resultFile')) {
@@ -635,6 +670,8 @@ function createResultElement(image) {
 		imageElement.classList.add("resultFile");
 		// imageElement.id = `image${index}`;  not getting index from API
 		imageElement.src = imageLinkEscaped;
+		imageElement.id = `image${imageIndex}`;
+		imageIndex++;
 		contentLink.appendChild(imageElement);
 	} else {
 		const videoElement = document.createElement("video");
@@ -646,6 +683,8 @@ function createResultElement(image) {
 		videoElement.setAttribute('data-src', imageLinkEscaped)
 		videoElement.controls = true;
 		videoElement.loop = true;
+		videoElement.id = `image${imageIndex}`;
+		imageIndex++;
 		contentLink.appendChild(videoElement);
 
 		// adding new videos to the global video list
