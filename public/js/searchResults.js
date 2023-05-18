@@ -220,6 +220,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	});
 
+	// play video on hover
+	resultsContainer.addEventListener('mouseover', function (event) {
+		const video = event.target;
+		if (video.classList.contains('videoFile')) {
+			video.play();
+		}
+	})
+
+	// pause video on mouse leave
+	resultsContainer.addEventListener('mouseout', function (event) {
+		const video = event.target;
+		if (video.classList.contains('videoFile')) {
+			video.pause();
+		}
+	})
+
 });
 
 function goFullscreen() {
