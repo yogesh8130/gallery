@@ -96,8 +96,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
 		let viewer;
 
-		// setting modal image src to the clicked image
-		if (clickedElement.classList.contains('resultFile')) {
+		if (clickedElement.classList.contains('resultFile') && event.ctrlKey) {
+			// select unselect with ctrl key
+			if (clickedElement.classList.contains('selectedImage')) {
+				clickedElement.classList.remove('selectedImage');
+			} else {
+				clickedElement.classList.add('selectedImage');
+			}
+
+		} else if (clickedElement.classList.contains('resultFile')) {
+			// setting modal image src to the clicked image
 			viewer = new ImageViewer(modalImageContainer);
 			showModal(clickedElement.src);
 			currentImagePath = clickedElement.src;
@@ -214,9 +222,6 @@ document.addEventListener("DOMContentLoaded", function () {
 			viewer.destroy();
 			modalVideo.pause();
 		}
-
-		// drag scrolling for modal image
-		// TODO
 
 	});
 
