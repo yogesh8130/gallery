@@ -685,8 +685,21 @@ const observer = new IntersectionObserver((entries, observer) => {
 			const video = entry.target;
 			// Set the src attribute from the data-src attribute
 			video.src = video.dataset.src;
+			if (isMobile) {
+				// no need to have this on desktop as videos only play till the
+				// cursor is over them
+				video.addEventListener('play', pauseOtherVideos)
+			}
 			// Stop observing the video
 			observer.unobserve(video);
 		}
 	});
 });
+
+function pauseOtherVideos() {
+	videosList.forEach(video => {
+		if (!video.paused && video !== this) {
+			video.pause();
+		}
+	});
+}
