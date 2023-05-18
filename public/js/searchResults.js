@@ -73,6 +73,18 @@ document.addEventListener("DOMContentLoaded", function () {
 			shuffleCheckbox.checked = !shuffleCheckbox.checked;
 			shuffleToggle();
 		}
+		if (event.key === 'ArrowRight') {
+			const slider = document.getElementById('slider');
+			slider.value -= -(0.1);
+			changeTileSize();
+			console.log(slider.value);
+		}
+		if (event.key === 'ArrowLeft') {
+			const slider = document.getElementById('slider');
+			slider.value -= 0.1;
+			changeTileSize();
+			console.log(slider.value);
+		}
 	});
 
 	// MODAL SINGLE IMAGE VIEWER
