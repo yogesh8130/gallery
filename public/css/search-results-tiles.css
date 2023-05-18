@@ -299,7 +299,7 @@ button:hover {
 }
 
 #fullscreenButton {
-	z-index: 999;
+	z-index: 9;
 	height: 2.5rem;
 	width: 2.5rem;
 	position: fixed;
