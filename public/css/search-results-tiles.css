@@ -28,8 +28,8 @@
 
 .result:hover {
 	scale: 102%;
-	z-index: 4;
-	box-shadow: rgb(0, 0, 0) 5px 5px 5px,-5px 5px 5px,5px -5px 5px,-5px -5px 5px;
+	z-index: 6;
+	box-shadow: rgb(0, 0, 0) 0px 10px 30px 10px;
 	transition: all 0.2s ease;
 }
 
@@ -60,7 +60,8 @@ video {
 	word-wrap: break-word;
 	word-break: break-all;
 	opacity: 0%;
-	gap: .3rem
+	gap: .3rem;
+	min-width: 200px;
 }
 
 .result:hover>.imageSidebar {
