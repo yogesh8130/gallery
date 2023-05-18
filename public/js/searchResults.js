@@ -291,7 +291,7 @@ function goFullscreen() {
 		if (pageButtons) {
 			pageButtons.style.display = 'block';
 		}
-		if (isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+		if (isMobile) {
 			document.documentElement.style.fontSize = "6.15%";
 		}
 		document.exitFullscreen();
@@ -303,7 +303,7 @@ function goFullscreen() {
 		if (pageButtons) {
 			pageButtons.style.display = 'none';
 		}
-		if (isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+		if (isMobile) {
 			document.documentElement.style.fontSize = "2.5%";
 		}
 		document.documentElement.requestFullscreen();
