@@ -45,11 +45,6 @@ video {
 	vertical-align: bottom;
 }
 
-.forms {
-	background-color: black;
-	color: white;
-}
-
 .imageSidebar {
 	display: flex;
 	position: fixed;
@@ -250,17 +245,9 @@ button.error {
 
 /* common layout */
 
-.forms {
-	padding: 2px;
-	display: flex;
-	flex-direction: column;
-	width: 15rem;
-	gap: .4rem
-}
-
 .searchForm {
 	display: flex;
-	flex-direction: column;
+	flex-direction: row;
 	gap: .4rem;
 }
 
@@ -276,13 +263,14 @@ input {
 
 .shuffleDiv {
 	height: 2.2rem;
-	width: 100%;
+	/* width: 100%; */
 	display: flex;
 	flex-direction: row;
 	align-content: center;
 	justify-content: space-between;
 	padding: .4rem;
 	background-color: rgb(29, 29, 29);
+	gap: 5px;
 }
 
 label {
@@ -311,6 +299,7 @@ button:hover {
 }
 
 #fullscreenButton {
+	z-index: 999;
 	height: 2.5rem;
 	width: 2.5rem;
 	position: fixed;
@@ -421,6 +410,13 @@ button:hover {
 		align-items: center;
 		height: 100%;
 		padding-right: 2.7rem;
+		gap: 5px;
+	}
+
+	.zoomAndConfig {
+		display: flex;
+		flex-direction: row;
+		gap: 5px;
 	}
 
 	h1,
@@ -464,6 +460,19 @@ button:hover {
 		}
 	}
 
+	/* common portrait settings */
+	.controlsDiv {
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+	}
+
+	.zoomAndConfig {
+		display: flex;
+		flex-direction: row;
+		gap: 5px;
+		justify-content: flex-end;
+	}
 }
 
 #switchToTileViewButton {

@@ -20,11 +20,6 @@ html
 					else
 						h2 Showing #{images.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
 				div.controlsDiv
-			//- uncomment this if you want to scroll horizontally with mousewheen
-			//- - div.results(onwheel="this.scrollLeft += event.deltaY * 2" 
-				onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")
-			div.results
-				div.forms
 					form.searchForm(action = "" method = "get")
 						input(type = "text" name = 'searchText' id = 'searchText' placeholder = 'Search')
 						input(type = "hidden" name = 'view' id = 'view')
@@ -45,6 +40,20 @@ html
 									name = "shuffle" 
 									onclick = 'shuffleToggle()'
 									)
+					div.zoomAndConfig
+						div.buttonControls#sliderContainer
+							label(for = "slider") Zoom
+							input.slider(
+								type = "range" 
+								min = "0.4" max="1.9" 
+								step = "0.1" value="1" 
+								id = "slider"
+								name = slider 
+								oninput = 'changeTileSize()'
+								ondblclick = 'this.value = 1; changeTileSize()'
+								)
+						div.config.buttonControls
+							button.default(id = 'configButton' onclick = "window.open('/config', '_blank')" title = 'settings') 🛠
 					div.scaleButtons.buttonControls
 						button.default(
 							onclick = 'showAllImagesAtActualSize()'
@@ -55,28 +64,15 @@ html
 						button.default(
 							onclick = 'showAllImagesAtDefaultScale()'
 							) Default
-					div.refreshDBDiv.buttonControls
-						button.default(
-							id = 'refreshDBButton' 
-							onclick = 'refreshDB()'
-							) Refresh DB
-					div.buttonControls#sliderContainer
-						label(for = "slider") Zoom
-						input.slider(
-							type = "range" 
-							min = "0.4" max="1.9" 
-							step = "0.1" value="1" 
-							id = "slider"
-							name = slider 
-							oninput = 'changeTileSize()'
-							ondblclick = 'this.value = 1; changeTileSize()'
-							)
 					div.switchViews.buttonControls
 						button.default(
 							id = 'switchToTileViewButton' 
 							onclick = 'switchToTileView()'
 							) Tile View
-					div.dummyForm
+			//- uncomment this if you want to scroll horizontally with mousewheen
+			//- - div.results(onwheel="this.scrollLeft += event.deltaY * 2" 
+				onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")
+			div.results
 				if images.length === 0
 					p No matching images found.
 				else
