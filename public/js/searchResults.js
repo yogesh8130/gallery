@@ -1,6 +1,6 @@
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const baseSize = 25;
-let videos; // to keep track of all videos on the page, even as they load
+const videosList = []; // to keep track of all videos on the page, even as they load
 let multiplier = 1 // zoom slider value
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -19,6 +19,14 @@ document.addEventListener("DOMContentLoaded", function () {
 	view.value = queryParams.view;
 	searchText.value = queryParams.searchText;
 
+	// Creating videos list
+	videosList.push(...Array.from(document.querySelectorAll('.videoFile')));
+	videosList.forEach(video => {
+		// to load the src value from data-src
+		observer.observe(video);
+	});
+
+	// view specific stuff
 	if (view.value !== 'tiles') {
 		dragToScrollEnable();
 	} else {
@@ -38,8 +46,6 @@ document.addEventListener("DOMContentLoaded", function () {
 		// add lazy load listener
 		window.addEventListener('scroll', loadMore);
 	}
-
-	updateVideoListeners();
 
 	document.addEventListener('keydown', function (event) {
 		const focusedElement = document.activeElement;
@@ -458,82 +464,6 @@ function changeTileSize(initialPageLoad) {
 	localStorage.sliderValue = multiplier;
 }
 
-// Create a global IntersectionObserver instance
-const observer = new IntersectionObserver((entries) => {
-	let centerVideo = null;
-	entries.forEach((entry) => {
-		if (entry.isIntersecting && entry.intersectionRatio >= 1) {
-			centerVideo = entry.target;
-		}
-	});
-
-	if (centerVideo && centerVideo.paused) {
-		centerVideo.play();
-	}
-}, { threshold: 1 });
-
-function updateVideoListeners() {
-	const videos = document.querySelectorAll('.videoFile');
-
-	videos.forEach((video) => {
-		// Check if the video already has a listener and observer
-		if (!video.hasListener && !video.hasObserver) {
-			video.addEventListener('play', () => {
-				// Stop other videos from playing
-				videos.forEach((v) => {
-					if (v !== video) {
-						v.pause();
-					}
-				});
-			});
-
-			// Pause video if clicked while playing
-			video.addEventListener('click', () => {
-				if (!video.paused) {
-					video.pause();
-				}
-			});
-
-			// Maximize video on double click
-			video.addEventListener('dblclick', () => {
-				if (video.requestFullscreen) {
-					video.requestFullscreen();
-				}
-			});
-
-			// Add the observer to the video
-			observer.observe(video);
-
-			// Set the flags indicating the video has a listener and observer
-			video.hasListener = true;
-			video.hasObserver = true;
-		} else {
-			console.log('video already has obeserver and listener: ', video);
-		}
-	});
-
-	window.addEventListener('scroll', () => {
-		const windowHeight = window.innerHeight;
-		const center = windowHeight / 2;
-
-		videos.forEach((video) => {
-			const rect = video.getBoundingClientRect();
-			const videoTop = rect.top;
-			const videoBottom = rect.bottom;
-			const videoHeight = rect.height;
-
-			if (videoTop < center && videoBottom > center && videoHeight < windowHeight) {
-				observer.centerVideo = video;
-			}
-		});
-
-		if (observer.centerVideo && observer.centerVideo.paused) {
-			observer.centerVideo.play();
-		}
-	});
-}
-
-
 // set page to 1 on every page load
 let currentPage = 1;
 const results = document.querySelector('.results')
@@ -554,8 +484,6 @@ function loadMore() {
 					// console.log('no more results');
 				} else {
 					appendResults(data.images);
-					// rebuild video list and listeners on those videos
-					updateVideoListeners();
 				}
 			})
 			.catch(error => {
@@ -693,10 +621,16 @@ function createResultElement(image) {
 		videoElement.classList.add("resultFile");
 		videoElement.classList.add("videoFile");
 		// videoElement.id = `image${index}`;
-		videoElement.src = imageLinkEscaped;
+		// videoElement.src = imageLinkEscaped; // setting data-src instead
+		videoElement.setAttribute('data-src', imageLinkEscaped)
 		videoElement.controls = true;
 		videoElement.loop = true;
 		contentLink.appendChild(videoElement);
+
+		// adding new videos to the global video list
+		videosList.push(videoElement);
+		observer.observe(videoElement);
+		// console.log('Videos in videosList: ', videosList);
 	}
 
 	return containerDiv;
@@ -721,3 +655,17 @@ function showRenameDialog(button) {
 		}
 	}
 }
+
+// this contains a callback that will be called for each video that we observe
+const observer = new IntersectionObserver((entries, observer) => {
+	entries.forEach(entry => {
+		// Check if the video is in view
+		if (entry.isIntersecting) {
+			const video = entry.target;
+			// Set the src attribute from the data-src attribute
+			video.src = video.dataset.src;
+			// Stop observing the video
+			observer.unobserve(video);
+		}
+	});
+});

@@ -125,7 +125,7 @@ html
 									if (image.type === 'image')
 										img.searchImg.resultFile(id = 'image'+index src = imageLinkEscaped)
 									else
-										video.searchVid.resultFile.videoFile(id = 'image'+index src = imageLinkEscaped controls loop)
+										video.searchVid.resultFile.videoFile(id = 'image'+index data-src = imageLinkEscaped controls loop)
 			if totalPages > 1 && !shuffle
 				div.pagination
 					div.pageButtons(
