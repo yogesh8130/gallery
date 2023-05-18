@@ -22,15 +22,15 @@
 .result {
 	margin: 2px;
 	position: relative;
-	font-size: 1rem;
+	font-size: 0.7rem;
 	z-index: 3;
 }
 
 .result:hover {
 	scale: 102%;
 	z-index: 4;
-	box-shadow: rgb(0, 0, 0) 0px 20px 30px -10px;
-	transition: all 0.3s ease;
+	box-shadow: rgb(0, 0, 0) 5px 5px 5px,-5px 5px 5px,5px -5px 5px,-5px -5px 5px;
+	transition: all 0.2s ease;
 }
 
 i {
