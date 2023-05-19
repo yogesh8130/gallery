@@ -720,8 +720,35 @@ function showRenameDialog(button) {
 		// yes the dialogs can be submitted too
 		renameDialog.onsubmit = function (event) {
 			event.preventDefault(); // else the form will submit normally and reload the page
-			console.log('submitting with fetch');
-			//TODO
+			const renameForm = renameDialog.querySelector('.renameForm');
+			// console.log(renameForm.newFileName.value);
+
+			const url = '/rename'; // Replace with your API endpoint
+			const formData = {
+				currentFilePath: renameForm.currentFilePath.value,
+				newFileName: renameForm.newFileName.value
+			}
+
+			console.log(formData);
+
+			const options = {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(formData)
+			};
+
+			fetch(url, options)
+				.then(response => response.json())
+				.then(data => {
+					showPopup(data.message, 'info');
+					console.log(data);
+				})
+				.catch(error => {
+					showPopup(error, 'error');
+					console.log(error);
+				});
 
 			renameDialog.close();
 		}
@@ -753,4 +780,40 @@ function pauseOtherVideos() {
 			video.pause();
 		}
 	});
+}
+
+function showPopup(message, level) {
+	// Create the popup element
+	const popup = document.createElement('div');
+
+	popup.textContent = message;
+
+	// Add the 'popup' class to the popup element
+	popup.classList.add('popup');
+	popup.classList.add(level);
+
+	// Get the number of active popups
+	const activePopups = document.getElementsByClassName('popup').length;
+
+	// Calculate the vertical position of the popup
+	const verticalPosition = 20 + (activePopups * 45); // Adjust the value (60) as needed
+
+	// Set the bottom CSS property
+	popup.style.bottom = verticalPosition + 'px';
+
+	// Append the popup element to the body
+	document.body.appendChild(popup);
+
+	// Show the popup
+	setTimeout(function () {
+		popup.style.opacity = '1';
+	}, 100);
+
+	// Hide and remove the popup after 3 seconds
+	setTimeout(function () {
+		popup.style.opacity = '0';
+		setTimeout(function () {
+			document.body.removeChild(popup);
+		}, 300);
+	}, 5000);
 }

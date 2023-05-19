@@ -14,6 +14,9 @@ const port = 3000;
 const pwd = process.cwd();
 const searchResultBatchSize = 50;
 
+// Middleware to parse JSON data in post requests
+app.use(express.json());
+
 // Serve the static files in the public folder
 app.use(express.static('public'));
 
@@ -282,33 +285,30 @@ app.get('/previous', (req, res) => {
 });
 
 // Define a route to handle file renaming
-app.get('/rename', (req, res) => {
-	console.log("RENAME");
+app.post('/rename', (req, res) => {
+	const currentFilePath = decodeURIComponent(req.body.currentFilePath);
+	const newFileName = req.body.newFileName;
 
-	const newFileName = req.query.newFileName;
-	const currentFilePath = req.query.currentFilePath;
-	const currentFilePathRelative = "./public" + currentFilePath;
-	const ext = path.extname(currentFilePath).toLowerCase();
 
 	// console.log("newFileName: " + newFileName);
 	// console.log("currentFilePath: " + currentFilePath);
 	// console.log("ext: " + ext);
 
 	// Get the directory and file name from the current file path
-	const pathParts = currentFilePathRelative.split('/');
-	const directoryPath = pathParts.slice(0, -1).join('/');
-	const currentFileName = pathParts[pathParts.length - 1];
+	// const pathParts = currentFilePathRelative.split('/');
+	// const directoryPath = pathParts.slice(0, -1).join('/');
+	// const currentFileName = pathParts[pathParts.length - 1];
 
 	// console.log("pathParts: " + pathParts);
 	// console.log("directoryPath: " + directoryPath);
 
 	// Generate the new file path based on the new file name and the directory path
-	const newFilePathRelative = `${directoryPath}/${newFileName}${ext}`;
+	// const newFilePathRelative = `${directoryPath}/${newFileName}${ext}`;
 	// console.log("newFilePath: " + newFilePathRelative);
 
 	// Rename the file using the fs module
 	// console.log("currentFilePathRelative: " + currentFilePathRelative);
-	console.log("newFilePathRelative: " + newFilePathRelative);
+	// console.log("newFilePathRelative: " + newFilePathRelative);
 	// Check if a file with the new file name already exists
 	// fs.access(newFilePathRelative, (err) => {
 	// 	if (err) {
@@ -329,6 +329,7 @@ app.get('/rename', (req, res) => {
 	// 		res.status(400).send('A file with the same name already exists.');
 	// 	}
 	// });
+	res.status(200).json({ message: 'File renamed succesfully' });
 });
 
 
