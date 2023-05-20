@@ -520,7 +520,7 @@ button:hover {
 	opacity: 0;
 	transition: opacity 0.3s ease-in-out;
 	z-index: 999;
-	padding: .5rem;
+	padding: .4rem;
 	border-style: solid;
 	border-radius: 10px;
 	border-width: 4px;

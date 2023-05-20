@@ -105,7 +105,7 @@ html
 											input(type = "text" name = 'currentFilePath' id = 'currentFilePath' 
 												placeholder = 'Curent File Path' value = imageLinkEscaped readonly hidden)
 											input(type = "text" name = 'newFileName' id = 'newFileName'
-												placeholder = 'New File Name')
+												placeholder = 'New File Name' required)
 											input(type="submit" hidden)
 								div.infoDiv
 									- let similarImageLink = encodeURIComponent(imageName.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())
