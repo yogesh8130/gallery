@@ -295,6 +295,10 @@ app.post('/rename', (req, res) => {
 	// this allows having .. in new filename to goback directory levels
 	newFilePath = path.normalize(newFilePath);
 
+	// to find and replace in "DB"
+	const currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
+	const newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
+
 	// Check if new file's directory exists or not, and create if necessary
 	fs.promises.access(path.dirname(newFilePath))
 		.catch(() => {
@@ -322,6 +326,8 @@ app.post('/rename', (req, res) => {
 			// Rename the file using the fs module
 			return fs.promises.rename(currentFilePath, newFilePath)
 				.then(() => {
+					// replacing in "DB"
+					imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
 					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
 					fs.appendFile('./logs/rename.log', logMessage, (err) => {
 						if (err) {
