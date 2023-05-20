@@ -10,7 +10,7 @@ h1,
 h2 {
 	font-size: 2rem;
 	word-wrap: break-word;
-	padding: 5px;
+	padding-left: 5px;
 }
 
 .results {
@@ -420,8 +420,8 @@ button:hover {
 	.header {
 		display: flex;
 		flex-direction: row;
-		align-items: center;
 		justify-content: space-between;
+		padding-top: 5px;
 	}
 
 	.headingDiv {
@@ -436,7 +436,7 @@ button:hover {
 		flex-direction: row;
 		align-items: center;
 		height: 100%;
-		padding-right: 2.7rem;
+		padding-right: 2.5rem;
 		gap: 5px;
 	}
 

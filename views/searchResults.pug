@@ -15,7 +15,7 @@ html
 				div.headingDiv
 					a(href='/' title = 'HOME')
 						h1 Search Results for "#{searchText}"
-						h2 Showing #{images.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
+					h2 Showing #{images.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
 				div.controlsDiv
 					form.searchForm(action = "" method = "get")
 						input(type = "text" name = 'searchText' id = 'searchText'
