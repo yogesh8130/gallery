@@ -287,7 +287,6 @@ app.get('/previous', (req, res) => {
 // Define a route to handle file renaming
 app.post('/rename', (req, res) => {
 	const currentFilePath = path.resolve(path.join('.', 'public', decodeURIComponent(req.body.currentFilePath)));
-	console.log('currentFilePath:', currentFilePath);
 	const newFileName = req.body.newFileName;
 
 	const currentFilePathObj = path.parse(currentFilePath);
@@ -307,6 +306,12 @@ app.post('/rename', (req, res) => {
 		})
 		.then(() => {
 			// If the file already exists, send an error response
+			const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Collision\n`;
+			fs.appendFile('./logs/rename.log', logMessage, (err) => {
+				if (err) {
+					console.error('Error writing to rename.log:', err);
+				}
+			});
 			return res.status(400).json({
 				message: 'A file with the same name already exists',
 				level: 'error'
@@ -314,21 +319,32 @@ app.post('/rename', (req, res) => {
 		})
 		.catch(() => {
 			// Rename the file using the fs module
-			return fs.promises.rename(currentFilePath, newFilePath);
-		})
-		.then(() => {
-			console.log("File renamed successfully");
-			return res.status(200).json({
-				message: 'File renamed succesfully',
-				level: 'info'
-			});
-		})
-		.catch((err) => {
-			console.error(err);
-			return res.status(500).json({
-				message: 'Error renaming file',
-				level: 'error'
-			});
+			return fs.promises.rename(currentFilePath, newFilePath)
+				.then(() => {
+					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
+					fs.appendFile('./logs/rename.log', logMessage, (err) => {
+						if (err) {
+							console.error('Error writing to rename.log:', err);
+						}
+					});
+					return res.status(200).json({
+						message: 'File renamed successfully',
+						level: 'info'
+					});
+				})
+				.catch((err) => {
+					console.error(err);
+					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Fail\n`;
+					fs.appendFile('./logs/rename.log', logMessage, (err) => {
+						if (err) {
+							console.error('Error writing to rename.log:', err);
+						}
+					});
+					return res.status(500).json({
+						message: 'Error renaming file',
+						level: 'error'
+					});
+				});
 		});
 });
 

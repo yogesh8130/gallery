@@ -536,12 +536,15 @@ function changeTileSize(initialPageLoad) {
 let currentPage = 1;
 const results = document.querySelector('.results')
 let isLoading = false;
+let haveMoreResults = true;
 
 function loadMore() {
 	const scrollPosition = window.scrollY;
 	const documentHeight = document.documentElement.scrollHeight;
 	const viewportHeight = window.innerHeight;
-	if (!isLoading && window.location.href.includes('view=tiles') && scrollPosition >= documentHeight - (viewportHeight * 2)) {
+	if (haveMoreResults && !isLoading
+		&& window.location.href.includes('view=tiles')
+		&& scrollPosition >= documentHeight - (viewportHeight * 2)) {
 		isLoading = true;
 		currentPage++;
 		// console.log('getting next results, page: ' + currentPage);
@@ -550,7 +553,10 @@ function loadMore() {
 			.then(data => {
 				if (currentPage > data.totalPages) {
 					// console.log('no more results');
+					haveMoreResults = false;
+					showPopup('Stuff no more', 'warn');
 				} else {
+					showPopup(`Fetching page ${currentPage}`, 'info', 1000);
 					appendResults(data.images);
 				}
 			})
@@ -782,7 +788,10 @@ function pauseOtherVideos() {
 	});
 }
 
-function showPopup(message, level) {
+function showPopup(message, level, timeout) {
+	if (!timeout) {
+		timeout = 5000;
+	}
 	// Create the popup element
 	const popup = document.createElement('div');
 
@@ -815,5 +824,5 @@ function showPopup(message, level) {
 		setTimeout(function () {
 			document.body.removeChild(popup);
 		}, 300);
-	}, 5000);
+	}, timeout);
 }
