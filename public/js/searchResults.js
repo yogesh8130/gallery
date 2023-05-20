@@ -303,9 +303,6 @@ function goFullscreen() {
 		if (pageButtons) {
 			pageButtons.style.display = 'block';
 		}
-		if (isMobile) {
-			document.documentElement.style.fontSize = "6.15%";
-		}
 		document.exitFullscreen();
 
 	} else {
@@ -314,9 +311,6 @@ function goFullscreen() {
 
 		if (pageButtons) {
 			pageButtons.style.display = 'none';
-		}
-		if (isMobile) {
-			document.documentElement.style.fontSize = "2.5%";
 		}
 		document.documentElement.requestFullscreen();
 	}
