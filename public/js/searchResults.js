@@ -729,7 +729,7 @@ function showRenameDialog(button) {
 				newFileName: renameForm.newFileName.value
 			}
 
-			console.log(formData);
+			// console.log(formData);
 
 			const options = {
 				method: 'POST',
@@ -742,12 +742,12 @@ function showRenameDialog(button) {
 			fetch(url, options)
 				.then(response => response.json())
 				.then(data => {
-					showPopup(data.message, 'info');
-					console.log(data);
+					showPopup(data.message, data.level);
+					// console.log(data);
 				})
 				.catch(error => {
 					showPopup(error, 'error');
-					console.log(error);
+					// console.log(error);
 				});
 
 			renameDialog.close();

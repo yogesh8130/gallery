@@ -61,7 +61,6 @@ video {
 	word-break: break-all;
 	opacity: 0%;
 	gap: .3rem;
-	min-width: 200px;
 }
 
 .result:hover>.imageSidebar {
@@ -520,7 +519,7 @@ button:hover {
 	transition: opacity 0.3s ease-in-out;
 	z-index: 999;
 	padding: .5rem;
-	border-style: groove;
+	border-style: solid;
 	border-radius: 10px;
 	border-width: 4px;
 	background-color: black;

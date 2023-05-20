@@ -286,50 +286,63 @@ app.get('/previous', (req, res) => {
 
 // Define a route to handle file renaming
 app.post('/rename', (req, res) => {
-	const currentFilePath = decodeURIComponent(req.body.currentFilePath);
+	const currentFilePath = path.resolve(path.join('.', 'public', decodeURIComponent(req.body.currentFilePath)));
+	console.log('currentFilePath:', currentFilePath);
 	const newFileName = req.body.newFileName;
 
+	const currentFilePathObj = path.parse(currentFilePath);
+	let newFilePath = path.join(currentFilePathObj.dir, newFileName + currentFilePathObj.ext);
+	console.log(newFilePath);
 
-	// console.log("newFileName: " + newFileName);
-	// console.log("currentFilePath: " + currentFilePath);
-	// console.log("ext: " + ext);
+	newFilePath = path.normalize(newFilePath);
+	console.log(newFilePath);
 
-	// Get the directory and file name from the current file path
-	// const pathParts = currentFilePathRelative.split('/');
-	// const directoryPath = pathParts.slice(0, -1).join('/');
-	// const currentFileName = pathParts[pathParts.length - 1];
+	// Check if new file's directory exists or not, and create if necessary
+	fs.access(path.dirname(newFilePath), (err) => {
+		if (err) {
+			console.log("new file's directory not found, hence creating");
+			try {
+				fs.mkdirSync(path.dirname(newFilePath), { recursive: true });
+			} catch (error) {
+				console.error('Error creating directory for new file');
+				return res.status(500).json({
+					message: 'Error creating directory for new file',
+					level: 'error'
+				});
+			}
+		} else {
+			// directory exists
+		}
 
-	// console.log("pathParts: " + pathParts);
-	// console.log("directoryPath: " + directoryPath);
+		// Check if a file with the new file name already exists
+		fs.access(newFilePath, (err) => {
+			if (err) {
+				// Rename the file using the fs module
+				fs.rename(currentFilePath, newFilePath, (err) => {
+					if (err) {
+						console.error(err);
+						return res.status(500).json({
+							message: 'Error renaming file',
+							level: 'error'
+						});
+					} else {
+						console.log("File renamed successfully");
+						return res.status(200).json({
+							message: 'File renamed succesfully',
+							level: 'info'
+						});
+					}
+				});
+			} else {
+				// If the file already exists, send an error response
+				return res.status(400).json({
+					message: 'A file with the same name already exists',
+					level: 'error'
+				});
+			}
+		});
+	})
 
-	// Generate the new file path based on the new file name and the directory path
-	// const newFilePathRelative = `${directoryPath}/${newFileName}${ext}`;
-	// console.log("newFilePath: " + newFilePathRelative);
-
-	// Rename the file using the fs module
-	// console.log("currentFilePathRelative: " + currentFilePathRelative);
-	// console.log("newFilePathRelative: " + newFilePathRelative);
-	// Check if a file with the new file name already exists
-	// fs.access(newFilePathRelative, (err) => {
-	// 	if (err) {
-	// 		// Rename the file using the fs module
-	// 		fs.rename(currentFilePathRelative, newFilePathRelative, (err) => {
-	// 			if (err) {
-	// 				console.error(err);
-	// 				res.status(500).send('Error renaming file');
-	// 			} else {
-	// 				console.log("File renamed successfully");
-	// 				res.status(200).json({
-	// 					newFilePath: newFilePathRelative
-	// 				});
-	// 			}
-	// 		});
-	// 	} else {
-	// 		// If the file already exists, send an error response
-	// 		res.status(400).send('A file with the same name already exists.');
-	// 	}
-	// });
-	res.status(200).json({ message: 'File renamed succesfully' });
 });
 
 
