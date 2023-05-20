@@ -15,9 +15,6 @@ html
 				div.headingDiv
 					a(href='/' title = 'HOME')
 						h1 Search Results for "#{searchText}"
-					if view && view === 'tiles'
-						h2 #{totalResultCount} results
-					else
 						h2 Showing #{images.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
 				div.controlsDiv
 					form.searchForm(action = "" method = "get")
