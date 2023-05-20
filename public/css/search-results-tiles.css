@@ -6,6 +6,13 @@
 	box-sizing: border-box;
 }
 
+h1,
+h2 {
+	font-size: 2rem;
+	word-wrap: break-word;
+	padding: 5px;
+}
+
 .results {
 	display: flex;
 	flex-wrap: wrap;
@@ -439,11 +446,6 @@ button:hover {
 		gap: 5px;
 	}
 
-	h1,
-	h2 {
-		font-size: 2rem;
-	}
-
 }
 
 @media screen and (orientation: portrait) {
@@ -466,10 +468,10 @@ button:hover {
 		}
 
 		/* To permanently show the image title and actions*/
-		/* .imageSidebar {
+		.imageSidebar {
 			position: static;
 			opacity: 100%;
-		} */
+		}
 
 	}
 
@@ -536,8 +538,4 @@ button:hover {
 
 .error {
 	border-color: crimson;
-}
-
-h1 {
-	word-wrap: break-word;
 }
