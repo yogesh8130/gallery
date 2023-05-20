@@ -2,7 +2,7 @@ doctype html
 html
 	head
 		meta(charset="UTF-8")
-		meta(name="viewport", content="width=device-width, initial-scale=1.0")
+		meta(name="viewport" content="width=device-width, initial-scale=1.0")
 		title Search Results
 		if view && view === 'tiles'
 			link(id = 'stylesheet' rel = 'stylesheet' href = "/css/search-results-tiles.css")
@@ -21,7 +21,8 @@ html
 						h2 Showing #{images.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
 				div.controlsDiv
 					form.searchForm(action = "" method = "get")
-						input(type = "text" name = 'searchText' id = 'searchText' placeholder = 'Search')
+						input(type = "text" name = 'searchText' id = 'searchText'
+						placeholder = 'Search' onfocus = 'this.select()')
 						input(type = "hidden" name = 'view' id = 'view')
 						div.shuffleDiv
 							label(for="shuffle") Shuffle
