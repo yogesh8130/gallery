@@ -7,6 +7,7 @@ const fs = require('fs');
 // const ffprobe = require('ffprobe');
 // const ffprobeStatic = require('ffprobe-static');
 const { readMediaAttributes } = require('leather'); // much smaller
+const { log, error } = require('console');
 
 const app = express();
 const port = 3000;
@@ -348,22 +349,10 @@ app.post('/rename', (req, res) => {
 		});
 });
 
+let searchResults = new Map();
 
-// // All results in one page
-// app.get('/search', (req, res) => {
-// 	const searchText = req.query.searchText;
-// 	const matchingImagePaths = imagePaths.filter((imagePath) =>
-// 		imagePath.toLowerCase().includes(searchText.toLowerCase())
-// 	);
-// 	res.render('searchResults', { matchingImagePaths });
-// });
-
-// want the searched images to be available everywhere
-
-
-let matchingImagePaths = [];
 app.get('/search', async (req, res) => {
-	matchingImagePaths = [];
+	let matchingImagePaths = [];
 	let imageList = imagePaths;
 	const view = req.query.view;
 	const searchText = req.query.searchText;
@@ -427,10 +416,6 @@ app.get('/search', async (req, res) => {
 			}
 		});
 
-		// console.log("andTokens: " + andTokens);
-		// console.log("orTokens: " + orTokens);
-		// console.log("notTokens: " + notTokens);
-
 		// console.log("Processing AND tokens");
 		imageList.forEach(imagePath => {
 			let containsAll = andTokens.every(andToken => imagePath.toLowerCase().includes(andToken.toLowerCase()));
@@ -466,18 +451,16 @@ app.get('/search', async (req, res) => {
 			imagePath.toLowerCase().includes(searchText.toLowerCase().trim()));
 	}
 
-	// to find the index of images that were added to the search results
-	// fucks up search performance
-	// let matchingImageIndexes = matchingImagePaths.map((matchingPath) =>
-	// 	imagePaths.indexOf(matchingPath)
-	// );
-
 	if (shuffleFlag) {
 		shuffle(matchingImagePaths);
 	}
 
-	const totalResultCount = matchingImagePaths.length;
+	// adding results to Search results map to search faster next time
+	// and also preserve the imagelist when lazy loading shuffled results
+	const searchKey = searchText + ':::' + shuffleFlag;
+	searchResults.set(searchKey, matchingImagePaths);
 
+	const totalResultCount = matchingImagePaths.length;
 	const page = req.query.page || 1;
 	const perPage = searchResultBatchSize;
 	const startIndex = (page - 1) * perPage;
@@ -512,15 +495,38 @@ app.get('/search', async (req, res) => {
 });
 
 app.get('/getNextResults', async (req, res) => {
+	const searchText = req.query.searchText;
+	let shuffleFlag = false;
+	if (req.query.shuffle
+		&& (req.query.shuffle === 'true'
+			|| req.query.shuffle === 'on')) {
+		shuffleFlag = true;
+	}
+
+	const searchKey = searchText + ':::' + shuffleFlag;
+
+	let matchingImagePaths;
+	if (searchResults.has(searchKey)) {
+		matchingImagePaths = searchResults.get(searchKey);
+	} else {
+		console.error('searchKey not found in searchResults');
+		return res.status(404).json({
+			message: 'This has not been searched before'
+		});
+	}
+
 	const totalResultCount = matchingImagePaths.length;
+	if (totalResultCount <= searchResultBatchSize) {
+		return res.status(404).json({
+			message: 'No more results'
+		});
+	}
 
 	const page = req.query.page || 1;
 	const perPage = searchResultBatchSize;
 	const startIndex = (page - 1) * perPage;
 	const endIndex = startIndex + perPage;
-
 	const pageImagePaths = matchingImagePaths.slice(startIndex, endIndex);
-	// const pageImageIndexes = matchingImageIndexes.slice(startIndex, endIndex);
 
 	console.log('getting image metadata');
 	let images;
@@ -539,8 +545,6 @@ app.get('/getNextResults', async (req, res) => {
 		page,
 		totalPages,
 	};
-
-	// console.log("responseData: " + responseData);
 
 	res.send(responseData);
 })

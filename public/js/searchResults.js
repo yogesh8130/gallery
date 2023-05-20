@@ -1,4 +1,5 @@
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+let queryString; // stores URLs query part, used for lazy loading (getNextResults)
 const baseSize = 25;
 const videosList = []; // to keep track of all videos on the page, even as they load
 const searchResultBatchSize = 50 // should be same as server for correct image id
@@ -7,13 +8,13 @@ let multiplier = 1 // zoom slider value
 
 document.addEventListener("DOMContentLoaded", function () {
 	// convertin URL query params to
-	const queryString = window.location.search;
+	queryString = window.location.search;
 	const searchParams = new URLSearchParams(queryString);
 	const queryParams = {};
 	for (const [key, value] of searchParams) {
 		queryParams[key] = value;
 	}
-	// console.log(queryParams);
+	// console.log(queryString, queryParams);
 
 	// setting form fields on load
 	const view = document.getElementById('view');
@@ -541,9 +542,17 @@ function loadMore() {
 		&& scrollPosition >= documentHeight - (viewportHeight * 2)) {
 		isLoading = true;
 		currentPage++;
-		// console.log('getting next results, page: ' + currentPage);
-		fetch(`/getNextResults?page=${currentPage}`)
-			.then(response => response.json())
+		// queryParams just passes the searchText, shuffle and view ie queryParams
+		// from first search to getNextResults queries
+		fetch(`/getNextResults${queryString}&page=${currentPage}`)
+			.then(response => {
+				if (response.ok) {
+					return response.json()
+				} else {
+					haveMoreResults = false;
+					throw new Error('Error fetching more results');
+				}
+			})
 			.then(data => {
 				if (currentPage > data.totalPages) {
 					// console.log('no more results');
