@@ -292,57 +292,44 @@ app.post('/rename', (req, res) => {
 
 	const currentFilePathObj = path.parse(currentFilePath);
 	let newFilePath = path.join(currentFilePathObj.dir, newFileName + currentFilePathObj.ext);
-	console.log(newFilePath);
-
+	// this allows having .. in new filename to goback directory levels
 	newFilePath = path.normalize(newFilePath);
-	console.log(newFilePath);
 
 	// Check if new file's directory exists or not, and create if necessary
-	fs.access(path.dirname(newFilePath), (err) => {
-		if (err) {
+	fs.promises.access(path.dirname(newFilePath))
+		.catch(() => {
 			console.log("new file's directory not found, hence creating");
-			try {
-				fs.mkdirSync(path.dirname(newFilePath), { recursive: true });
-			} catch (error) {
-				console.error('Error creating directory for new file');
-				return res.status(500).json({
-					message: 'Error creating directory for new file',
-					level: 'error'
-				});
-			}
-		} else {
-			// directory exists
-		}
-
-		// Check if a file with the new file name already exists
-		fs.access(newFilePath, (err) => {
-			if (err) {
-				// Rename the file using the fs module
-				fs.rename(currentFilePath, newFilePath, (err) => {
-					if (err) {
-						console.error(err);
-						return res.status(500).json({
-							message: 'Error renaming file',
-							level: 'error'
-						});
-					} else {
-						console.log("File renamed successfully");
-						return res.status(200).json({
-							message: 'File renamed succesfully',
-							level: 'info'
-						});
-					}
-				});
-			} else {
-				// If the file already exists, send an error response
-				return res.status(400).json({
-					message: 'A file with the same name already exists',
-					level: 'error'
-				});
-			}
+			return fs.promises.mkdir(path.dirname(newFilePath), { recursive: true });
+		})
+		.then(() => {
+			// Check if a file with the new file name already exists
+			return fs.promises.access(newFilePath);
+		})
+		.then(() => {
+			// If the file already exists, send an error response
+			return res.status(400).json({
+				message: 'A file with the same name already exists',
+				level: 'error'
+			});
+		})
+		.catch(() => {
+			// Rename the file using the fs module
+			return fs.promises.rename(currentFilePath, newFilePath);
+		})
+		.then(() => {
+			console.log("File renamed successfully");
+			return res.status(200).json({
+				message: 'File renamed succesfully',
+				level: 'info'
+			});
+		})
+		.catch((err) => {
+			console.error(err);
+			return res.status(500).json({
+				message: 'Error renaming file',
+				level: 'error'
+			});
 		});
-	})
-
 });
 
 
