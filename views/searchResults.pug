@@ -12,23 +12,33 @@ html
 	body
 		button(id = "sidebarToggleButton" onclick = "toggleSidebar()" title = 'F2') 𝄙
 		div(id = "sidebar")
-			h2 Bulk Actions
+			h2 Actions Pane
 			details.instructions
-				summary Rename instructions
+				summary INSTRUCTIONS
+				b Moving
+				ul
+					li Moves the selected images to a specified path, irrespective of their original path.
+					li Collisions are automatically appended with numbers like -001
+				b Renaming
 				ul
 					li Doing a bulk rename will always append numbers like -001 to the images.
 					li You can also move files to relative folders by doing something like folder\image, this will create a subfolder in the images current folder and move the file there and rename it to 'image-001.jpg'
 					li To move up the folder you can use somthing like ..\folder\image, this will create a new folder called 'folder' besides the current folder in which the image is present and move the image to that folder and rename to 'image-001.jpg'.
 					li Doing something like ..\image will move the image to the parent folder of its current folder and rename it to 'image-001.jpg'.
+					li Renaming will deselect the images afterwards
 			div.bulkRow
 				button(id = 'selectAll' onclick = 'selectAllImages()' 
 				title = 'Ctrl + A') Select all
 				button(id = 'deSelectAll' onclick = 'deselectAllImages()'
 				title = 'Ctrl + Alt + A') De-select all
 			div.bulkRow
+				input(type = "text" id = 'targetFolderName' name = 'targetFolderName'
+				placeholder = "Target folder name")
+				button(id = 'moveFilesButton' onclick = 'moveFiles()') Move
+			div.bulkRow
 				input(type = "text" id = 'renameBulkText' name = 'renameBulkText'
-				placeholder = "Rename")
-				button(id = 'renameBulkButton' onclick = 'renameBulk()') GO
+				placeholder = "New Base name")
+				button(id = 'renameBulkButton' onclick = 'renameBulk()') Rename
 		div.mainDiv
 			div.header
 				div.headingDiv

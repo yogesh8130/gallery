@@ -348,6 +348,7 @@ input[type='checkbox'] {
 	top: 0;
 	right: -300px;
 	transition: right 0.3s ease-in-out;
+	overflow-y: auto;
 }
 
 #sidebar input {
