@@ -94,6 +94,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	const resultsContainer = document.querySelector('.results');
 
 	let lastSelectedImageIndex;
+	const selectedImages = [];
 
 	// Attach a click event listener to the parent element
 	resultsContainer.addEventListener('click', function (event) {
@@ -123,34 +124,55 @@ document.addEventListener("DOMContentLoaded", function () {
 			if (lastSelectedImageIndex < currentImageIndex) {
 				startingIndex = lastSelectedImageIndex;
 				endingIndex = currentImageIndex;
+
+				for (let index = startingIndex + 1; index <= endingIndex; index++) {
+					let image = document.getElementById(`image${index}`);
+
+					if (image.classList.contains('selectedImage')) {
+						selectedImages.splice(selectedImages.indexOf(image.src), 1);
+						image.classList.remove('selectedImage');
+					} else {
+						selectedImages.push(image.src);
+						image.classList.add('selectedImage');
+						lastSelectedImageIndex = parseInt(image.id.replace('image', ''));
+					}
+				}
 			} else if (lastSelectedImageIndex > currentImageIndex) {
-				startingIndex = currentImageIndex - 1;
-				endingIndex = lastSelectedImageIndex - 1;
+				startingIndex = lastSelectedImageIndex;
+				endingIndex = currentImageIndex;
 
-			}
+				for (let index = startingIndex - 1; index >= endingIndex; index--) {
+					let image = document.getElementById(`image${index}`);
 
-			for (let index = startingIndex + 1; index <= endingIndex; index++) {
-				let image = document.getElementById(`image${index}`);
-
-				if (image.classList.contains('selectedImage')) {
-					image.classList.remove('selectedImage');
-				} else {
-					image.classList.add('selectedImage');
-					lastSelectedImageIndex = parseInt(image.id.replace('image', ''));
+					if (image.classList.contains('selectedImage')) {
+						selectedImages.splice(selectedImages.indexOf(image.src), 1);
+						image.classList.remove('selectedImage');
+					} else {
+						selectedImages.push(image.src);
+						image.classList.add('selectedImage');
+						lastSelectedImageIndex = parseInt(image.id.replace('image', ''));
+					}
 				}
 			}
 
+
+			
 			lastSelectedImageIndex = undefined;
+			console.log(selectedImages);
 
 		} else if (clickedElement.classList.contains('resultFile') && event.ctrlKey) {
 			// select unselect with ctrl key
 			if (clickedElement.classList.contains('selectedImage')) {
+				selectedImages.splice(selectedImages.indexOf(clickedElement.src), 1);
 				clickedElement.classList.remove('selectedImage');
+				lastSelectedImageIndex = parseInt(clickedElement.id.replace('image', ''));
 			} else {
+				selectedImages.push(clickedElement.src);
 				clickedElement.classList.add('selectedImage');
 				lastSelectedImageIndex = parseInt(clickedElement.id.replace('image', ''));
 				// console.log('lastSelectedImageIndex:', lastSelectedImageIndex);
 			}
+			console.log(selectedImages);
 
 		} else if (clickedElement.classList.contains('resultFile')) {
 			// setting modal image src to the clicked image
