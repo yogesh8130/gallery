@@ -312,11 +312,7 @@ app.post('/rename', (req, res) => {
 		.then(() => {
 			// If the file already exists, send an error response
 			const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Collision\n`;
-			fs.appendFile('./logs/rename.log', logMessage, (err) => {
-				if (err) {
-					console.error('Error writing to rename.log:', err);
-				}
-			});
+			fs.appendFile('./logs/rename.log', logMessage);
 			return res.status(400).json({
 				message: 'A file with the same name already exists',
 				level: 'error'
@@ -330,11 +326,7 @@ app.post('/rename', (req, res) => {
 					imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
 					imagePaths.sort();
 					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
-					fs.appendFile('./logs/rename.log', logMessage, (err) => {
-						if (err) {
-							console.error('Error writing to rename.log:', err);
-						}
-					});
+					fs.appendFile('./logs/rename.log', logMessage);
 					return res.status(200).json({
 						message: 'File renamed successfully',
 						level: 'info'
@@ -343,11 +335,7 @@ app.post('/rename', (req, res) => {
 				.catch((err) => {
 					console.error(err);
 					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Fail: ${err}\n`;
-					fs.appendFile('./logs/rename.log', logMessage, (err) => {
-						if (err) {
-							console.error('Error writing to rename.log:', err);
-						}
-					});
+					fs.appendFile('./logs/rename.log', logMessage);
 					return res.status(500).json({
 						message: 'Error renaming file',
 						level: 'error'
@@ -357,15 +345,22 @@ app.post('/rename', (req, res) => {
 });
 
 app.post('/renameBulk', (req, res) => {
-	const currentFilePaths = req.body.currentFilePaths;
 	const newFileName = req.body.newFileName;
+	// converting object to a map
+	const currentFilePaths = new Map(Object.entries(req.body.currentFilePaths));
 
-	// Array to store the promises for renaming files
-	const renamePromises = [];
+	// Array to store the results for renaming files
+	const results = new Map();
 
-	currentFilePaths.forEach((currentFilePath, index) => {
+	let success = 0;
+	let fail = 0;
+	let collision = 0;
+
+	let index = 1;
+
+	currentFilePaths.forEach((currentFilePath, imageId) => {
 		currentFilePath = path.resolve(path.join('.', 'public', currentFilePath));
-		const indexWithPadding = (index + 1).toString().padStart(3, '0');
+		const indexWithPadding = index.toString().padStart(3, '0');
 		const newFileNameWithIndex = newFileName + '-' + indexWithPadding;
 
 		const currentFilePathObj = path.parse(currentFilePath);
@@ -375,81 +370,50 @@ app.post('/renameBulk', (req, res) => {
 		const currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
 		const newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
 
-		fs.promises.access(path.dirname(newFilePath))
-			.catch(() => {
-				console.log("new file's directory not found, hence creating");
-				return fs.promises.mkdir(path.dirname(newFilePath), { recursive: true });
-			}).then(() => {
-				const renamePromise = fs.promises.access(newFilePath)
-					.then(() => {
-						const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Collision\n`;
-						fs.appendFile('./logs/rename.log', logMessage, (err) => {
-							if (err) {
-								console.error('Error writing to rename.log:', err);
-							}
-						});
-						return {
-							success: false,
-							message: 'A file with the same name already exists',
-							level: 'error',
-							currentFilePath: currentFilePathRelative,
-							newFilePath: newFilePathRelative
-						};
-					})
-					.catch(() => {
-						return fs.promises.rename(currentFilePath, newFilePath)
-							.then(() => {
-								imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
-								imagePaths.sort();
-								const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
-								fs.appendFile('./logs/rename.log', logMessage, (err) => {
-									if (err) {
-										console.error('Error writing to rename.log:', err);
-									}
-								});
-								return {
-									success: true,
-									message: 'File renamed successfully',
-									level: 'info',
-									currentFilePath: currentFilePathRelative,
-									newFilePath: newFilePathRelative
-								};
-							})
-							.catch((err) => {
-								console.error(err);
-								const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Fail: ${err}\n`;
-								fs.appendFile('./logs/rename.log', logMessage, (err) => {
-									if (err) {
-										console.error('Error writing to rename.log:', err);
-									}
-								});
-								return {
-									success: false,
-									message: 'Error renaming file',
-									level: 'error',
-									currentFilePath: currentFilePathRelative,
-									newFilePath: newFilePathRelative
-								};
-							});
-					});
-				renamePromises.push(renamePromise);
-			})
+		// checking if folder exists
+		try {
+			fs.accessSync(path.dirname(newFilePath));
+		} catch (err) {
+			console.log("new file's directory not found, hence creating");
+			try {
+				fs.mkdirSync(path.dirname(newFilePath), { recursive: true });
+			} catch (err) {
+				console.error('Error creating directory:', err);
+			}
+		}
 
+		// checking if file already exists
+		try {
+			fs.accessSync(newFilePath);
+			const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Collision\n`;
+			fs.appendFileSync('./logs/rename.log', logMessage);
+			collision++;
+			results.set(imageId, 'collision');
+		} catch (err) {
+			try {
+				// file not found so we can rename now
+				fs.renameSync(currentFilePath, newFilePath);
+				imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
+				imagePaths.sort();
+				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
+				fs.appendFileSync('./logs/rename.log', logMessage);
+				success++;
+				index++;
+				results.set(imageId, newFilePathRelative);
+			} catch (err) {
+				console.error('Error renaming file:', err);
+				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Fail: ${err}\n`;
+				fs.appendFileSync('./logs/rename.log', logMessage);
+				fail++;
+				results.set(imageId, 'fail');
+			}
+		}
 	});
 
-	Promise.all(renamePromises)
-		.then((results) => {
-			return res.status(200).json({
-				results: results
-			});
-		})
-		.catch((err) => {
-			console.error(err);
-			return res.status(500).json({
-				message: 'An error occurred while renaming files',
-				level: 'error'
-			});
-		});
+	return res.status(200).json({
+		// have to convert map to an Object so it can be serialized into a JSON
+		results: Object.fromEntries(results)
+	});
 });
 
 let searchResults = new Map();
@@ -704,4 +668,5 @@ async function getImagesMetadata(imagePaths) {
 }
 
 // Start the server
+fs.appendFileSync('./logs/rename.log', `Starting server|||\n`);
 app.listen(port, () => console.log(`Server listening on port ${port}`));

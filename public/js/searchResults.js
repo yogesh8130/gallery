@@ -5,7 +5,7 @@ const videosList = []; // to keep track of all videos on the page, even as they 
 const searchResultBatchSize = 50 // should be same as server for correct image id
 let imageIndex = 51 // newly loaded images will be assigned id numbers from here on
 let multiplier = 1 // zoom slider value
-const selectedImages = [];
+const selectedImages = new Map();
 
 document.addEventListener("DOMContentLoaded", function () {
 	// convertin URL query params to
@@ -141,12 +141,13 @@ document.addEventListener("DOMContentLoaded", function () {
 					let image = document.getElementById(`image${index}`);
 					// remove localhost:3000 from the starting of image
 					const imageLinkRelative = decodeURIComponent(image.src.replace(origin, '').replace(/^\//, ''));
+					const imageId = image.id;
 
 					if (image.classList.contains('selectedImage')) {
-						selectedImages.splice(selectedImages.indexOf(imageLinkRelative), 1);
+						selectedImages.delete(imageId);
 						image.classList.remove('selectedImage');
 					} else {
-						selectedImages.push(imageLinkRelative);
+						selectedImages.set(imageId, imageLinkRelative)
 						image.classList.add('selectedImage');
 						lastSelectedImageIndex = parseInt(image.id.replace('image', ''));
 					}
@@ -159,12 +160,13 @@ document.addEventListener("DOMContentLoaded", function () {
 					let image = document.getElementById(`image${index}`);
 					// remove localhost:3000 from the starting of image
 					const imageLinkRelative = decodeURIComponent(image.src.replace(origin, '').replace(/^\//, ''));
+					const imageId = image.id;
 
 					if (image.classList.contains('selectedImage')) {
-						selectedImages.splice(selectedImages.indexOf(imageLinkRelative), 1);
+						selectedImages.delete(imageId);
 						image.classList.remove('selectedImage');
 					} else {
-						selectedImages.push(imageLinkRelative);
+						selectedImages.set(imageId, imageLinkRelative)
 						image.classList.add('selectedImage');
 						lastSelectedImageIndex = parseInt(image.id.replace('image', ''));
 					}
@@ -172,23 +174,22 @@ document.addEventListener("DOMContentLoaded", function () {
 			}
 
 			lastSelectedImageIndex = undefined;
+			console.log(selectedImages);
 
 		} else if (clickedElement.classList.contains('resultFile') && event.ctrlKey) {
 			// select unselect with ctrl key
 			if (clickedElement.classList.contains('selectedImage')) {
-				selectedImages.splice(selectedImages.indexOf(
-					decodeURIComponent(clickedElement.src.replace(origin, '').replace(/^\//, ''))
-				), 1);
+				selectedImages.delete(clickedElement.id);
 				clickedElement.classList.remove('selectedImage');
 				lastSelectedImageIndex = parseInt(clickedElement.id.replace('image', ''));
 			} else {
-				selectedImages.push(
-					decodeURIComponent(clickedElement.src.replace(origin, '').replace(/^\//, ''))
-				);
+				selectedImages.set(clickedElement.id,
+					decodeURIComponent(clickedElement.src.replace(origin, '').replace(/^\//, '')));
 				clickedElement.classList.add('selectedImage');
 				lastSelectedImageIndex = parseInt(clickedElement.id.replace('image', ''));
 				// console.log('lastSelectedImageIndex:', lastSelectedImageIndex);
 			}
+			console.log(selectedImages);
 
 		} else if (clickedElement.classList.contains('resultFile')) {
 			// setting modal image src to the clicked image
@@ -873,7 +874,7 @@ function showPopup(message, level, timeout) {
 function toggleSidebar(event) {
 	const sidebar = document.getElementById('sidebar');
 	const sidebarToggleButton = document.getElementById('sidebarToggleButton');
-	
+
 	if (sidebar.style.right === '0px') {
 		// close sidebar
 		sidebar.style.right = '-300px';
@@ -897,14 +898,15 @@ function renameBulk() {
 		return;
 	}
 
-	if (selectedImages.length == 0) {
+	if (selectedImages.size == 0) {
 		showPopup('No files selected', 'warn');
 		return;
 	}
 
 	const url = '/renameBulk';
 	const formData = {
-		currentFilePaths: selectedImages,
+		// have to convert map to an Object so it can be serialized into a JSON
+		currentFilePaths: Object.fromEntries(selectedImages),
 		newFileName: renameBulkText.value
 	}
 
@@ -916,10 +918,43 @@ function renameBulk() {
 		body: JSON.stringify(formData)
 	};
 
+	console.log(options.body);
+
 	fetch(url, options)
 		.then(response => response.json())
 		.then(data => {
-			console.log(data);
+			// console.log(data);
+			let success = 0;
+			let fail = 0;
+			let collision = 0;
+			const results = new Map(Object.entries(data.results));
+			results.forEach((value, imageId) => {
+				const image = document.getElementById(imageId);
+				if (value === 'fail') {
+					image.classList.add('renameFailed')
+					fail++;
+					return;
+				}
+				if (value === 'collision') {
+					image.classList.add('renameCollision')
+					collision++;
+					return;
+				}
+
+				image.src = value;
+				success++;
+				image.classList.remove('selectedImage');
+			})
+
+			if (success !== 0) {
+				showPopup(`Renamed ${success} files`, 'info')
+			}
+			if (fail !== 0) {
+				showPopup(`Failed ${fail} files`, 'error')
+			}
+			if (collision !== 0) {
+				showPopup(`Collisions on ${collision} files`, 'warn')
+			}
 		})
 		.catch(error => {
 			showPopup(error, 'error');
