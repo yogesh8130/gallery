@@ -935,11 +935,6 @@ function renameBulk() {
 					fail++;
 					return;
 				}
-				if (value === 'collision') {
-					image.classList.add('renameCollision')
-					collision++;
-					return;
-				}
 
 				image.src = value;
 				success++;
@@ -952,9 +947,8 @@ function renameBulk() {
 			if (fail !== 0) {
 				showPopup(`Failed ${fail} files`, 'error')
 			}
-			if (collision !== 0) {
-				showPopup(`Collisions on ${collision} files`, 'warn')
-			}
+
+			selectedImages.clear;
 		})
 		.catch(error => {
 			showPopup(error, 'error');

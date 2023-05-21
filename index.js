@@ -354,19 +354,19 @@ app.post('/renameBulk', (req, res) => {
 
 	let success = 0;
 	let fail = 0;
-	let collision = 0;
 
 	let index = 1;
 
 	currentFilePaths.forEach((currentFilePath, imageId) => {
 		currentFilePath = path.resolve(path.join('.', 'public', currentFilePath));
-		const indexWithPadding = index.toString().padStart(3, '0');
-		const newFileNameWithIndex = newFileName + '-' + indexWithPadding;
+		let indexWithPadding = index.toString().padStart(3, '0');
+		let newFileNameWithIndex = newFileName + '-' + indexWithPadding;
 
 		const currentFilePathObj = path.parse(currentFilePath);
 		let newFilePath = path.join(currentFilePathObj.dir, newFileNameWithIndex + currentFilePathObj.ext);
 		newFilePath = path.normalize(newFilePath);
 
+		// just for replacing in the DB
 		const currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
 		const newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
 
@@ -384,11 +384,17 @@ app.post('/renameBulk', (req, res) => {
 
 		// checking if file already exists
 		try {
-			fs.accessSync(newFilePath);
-			const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Collision\n`;
-			fs.appendFileSync('./logs/rename.log', logMessage);
-			collision++;
-			results.set(imageId, 'collision');
+			while (true) {
+				fs.accessSync(newFilePath);
+				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Collision\n`;
+				fs.appendFileSync('./logs/rename.log', logMessage);
+				index++
+				// generating a new file name for collision
+				indexWithPadding = index.toString().padStart(3, '0');
+				newFileNameWithIndex = newFileName + '-' + indexWithPadding;
+				newFilePath = path.join(currentFilePathObj.dir, newFileNameWithIndex + currentFilePathObj.ext);
+				newFilePath = path.normalize(newFilePath);
+			}
 		} catch (err) {
 			try {
 				// file not found so we can rename now

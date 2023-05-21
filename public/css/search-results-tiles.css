@@ -582,9 +582,6 @@ input[type='checkbox'] {
 .renameFailed {
 	border-color: crimson;
 }
-.renameCollision {
-	border-color: orange;
-}
 
 .popup {
 	position: fixed;
