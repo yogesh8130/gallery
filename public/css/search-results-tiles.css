@@ -369,6 +369,14 @@ input[type='checkbox'] {
 	border: none;
 }
 
+#sidebar button:hover{
+	background-color: gray;
+}
+
+#sidebar button:active{
+	background-color: black;
+}
+
 .instructions {
 	color: white;
 	margin: 5px;

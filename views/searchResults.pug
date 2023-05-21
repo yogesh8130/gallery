@@ -21,6 +21,11 @@ html
 					li To move up the folder you can use somthing like ..\folder\image, this will create a new folder called 'folder' besides the current folder in which the image is present and move the image to that folder and rename to 'image-001.jpg'.
 					li Doing something like ..\image will move the image to the parent folder of its current folder and rename it to 'image-001.jpg'.
 			div.bulkRow
+				button(id = 'selectAll' onclick = 'selectAllImages()' 
+				title = 'Ctrl + A') Select all
+				button(id = 'deSelectAll' onclick = 'deselectAllImages()'
+				title = 'Ctrl + Alt + A') De-select all
+			div.bulkRow
 				input(type = "text" id = 'renameBulkText' name = 'renameBulkText'
 				placeholder = "Rename")
 				button(id = 'renameBulkButton' onclick = 'renameBulk()') GO

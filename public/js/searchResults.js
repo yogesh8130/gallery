@@ -61,6 +61,15 @@ document.addEventListener("DOMContentLoaded", function () {
 			const searchText = document.getElementById('searchText');
 			searchText.focus();
 		}
+		
+		if (event.ctrlKey && event.key === 'a') {
+			event.preventDefault();
+			selectAllImages();
+		}
+		if (event.ctrlKey && event.altKey && event.key === 'a') {
+			event.preventDefault();
+			deselectAllImages();
+		}
 
 		if (focusedElement.nodeName === 'INPUT') {
 			// console.log('Currently focused element is an input field');
@@ -955,4 +964,23 @@ function renameBulk() {
 			showPopup(error, 'error');
 			console.log(error);
 		});
+}
+
+function selectAllImages() {
+	const images = document.querySelectorAll('.resultFile');
+	images.forEach(image => {
+		const imageLinkRelative = decodeURIComponent(image.src.replace(origin, '').replace(/^\//, ''));
+		const imageId = image.id;
+
+		selectedImages.set(imageId, imageLinkRelative)
+		image.classList.add('selectedImage');
+	});
+}
+
+function deselectAllImages() {
+	selectedImages.clear()
+	const images = document.querySelectorAll('.selectedImage');
+	images.forEach(image => {
+		image.classList.remove('selectedImage');
+	});
 }
