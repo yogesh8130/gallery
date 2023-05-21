@@ -628,6 +628,7 @@ function createResultElement(image) {
 	const imageTitleLink = document.createElement("a");
 	imageTitleLink.classList.add("imageTitle");
 	imageTitleLink.href = `/search?searchText=${similarImageLink}&view=${view}`;
+	imageTitleLink.target = 'blank';
 	imageTitleLink.textContent = baseName;
 	infoDiv.appendChild(imageTitleLink);
 
@@ -635,6 +636,7 @@ function createResultElement(image) {
 	const subTitleLink = document.createElement("a");
 	subTitleLink.classList.add("subTitle");
 	subTitleLink.href = `/search?searchText=${folderlink}&view=${view}`;
+	subTitleLink.target = 'blank';
 	subTitleLink.textContent = directory;
 	infoDiv.appendChild(subTitleLink);
 

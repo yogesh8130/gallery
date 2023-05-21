@@ -12,6 +12,7 @@ html
 	body
 		button(id = "sidebarToggleButton" onclick = "toggleSidebar()") &#9776;
 		div(id = "sidebar")
+			h2 Bulk Actions
 		div.mainDiv
 			div.header
 				div.headingDiv
@@ -19,7 +20,7 @@ html
 						h1 Search Results for "#{searchText}"
 					h2 Showing #{images.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
 				div.controlsDiv
-					form.searchForm(action = "" method = "get")
+					form.searchForm(action = "" method = "get" target = 'blank')
 						input(type = "text" name = 'searchText' id = 'searchText'
 						placeholder = 'Search' onfocus = 'this.select()')
 						input(type = "hidden" name = 'view' id = 'view')
@@ -112,11 +113,13 @@ html
 								div.infoDiv
 									- let similarImageLink = encodeURIComponent(imageName.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())
 									a.imageTitle(
-										href = '/search?searchText=' + similarImageLink + '&view=' + view)
+										href = '/search?searchText=' + similarImageLink + '&view=' + view
+										target = "blank")
 										| #{imageName} 
 									- let folderlink = encodeURIComponent(folderName)
 									a.subTitle(
-										href = '/search?searchText=' + folderlink + '&view=' + view)
+										href = '/search?searchText=' + folderlink + '&view=' + view
+										target = "blank")
 										|#{folderName}
 							div.mainContent
 								a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped
