@@ -5,6 +5,7 @@ const videosList = []; // to keep track of all videos on the page, even as they 
 const searchResultBatchSize = 50 // should be same as server for correct image id
 let imageIndex = 51 // newly loaded images will be assigned id numbers from here on
 let multiplier = 1 // zoom slider value
+const selectedImages = [];
 
 document.addEventListener("DOMContentLoaded", function () {
 	// convertin URL query params to
@@ -52,6 +53,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	document.addEventListener('keydown', function (event) {
 		const focusedElement = document.activeElement;
+		if (event.key === 'F2') {
+			toggleSidebar();
+		}
+		if (event.key === 'F3') {
+			event.preventDefault();
+			const searchText = document.getElementById('searchText');
+			searchText.focus();
+		}
+
 		if (focusedElement.nodeName === 'INPUT') {
 			// console.log('Currently focused element is an input field');
 			return
@@ -86,6 +96,9 @@ document.addEventListener("DOMContentLoaded", function () {
 			changeTileSize();
 			console.log(slider.value);
 		}
+		if (event.altKey && event.key === 't') {
+			document.documentElement.scrollTop = 0;
+		}
 	});
 
 	// MODAL SINGLE IMAGE VIEWER
@@ -94,7 +107,6 @@ document.addEventListener("DOMContentLoaded", function () {
 	const resultsContainer = document.querySelector('.results');
 
 	let lastSelectedImageIndex;
-	const selectedImages = [];
 
 	// Attach a click event listener to the parent element
 	resultsContainer.addEventListener('click', function (event) {
@@ -127,12 +139,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
 				for (let index = startingIndex + 1; index <= endingIndex; index++) {
 					let image = document.getElementById(`image${index}`);
+					// remove localhost:3000 from the starting of image
+					const imageLinkRelative = decodeURIComponent(image.src.replace(origin, '').replace(/^\//, ''));
 
 					if (image.classList.contains('selectedImage')) {
-						selectedImages.splice(selectedImages.indexOf(image.src), 1);
+						selectedImages.splice(selectedImages.indexOf(imageLinkRelative), 1);
 						image.classList.remove('selectedImage');
 					} else {
-						selectedImages.push(image.src);
+						selectedImages.push(imageLinkRelative);
 						image.classList.add('selectedImage');
 						lastSelectedImageIndex = parseInt(image.id.replace('image', ''));
 					}
@@ -143,36 +157,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
 				for (let index = startingIndex - 1; index >= endingIndex; index--) {
 					let image = document.getElementById(`image${index}`);
+					// remove localhost:3000 from the starting of image
+					const imageLinkRelative = decodeURIComponent(image.src.replace(origin, '').replace(/^\//, ''));
 
 					if (image.classList.contains('selectedImage')) {
-						selectedImages.splice(selectedImages.indexOf(image.src), 1);
+						selectedImages.splice(selectedImages.indexOf(imageLinkRelative), 1);
 						image.classList.remove('selectedImage');
 					} else {
-						selectedImages.push(image.src);
+						selectedImages.push(imageLinkRelative);
 						image.classList.add('selectedImage');
 						lastSelectedImageIndex = parseInt(image.id.replace('image', ''));
 					}
 				}
 			}
 
-
-			
 			lastSelectedImageIndex = undefined;
-			console.log(selectedImages);
 
 		} else if (clickedElement.classList.contains('resultFile') && event.ctrlKey) {
 			// select unselect with ctrl key
 			if (clickedElement.classList.contains('selectedImage')) {
-				selectedImages.splice(selectedImages.indexOf(clickedElement.src), 1);
+				selectedImages.splice(selectedImages.indexOf(
+					decodeURIComponent(clickedElement.src.replace(origin, '').replace(/^\//, ''))
+				), 1);
 				clickedElement.classList.remove('selectedImage');
 				lastSelectedImageIndex = parseInt(clickedElement.id.replace('image', ''));
 			} else {
-				selectedImages.push(clickedElement.src);
+				selectedImages.push(
+					decodeURIComponent(clickedElement.src.replace(origin, '').replace(/^\//, ''))
+				);
 				clickedElement.classList.add('selectedImage');
 				lastSelectedImageIndex = parseInt(clickedElement.id.replace('image', ''));
 				// console.log('lastSelectedImageIndex:', lastSelectedImageIndex);
 			}
-			console.log(selectedImages);
 
 		} else if (clickedElement.classList.contains('resultFile')) {
 			// setting modal image src to the clicked image
@@ -756,7 +772,7 @@ function showRenameDialog(button) {
 			const renameForm = renameDialog.querySelector('.renameForm');
 			// console.log(renameForm.newFileName.value);
 
-			const url = '/rename'; // Replace with your API endpoint
+			const url = '/rename';
 			const formData = {
 				currentFilePath: renameForm.currentFilePath.value,
 				newFileName: renameForm.newFileName.value
@@ -857,12 +873,56 @@ function showPopup(message, level, timeout) {
 function toggleSidebar(event) {
 	const sidebar = document.getElementById('sidebar');
 	const sidebarToggleButton = document.getElementById('sidebarToggleButton');
-
+	
 	if (sidebar.style.right === '0px') {
-		sidebar.style.right = '-250px';
-		sidebarToggleButton.style.right = '0';
+		// close sidebar
+		sidebar.style.right = '-300px';
+		sidebarToggleButton.style.right = '0px';
 	} else {
+		// open sidebar
 		sidebar.style.right = '0px';
-		sidebarToggleButton.style.right = '250px';
+		sidebarToggleButton.style.right = '300px';
+		const renameBulkText = document.getElementById('renameBulkText');
+		renameBulkText.focus();
 	}
+}
+
+function renameBulk() {
+	const renameBulkText = document.getElementById('renameBulkText');
+	// console.log(selectedImages);
+	// console.log(renameBulkText.value);
+
+	if (!renameBulkText.value) {
+		showPopup('Provide a value first', 'warn');
+		return;
+	}
+
+	if (selectedImages.length == 0) {
+		showPopup('No files selected', 'warn');
+		return;
+	}
+
+	const url = '/renameBulk';
+	const formData = {
+		currentFilePaths: selectedImages,
+		newFileName: renameBulkText.value
+	}
+
+	const options = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(formData)
+	};
+
+	fetch(url, options)
+		.then(response => response.json())
+		.then(data => {
+			console.log(data);
+		})
+		.catch(error => {
+			showPopup(error, 'error');
+			console.log(error);
+		});
 }

@@ -328,6 +328,7 @@ app.post('/rename', (req, res) => {
 				.then(() => {
 					// replacing in "DB"
 					imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
+					imagePaths.sort();
 					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
 					fs.appendFile('./logs/rename.log', logMessage, (err) => {
 						if (err) {
@@ -341,7 +342,7 @@ app.post('/rename', (req, res) => {
 				})
 				.catch((err) => {
 					console.error(err);
-					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Fail\n`;
+					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Fail: ${err}\n`;
 					fs.appendFile('./logs/rename.log', logMessage, (err) => {
 						if (err) {
 							console.error('Error writing to rename.log:', err);
@@ -352,6 +353,102 @@ app.post('/rename', (req, res) => {
 						level: 'error'
 					});
 				});
+		});
+});
+
+app.post('/renameBulk', (req, res) => {
+	const currentFilePaths = req.body.currentFilePaths;
+	const newFileName = req.body.newFileName;
+
+	// Array to store the promises for renaming files
+	const renamePromises = [];
+
+	currentFilePaths.forEach((currentFilePath, index) => {
+		currentFilePath = path.resolve(path.join('.', 'public', currentFilePath));
+		const indexWithPadding = (index + 1).toString().padStart(3, '0');
+		const newFileNameWithIndex = newFileName + '-' + indexWithPadding;
+
+		const currentFilePathObj = path.parse(currentFilePath);
+		let newFilePath = path.join(currentFilePathObj.dir, newFileNameWithIndex + currentFilePathObj.ext);
+		newFilePath = path.normalize(newFilePath);
+
+		const currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
+		const newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
+
+		fs.promises.access(path.dirname(newFilePath))
+			.catch(() => {
+				console.log("new file's directory not found, hence creating");
+				return fs.promises.mkdir(path.dirname(newFilePath), { recursive: true });
+			}).then(() => {
+				const renamePromise = fs.promises.access(newFilePath)
+					.then(() => {
+						const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Collision\n`;
+						fs.appendFile('./logs/rename.log', logMessage, (err) => {
+							if (err) {
+								console.error('Error writing to rename.log:', err);
+							}
+						});
+						return {
+							success: false,
+							message: 'A file with the same name already exists',
+							level: 'error',
+							currentFilePath: currentFilePathRelative,
+							newFilePath: newFilePathRelative
+						};
+					})
+					.catch(() => {
+						return fs.promises.rename(currentFilePath, newFilePath)
+							.then(() => {
+								imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
+								imagePaths.sort();
+								const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
+								fs.appendFile('./logs/rename.log', logMessage, (err) => {
+									if (err) {
+										console.error('Error writing to rename.log:', err);
+									}
+								});
+								return {
+									success: true,
+									message: 'File renamed successfully',
+									level: 'info',
+									currentFilePath: currentFilePathRelative,
+									newFilePath: newFilePathRelative
+								};
+							})
+							.catch((err) => {
+								console.error(err);
+								const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Fail: ${err}\n`;
+								fs.appendFile('./logs/rename.log', logMessage, (err) => {
+									if (err) {
+										console.error('Error writing to rename.log:', err);
+									}
+								});
+								return {
+									success: false,
+									message: 'Error renaming file',
+									level: 'error',
+									currentFilePath: currentFilePathRelative,
+									newFilePath: newFilePathRelative
+								};
+							});
+					});
+				renamePromises.push(renamePromise);
+			})
+
+	});
+
+	Promise.all(renamePromises)
+		.then((results) => {
+			return res.status(200).json({
+				results: results
+			});
+		})
+		.catch((err) => {
+			console.error(err);
+			return res.status(500).json({
+				message: 'An error occurred while renaming files',
+				level: 'error'
+			});
 		});
 });
 

@@ -10,9 +10,13 @@ html
 			link(id = 'stylesheet' rel = 'stylesheet' href = "/css/search-results.css")
 		link(rel = 'stylesheet' href = '/css/iv-viewer.css')
 	body
-		button(id = "sidebarToggleButton" onclick = "toggleSidebar()") &#9776;
+		button(id = "sidebarToggleButton" onclick = "toggleSidebar()" title = 'F2') 𝄙
 		div(id = "sidebar")
 			h2 Bulk Actions
+			div.bulkRow
+				input(type = "text" id = 'renameBulkText' name = 'renameBulkText'
+				placeholder = "Rename")
+				button(id = 'renameBulkButton' onclick = 'renameBulk()') GO
 		div.mainDiv
 			div.header
 				div.headingDiv
@@ -22,7 +26,8 @@ html
 				div.controlsDiv
 					form.searchForm(action = "" method = "get" target = 'blank')
 						input(type = "text" name = 'searchText' id = 'searchText'
-						placeholder = 'Search' onfocus = 'this.select()')
+						placeholder = 'Search' onfocus = 'this.select()' 
+						title = 'F3')
 						input(type = "hidden" name = 'view' id = 'view')
 						div.shuffleDiv
 							label(for="shuffle") Shuffle
@@ -40,6 +45,7 @@ html
 									id = "shuffle" 
 									name = "shuffle" 
 									onclick = 'shuffleToggle()'
+									title = 'S'
 									)
 					div.zoomAndConfig
 						div.buttonControls#sliderContainer
@@ -52,6 +58,7 @@ html
 								name = slider 
 								oninput = 'changeTileSize()'
 								ondblclick = 'this.value = 1; changeTileSize()'
+								title = '<- ArrowLeft - ArrowRight ->'
 								)
 						div.config.buttonControls
 							button.default(id = 'configButton' onclick = "window.open('/config', '_blank')" title = 'settings') 🛠
@@ -167,7 +174,9 @@ html
 			title = 'Fullscreen (Alt + Enter)'
 			onclick = 'goFullscreen()'
 			) ◹
-		button(onclick = "document.documentElement.scrollTop = 0" id = "scrollToTopButton" title = "Scroll to Top") ⤒
+		button(onclick = "document.documentElement.scrollTop = 0"
+		id = "scrollToTopButton" title = "Scroll to Top (Alt + T)"
+		) ⤒
 		div.modal#modal
 			div.modalImageContainer
 			div.modalVideoContainer
