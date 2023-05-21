@@ -829,3 +829,16 @@ function showPopup(message, level, timeout) {
 		}, 300);
 	}, timeout);
 }
+
+function toggleSidebar(event) {
+	const sidebar = document.getElementById('sidebar');
+	const sidebarToggleButton = document.getElementById('sidebarToggleButton');
+
+	if (sidebar.style.right === '0px') {
+		sidebar.style.right = '-250px';
+		sidebarToggleButton.style.right = '0';
+	} else {
+		sidebar.style.right = '0px';
+		sidebarToggleButton.style.right = '250px';
+	}
+}

@@ -29,7 +29,6 @@ h2 {
 .result {
 	margin: 2px;
 	position: relative;
-	font-size: 0.7rem;
 	z-index: 3;
 }
 
@@ -57,10 +56,10 @@ video {
 	position: fixed;
 	top: 90%;
 	left: 0;
-	padding: 0.2rem .4rem;
+	padding: .3rem;
 	z-index: 0;
 	order: 1;
-	flex-direction: row-reverse;
+	flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
 	background-image: linear-gradient(to bottom, rgba(0, 0, 0, .9), rgba(0, 0, 0, .7));
@@ -68,6 +67,7 @@ video {
 	word-break: break-all;
 	opacity: 0%;
 	gap: .3rem;
+	align-items: flex-start;
 }
 
 .result:hover>.imageSidebar {
@@ -77,10 +77,16 @@ video {
 	transition: all 0.3s ease;
 }
 
+.rename {
+	order: 1;
+}
+
 .infoDiv {
+	font-size: .8rem;
 	display: flex;
 	flex-grow: 1;
 	flex-direction: column;
+	order: 2;
 }
 
 .actionButtons {
@@ -305,7 +311,8 @@ button:hover {
 	color: black;
 }
 
-#fullscreenButton {
+#fullscreenButton,
+#sidebarToggleButton {
 	z-index: 9;
 	height: 2.5rem;
 	width: 2.5rem;
@@ -314,26 +321,46 @@ button:hover {
 	border-width: 0;
 	margin: 0;
 	padding: 0;
-	right: 0rem;
+	right: 0px;
 	top: 0rem;
 	font-size: 1.2rem;
-	background-color: rgb(41, 41, 41);
 	color: white;
+	border-radius: 0 0 0 5px;
+	background-color: rgba(0, 0, 0, 0.8);
+}
+
+#sidebarToggleButton {
+	top: unset;
+	bottom: 2.5rem;
+	border-radius: 5px 0 0 5px;
+	transition: right 0.3s ease-in-out;
+	background-color: rgba(0, 0, 0, 0.8);
+}
+
+#sidebar {
+	z-index: 10;
+	width: 250px;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.8);
+	position: fixed;
+	top: 0;
+	right: -250px;
+	transition: right 0.3s ease-in-out;
 }
 
 #scrollToTopButton {
+	border-radius: 5px 0 0 0;
 	z-index: 9;
 	height: 2.5rem;
 	width: 2.5rem;
 	position: fixed;
-	border-radius: 0;
 	border-width: 0;
 	margin: 0;
 	padding: 0;
 	right: 0rem;
 	bottom: 0rem;
 	font-size: 1.2rem;
-	background-color: rgb(41, 41, 41);
+	background-color: rgba(0, 0, 0, 0.8);
 	color: white;
 }
 
@@ -471,8 +498,18 @@ button:hover {
 		.imageSidebar {
 			position: static;
 			opacity: 100%;
+			flex-direction: row-reverse;
+			padding: 3px;
+		}
+		
+		.infoDiv {
+			font-size: 1rem;
 		}
 
+		.rename {
+			width: 2.2rem;
+			height: 2.2rem;
+		}
 	}
 
 	/* pc */
