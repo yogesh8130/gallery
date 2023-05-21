@@ -369,6 +369,11 @@ input[type='checkbox'] {
 	border: none;
 }
 
+.instructions {
+	color: white;
+	margin: 5px;
+}
+
 .bulkRow {
 	display: flex;
 	flex-direction: row;

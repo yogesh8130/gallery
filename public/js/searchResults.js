@@ -948,7 +948,8 @@ function renameBulk() {
 				showPopup(`Failed ${fail} files`, 'error')
 			}
 
-			selectedImages.clear;
+			selectedImages.clear();
+			// TODO udpate image title and subtitle after rename
 		})
 		.catch(error => {
 			showPopup(error, 'error');

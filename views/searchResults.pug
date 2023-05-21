@@ -13,6 +13,13 @@ html
 		button(id = "sidebarToggleButton" onclick = "toggleSidebar()" title = 'F2') 𝄙
 		div(id = "sidebar")
 			h2 Bulk Actions
+			details.instructions
+				summary Rename instructions
+				ul
+					li Doing a bulk rename will always append numbers like -001 to the images.
+					li You can also move files to relative folders by doing something like folder\image, this will create a subfolder in the images current folder and move the file there and rename it to 'image-001.jpg'
+					li To move up the folder you can use somthing like ..\folder\image, this will create a new folder called 'folder' besides the current folder in which the image is present and move the image to that folder and rename to 'image-001.jpg'.
+					li Doing something like ..\image will move the image to the parent folder of its current folder and rename it to 'image-001.jpg'.
 			div.bulkRow
 				input(type = "text" id = 'renameBulkText' name = 'renameBulkText'
 				placeholder = "Rename")
