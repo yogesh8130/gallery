@@ -422,6 +422,84 @@ app.post('/renameBulk', (req, res) => {
 	});
 });
 
+app.post('/moveFiles', (req, res) => {
+	const targetFolder = req.body.targetFolder;
+	// converting object to a map
+	const selectedImages = new Map(Object.entries(req.body.selectedImages));
+
+	// console.log(targetFolder);
+	// console.log(selectedImages);
+
+	const targetFolderPath = path.resolve(path.join('.', 'public', 'images', targetFolder));
+
+	// checking if folder exists
+	try {
+		fs.accessSync(targetFolderPath);
+	} catch (err) {
+		console.log("new file's directory not found, hence creating");
+		try {
+			fs.mkdirSync(targetFolderPath, { recursive: true });
+		} catch (err) {
+			console.error('Error creating directory:', err);
+		}
+	}
+
+	// to store the results for renaming files
+	// contains fileId: newFilePath
+	// sent to client to update the IMG tags having fileIds with new src
+	const results = new Map();
+
+	let success = 0;
+	let fail = 0;
+
+	
+	selectedImages.forEach((currentFilePath, imageId) => {
+		currentFilePath = path.resolve(path.join('.', 'public', currentFilePath));
+		const currentFilePathObj = path.parse(currentFilePath);
+		let newFilePath = path.join(targetFolderPath, currentFilePathObj.base);
+		// just for replacing in the DB
+		const currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
+		const newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
+
+		// checking if file already exists
+		try {
+			let index = 0;
+			while (true) {
+				fs.accessSync(newFilePath);
+				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Collision\n`;
+				fs.appendFileSync('./logs/move.log', logMessage);
+				index++
+				// generating a new file name for collision
+				indexWithPadding = index.toString().padStart(3, '0');
+				newFileNameWithIndex = currentFilePathObj.name + '-' + indexWithPadding;
+				newFilePath = path.join(targetFolderPath, newFileNameWithIndex + currentFilePathObj.ext);
+			}
+		} catch (err) {
+			try {
+				// file not found so we can rename now
+				fs.renameSync(currentFilePath, newFilePath); 
+				imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
+				imagePaths.sort();
+				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
+				fs.appendFileSync('./logs/move.log', logMessage);
+				success++;
+				results.set(imageId, newFilePathRelative);
+			} catch (err) {
+				console.error('Error renaming file:', err);
+				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Fail: ${err}\n`;
+				fs.appendFileSync('./logs/move.log', logMessage);
+				fail++;
+				results.set(imageId, 'fail');
+			}
+		}
+	});
+
+	return res.status(200).json({
+		// have to convert map to an Object so it can be serialized into a JSON
+		results: Object.fromEntries(results)
+	});
+});
+
 let searchResults = new Map();
 
 app.get('/search', async (req, res) => {

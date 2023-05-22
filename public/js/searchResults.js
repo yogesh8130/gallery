@@ -6,6 +6,7 @@ const searchResultBatchSize = 50 // should be same as server for correct image i
 let imageIndex = 51 // newly loaded images will be assigned id numbers from here on
 let multiplier = 1 // zoom slider value
 const selectedImages = new Map();
+let allFilesSelected = false;
 
 document.addEventListener("DOMContentLoaded", function () {
 	// convertin URL query params to
@@ -61,14 +62,15 @@ document.addEventListener("DOMContentLoaded", function () {
 			const searchText = document.getElementById('searchText');
 			searchText.focus();
 		}
-		
+
 		if (event.ctrlKey && event.key === 'a') {
 			event.preventDefault();
-			selectAllImages();
-		}
-		if (event.ctrlKey && event.altKey && event.key === 'a') {
-			event.preventDefault();
-			deselectAllImages();
+			if (allFilesSelected) {
+				deselectAllImages();
+			} else {
+				selectAllImages();
+			}
+			allFilesSelected = !allFilesSelected;
 		}
 
 		if (focusedElement.nodeName === 'INPUT') {
@@ -183,7 +185,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			}
 
 			lastSelectedImageIndex = undefined;
-			console.log(selectedImages);
+			// console.log(selectedImages);
 
 		} else if (clickedElement.classList.contains('resultFile') && event.ctrlKey) {
 			// select unselect with ctrl key
@@ -198,7 +200,7 @@ document.addEventListener("DOMContentLoaded", function () {
 				lastSelectedImageIndex = parseInt(clickedElement.id.replace('image', ''));
 				// console.log('lastSelectedImageIndex:', lastSelectedImageIndex);
 			}
-			console.log(selectedImages);
+			// console.log(selectedImages);
 
 		} else if (clickedElement.classList.contains('resultFile')) {
 			// setting modal image src to the clicked image
@@ -935,19 +937,18 @@ function renameBulk() {
 			// console.log(data);
 			let success = 0;
 			let fail = 0;
-			let collision = 0;
 			const results = new Map(Object.entries(data.results));
 			results.forEach((value, imageId) => {
 				const image = document.getElementById(imageId);
 				if (value === 'fail') {
 					image.classList.add('renameFailed')
 					fail++;
-					return;
+				} else {
+					image.src = value;
+					selectedImages.set(imageId, value)
+					success++;
 				}
 
-				image.src = value;
-				success++;
-				image.classList.remove('selectedImage');
 			})
 
 			if (success !== 0) {
@@ -957,12 +958,11 @@ function renameBulk() {
 				showPopup(`Failed ${fail} files`, 'error')
 			}
 
-			selectedImages.clear();
 			// TODO udpate image title and subtitle after rename
 		})
 		.catch(error => {
 			showPopup(error, 'error');
-			console.log(error);
+			console.error(error);
 		});
 }
 
@@ -983,4 +983,76 @@ function deselectAllImages() {
 	images.forEach(image => {
 		image.classList.remove('selectedImage');
 	});
+}
+
+function moveFiles() {
+	const targetFolder = document.getElementById('targetFolderName').value;
+	// console.log(selectedImages);
+	// console.log(targetFolderName.value);
+	const pattern = /^[a-zA-Z0-9\\ ]*$/;
+	const isValid = pattern.test(targetFolder);
+
+	if (!isValid) {
+		showPopup('Folder name contains disallowed characters', 'warn');
+		return;
+	}
+
+	if (!targetFolder) {
+		showPopup('Provide a target folder', 'warn');
+		return;
+	}
+
+	if (selectedImages.size == 0) {
+		showPopup('No files selected', 'warn');
+		return;
+	}
+
+	const url = '/moveFiles';
+	const formData = {
+		// have to convert map to an Object so it can be serialized into a JSON
+		selectedImages: Object.fromEntries(selectedImages),
+		targetFolder: targetFolder
+	}
+
+	const options = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(formData)
+	};
+
+	fetch(url, options)
+		.then(response => response.json())
+		.then(data => {
+			// console.log(data);
+			let success = 0;
+			let fail = 0;
+			const results = new Map(Object.entries(data.results));
+			results.forEach((value, imageId) => {
+				const image = document.getElementById(imageId);
+				if (value === 'fail') {
+					// just adding red border so renameFailed is fine even tho we are moving not renaming
+					image.classList.add('renameFailed')
+					fail++;
+				} else {
+					image.src = value;
+					selectedImages.set(imageId, value)
+					success++;
+				}
+			})
+
+			if (success !== 0) {
+				showPopup(`Moved ${success} files`, 'info')
+			}
+			if (fail !== 0) {
+				showPopup(`Failed to move ${fail} files`, 'error')
+			}
+
+			// TODO udpate image title and subtitle after rename
+		})
+		.catch(error => {
+			showPopup(error, 'error');
+			console.error(error);
+		});
 }

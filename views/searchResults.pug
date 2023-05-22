@@ -18,7 +18,9 @@ html
 				b Moving
 				ul
 					li Moves the selected images to a specified path, irrespective of their original path.
-					li Collisions are automatically appended with numbers like -001
+					li If only 'folder' is given then this folder will be used in images folder, if not found 'folder' will be created in the images directory.
+					li You can specify subfolders like 'folder\subfolder'.
+					li Collisions are automatically appended with numbers like -001 and logged on server along with all other moves.
 				b Renaming
 				ul
 					li Doing a bulk rename will always append numbers like -001 to the images.
@@ -26,11 +28,12 @@ html
 					li To move up the folder you can use somthing like ..\folder\image, this will create a new folder called 'folder' besides the current folder in which the image is present and move the image to that folder and rename to 'image-001.jpg'.
 					li Doing something like ..\image will move the image to the parent folder of its current folder and rename it to 'image-001.jpg'.
 					li Renaming will deselect the images afterwards
+				p Consecutive rename/move can be done on selected files multiple times.
 			div.bulkRow
 				button(id = 'selectAll' onclick = 'selectAllImages()' 
-				title = 'Ctrl + A') Select all
-				button(id = 'deSelectAll' onclick = 'deselectAllImages()'
-				title = 'Ctrl + Alt + A') De-select all
+				title = 'Ctrl + A (Toggle)') Select all
+				button(id = 'deSelectAll' onclick = 'deselectAllImages()' 
+				title = 'Ctrl + A (Toggle)') De-select all
 			div.bulkRow
 				input(type = "text" id = 'targetFolderName' name = 'targetFolderName'
 				placeholder = "Target folder name")
