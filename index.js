@@ -452,7 +452,7 @@ app.post('/moveFiles', (req, res) => {
 	let success = 0;
 	let fail = 0;
 
-	
+
 	selectedImages.forEach((currentFilePath, imageId) => {
 		currentFilePath = path.resolve(path.join('.', 'public', currentFilePath));
 		const currentFilePathObj = path.parse(currentFilePath);
@@ -477,7 +477,7 @@ app.post('/moveFiles', (req, res) => {
 		} catch (err) {
 			try {
 				// file not found so we can rename now
-				fs.renameSync(currentFilePath, newFilePath); 
+				fs.renameSync(currentFilePath, newFilePath);
 				imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
 				imagePaths.sort();
 				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
@@ -503,10 +503,14 @@ app.post('/moveFiles', (req, res) => {
 let searchResults = new Map();
 
 app.get('/search', async (req, res) => {
+	const searchText = req.query.searchText;
+	if (!searchText) {
+		return res.status(400).send('Invalid search term');
+	}
+
 	let matchingImagePaths = [];
 	let imageList = imagePaths;
 	const view = req.query.view;
-	const searchText = req.query.searchText;
 	let shuffleFlag = false;
 
 	if (req.query.shuffle

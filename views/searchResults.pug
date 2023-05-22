@@ -34,14 +34,16 @@ html
 				title = 'Ctrl + A (Toggle)') Select all
 				button(id = 'deSelectAll' onclick = 'deselectAllImages()' 
 				title = 'Ctrl + A (Toggle)') De-select all
-			div.bulkRow
+			form.bulkRow(id = 'moveForm')
 				input(type = "text" id = 'targetFolderName' name = 'targetFolderName'
-				placeholder = "Target folder name")
+				placeholder = "Target folder name" autocomplete = 'on')
 				button(id = 'moveFilesButton' onclick = 'moveFiles()') Move
-			div.bulkRow
+				input(type="submit" hidden)
+			form.bulkRow(id = 'renameBulkForm')
 				input(type = "text" id = 'renameBulkText' name = 'renameBulkText'
-				placeholder = "New Base name")
+				placeholder = "New Base name" autocomplete = 'on')
 				button(id = 'renameBulkButton' onclick = 'renameBulk()') Rename
+				input(type="submit" hidden)
 		div.mainDiv
 			div.header
 				div.headingDiv

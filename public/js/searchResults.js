@@ -63,6 +63,11 @@ document.addEventListener("DOMContentLoaded", function () {
 			searchText.focus();
 		}
 
+		if (focusedElement.nodeName === 'INPUT') {
+			// console.log('Currently focused element is an input field');
+			return
+		}
+		
 		if (event.ctrlKey && event.key === 'a') {
 			event.preventDefault();
 			if (allFilesSelected) {
@@ -72,12 +77,6 @@ document.addEventListener("DOMContentLoaded", function () {
 			}
 			allFilesSelected = !allFilesSelected;
 		}
-
-		if (focusedElement.nodeName === 'INPUT') {
-			// console.log('Currently focused element is an input field');
-			return
-		}
-
 		if (event.key === 'f') {
 			goFullscreen()
 		}
@@ -338,6 +337,12 @@ document.addEventListener("DOMContentLoaded", function () {
 			video.pause();
 		}
 	})
+
+	// prevent the page form reloading when these forms are submitted
+	const moveForm = document.getElementById('moveForm');
+	const renameBulkForm = document.getElementById('renameBulkForm');
+	moveForm.onsubmit = (event) => { event.preventDefault(); }
+	renameBulkForm.onsubmit = (event) => { event.preventDefault(); }
 
 });
 
