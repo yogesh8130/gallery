@@ -51,7 +51,7 @@ html
 						h1 Search Results for "#{searchText}"
 					h2 Showing #{images.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
 				div.controlsDiv
-					form.searchForm(action = "" method = "get" target = 'blank')
+					form.searchForm(action = "" method = "get" target = '_blank')
 						input(type = "text" name = 'searchText' id = 'searchText'
 						placeholder = 'Search' onfocus = 'this.select()' 
 						title = 'F3')
@@ -148,12 +148,12 @@ html
 									- let similarImageLink = encodeURIComponent(imageName.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())
 									a.imageTitle(
 										href = '/search?searchText=' + similarImageLink + '&view=' + view
-										target = "blank")
+										target = "_blank")
 										| #{imageName} 
 									- let folderlink = encodeURIComponent(folderName)
 									a.subTitle(
 										href = '/search?searchText=' + folderlink + '&view=' + view
-										target = "blank")
+										target = "_blank")
 										|#{folderName}
 							div.mainContent
 								a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped

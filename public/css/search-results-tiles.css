@@ -531,6 +531,7 @@ input[type='checkbox'] {
 
 		.results {
 			padding: 0;
+			padding-bottom: 50vh;
 		}
 
 		.result:hover {
@@ -624,4 +625,8 @@ input[type='checkbox'] {
 
 .error {
 	border-color: crimson;
+}
+
+.pagination {
+	display: none;
 }
