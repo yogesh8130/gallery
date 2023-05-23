@@ -7,6 +7,7 @@ let imageIndex = 51 // newly loaded images will be assigned id numbers from here
 let multiplier = 1 // zoom slider value
 const selectedImages = new Map();
 let allFilesSelected = false;
+let suggestedTargetFolders = [];
 
 document.addEventListener("DOMContentLoaded", function () {
 	// convertin URL query params to
@@ -30,6 +31,17 @@ document.addEventListener("DOMContentLoaded", function () {
 		// to load the src value from data-src
 		observer.observe(video);
 	});
+
+	const storedSuggestedTargetFolders = localStorage.getItem('suggestedTargetFolders');
+	if (storedSuggestedTargetFolders) {
+		suggestedTargetFolders = JSON.parse(storedSuggestedTargetFolders);
+		const datalist = document.getElementById('suggestedFolders');
+		suggestedTargetFolders.forEach((folder) => {
+			const option = document.createElement('option');
+			option.value = folder;
+			datalist.appendChild(option);
+		})
+	}
 
 	// view specific stuff
 	if (view.value !== 'tiles') {
@@ -67,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			// console.log('Currently focused element is an input field');
 			return
 		}
-		
+
 		if (event.ctrlKey && event.key === 'a') {
 			event.preventDefault();
 			if (allFilesSelected) {
@@ -1012,6 +1024,10 @@ function moveFiles() {
 		return;
 	}
 
+	if (!suggestedTargetFolders.includes(targetFolder)) {
+		addSuggestedTargetFolder(targetFolder);
+	}
+
 	const url = '/moveFiles';
 	const formData = {
 		// have to convert map to an Object so it can be serialized into a JSON
@@ -1060,4 +1076,19 @@ function moveFiles() {
 			showPopup(error, 'error');
 			console.error(error);
 		});
+}
+
+function addSuggestedTargetFolder(folder) {
+	suggestedTargetFolders.push(folder);
+
+	if (suggestedTargetFolders.length > 100) {
+		suggestedTargetFolders.splice(0, suggestedTargetFolders.length - 100);
+	}
+
+	const datalist = document.getElementById('suggestedFolders');
+	const option = document.createElement('option');
+	option.value = folder;
+	datalist.appendChild(option);
+
+	localStorage.setItem('suggestedTargetFolders', JSON.stringify(suggestedTargetFolders));
 }

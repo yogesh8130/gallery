@@ -36,7 +36,10 @@ html
 				title = 'Ctrl + A (Toggle)') De-select all
 			form.bulkRow(id = 'moveForm')
 				input(type = "text" id = 'targetFolderName' name = 'targetFolderName'
-				placeholder = "Target folder name" autocomplete = 'on')
+				placeholder = "Target folder name" autocomplete = 'on'
+				list = "suggestedFolders")
+				//- to add suggestions for the target folder text box
+				datalist(id="suggestedFolders")
 				button(id = 'moveFilesButton' onclick = 'moveFiles()') Move
 				input(type="submit" hidden)
 			form.bulkRow(id = 'renameBulkForm')
