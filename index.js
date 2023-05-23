@@ -210,10 +210,25 @@ app.get('/next', (req, res) => {
 	const currentImagePath = decodeURIComponent(req.query.currentImagePath
 		.replace(/\//g, '\\'));
 	const fromResults = req.query.fromResults;
+	const searchText = req.query.searchText;
+	let shuffleFlag = false;
+	if (req.query.shuffle
+		&& (req.query.shuffle === 'true'
+			|| req.query.shuffle === 'on')) {
+		shuffleFlag = true;
+	}
+	const searchKey = searchText + ':::' + shuffleFlag;
 
 	let imageList;
 	if (fromResults && fromResults === 'true') {
-		imageList = matchingImagePaths;
+		if (searchResults.has(searchKey)) {
+			imageList = searchResults.get(searchKey);
+		} else {
+			console.error('searchKey not found in searchResults');
+			return res.status(404).json({
+				message: 'This has not been searched before'
+			});
+		}
 	} else {
 		imageList = imagePaths;
 	}
@@ -252,10 +267,25 @@ app.get('/previous', (req, res) => {
 	const currentImagePath = decodeURIComponent(req.query.currentImagePath
 		.replace(/\//g, '\\'));
 	const fromResults = req.query.fromResults;
+	const searchText = req.query.searchText;
+	let shuffleFlag = false;
+	if (req.query.shuffle
+		&& (req.query.shuffle === 'true'
+			|| req.query.shuffle === 'on')) {
+		shuffleFlag = true;
+	}
+	const searchKey = searchText + ':::' + shuffleFlag;
 
 	let imageList;
 	if (fromResults && fromResults === 'true') {
-		imageList = matchingImagePaths;
+		if (searchResults.has(searchKey)) {
+			imageList = searchResults.get(searchKey);
+		} else {
+			console.error('searchKey not found in searchResults');
+			return res.status(404).json({
+				message: 'This has not been searched before'
+			});
+		}
 	} else {
 		imageList = imagePaths;
 	}

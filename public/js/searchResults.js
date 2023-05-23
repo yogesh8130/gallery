@@ -106,13 +106,13 @@ document.addEventListener("DOMContentLoaded", function () {
 			shuffleCheckbox.checked = !shuffleCheckbox.checked;
 			shuffleToggle();
 		}
-		if (event.key === 'ArrowRight') {
+		if (event.ctrlKey && event.key === 'ArrowRight') {
 			const slider = document.getElementById('slider');
 			slider.value -= -(0.1);
 			changeTileSize();
 			console.log(slider.value);
 		}
-		if (event.key === 'ArrowLeft') {
+		if (event.ctrlKey && event.key === 'ArrowLeft') {
 			const slider = document.getElementById('slider');
 			slider.value -= 0.1;
 			changeTileSize();
@@ -269,7 +269,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			// remove localhost and leading slash
 			currentImagePath = currentImagePath.replace(origin, '').replace(/^\//, '');
 
-			fetch(`/next?fromResults=true&currentImagePath=${(currentImagePath)}`)
+			fetch(`/next${queryString}&fromResults=true&currentImagePath=${(currentImagePath)}`)
 				.then(response => response.json())
 				.then(data => {
 					showModal(data.nextImagePath);
@@ -282,7 +282,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			// remove localhost and leading slash
 			currentImagePath = currentImagePath.replace(origin, '').replace(/^\//, '');
 
-			fetch(`/previous?fromResults=true&currentImagePath=${(currentImagePath)}`)
+			fetch(`/previous${queryString}&fromResults=true&currentImagePath=${(currentImagePath)}`)
 				.then(response => response.json())
 				.then(data => {
 					showModal(data.previousImagePath);
