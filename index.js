@@ -630,8 +630,9 @@ app.get('/search', async (req, res) => {
 			}
 		}
 
-	} else if (searchText.startsWith('//')) {
-		let pattern = searchText.slice(1); // remove the leading forward slash
+	} else if (searchText.startsWith('\\\\')) {
+		console.log('regex search started');
+		let pattern = new RegExp(searchText.slice(2), "i") // remove the leading forward slashes
 		console.log("pattern: " + pattern);
 		let regex = new RegExp(pattern, 'i'); // create a case-insensitive regular expression
 		matchingImagePaths = imageList.filter((imagePath) => regex.test(imagePath));
