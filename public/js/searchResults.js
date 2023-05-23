@@ -824,6 +824,8 @@ function showRenameDialog(button) {
 				.then(response => response.json())
 				.then(data => {
 					showPopup(data.message, data.level);
+					// TODO update image SRC after rename
+					// sent in data.newSrc
 					// console.log(data);
 				})
 				.catch(error => {

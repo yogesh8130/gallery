@@ -364,7 +364,8 @@ app.post('/rename', (req, res) => {
 
 		return res.status(200).json({
 			message: 'File renamed successfully',
-			level: 'info'
+			level: 'info',
+			newSrc: newFilePathRelative
 		});
 	} catch (err) {
 		console.error(err);
