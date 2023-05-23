@@ -8,6 +8,7 @@ let multiplier = 1 // zoom slider value
 const selectedImages = new Map();
 let allFilesSelected = false;
 let suggestedTargetFolders = [];
+let modalActive = false;
 
 document.addEventListener("DOMContentLoaded", function () {
 	// convertin URL query params to
@@ -106,13 +107,13 @@ document.addEventListener("DOMContentLoaded", function () {
 			shuffleCheckbox.checked = !shuffleCheckbox.checked;
 			shuffleToggle();
 		}
-		if (event.ctrlKey && event.key === 'ArrowRight') {
+		if (!modalActive && event.key === 'ArrowRight') {
 			const slider = document.getElementById('slider');
 			slider.value -= -(0.1);
 			changeTileSize();
 			console.log(slider.value);
 		}
-		if (event.ctrlKey && event.key === 'ArrowLeft') {
+		if (!modalActive && event.key === 'ArrowLeft') {
 			const slider = document.getElementById('slider');
 			slider.value -= 0.1;
 			changeTileSize();
@@ -296,7 +297,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			if (focusedElement.nodeName === 'INPUT') {
 				// console.log('Currently focused element is an input field');
 				return
-			} else {
+			} else if (modalActive) {
 				if (event.shiftKey && event.key === 'ArrowRight') {
 					modalNextButton.click();
 				} else if (event.shiftKey && event.key === 'ArrowLeft') {
@@ -324,12 +325,14 @@ document.addEventListener("DOMContentLoaded", function () {
 				modalImageContainer.style.display = 'block';
 				viewer.load(fileLink);
 			}
+			modalActive = true;
 		}
-
+		
 		function closeModal() {
 			modal.style.display = 'none';
 			viewer.destroy();
 			modalVideo.pause();
+			modalActive = false;
 		}
 
 	});
