@@ -636,6 +636,12 @@ app.get('/search', async (req, res) => {
 		console.log("pattern: " + pattern);
 		let regex = new RegExp(pattern, 'i'); // create a case-insensitive regular expression
 		matchingImagePaths = imageList.filter((imagePath) => regex.test(imagePath));
+	} else if (searchText.endsWith('\\')) {
+		log('show directory in non recursive mode');
+		let pattern = new RegExp(searchText.replaceAll('\\','\\\\') + '[^\\\\]*$', "i")
+		console.log("pattern: " + pattern);
+		let regex = new RegExp(pattern, 'i');
+		matchingImagePaths = imageList.filter((imagePath) => regex.test(imagePath));
 	} else {
 		matchingImagePaths = imageList.filter((imagePath) =>
 			imagePath.toLowerCase().includes(searchText.toLowerCase().trim()));

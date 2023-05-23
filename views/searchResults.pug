@@ -29,6 +29,7 @@ html
 						li Everything after first two slashes is converted to a regex pattern.
 						li Searches are done with i flag set (case insensitive)
 						li e.g.: \\^test.*$, search will be performed with /^test.*$/ as the pattern.
+					li Directory non recursive: By default directories are searched in recursive manner, ie if you search for "\images\personal" all images form personal folder and it's subfolders will be shown. You can override this by adding an additional "\" at the end like this "\images\personal\", now only the images that are directly in personal will be shown. Images in subfolders will not be shown.
 				b Moving
 				ul
 					li Moves the selected images to a specified path, irrespective of their original path.
@@ -105,7 +106,7 @@ html
 								title = '<- ArrowLeft - ArrowRight ->'
 								)
 						div.config.buttonControls
-							button.default(id = 'configButton' onclick = "window.open('/config', '_blank')" title = 'settings') 🛠
+							button.default(id = 'configButton' onclick = "window.open('/config', '_blank')" title = 'settings') &#9881;
 					div.scaleButtons.buttonControls
 						button.default(
 							onclick = 'showAllImagesAtActualSize()'
