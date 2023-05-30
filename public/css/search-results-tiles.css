@@ -384,11 +384,11 @@ ul {
 	border: none;
 }
 
-#sidebar button:hover{
+#sidebar button:hover {
 	background-color: gray;
 }
 
-#sidebar button:active{
+#sidebar button:active {
 	background-color: black;
 }
 
@@ -561,6 +561,72 @@ ul {
 			width: 2.2rem;
 			height: 2.2rem;
 		}
+
+		#modalCloseButton {
+			position: fixed;
+			right: .2rem;
+			top: 0rem;
+			color: tomato;
+			font-size: 4rem;
+			font-weight: bold;
+			opacity: 30%;
+		}
+
+		#modalCloseButton:hover,
+		#modalCloseButton:focus {
+			color: tomato;
+			text-decoration: none;
+			cursor: pointer;
+			opacity: 100%;
+		}
+
+		#modalNextButton,
+		#modalPreviousButton,
+		#modalNextFromResultsButton,
+		#modalPreviousFromResultsButton {
+			position: fixed;
+			color: white;
+			font-size: 4rem;
+			font-weight: bold;
+			padding: 0px 20px;
+			opacity: 30%;
+			text-shadow: 2px 2px black;
+		}
+
+		#modalNextButton {
+			right: .2rem;
+			top: 80%;
+		}
+
+		#modalPreviousButton {
+			left: .2rem;
+			top: 80%;
+		}
+
+		#modalNextFromResultsButton {
+			right: .2rem;
+			top: 65%;
+		}
+
+		#modalPreviousFromResultsButton {
+			left: .2rem;
+			top: 65%;
+		}
+
+		#modalNextButton:hover,
+		#modalNextButton:focus,
+		#modalPreviousButton:hover,
+		#modalPreviousButton:focus,
+		#modalNextFromResultsButton:hover,
+		#modalNextFromResultsButton:focus,
+		#modalPreviousFromResultsButton:hover,
+		#modalPreviousFromResultsButton:focus {
+			color: cornflowerblue;
+			text-decoration: none;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			opacity: 100%;
+		}
 	}
 
 	/* pc */
@@ -600,6 +666,7 @@ ul {
 	border-radius: 10px;
 	scale: 95%;
 }
+
 .renameFailed {
 	border-color: crimson;
 }
