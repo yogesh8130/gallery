@@ -629,7 +629,7 @@ function loadMore() {
 					haveMoreResults = false;
 					showPopup('Stuff no more', 'warn');
 				} else {
-					showPopup(`Fetching page ${currentPage}`, 'info', 1000);
+					showPopup(`Fetching page ${currentPage} / ${data.totalPages}`, 'info', 3000);
 					appendResults(data.images);
 				}
 			})
