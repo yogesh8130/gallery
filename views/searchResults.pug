@@ -10,58 +10,7 @@ html
 			link(id = 'stylesheet' rel = 'stylesheet' href = "/css/search-results.css")
 		link(rel = 'stylesheet' href = '/css/iv-viewer.css')
 	body
-		button(id = "sidebarToggleButton" onclick = "toggleSidebar()" title = 'F2') 𝄙
-		div(id = "sidebar")
-			h2 Actions Pane
-			details.instructions
-				summary INSTRUCTIONS
-				b Searching
-				ul
-					li Normal: entire string is searched in all filenames
-					li Advanced: If the search string includes &amp; &amp; || or !! then search is automatically done in advanced mode
-					ul
-						li E.g. potato && tomato || apple !! mango
-						li First && tokens are processed, file must contain all such tokens to be included in the result. First token is by default an && token, so file name must contain potato AND tomato
-						li The || tokens are processed, if file contains ANY one of these tokens, it will be included in result i.e. any files containing apple will be added even if they dont contain potato or tomato and these will be added to the list created by first step
-						li Lastly !! tokens are processed, any file containing any of these are removed from the results computed so far by first two steps
-					li Regex: If you're one of those, just begin your search by \\
-					ul
-						li Everything after first two slashes is converted to a regex pattern.
-						li Searches are done with i flag set (case insensitive)
-						li e.g.: \\^test.*$, search will be performed with /^test.*$/ as the pattern.
-					li Directory non recursive: By default directories are searched in recursive manner, ie if you search for "\images\personal" all images form personal folder and it's subfolders will be shown. You can override this by adding an additional "\" at the end like this "\images\personal\", now only the images that are directly in personal will be shown. Images in subfolders will not be shown.
-				b Moving
-				ul
-					li Moves the selected images to a specified path, irrespective of their original path.
-					li If only 'folder' is given then this folder will be used in images folder, if not found 'folder' will be created in the images directory.
-					li You can specify subfolders like 'folder\subfolder'.
-					li Collisions are automatically appended with numbers like -001 and logged on server along with all other moves.
-				b Renaming
-				ul
-					li Doing a bulk rename will always append numbers like -001 to the images.
-					li You can also move files to relative folders by doing something like folder\image, this will create a subfolder in the images current folder and move the file there and rename it to 'image-001.jpg'
-					li To move up the folder you can use somthing like ..\folder\image, this will create a new folder called 'folder' besides the current folder in which the image is present and move the image to that folder and rename to 'image-001.jpg'.
-					li Doing something like ..\image will move the image to the parent folder of its current folder and rename it to 'image-001.jpg'.
-					li Renaming will deselect the images afterwards
-				p Consecutive rename/move can be done on selected files multiple times.
-			div.bulkRow
-				button(id = 'selectAll' onclick = 'selectAllImages()' 
-				title = 'Ctrl + A (Toggle)') Select all
-				button(id = 'deSelectAll' onclick = 'deselectAllImages()' 
-				title = 'Ctrl + A (Toggle)') De-select all
-			form.bulkRow(id = 'moveForm')
-				input(type = "text" id = 'targetFolderName' name = 'targetFolderName'
-				placeholder = "Target folder name" autocomplete = 'on'
-				list = "suggestedFolders")
-				//- to add suggestions for the target folder text box
-				datalist(id="suggestedFolders")
-				button(id = 'moveFilesButton' onclick = 'moveFiles()') Move
-				input(type="submit" hidden)
-			form.bulkRow(id = 'renameBulkForm')
-				input(type = "text" id = 'renameBulkText' name = 'renameBulkText'
-				placeholder = "New Base name" autocomplete = 'on')
-				button(id = 'renameBulkButton' onclick = 'renameBulk()') Rename
-				input(type="submit" hidden)
+		include sidebar.pug
 		div.mainDiv
 			div.header
 				div.headingDiv
@@ -97,7 +46,7 @@ html
 							label(for = "slider") Zoom
 							input.slider(
 								type = "range" 
-								min = "0.5" max="2.5" 
+								min = "0.2" max="3" 
 								step = "0.1" value="1" 
 								id = "slider"
 								name = slider 

@@ -660,11 +660,10 @@ ul {
 }
 
 .selectedImage {
-	border: 6px;
-	border-style: dotted;
+	border: 3px;
+	border-style: dashed;
 	border-color: cornflowerblue;
-	border-radius: 10px;
-	scale: 95%;
+	opacity: 0.4;
 }
 
 .renameFailed {
