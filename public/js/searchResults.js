@@ -200,7 +200,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			lastSelectedImageIndex = undefined;
 			// console.log(selectedImages);
 
-		} else if ((clickedElement.classList.contains('resultFile') && event.ctrlKey) 
+		} else if ((clickedElement.classList.contains('resultFile') && event.ctrlKey)
 			|| clickedElement.classList.contains('resultFile') && selectionMode == 1) {
 			// select unselect with ctrl key OR single left click (if selection mode is on)
 			if (clickedElement.classList.contains('selectedImage')) {
@@ -363,6 +363,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	renameBulkForm.onsubmit = (event) => { event.preventDefault(); }
 	const appendToNameForm = document.getElementById('appendToNameForm');
 	appendToNameForm.onsubmit = (event) => { event.preventDefault(); }
+	const removeFromNameForm = document.getElementById('removeFromNameForm');
+	removeFromNameForm.onsubmit = (event) => { event.preventDefault(); }
 
 });
 
@@ -598,14 +600,14 @@ function changeTileSize(initialPageLoad) {
 		result.style.width = `${newWidth}rem`;
 		result.style.flexGrow = newWidth;
 
-        // Loop over each element in imageSubtitle to set display property
-        imageSubtitle.forEach(subtitle => {
-            if (multiplier < 0.5) {
-                subtitle.style.display = "none";
-            } else {
-                subtitle.style.display = null;
-            }
-        });
+		// Loop over each element in imageSubtitle to set display property
+		imageSubtitle.forEach(subtitle => {
+			if (multiplier < 0.5) {
+				subtitle.style.display = "none";
+			} else {
+				subtitle.style.display = null;
+			}
+		});
 	});
 
 	// storing current slider value to localStorage
@@ -922,10 +924,17 @@ function showPopup(message, level, timeout) {
 function toggleSidebar(event) {
 	const sidebar = document.getElementById('sidebar');
 	const sidebarToggleButton = document.getElementById('sidebarToggleButton');
-	const clickedElement = event.target;
+	let clickedElement;
+
+	// if toggling with F2 key, this will be undefined.
+	try {
+		clickedElement = event.target;
+	} catch (error) {
+
+	}
 
 	// without this the sidebar closes even if any child element is clicked
-	if(clickedElement.id !== "sidebar" && clickedElement.id !== 'sidebarToggleButton') {
+	if (clickedElement != undefined && clickedElement.id !== "sidebar" && clickedElement.id !== 'sidebarToggleButton') {
 		return;
 	}
 
@@ -938,7 +947,7 @@ function toggleSidebar(event) {
 		sidebar.style.right = '0px';
 		sidebarToggleButton.style.right = '300px';
 		const renameBulkText = document.getElementById('renameBulkText');
-		renameBulkText.focus();
+		// renameBulkText.focus();
 	}
 }
 
@@ -1135,7 +1144,7 @@ function appendToName() {
 		showPopup('text contains disallowed characters', 'warn');
 		return;
 	}
-	
+
 	if (!textToAppend) {
 		showPopup('Provide a value first', 'warn');
 		return;
@@ -1151,6 +1160,73 @@ function appendToName() {
 		// have to convert map to an Object so it can be serialized into a JSON
 		currentFilePaths: Object.fromEntries(selectedImages),
 		textToAppend: textToAppend
+	}
+
+	const options = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(formData)
+	};
+
+	fetch(url, options)
+		.then(response => response.json())
+		.then(data => {
+			// console.log(data);
+			let success = 0;
+			let fail = 0;
+			const results = new Map(Object.entries(data.results));
+			results.forEach((value, imageId) => {
+				const image = document.getElementById(imageId);
+				if (value === 'fail') {
+					image.classList.add('renameFailed')
+					fail++;
+				} else {
+					image.src = value;
+					selectedImages.set(imageId, value)
+					success++;
+				}
+
+			})
+
+			if (success !== 0) {
+				showPopup(`Renamed ${success} files`, 'info')
+			} else {
+				showPopup(`No files renamed`, 'info')
+			}
+			if (fail !== 0) {
+				showPopup(`Failed ${fail} files`, 'error')
+			}
+
+			// TODO udpate image title and subtitle after rename
+		})
+		.catch(error => {
+			showPopup(error, 'error');
+			console.error(error);
+		});
+}
+
+function removeFromName() {
+	const textToRemove = document.getElementById('removeFromNameText').value;
+	// console.log(selectedImages);
+	// console.log(removeFromNameText.value);
+
+	if (!textToRemove) {
+		showPopup('Provide a value first', 'warn');
+		return;
+	}
+
+	if (selectedImages.size == 0) {
+		showPopup('No files selected', 'warn');
+		return;
+	}
+
+	const url = '/removeFromName';
+	const formData = {
+		// have to convert map to an Object so it can be serialized into a JSON
+		currentFilePaths: Object.fromEntries(selectedImages),
+		textToRemove: textToRemove
 	}
 
 	const options = {

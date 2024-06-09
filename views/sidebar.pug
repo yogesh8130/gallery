@@ -60,3 +60,8 @@ div(id = "sidebar" onclick = "toggleSidebar(event)")
 		placeholder = "Text to append" autocomplete = 'on')
 		button(id = 'appendToNameButton' onclick = 'appendToName()') Append
 		input(type="submit" hidden)
+	form.bulkRow(id = 'removeFromNameForm')
+		input(type = "text" id = 'removeFromNameText' name = 'removeFromNameText'
+		placeholder = "Text to remove" autocomplete = 'on')
+		button(id = 'removeFromNameButton' onclick = 'removeFromName()') Remove
+		input(type="submit" hidden)

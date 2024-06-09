@@ -514,7 +514,88 @@ app.post('/appendToName', (req, res) => {
 				newFileName = newFileName + '-' + indexWithPadding;
 				newFilePath = path.join(currentFileFolder, newFileName + currentFileExt);
 				newFilePath = path.normalize(newFilePath);
+			}
+		} catch (err) {
+			try {
+				currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
+				newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
+				// file not found so we can rename now
+				fs.renameSync(currentFilePath, newFilePath);
+				imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
+				imagePaths.sort();
+				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
+				fs.appendFileSync('./logs/rename.log', logMessage);
+				success++;
+				index++;
+				results.set(imageId, newFilePathRelative);
+			} catch (err) {
+				console.error('Error renaming file:', err);
+				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Fail: ${err}\n`;
+				fs.appendFileSync('./logs/rename.log', logMessage);
+				fail++;
+				results.set(imageId, 'fail');
+			}
+		}
+	});
 
+	return res.status(200).json({
+		// have to convert map to an Object so it can be serialized into a JSON
+		results: Object.fromEntries(results)
+	});
+});
+
+app.post('/removeFromName', (req, res) => {
+	const textToRemove = req.body.textToRemove;
+	// converting object to a map
+	const currentFilePaths = new Map(Object.entries(req.body.currentFilePaths));
+
+	// Array to store the results for renaming files
+	const results = new Map();
+
+	let success = 0;
+	let fail = 0;
+
+	let index = 0;
+
+	console.log("textToRemove: " + textToRemove);
+
+	currentFilePaths.forEach((currentFilePath, imageId) => {
+		currentFilePath = path.resolve(path.join('.', 'public', currentFilePath));
+		const currentFilePathObj = path.parse(currentFilePath);
+
+		let currentFileFolder = currentFilePathObj.dir;
+		let currentFileName = currentFilePathObj.name;
+		let currentFileExt = currentFilePathObj.ext;
+
+		let newFileName = currentFileName;
+		if (currentFileName.includes(textToRemove)) {
+			newFileName = currentFileName.replace(textToRemove, "").trim();
+		} else {
+			console.log("Nothing to remove");
+			return;
+		}
+
+		let newFilePath = path.join(currentFileFolder, newFileName + currentFileExt);
+		newFilePath = path.normalize(newFilePath);
+
+		// just for replacing in the DB
+		let currentFilePathRelative;
+		let newFilePathRelative;
+
+		// checking if file already exists
+		try {
+			while (true) {
+				// try to access the new file name and keep generating new names by incrementing index
+				// unless we can not access, i.e. name is not used by existing file and error is raised.
+				fs.accessSync(newFilePath);
+				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Collision\n`;
+				fs.appendFileSync('./logs/rename.log', logMessage);
+				index++
+				// generating a new file name for collision
+				indexWithPadding = index.toString().padStart(3, '0');
+				newFileName = newFileName + '-' + indexWithPadding;
+				newFilePath = path.join(currentFileFolder, newFileName + currentFileExt);
+				newFilePath = path.normalize(newFilePath);
 			}
 		} catch (err) {
 			try {
@@ -583,7 +664,7 @@ app.post('/moveFiles', (req, res) => {
 		// just for replacing in the DB
 		let currentFilePathRelative;
 		let newFilePathRelative;
-		
+
 		// checking if file already exists
 		try {
 			let index = 0;
