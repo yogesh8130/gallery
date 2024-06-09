@@ -685,6 +685,7 @@ function createResultElement(image) {
 
 	const containerDiv = document.createElement("div");
 	containerDiv.classList.add("result");
+	containerDiv.id = `result${imageIndex}`; // will increment index in last
 	containerDiv.title = `${baseName}\n${directory}`;
 	containerDiv.setAttribute("data-width", width);
 	containerDiv.style.width = `${width}rem`;
@@ -729,6 +730,16 @@ function createResultElement(image) {
 	subTitleLink.target = '_blank';
 	subTitleLink.textContent = directory;
 	infoDiv.appendChild(subTitleLink);
+
+	// delete div
+	const deleteDiv = document.createElement('div');
+	deleteDiv.classList.add('deleteDiv');
+	const deleteButton = document.createElement('button');
+	deleteButton.classList.add('deleteButton');
+	deleteButton.setAttribute('onclick', `deleteFile("${imageLinkEscaped}", "${imageIndex}")`);
+	deleteButton.innerHTML = '🗑️';
+	deleteDiv.appendChild(deleteButton);
+	imageSidebarDiv.appendChild(deleteDiv);
 
 	// creating rename div
 	const renameDiv = document.createElement('div');
@@ -804,6 +815,36 @@ function createResultElement(image) {
 	}
 
 	return containerDiv;
+}
+
+function deleteFile(imageLinkEscaped, index) {
+
+	console.log(imageLinkEscaped);
+	console.log(index);
+
+	const url = '/deleteFile';
+	const formData = {
+		currentFilePath: imageLinkEscaped,
+	}
+
+	const options = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(formData)
+	};
+	fetch(url, options)
+		.then(response => response.json())
+		.then(data => {
+			showPopup(data.message, data.level);
+		})
+		.catch(error => {
+			showPopup(error, 'error');
+		});
+
+	elementToRemove = document.getElementById("result" + index);
+	elementToRemove.style.display = "none";
 }
 
 function showRenameDialog(button) {

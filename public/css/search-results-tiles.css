@@ -112,6 +112,12 @@ video {
 	font-weight: bold;
 }
 
+.deleteButton {
+	background-color: crimson;
+	color: white;
+	font-weight: bold;
+}
+
 /* The Modal (background) */
 #modal {
 	position: fixed;
@@ -301,7 +307,8 @@ input[type='checkbox'] {
 }
 
 #configButton,
-.renameButton {
+.renameButton,
+.deleteButton {
 	width: 100%;
 	height: 2.2rem;
 	font-size: 1.3rem;

@@ -54,7 +54,7 @@ const readImageFiles = async (directory, depth = 0, maxDepth = 20) => {
 				}
 			} else {
 				const ext = path.extname(fullPath).toLowerCase();
-				if (allowedExtensions.includes(ext)) {
+				if (allowedExtensions.includes(ext) && !fullPath.includes("###deleted")) {
 					imagePaths.push(fullPath.replace(/^public/, ''));
 				}
 			}
@@ -313,6 +313,36 @@ app.get('/previous', (req, res) => {
 	};
 
 	res.send(responseData);
+});
+
+app.post('/deleteFile', (req, res) => {
+	const currentFilePath = path.resolve(path.join('.', 'public', decodeURIComponent(req.body.currentFilePath)));
+
+	const currentFilePathObj = path.parse(currentFilePath);
+
+	let currentFileFolder = currentFilePathObj.dir;
+	let currentFileName = currentFilePathObj.name;
+	let currentFileExt = currentFilePathObj.ext;
+
+	let newFilePath = path.join(currentFileFolder, currentFileName + "###deleted" + currentFileExt);
+
+	// Rename the file using the fs module
+	fs.renameSync(currentFilePath, newFilePath);
+
+	// to find and replace in "DB"
+	const currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
+
+	// removing from "DB"
+	imagePaths.splice(imagePaths.indexOf(currentFilePathRelative), 1);
+
+	const logMessage = `${new Date().toISOString()}|${currentFilePath}|###deleted|Success\n`;
+	fs.appendFileSync('./logs/rename.log', logMessage);
+
+	return res.status(200).json({
+		message: 'File deleted successfully',
+		level: 'info',
+	});
+
 });
 
 // Define a route to handle file renaming

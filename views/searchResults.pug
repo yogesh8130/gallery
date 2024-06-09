@@ -91,6 +91,7 @@ html
 						- istyle = `padding-bottom: ${padding}%`
 						div.result(data-width=width
 							style = `${view && view === 'tiles' ? resultStyle : ""}`
+							id = 'result'+index
 							)
 							i(
 								data-padding = padding 
@@ -102,6 +103,8 @@ html
 									button.showAtActualScaleButton(
 										onclick = `showAtActualScale(${index})`
 										) ⭕
+								div.deleteDiv
+									button.deleteButton(onclick = `deleteFile("${imageLinkEscaped}", "${index}")` title = "delete") 🗑️
 								div.rename
 									button.renameButton(onclick = 'showRenameDialog(this)') &#9998;
 									dialog.renameDialog
