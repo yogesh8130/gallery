@@ -75,62 +75,7 @@ html
 			//- - div.results(onwheel="this.scrollLeft += event.deltaY * 2" 
 				onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")
 			div.results
-				if images.length === 0
-					p No matching images found.
-				else
-					each image, index in images
-						- const folderName = image.directory
-						- const imageName = image.baseName
-						- const imageLinkEscaped = encodeURIComponent(image.path)
-						//- this sets the approximate size of a row height in tiles mode
-						//- it is in rem units and 25 is around 50% of a 1080p screen with the provided css
-						- const baseSize = 25
-						- const width = image.width * baseSize / image.height
-						- const padding = image.height / image.width * 100
-						- resultStyle = `width: ${width}rem; flex-grow: ${width}`
-						- istyle = `padding-bottom: ${padding}%`
-						div.result(data-width=width
-							style = `${view && view === 'tiles' ? resultStyle : ""}`
-							id = 'result'+index
-							)
-							i(
-								data-padding = padding 
-								style = `${view && view === 'tiles' ? istyle : ""}`
-								)
-							div.imageSidebar
-								div.actionButtons
-									button.hideSimilarButton ⛔
-									button.showAtActualScaleButton(
-										onclick = `showAtActualScale(${index})`
-										) ⭕
-								div.deleteDiv
-									button.deleteButton(onclick = `deleteFile("${imageLinkEscaped}", "${index}")` title = "delete") 🗑️
-								div.rename
-									button.renameButton(onclick = 'showRenameDialog(this)') &#9998;
-									dialog.renameDialog
-										form.renameForm
-											input(type = "text" name = 'currentFilePath' id = 'currentFilePath' 
-												placeholder = 'Curent File Path' value = imageLinkEscaped readonly hidden)
-											input(type = "text" name = 'newFileName' id = 'newFileName'
-												placeholder = 'New File Name' required)
-											input(type="submit" hidden)
-								div.infoDiv
-									- let similarImageLink = encodeURIComponent(imageName.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())
-									a.imageTitle(
-										href = '/search?searchText=' + similarImageLink + '&view=' + view
-										target = "_blank")
-										| #{imageName} 
-									- let folderlink = encodeURIComponent(folderName)
-									a.subTitle(
-										href = '/search?searchText=' + folderlink + '&view=' + view
-										target = "_blank")
-										|#{folderName}
-							div.mainContent
-								a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped)
-									if (image.type === 'image')
-										img.searchImg.resultFile(id = 'image'+index src = imageLinkEscaped)
-									else
-										video.searchVid.resultFile.videoFile(id = 'image'+index data-src = imageLinkEscaped controls loop)
+				include results.pug
 			if totalPages > 1 && !shuffle
 				div.pagination
 					div.pageButtons(
@@ -186,5 +131,5 @@ html
 				| &Rang;
 			span#modalPreviousButton(title = 'Previous from directory (shift + left)')
 				| &Lang;
-		script(src = '/js/searchResults.js')
+		script(src = '/js/home.js')
 		script(src = '/js/iv-viewer.js')

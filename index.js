@@ -959,7 +959,7 @@ app.get('/search', async (req, res) => {
 
 	console.log('rendering search results');
 
-	res.render('searchResults', {
+	res.render('home', {
 		searchText,
 		totalResultCount,
 		images,
