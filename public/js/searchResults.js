@@ -365,6 +365,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	appendToNameForm.onsubmit = (event) => { event.preventDefault(); }
 	const removeFromNameForm = document.getElementById('removeFromNameForm');
 	removeFromNameForm.onsubmit = (event) => { event.preventDefault(); }
+	const replaceInNameForm = document.getElementById('replaceInNameForm');
+	replaceInNameForm.onsubmit = (event) => { event.preventDefault(); }
 
 });
 
@@ -1268,6 +1270,86 @@ function removeFromName() {
 		// have to convert map to an Object so it can be serialized into a JSON
 		currentFilePaths: Object.fromEntries(selectedImages),
 		textToRemove: textToRemove
+	}
+
+	const options = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(formData)
+	};
+
+	fetch(url, options)
+		.then(response => response.json())
+		.then(data => {
+			// console.log(data);
+			let success = 0;
+			let fail = 0;
+			const results = new Map(Object.entries(data.results));
+			results.forEach((value, imageId) => {
+				const image = document.getElementById(imageId);
+				if (value === 'fail') {
+					image.classList.add('renameFailed')
+					fail++;
+				} else {
+					image.src = value;
+					selectedImages.set(imageId, value)
+					success++;
+				}
+
+			})
+
+			if (success !== 0) {
+				showPopup(`Renamed ${success} files`, 'info')
+			} else {
+				showPopup(`No files renamed`, 'info')
+			}
+			if (fail !== 0) {
+				showPopup(`Failed ${fail} files`, 'error')
+			}
+
+			// TODO udpate image title and subtitle after rename
+		})
+		.catch(error => {
+			showPopup(error, 'error');
+			console.error(error);
+		});
+}
+
+function replaceInName() {
+	const textToFind = document.getElementById('textToFind').value;
+	const textToSubstitute = document.getElementById('textToSubstitute').value;
+
+	const pattern = /^[a-zA-Z0-9 ]*$/;
+	const isValid = pattern.test(textToSubstitute);
+
+	if (!isValid) {
+		showPopup('"Text to substitute" contains disallowed characters', 'warn');
+		return;
+	}
+
+	if (!textToFind || !textToSubstitute) {
+		showPopup('Provide a value for "Text to find" and "Text to substitute"', 'warn');
+		return;
+	}
+	
+	if (textToFind == textToSubstitute) {
+		showPopup('"Text to find" and "Text to substitute" should be different', 'warn');
+		return;
+	}
+
+	if (selectedImages.size == 0) {
+		showPopup('No files selected', 'warn');
+		return;
+	}
+
+	const url = '/replaceInName';
+	const formData = {
+		// have to convert map to an Object so it can be serialized into a JSON
+		currentFilePaths: Object.fromEntries(selectedImages),
+		textToFind: textToFind,
+		textToSubstitute: textToSubstitute
 	}
 
 	const options = {

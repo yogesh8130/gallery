@@ -372,6 +372,12 @@ ul {
 	gap: 5px;
 }
 
+.bulkCol {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+}
+
 #sidebar input {
 	padding: .4rem;
 	height: 2.2rem;

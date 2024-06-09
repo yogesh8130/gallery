@@ -65,3 +65,12 @@ div(id = "sidebar" onclick = "toggleSidebar(event)")
 		placeholder = "Text to remove" autocomplete = 'on')
 		button(id = 'removeFromNameButton' onclick = 'removeFromName()') Remove
 		input(type="submit" hidden)
+	form.bulkCol(id = 'replaceInNameForm')
+		div.bulkRow
+			input(type = "text" id = 'textToFind' name = 'textToFind'
+			placeholder = "Text to find" autocomplete = 'on')
+		div.bulkRow
+			input(type = "text" id = 'textToSubstitute' name = 'textToSubstitute'
+			placeholder = "Text to substitute" autocomplete = 'on')
+			button(id = 'replaceInNameButton' onclick = 'replaceInName()') Replace
+			input(type="submit" hidden)
