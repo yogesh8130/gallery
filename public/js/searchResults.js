@@ -358,9 +358,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	// prevent the page form reloading when these forms are submitted
 	const moveForm = document.getElementById('moveForm');
-	const renameBulkForm = document.getElementById('renameBulkForm');
 	moveForm.onsubmit = (event) => { event.preventDefault(); }
+	const renameBulkForm = document.getElementById('renameBulkForm');
 	renameBulkForm.onsubmit = (event) => { event.preventDefault(); }
+	const appendToNameForm = document.getElementById('appendToNameForm');
+	appendToNameForm.onsubmit = (event) => { event.preventDefault(); }
 
 });
 
@@ -1106,6 +1108,80 @@ function renameBulk() {
 
 			if (success !== 0) {
 				showPopup(`Renamed ${success} files`, 'info')
+			}
+			if (fail !== 0) {
+				showPopup(`Failed ${fail} files`, 'error')
+			}
+
+			// TODO udpate image title and subtitle after rename
+		})
+		.catch(error => {
+			showPopup(error, 'error');
+			console.error(error);
+		});
+}
+
+function appendToName() {
+	const textToAppend = document.getElementById('appendToNameText').value;
+	// console.log(selectedImages);
+	// console.log(appendToNameText.value);
+	const pattern = /^[a-zA-Z0-9 ]*$/;
+	const isValid = pattern.test(textToAppend);
+
+	if (!isValid) {
+		showPopup('text contains disallowed characters', 'warn');
+		return;
+	}
+	
+	if (!textToAppend) {
+		showPopup('Provide a value first', 'warn');
+		return;
+	}
+
+	if (selectedImages.size == 0) {
+		showPopup('No files selected', 'warn');
+		return;
+	}
+
+	const url = '/appendToName';
+	const formData = {
+		// have to convert map to an Object so it can be serialized into a JSON
+		currentFilePaths: Object.fromEntries(selectedImages),
+		textToAppend: textToAppend
+	}
+
+	const options = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(formData)
+	};
+
+	fetch(url, options)
+		.then(response => response.json())
+		.then(data => {
+			// console.log(data);
+			let success = 0;
+			let fail = 0;
+			const results = new Map(Object.entries(data.results));
+			results.forEach((value, imageId) => {
+				const image = document.getElementById(imageId);
+				if (value === 'fail') {
+					image.classList.add('renameFailed')
+					fail++;
+				} else {
+					image.src = value;
+					selectedImages.set(imageId, value)
+					success++;
+				}
+
+			})
+
+			if (success !== 0) {
+				showPopup(`Renamed ${success} files`, 'info')
+			} else {
+				showPopup(`No files renamed`, 'info')
 			}
 			if (fail !== 0) {
 				showPopup(`Failed ${fail} files`, 'error')

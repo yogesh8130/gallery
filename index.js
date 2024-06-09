@@ -325,10 +325,6 @@ app.post('/rename', (req, res) => {
 	// this allows having .. in new filename to goback directory levels
 	newFilePath = path.normalize(newFilePath);
 
-	// to find and replace in "DB"
-	const currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
-	const newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
-
 	try {
 		// Check if new file's directory exists or not, and create if necessary
 		if (!fs.existsSync(path.dirname(newFilePath))) {
@@ -354,6 +350,10 @@ app.post('/rename', (req, res) => {
 
 		// Rename the file using the fs module
 		fs.renameSync(currentFilePath, newFilePath);
+
+		// to find and replace in "DB"
+		const currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
+		const newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
 
 		// replacing in "DB"
 		imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
@@ -401,8 +401,8 @@ app.post('/renameBulk', (req, res) => {
 		newFilePath = path.normalize(newFilePath);
 
 		// just for replacing in the DB
-		const currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
-		const newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
+		let currentFilePathRelative;
+		let newFilePathRelative;
 
 		// checking if folder exists
 		try {
@@ -419,6 +419,8 @@ app.post('/renameBulk', (req, res) => {
 		// checking if file already exists
 		try {
 			while (true) {
+				// try to access the new file name and keep generating new names by incrementing index
+				// unless we can not access, i.e. name is not used by existing file and error is raised.
 				fs.accessSync(newFilePath);
 				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Collision\n`;
 				fs.appendFileSync('./logs/rename.log', logMessage);
@@ -428,6 +430,94 @@ app.post('/renameBulk', (req, res) => {
 				newFileNameWithIndex = newFileName + '-' + indexWithPadding;
 				newFilePath = path.join(currentFilePathObj.dir, newFileNameWithIndex + currentFilePathObj.ext);
 				newFilePath = path.normalize(newFilePath);
+
+				currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
+				newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
+			}
+		} catch (err) {
+			try {
+				// file not found so we can rename now
+				fs.renameSync(currentFilePath, newFilePath);
+				imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
+				imagePaths.sort();
+				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
+				fs.appendFileSync('./logs/rename.log', logMessage);
+				success++;
+				index++;
+				results.set(imageId, newFilePathRelative);
+			} catch (err) {
+				console.error('Error renaming file:', err);
+				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Fail: ${err}\n`;
+				fs.appendFileSync('./logs/rename.log', logMessage);
+				fail++;
+				results.set(imageId, 'fail');
+			}
+		}
+	});
+
+	return res.status(200).json({
+		// have to convert map to an Object so it can be serialized into a JSON
+		results: Object.fromEntries(results)
+	});
+});
+
+app.post('/appendToName', (req, res) => {
+	const textToAppend = req.body.textToAppend;
+	// converting object to a map
+	const currentFilePaths = new Map(Object.entries(req.body.currentFilePaths));
+
+	// Array to store the results for renaming files
+	const results = new Map();
+
+	let success = 0;
+	let fail = 0;
+
+	let index = 0;
+
+	console.log("textToAppend: " + textToAppend);
+
+	currentFilePaths.forEach((currentFilePath, imageId) => {
+		currentFilePath = path.resolve(path.join('.', 'public', currentFilePath));
+		const currentFilePathObj = path.parse(currentFilePath);
+
+		let currentFileFolder = currentFilePathObj.dir;
+		let currentFileName = currentFilePathObj.name;
+		let currentFileExt = currentFilePathObj.ext;
+
+		let newFileName = currentFileName;
+		if (!currentFileName.includes(textToAppend)) {
+			newFileName = currentFileName + ' ' + textToAppend;
+		}
+
+		if (newFileName == currentFileName) {
+			console.log("Not appending as text is already in current name");
+			return;
+		}
+
+		let newFilePath = path.join(currentFileFolder, newFileName + currentFileExt);
+		newFilePath = path.normalize(newFilePath);
+
+		// just for replacing in the DB
+		let currentFilePathRelative;
+		let newFilePathRelative;
+
+		// checking if file already exists
+		try {
+			while (true) {
+				// try to access the new file name and keep generating new names by incrementing index
+				// unless we can not access, i.e. name is not used by existing file and error is raised.
+				fs.accessSync(newFilePath);
+				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Collision\n`;
+				fs.appendFileSync('./logs/rename.log', logMessage);
+				index++
+				// generating a new file name for collision
+				indexWithPadding = index.toString().padStart(3, '0');
+				newFileName = newFileName + '-' + indexWithPadding;
+				newFilePath = path.join(currentFileFolder, newFileName + currentFileExt);
+				newFilePath = path.normalize(newFilePath);
+
+				currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
+				newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
 			}
 		} catch (err) {
 			try {
@@ -638,7 +728,7 @@ app.get('/search', async (req, res) => {
 		matchingImagePaths = imageList.filter((imagePath) => regex.test(imagePath));
 	} else if (searchText.endsWith('\\')) {
 		log('show directory in non recursive mode');
-		let pattern = new RegExp(searchText.replaceAll('\\','\\\\') + '[^\\\\]*$', "i")
+		let pattern = new RegExp(searchText.replaceAll('\\', '\\\\') + '[^\\\\]*$', "i")
 		console.log("pattern: " + pattern);
 		let regex = new RegExp(pattern, 'i');
 		matchingImagePaths = imageList.filter((imagePath) => regex.test(imagePath));

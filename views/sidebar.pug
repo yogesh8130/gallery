@@ -26,7 +26,7 @@ div(id = "sidebar")
 			li Collisions are automatically appended with numbers like -001 and logged on server along with all other moves.
 		b Renaming
 		ul
-			li Doing a bulk rename will always append numbers like -001 to the images.
+			li Doing a bulk rename (not append) will always append numbers like -001 to the images.
 			li You can also move files to relative folders by doing something like folder\image, this will create a subfolder in the images current folder and move the file there and rename it to 'image-001.jpg'
 			li To move up the folder you can use somthing like ..\folder\image, this will create a new folder called 'folder' besides the current folder in which the image is present and move the image to that folder and rename to 'image-001.jpg'.
 			li Doing something like ..\image will move the image to the parent folder of its current folder and rename it to 'image-001.jpg'.
@@ -55,8 +55,8 @@ div(id = "sidebar")
 		placeholder = "New Base name" autocomplete = 'on')
 		button(id = 'renameBulkButton' onclick = 'renameBulk()') Rename
 		input(type="submit" hidden)
-	//- form.bulkRow(id = 'appendToNameForm')
-	//- 	input(type = "text" id = 'appendToNameText' name = 'appendToNameText'
-	//- 	placeholder = "Text to append" autocomplete = 'on')
-	//- 	button(id = 'appendToNameButton' onclick = 'appendToName()') Append
-	//- 	input(type="submit" hidden)
+	form.bulkRow(id = 'appendToNameForm')
+		input(type = "text" id = 'appendToNameText' name = 'appendToNameText'
+		placeholder = "Text to append" autocomplete = 'on')
+		button(id = 'appendToNameButton' onclick = 'appendToName()') Append
+		input(type="submit" hidden)
