@@ -925,6 +925,12 @@ function showPopup(message, level, timeout) {
 function toggleSidebar(event) {
 	const sidebar = document.getElementById('sidebar');
 	const sidebarToggleButton = document.getElementById('sidebarToggleButton');
+	const clickedElement = event.target;
+
+	// without this the sidebar closes even if any child element is clicked
+	if(clickedElement.id !== "sidebar" && clickedElement.id !== 'sidebarToggleButton') {
+		return;
+	}
 
 	if (sidebar.style.right === '0px') {
 		// close sidebar
