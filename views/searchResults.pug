@@ -123,9 +123,7 @@ html
 										target = "_blank")
 										|#{folderName}
 							div.mainContent
-								a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped
-									ondblclick=`location.href="/singleView?imageBackLink=${imageLinkEscaped}"`
-									)
+								a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped)
 									if (image.type === 'image')
 										img.searchImg.resultFile(id = 'image'+index src = imageLinkEscaped)
 									else

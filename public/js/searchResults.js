@@ -770,9 +770,6 @@ function createResultElement(image) {
 
 	const contentLink = document.createElement("a");
 	contentLink.setAttribute("data-href", `/?imageBackLink=${imageLinkEscaped}`);
-	contentLink.ondblclick = function () {
-		location.href = `/singleView?imageBackLink=${imageLinkEscaped}`;
-	};
 	mainContentDiv.appendChild(contentLink);
 
 	if (type === "image") {
