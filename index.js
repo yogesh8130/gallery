@@ -430,12 +430,11 @@ app.post('/renameBulk', (req, res) => {
 				newFileNameWithIndex = newFileName + '-' + indexWithPadding;
 				newFilePath = path.join(currentFilePathObj.dir, newFileNameWithIndex + currentFilePathObj.ext);
 				newFilePath = path.normalize(newFilePath);
-
-				currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
-				newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
 			}
 		} catch (err) {
 			try {
+				currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
+				newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
 				// file not found so we can rename now
 				fs.renameSync(currentFilePath, newFilePath);
 				imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
@@ -516,11 +515,11 @@ app.post('/appendToName', (req, res) => {
 				newFilePath = path.join(currentFileFolder, newFileName + currentFileExt);
 				newFilePath = path.normalize(newFilePath);
 
-				currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
-				newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
 			}
 		} catch (err) {
 			try {
+				currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
+				newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
 				// file not found so we can rename now
 				fs.renameSync(currentFilePath, newFilePath);
 				imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
@@ -582,9 +581,9 @@ app.post('/moveFiles', (req, res) => {
 		const currentFilePathObj = path.parse(currentFilePath);
 		let newFilePath = path.join(targetFolderPath, currentFilePathObj.base);
 		// just for replacing in the DB
-		const currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
-		const newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
-
+		let currentFilePathRelative;
+		let newFilePathRelative;
+		
 		// checking if file already exists
 		try {
 			let index = 0;
@@ -600,6 +599,8 @@ app.post('/moveFiles', (req, res) => {
 			}
 		} catch (err) {
 			try {
+				currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
+				newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
 				// file not found so we can rename now
 				fs.renameSync(currentFilePath, newFilePath);
 				imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
