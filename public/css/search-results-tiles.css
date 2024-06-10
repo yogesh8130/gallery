@@ -388,6 +388,16 @@ ul {
 	flex: 1;
 }
 
+#sidebar label {
+	font-size: 1rem;
+}
+
+#sidebar input[type="checkbox"] {
+	width: 1.2rem;
+	height: 1.2rem;
+}
+
+
 #sidebar button {
 	padding: .4rem;
 	height: 2.2rem;
