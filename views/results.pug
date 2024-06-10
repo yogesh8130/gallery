@@ -8,19 +8,19 @@ else
 		//- this sets the approximate size of a row height in tiles mode
 		//- it is in rem units and 25 is around 50% of a 1080p screen with the provided css
 		- const baseSize = 25
-		- const width = image.width * baseSize / image.height
+		- const width = (image.width * baseSize / image.height)*multiplier
 		- const padding = image.height / image.width * 100
 		- resultStyle = `width: ${width}rem; flex-grow: ${width}`
 		- istyle = `padding-bottom: ${padding}%`
 		div.result(data-width=width
 			style = `${view && view === 'tiles' ? resultStyle : ""}`
-			id = 'result'+index
+			id = 'result'+(50*(page-1)+index)
 			)
 			i(
 				data-padding = padding 
 				style = `${view && view === 'tiles' ? istyle : ""}`
 				)
-			div.imageSidebar
+			div.imageSidebar(style=(multiplier <= 0.5) ? 'display: none' : '')
 				div.actionButtons
 					button.hideSimilarButton ⛔
 					button.showAtActualScaleButton(
@@ -51,6 +51,6 @@ else
 			div.mainContent
 				a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped)
 					if (image.type === 'image')
-						img.searchImg.resultFile(id = 'image'+index src = imageLinkEscaped)
+						img.searchImg.resultFile(id = 'image'+(50*(page-1)+index) src = imageLinkEscaped)
 					else
-						video.searchVid.resultFile.videoFile(id = 'image'+index data-src = imageLinkEscaped controls loop)
+						video.searchVid.resultFile.videoFile(id = 'image'+(50*(page-1)+index) data-src = imageLinkEscaped controls loop)

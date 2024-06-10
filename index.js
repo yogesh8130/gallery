@@ -958,6 +958,7 @@ app.get('/search', async (req, res) => {
 	const totalPages = Math.ceil(matchingImagePaths.length / perPage);
 
 	console.log('rendering search results');
+	const multiplier = 1;
 
 	res.render('home', {
 		searchText,
@@ -967,12 +968,14 @@ app.get('/search', async (req, res) => {
 		page,
 		totalPages,
 		shuffle: shuffleFlag,
-		view
+		view,
+		multiplier
 	});
 });
 
 app.get('/getNextResults', async (req, res) => {
 	const searchText = req.query.searchText;
+	const multiplier = req.query.multiplier;
 	let shuffleFlag = false;
 	if (req.query.shuffle
 		&& (req.query.shuffle === 'true'
@@ -1009,21 +1012,21 @@ app.get('/getNextResults', async (req, res) => {
 	let images;
 	try {
 		images = await getImagesMetadata(pageImagePaths);
-		// console.log(images);
 	} catch (error) {
 		console.error(`Error testing getImagesMetadata: ${error}`);
 	}
 
 	const totalPages = Math.ceil(matchingImagePaths.length / perPage);
+	const view = req.query.view;
 
-	const responseData = {
+	res.render('results', {
 		totalResultCount,
 		images,
 		page,
 		totalPages,
-	};
-
-	res.send(responseData);
+		view,
+		multiplier
+	});
 })
 
 app.get('/config', async (req, res) => {

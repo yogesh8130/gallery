@@ -581,7 +581,7 @@ function switchToTileView() {
 function changeTileSize(initialPageLoad) {
 	const slider = document.getElementById('slider');
 	const results = document.querySelectorAll('.result');
-	const imageSubtitle = document.querySelectorAll('.imageSidebar');
+	const imageSidebar = document.querySelectorAll('.imageSidebar');
 
 	if (!initialPageLoad) {
 		// Get the current slider value
@@ -602,8 +602,8 @@ function changeTileSize(initialPageLoad) {
 		result.style.width = `${newWidth}rem`;
 		result.style.flexGrow = newWidth;
 
-		// Loop over each element in imageSubtitle to set display property
-		imageSubtitle.forEach(subtitle => {
+		// Loop over each element in imageSidebar to set display property
+		imageSidebar.forEach(subtitle => {
 			if (multiplier < 0.5) {
 				subtitle.style.display = "none";
 			} else {
@@ -626,6 +626,9 @@ function loadMore() {
 	const scrollPosition = window.scrollY;
 	const documentHeight = document.documentElement.scrollHeight;
 	const viewportHeight = window.innerHeight;
+
+	const totalPages = window.totalPages;
+
 	if (haveMoreResults && !isLoading
 		&& window.location.href.includes('view=tiles')
 		&& scrollPosition >= documentHeight - (viewportHeight * 2)) {
@@ -633,23 +636,22 @@ function loadMore() {
 		currentPage++;
 		// queryParams just passes the searchText, shuffle and view ie queryParams
 		// from first search to getNextResults queries
-		fetch(`/getNextResults${queryString}&page=${currentPage}`)
-			.then(response => {
-				if (response.ok) {
-					return response.json()
-				} else {
-					haveMoreResults = false;
-					throw new Error('Error fetching more results');
-				}
-			})
-			.then(data => {
-				if (currentPage > data.totalPages) {
+		fetch(`/getNextResults${queryString}&page=${currentPage}&multiplier=${multiplier}`)
+			.then(response => response.text())
+			.then(html => {
+				if (currentPage > totalPages) {
 					// console.log('no more results');
 					haveMoreResults = false;
 					showPopup('Stuff no more', 'warn');
 				} else {
-					showPopup(`Fetching page ${currentPage} / ${data.totalPages}`, 'info', 3000);
-					appendResults(data.images);
+					showPopup(`Fetching page ${currentPage} / ${totalPages}`, 'info', 3000);
+				}
+
+				const tempDiv = document.createElement('div');
+				tempDiv.innerHTML = html;
+				while (tempDiv.firstChild) {
+					// remove each child from temp div and add to results div
+					results.appendChild(tempDiv.firstChild);
 				}
 			})
 			.catch(error => {
@@ -660,163 +662,6 @@ function loadMore() {
 				isLoading = false;
 			});
 	}
-}
-
-// function to append image data to the result container
-function appendResults(images) {
-	for (const image of images) {
-		const resultElement = createResultElement(image);
-		// console.log(image);
-		results.appendChild(resultElement);
-	}
-}
-
-// function to create an image element from the image data
-function createResultElement(image) {
-	const baseName = image.baseName;
-	const path = image.path;
-	const directory = image.directory;
-	const trueWidth = parseFloat(image.width);
-	const trueHeight = parseFloat(image.height);
-	const type = image.type;
-
-	const width = trueWidth * (baseSize * multiplier) / trueHeight;
-
-	const imageLinkEscaped = encodeURIComponent(path);
-	const view = 'tiles';
-
-	const containerDiv = document.createElement("div");
-	containerDiv.classList.add("result");
-	containerDiv.id = `result${imageIndex}`; // will increment index in last
-	containerDiv.title = `${baseName}\n${directory}`;
-	containerDiv.setAttribute("data-width", width);
-	containerDiv.style.width = `${width}rem`;
-	containerDiv.style.flexGrow = width;
-
-	const padding = trueHeight / trueWidth * 100;
-
-	const imageDiv = document.createElement("i");
-	imageDiv.setAttribute("data-padding", padding);
-	imageDiv.style.paddingBottom = `${padding}%`;
-	containerDiv.appendChild(imageDiv);
-
-	const imageSidebarDiv = document.createElement("div");
-	imageSidebarDiv.classList.add("imageSidebar");
-	if (multiplier <= 0.5) {
-		imageSidebarDiv.style.display = 'none';
-	}
-	containerDiv.appendChild(imageSidebarDiv);
-
-	const infoDiv = document.createElement("div");
-	infoDiv.classList.add("infoDiv");
-	imageSidebarDiv.appendChild(infoDiv);
-
-	const similarImageLink = encodeURIComponent(
-		baseName
-			.replace(/\.[^/.]+$/, "")
-			.replace(/\d+$/, "")
-			.replace(/\(\d*\)|\d+$/g, "")
-			.trim()
-	);
-	const imageTitleLink = document.createElement("a");
-	imageTitleLink.classList.add("imageTitle");
-	imageTitleLink.href = `/search?searchText=${similarImageLink}&view=${view}`;
-	imageTitleLink.target = '_blank';
-	imageTitleLink.textContent = baseName;
-	infoDiv.appendChild(imageTitleLink);
-
-	const folderlink = encodeURIComponent(directory);
-	const subTitleLink = document.createElement("a");
-	subTitleLink.classList.add("subTitle");
-	subTitleLink.href = `/search?searchText=${folderlink}&view=${view}`;
-	subTitleLink.target = '_blank';
-	subTitleLink.textContent = directory;
-	infoDiv.appendChild(subTitleLink);
-
-	// delete div
-	const deleteDiv = document.createElement('div');
-	deleteDiv.classList.add('deleteDiv');
-	const deleteButton = document.createElement('button');
-	deleteButton.classList.add('deleteButton');
-	deleteButton.setAttribute('onclick', `deleteFile("${imageLinkEscaped}", "${imageIndex}")`);
-	deleteButton.innerHTML = '🗑️';
-	deleteDiv.appendChild(deleteButton);
-	imageSidebarDiv.appendChild(deleteDiv);
-
-	// creating rename div
-	const renameDiv = document.createElement('div');
-	renameDiv.classList.add('rename');
-	const renameButton = document.createElement('button');
-	renameButton.classList.add('renameButton');
-	renameButton.setAttribute('onclick', 'showRenameDialog(this)');
-	renameButton.innerHTML = '&#9998;';
-	const renameDialog = document.createElement('dialog');
-	renameDialog.classList.add('renameDialog');
-	const renameForm = document.createElement('form');
-	renameForm.setAttribute('action', '/rename');
-	renameForm.setAttribute('method', 'post');
-	renameDialog.appendChild(renameForm);
-	const currentFilePathInput = document.createElement('input');
-	currentFilePathInput.setAttribute('type', 'text');
-	currentFilePathInput.setAttribute('name', 'currentFilePath');
-	currentFilePathInput.setAttribute('id', 'currentFilePath');
-	currentFilePathInput.setAttribute('placeholder', 'Current File Path');
-	currentFilePathInput.setAttribute('value', imageLinkEscaped);
-	currentFilePathInput.setAttribute('readonly', 'readonly');
-	currentFilePathInput.setAttribute('hidden', 'hidden');
-	renameForm.appendChild(currentFilePathInput);
-	const newFileNameInput = document.createElement('input');
-	newFileNameInput.setAttribute('type', 'text');
-	newFileNameInput.setAttribute('name', 'newFileName');
-	newFileNameInput.setAttribute('id', 'newFileName');
-	newFileNameInput.setAttribute('placeholder', 'New File Name');
-	renameForm.appendChild(newFileNameInput);
-	const submitInput = document.createElement('input');
-	submitInput.setAttribute('type', 'submit');
-	submitInput.setAttribute('hidden', 'hidden');
-	renameForm.appendChild(submitInput);
-	renameDiv.appendChild(renameButton);
-	renameDiv.appendChild(renameDialog);
-	imageSidebarDiv.appendChild(renameDiv);
-
-	const mainContentDiv = document.createElement("div");
-	mainContentDiv.classList.add("mainContent");
-	containerDiv.appendChild(mainContentDiv);
-
-	const contentLink = document.createElement("a");
-	contentLink.setAttribute("data-href", `/?imageBackLink=${imageLinkEscaped}`);
-	mainContentDiv.appendChild(contentLink);
-
-	if (type === "image") {
-		const imageElement = document.createElement("img");
-		imageElement.classList.add("searchImg");
-		imageElement.classList.add("resultFile");
-		// imageElement.id = `image${index}`;  not getting index from API
-		imageElement.src = imageLinkEscaped;
-		imageElement.id = `image${imageIndex}`;
-		imageIndex++;
-		contentLink.appendChild(imageElement);
-	} else {
-		const videoElement = document.createElement("video");
-		videoElement.classList.add("searchVid");
-		videoElement.classList.add("resultFile");
-		videoElement.classList.add("videoFile");
-		// videoElement.id = `image${index}`;
-		// videoElement.src = imageLinkEscaped; // setting data-src instead
-		videoElement.setAttribute('data-src', imageLinkEscaped)
-		videoElement.controls = true;
-		videoElement.loop = true;
-		videoElement.id = `image${imageIndex}`;
-		imageIndex++;
-		contentLink.appendChild(videoElement);
-
-		// adding new videos to the global video list
-		videosList.push(videoElement);
-		observer.observe(videoElement);
-		// console.log('Videos in videosList: ', videosList);
-	}
-
-	return containerDiv;
 }
 
 function deleteFile(imageLinkEscaped, index) {
@@ -1333,7 +1178,7 @@ function replaceInName() {
 		showPopup('Provide a value for "Text to find" and "Text to substitute"', 'warn');
 		return;
 	}
-	
+
 	if (textToFind == textToSubstitute) {
 		showPopup('"Text to find" and "Text to substitute" should be different', 'warn');
 		return;
