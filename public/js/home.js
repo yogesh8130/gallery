@@ -363,6 +363,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	renameBulkForm.onsubmit = (event) => { event.preventDefault(); }
 	const appendToNameForm = document.getElementById('appendToNameForm');
 	appendToNameForm.onsubmit = (event) => { event.preventDefault(); }
+	const prependToNameForm = document.getElementById('prependToNameForm');
+	prependToNameForm.onsubmit = (event) => { event.preventDefault(); }
 	const removeFromNameForm = document.getElementById('removeFromNameForm');
 	removeFromNameForm.onsubmit = (event) => { event.preventDefault(); }
 	const replaceInNameForm = document.getElementById('replaceInNameForm');
@@ -1094,6 +1096,81 @@ function appendToName() {
 			console.error(error);
 		});
 }
+
+function prependToName() {
+	const textToPrepend = document.getElementById('prependToNameText').value;
+	// console.log(selectedImages);
+	// console.log(prependToNameText.value);
+	const pattern = /^[a-zA-Z0-9 ]*$/;
+	const isValid = pattern.test(textToPrepend);
+
+	if (!isValid) {
+		showPopup('text contains disallowed characters', 'warn');
+		return;
+	}
+
+	if (!textToPrepend) {
+		showPopup('Provide a value first', 'warn');
+		return;
+	}
+
+	if (selectedImages.size == 0) {
+		showPopup('No files selected', 'warn');
+		return;
+	}
+
+	const url = '/prependToName';
+	const formData = {
+		// have to convert map to an Object so it can be serialized into a JSON
+		currentFilePaths: Object.fromEntries(selectedImages),
+		textToPrepend: textToPrepend
+	}
+
+	const options = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(formData)
+	};
+
+	fetch(url, options)
+		.then(response => response.json())
+		.then(data => {
+			// console.log(data);
+			let success = 0;
+			let fail = 0;
+			const results = new Map(Object.entries(data.results));
+			results.forEach((value, imageId) => {
+				const image = document.getElementById(imageId);
+				if (value === 'fail') {
+					image.classList.add('renameFailed')
+					fail++;
+				} else {
+					image.src = value;
+					selectedImages.set(imageId, value)
+					success++;
+				}
+
+			})
+
+			if (success !== 0) {
+				showPopup(`Renamed ${success} files`, 'info')
+			} else {
+				showPopup(`No files renamed`, 'info')
+			}
+			if (fail !== 0) {
+				showPopup(`Failed ${fail} files`, 'error')
+			}
+
+			// TODO udpate image title and subtitle after rename
+		})
+		.catch(error => {
+			showPopup(error, 'error');
+			console.error(error);
+		});
+}
+
 
 function removeFromName() {
 	const textToRemove = document.getElementById('removeFromNameText').value;

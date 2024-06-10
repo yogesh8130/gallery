@@ -60,6 +60,11 @@ div(id = "sidebar" onclick = "toggleSidebar(event)")
 		placeholder = "Text to append" autocomplete = 'on')
 		button(id = 'appendToNameButton' onclick = 'appendToName()') Append
 		input(type="submit" hidden)
+	form.bulkRow(id = 'prependToNameForm')
+		input(type = "text" id = 'prependToNameText' name = 'prependToNameText'
+		placeholder = "Text to prepend" autocomplete = 'on')
+		button(id = 'prependToNameButton' onclick = 'prependToName()') Prepend
+		input(type="submit" hidden)
 	form.bulkRow(id = 'removeFromNameForm')
 		input(type = "text" id = 'removeFromNameText' name = 'removeFromNameText'
 		placeholder = "Text to remove" autocomplete = 'on')
