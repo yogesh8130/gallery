@@ -492,6 +492,10 @@ app.post('/renameBulk', (req, res) => {
 
 app.post('/appendToName', (req, res) => {
 	const textToAppend = req.body.textToAppend;
+	var parts = textToAppend.split(/[;,]/);
+	var trimmedParts = parts.map(function (part) {
+		return part.trim();
+	});
 	// converting object to a map
 	const currentFilePaths = new Map(Object.entries(req.body.currentFilePaths));
 
@@ -514,9 +518,11 @@ app.post('/appendToName', (req, res) => {
 		let currentFileExt = currentFilePathObj.ext;
 
 		let newFileName = currentFileName;
-		if (!currentFileName.includes(textToAppend)) {
-			newFileName = currentFileName + ' ' + textToAppend;
-		}
+		trimmedParts.forEach(function (part) {
+			if (newFileName.toLocaleLowerCase().indexOf(part.toLowerCase()) === -1) {
+				newFileName += " " + part;
+			}
+		});
 
 		if (newFileName == currentFileName) {
 			console.log("Not appending as text is already in current name");
@@ -1115,10 +1121,11 @@ app.get('/config', async (req, res) => {
 	res.render('config');
 })
 
+
 function getImageMetadata(imagePath) {
 	// console.log(`Getting metadata for ${imagePath}`);
 	// get basename, path, width, height, type (image/video) for an image or video
-	const absolutePath = path.join(pwd, "public", imagePath)
+	const absolutePath = path.join(pwd, "public", imagePath);
 	const baseName = path.basename(imagePath);
 	const directory = path.dirname(imagePath);
 	const extension = path.extname(imagePath);
@@ -1133,23 +1140,50 @@ function getImageMetadata(imagePath) {
 		// console.log(absolutePath);
 		const fileAttrs = readMediaAttributes(absolutePath);
 		// console.log(fileAttrs);
-		if (!fileAttrs.mime) {
-			console.warn('Possible issues reading the file attributes for: ', absolutePath)
+
+		// Get file stats to retrieve the modified time
+		const stats = fs.statSync(absolutePath);
+		const modifiedTime = stats.mtime;
+		const sizeBytes = stats.size;
+
+		// Convert file size to KB or MB
+		let sizeKB = sizeBytes / 1024; // Convert to KB
+		let sizeMB = sizeKB / 1024;   // Convert to MB
+
+		// Round the values to two decimal places
+		sizeKB = sizeKB.toFixed(2);
+		sizeMB = sizeMB.toFixed(2);
+
+		// Determine the appropriate unit based on the file size
+		let size;
+		if (sizeMB >= 1) {
+			sizeReadable = `${sizeMB} MB`;
+		} else if (sizeKB >= 1) {
+			sizeReadable = `${sizeKB} KB`;
+		} else {
+			sizeReadable = `${sizeBytes} B`;
 		}
+
+		if (!fileAttrs.mime) {
+			console.warn('Possible issues reading the file attributes for: ', absolutePath);
+		}
+
 		return {
 			baseName,
 			path: imagePath,
 			directory,
 			width: fileAttrs.width || 400,
 			height: fileAttrs.height || 300,
-			size: fileAttrs.size,
+			resolution: fileAttrs.width + ' x ' + fileAttrs.height,
+			sizeBytes: sizeBytes,
+			sizeReadable: sizeReadable,
 			mime: fileAttrs.mime,
 			type: isImage ? 'image' : 'video',
-		}
+			modifiedTime: modifiedTime
+		};
 	} catch (error) {
 		console.error(`Error getting metadata for the file (${imagePath}): ${error}`);
 	}
-
 }
 
 async function getImagesMetadata(imagePaths) {

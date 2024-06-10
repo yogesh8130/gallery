@@ -1027,7 +1027,7 @@ function appendToName() {
 	const textToAppend = document.getElementById('appendToNameText').value;
 	// console.log(selectedImages);
 	// console.log(appendToNameText.value);
-	const pattern = /^[a-zA-Z0-9 ]*$/;
+	const pattern = /^[a-zA-Z0-9 _\-,;]*$/;
 	const isValid = pattern.test(textToAppend);
 
 	if (!isValid) {

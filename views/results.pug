@@ -48,6 +48,7 @@ else
 						href = '/search?searchText=' + folderlink + '&view=' + view
 						target = "_blank")
 						|#{folderName}
+					a.subTitle|#{image.resolution} (#{image.sizeReadable})
 			div.mainContent
 				a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped)
 					if (image.type === 'image')

@@ -32,6 +32,10 @@ div(id = "sidebar" onclick = "toggleSidebar(event)")
 			li Doing something like ..\image will move the image to the parent folder of its current folder and rename it to 'image-001.jpg'.
 			li Renaming will deselect the images afterwards
 		p Consecutive rename/move can be done on selected files multiple times.
+		b Appending
+		ul
+			li Text is split on , and ; and then added to current file name separated by spaces. Each split part is only added to the name if it does NOT appear in the current name.
+
 	div.bulkRow
 		label(for="selectionModeCheckbox") Selection Mode
 		input(type="checkbox", id="selectionModeCheckbox", name="selectionMode", value="1", onclick="selectionModeToggle()")
@@ -57,7 +61,7 @@ div(id = "sidebar" onclick = "toggleSidebar(event)")
 		input(type="submit" hidden)
 	form.bulkRow(id = 'appendToNameForm')
 		input(type = "text" id = 'appendToNameText' name = 'appendToNameText'
-		placeholder = "Text to append" autocomplete = 'on')
+		placeholder = "Text, to; append" autocomplete = 'on')
 		button(id = 'appendToNameButton' onclick = 'appendToName()') Append
 		input(type="submit" hidden)
 	form.bulkRow(id = 'prependToNameForm')
