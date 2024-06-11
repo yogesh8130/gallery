@@ -7,7 +7,7 @@ const db = new sqlite3.Database('metadata.db');
 // Create a table to store metadata if it doesn't exist
 db.run(`
     CREATE TABLE IF NOT EXISTS metadata (
-        path TEXT PRIMARY KEY,
+        imagePath TEXT PRIMARY KEY,
         baseName TEXT,
         directory TEXT,
         width INTEGER,
@@ -100,10 +100,8 @@ const startTime = Date.now();
 	console.log("Getting metadata for files");
 	let imageObjects = await getImagesMetadata(imagePaths);
 
-	console.log("Adding metadata to DB");
-	let entriesInserted = addMetadataToDB(imageObjects);
-
-	console.log(entriesInserted);
+	// console.log("Adding metadata to DB");
+	// addMetadataToDB(imageObjects);
 
 	// Capture the end time
 	const endTime = Date.now();
@@ -1152,65 +1150,134 @@ app.get('/config', async (req, res) => {
 
 function getImageMetadata(imagePath) {
 	// console.log(`Getting metadata for ${imagePath}`);
-	// get basename, path, width, height, type (image/video) for an image or video
-	const absolutePath = path.join(pwd, "public", imagePath);
-	const baseName = path.basename(imagePath);
-	const directory = path.dirname(imagePath);
-	const extension = path.extname(imagePath);
-	const isVideo = videoExtensions.includes(extension.toLowerCase());
-	const isImage = imageExtensions.includes(extension.toLowerCase());
 
-	if (!isVideo && !isImage) {
-		throw new Error(`Unsupported file format: ${extension}`);
-	}
+	// DB FIELDS
+	let baseName;
+	let directory;
+	let width;
+	let height;
+	let resolution;
+	let sizeBytes;
+	let sizeReadable;
+	let mime;
+	let type;
+	let modifiedTime;
 
+	// check if metadata present in DB:
 	try {
-		// console.log(absolutePath);
-		const fileAttrs = readMediaAttributes(absolutePath);
-		// console.log(fileAttrs);
+		db.get(`SELECT * FROM metadata WHERE imagePath = ? LIMIT 1`, [imagePath], (err, row) => {
+			if (err) {
+				console.error('Error checking for existing metadata:', err);
+				return;
+			} else if (row) {
+				baseName = row.baseName;
+				directory = row.directory;
+				width = row.width;
+				height = row.height;
+				resolution = row.resolution;
+				sizeBytes = row.sizeBytes;
+				sizeReadable = row.sizeReadable;
+				mime = row.mime;
+				type = row.type;
+				modifiedTime = row.modifiedTime;
+			} else {
+				// read the metadata from filesystem:
+				const absolutePath = path.join(pwd, "public", imagePath);
+				const extension = path.extname(imagePath);
+				const isVideo = videoExtensions.includes(extension.toLowerCase());
+				const isImage = imageExtensions.includes(extension.toLowerCase());
 
-		// Get file stats to retrieve the modified time
-		const stats = fs.statSync(absolutePath);
-		const modifiedTime = stats.mtime.toISOString();;
-		const sizeBytes = stats.size;
+				if (!isVideo && !isImage) {
+					throw new Error(`Unsupported file format: ${extension}`);
+				}
 
-		// Convert file size to KB or MB
-		let sizeKB = sizeBytes / 1024; // Convert to KB
-		let sizeMB = sizeKB / 1024;   // Convert to MB
+				const fileAttrs = readMediaAttributes(absolutePath);
 
-		// Round the values to two decimal places
-		sizeKB = sizeKB.toFixed(2);
-		sizeMB = sizeMB.toFixed(2);
+				// Get file stats to retrieve the modified time
+				const stats = fs.statSync(absolutePath);
+				modifiedTime = stats.mtime.toISOString();
+				sizeBytes = stats.size;
 
-		// Determine the appropriate unit based on the file size
-		let size;
-		if (sizeMB >= 1) {
-			sizeReadable = `${sizeMB} MB`;
-		} else if (sizeKB >= 1) {
-			sizeReadable = `${sizeKB} KB`;
-		} else {
-			sizeReadable = `${sizeBytes} B`;
-		}
+				// Convert file size to KB or MB
+				const sizeKB = (sizeBytes / 1024).toFixed(2); // Convert to KB
+				const sizeMB = (sizeBytes / 1048576).toFixed(2); // Convert to MB
 
-		if (!fileAttrs.mime) {
-			console.warn('Issues reading the mime type for: ', absolutePath);
-		}
+				// Determine the appropriate unit based on the file size
+				let size;
+				if (sizeMB >= 1) {
+					sizeReadable = `${sizeMB} MB`;
+				} else if (sizeKB >= 1) {
+					sizeReadable = `${sizeKB} KB`;
+				} else {
+					sizeReadable = `${sizeBytes} B`;
+				}
+
+				if (!fileAttrs.mime) {
+					console.warn('Issues reading the mime type for: ', absolutePath);
+				}
+
+				baseName = path.basename(imagePath);
+				directory = path.dirname(imagePath);
+				width = fileAttrs.width || 400;
+				height = fileAttrs.height || 300;
+				resolution = fileAttrs.width + ' x ' + fileAttrs.height || "0 x 0";
+				sizeBytes;
+				sizeReadable;
+				mime = fileAttrs.mime;
+				type = isVideo ? 'video' : 'image';
+				modifiedTime;
+
+				// Now insert in DB as this was not found in it
+				db.run(`
+				INSERT INTO metadata (
+					imagePath,
+					baseName,
+					directory,
+					width,
+					height,
+					resolution,
+					sizeBytes,
+					sizeReadable,
+					mime,
+					type,
+					modifiedTime
+				) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+				`, [
+					imagePath,
+					baseName,
+					directory,
+					width,
+					height,
+					resolution,
+					sizeBytes,
+					sizeReadable,
+					mime,
+					type,
+					modifiedTime
+				], function (err) {
+					if (err) {
+						console.error('Error inserting metadata into db:', err);
+					}
+				});
+			}
+		});
 
 		return {
-			path: imagePath,
+			imagePath,
 			baseName,
 			directory,
-			width: fileAttrs.width || 400,
-			height: fileAttrs.height || 300,
-			resolution: fileAttrs.width + ' x ' + fileAttrs.height || "0 x 0",
-			sizeBytes: sizeBytes,
-			sizeReadable: sizeReadable,
-			mime: fileAttrs.mime,
-			type: isImage ? 'image' : 'video' || 'image',
-			modifiedTime: modifiedTime
+			width,
+			height,
+			resolution,
+			sizeBytes,
+			sizeReadable,
+			mime,
+			type,
+			modifiedTime
 		};
+
 	} catch (error) {
-		console.error(`Error getting metadata for the file (${imagePath}): ${error}`);
+		console.error(`Error while reading metadata for file: ${imagePath}`, error);
 	}
 }
 
@@ -1224,68 +1291,68 @@ async function getImagesMetadata(imagePaths) {
 	}
 }
 
-function addMetadataToDB(imageObjects) {
-	db.serialize(() => {
-		// Begin transaction
-		db.run('BEGIN TRANSACTION');
+// function addMetadataToDB(imageObjects) {
+// 	db.serialize(() => {
+// 		// Begin transaction
+// 		db.run('BEGIN TRANSACTION');
 
-		imageObjects.forEach(imageObject => {
-			// Check if the path already exists
-			db.get(`SELECT COUNT(*) AS count FROM metadata WHERE path = ?`, [imageObject.path], (err, row) => {
-				if (err) {
-					console.error('Error checking for existing metadata:', err);
-					return;
-				}
+// 		imageObjects.forEach(imageObject => {
+// 			// Check if the path already exists
+// 			db.get(`SELECT COUNT(*) AS count FROM metadata WHERE path = ?`, [imageObject.path], (err, row) => {
+// 				if (err) {
+// 					console.error('Error checking for existing metadata:', err);
+// 					return;
+// 				}
 
-				if (row.count === 0) {
-					// If path does not exist, prepare and run the insert statement
-					db.run(`
-                        INSERT INTO metadata (
-                            path,
-                            baseName,
-                            directory,
-                            width,
-                            height,
-                            resolution,
-                            sizeBytes,
-                            sizeReadable,
-                            mime,
-                            type,
-                            modifiedTime
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    `, [
-						imageObject.path,
-						imageObject.baseName,
-						imageObject.directory,
-						imageObject.width,
-						imageObject.height,
-						imageObject.resolution,
-						imageObject.sizeBytes,
-						imageObject.sizeReadable,
-						imageObject.mime,
-						imageObject.type,
-						imageObject.modifiedTime
-					], function (err) {
-						if (err) {
-							console.error('Error inserting metadata:', err);
-						}
-					});
-				} else {
-					console.log(`Path already exists: ${imageObject.path}`);
-				}
-			});
-		});
+// 				if (row.count === 0) {
+// 					// If path does not exist, prepare and run the insert statement
+// 					db.run(`
+//                         INSERT INTO metadata (
+//                             path,
+//                             baseName,
+//                             directory,
+//                             width,
+//                             height,
+//                             resolution,
+//                             sizeBytes,
+//                             sizeReadable,
+//                             mime,
+//                             type,
+//                             modifiedTime
+//                         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+//                     `, [
+// 						imageObject.path,
+// 						imageObject.baseName,
+// 						imageObject.directory,
+// 						imageObject.width,
+// 						imageObject.height,
+// 						imageObject.resolution,
+// 						imageObject.sizeBytes,
+// 						imageObject.sizeReadable,
+// 						imageObject.mime,
+// 						imageObject.type,
+// 						imageObject.modifiedTime
+// 					], function (err) {
+// 						if (err) {
+// 							console.error('Error inserting metadata:', err);
+// 						}
+// 					});
+// 				} else {
+// 					console.log(`Path already exists: ${imageObject.path}`);
+// 				}
+// 			});
+// 		});
 
-		// Commit transaction
-		db.run('COMMIT', (err) => {
-			if (err) {
-				console.error('Error committing transaction:', err);
-			} else {
-				console.log("Commit complete");
-			}
-		});
-	});
-}
+// 		// Commit transaction
+// 		db.run('COMMIT', (err) => {
+// 			if (err) {
+// 				console.error('Error committing transaction:', err);
+// 			} else {
+// 				console.log("Commit complete");
+// 			}
+// 		});
+// 	});
+// }
 
 // Start the server
 fs.appendFileSync('./logs/rename.log', `Starting server|||\n`);
