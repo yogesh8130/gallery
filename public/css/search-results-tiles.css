@@ -52,6 +52,7 @@ video {
 }
 
 .imageSidebar {
+	min-width: 15rem;
 	display: flex;
 	position: fixed;
 	top: 90%;
@@ -318,6 +319,23 @@ input[type='checkbox'] {
 #configButton:hover {
 	background-color: white;
 	color: black;
+}
+
+.sortButtons {
+	display: flex;
+	flex-wrap: nowrap;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-end;
+}
+
+.sortButton {
+	height: 2.2rem;
+	color: gray;
+	background-color: rgb(29, 29, 29);
+	border: none;
+	margin: 0 2px;
+	font-size: 1.3rem;
 }
 
 #fullscreenButton,

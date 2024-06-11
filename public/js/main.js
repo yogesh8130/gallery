@@ -372,12 +372,3 @@ function search() {
 		window.open(searchUrl,'_self');
 	}
 }
-
-function searchShuffled() {
-	const searchText = document.querySelector('#searchText').value;
-	if (searchText.trim() !== '') {
-		// window.location.href = `/search?searchText=${searchText}`; // opens in same window
-		const searchUrl = `/search?searchText=${encodeURIComponent(searchText)}&shuffle=true`;
-		window.open(searchUrl,'_self');
-	}
-}

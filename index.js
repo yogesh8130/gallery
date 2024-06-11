@@ -80,7 +80,7 @@ db.all(`SELECT * FROM metadata`, (err, rows) => {
 	});
 
 	// retrieve data like this:
-	// console.log(metadataMap.get("\\images\\Misc\\bunny girl senpai sakurajima.png").baseName);
+	// console.log(metadataMap.get("\\images\\Misc\\test.png").baseName);
 });
 
 const videoExtensions = ['.mp4', '.webm', '.mkv'];
@@ -971,12 +971,12 @@ app.get('/search', async (req, res) => {
 	let matchingImagePaths = [];
 	let imageList = imagePaths;
 	const view = req.query.view;
-	let shuffleFlag = false;
-
-	if (req.query.shuffle
-		&& (req.query.shuffle === 'true'
-			|| req.query.shuffle === 'on')) {
-		shuffleFlag = true;
+	let sortBy = req.query.sortBy;
+	let sortAsc;
+	if (req.query.sortAsc === 'true') {
+		sortAsc = true;
+	} else {
+		sortAsc = false;
 	}
 
 	if (searchText.includes('&&')
@@ -1073,13 +1073,29 @@ app.get('/search', async (req, res) => {
 			imagePath.toLowerCase().includes(searchText.toLowerCase().trim()));
 	}
 
-	if (shuffleFlag) {
+	// SORTS
+	if (sortBy === "shuffle") {
 		shuffle(matchingImagePaths);
+	} else if (sortBy === "path") {
+		if (sortAsc) {
+			matchingImagePaths.sort();
+		} else {
+			matchingImagePaths.sort((a, b) => b.localeCompare(a));
+		}
+	} else if (sortBy === "name") {
+		matchingImagePaths = sortByName(matchingImagePaths, sortAsc);
+	} else if (sortBy === "size") {
+		matchingImagePaths = sortBySize(matchingImagePaths, sortAsc);
+	} else if (sortBy === "modifiedTime") {
+		matchingImagePaths = sortByModifiedTime(matchingImagePaths, sortAsc);
+	} else if (sortBy === "dimensions") {
+		matchingImagePaths = sortByDimensions(matchingImagePaths, sortAsc);
 	}
 
 	// adding results to Search results map to search faster next time
 	// and also preserve the imagelist when lazy loading shuffled results
-	const searchKey = searchText + ':::' + shuffleFlag;
+	const searchKey = searchText + ':::' + sortBy + ':::' + sortAsc;
+	console.log(searchKey);
 	searchResults.set(searchKey, matchingImagePaths);
 
 	const totalResultCount = matchingImagePaths.length;
@@ -1112,7 +1128,8 @@ app.get('/search', async (req, res) => {
 		// matchingImageIndexes: pageImageIndexes,
 		page,
 		totalPages,
-		shuffle: shuffleFlag,
+		sortBy: sortBy,
+		sortAsc: sortAsc,
 		view,
 		multiplier
 	});
@@ -1121,14 +1138,15 @@ app.get('/search', async (req, res) => {
 app.get('/getNextResults', async (req, res) => {
 	const searchText = req.query.searchText;
 	const multiplier = req.query.multiplier;
-	let shuffleFlag = false;
-	if (req.query.shuffle
-		&& (req.query.shuffle === 'true'
-			|| req.query.shuffle === 'on')) {
-		shuffleFlag = true;
+	let sortBy = req.query.sortBy;
+	let sortAsc;
+	if (req.query.sortAsc === 'true') {
+		sortAsc = true;
+	} else {
+		sortAsc = false;
 	}
 
-	const searchKey = searchText + ':::' + shuffleFlag;
+	const searchKey = searchText + ':::' + sortBy + ':::' + sortAsc;
 
 	let matchingImagePaths;
 	if (searchResults.has(searchKey)) {
@@ -1207,7 +1225,7 @@ async function getImagesMetadata(imagePaths) {
 }
 
 function initializeImageMetadata(imagePath) {
-	console.log(`Metadata NOT found in metadataMap, reading from file: ${imagePath}`);
+	// console.log(`Metadata NOT found in metadataMap, reading from file: ${imagePath}`);
 	const absolutePath = path.join(pwd, "public", imagePath);
 	const extension = path.extname(imagePath);
 	const isVideo = videoExtensions.includes(extension.toLowerCase());
@@ -1301,68 +1319,40 @@ function insertMetadataToDB(imagePath, baseName, directory, width, height, resol
 	});
 }
 
-// function addMetadataToDB(imageObjects) {
-// 	db.serialize(() => {
-// 		// Begin transaction
-// 		db.run('BEGIN TRANSACTION');
+function sortByName(imagePaths, ascending = true) {
+	return imagePaths.sort((a, b) => {
+		const diff = metadataMap.get(a).baseName.localeCompare(metadataMap.get(b).baseName);
+		return ascending ? diff : -diff;
+	});
+}
 
-// 		imageObjects.forEach(imageObject => {
-// 			// Check if the path already exists
-// 			db.get(`SELECT COUNT(*) AS count FROM metadata WHERE path = ?`, [imageObject.path], (err, row) => {
-// 				if (err) {
-// 					console.error('Error checking for existing metadata:', err);
-// 					return;
-// 				}
+function sortBySize(imagePaths, ascending = true) {
+	return imagePaths.sort((a, b) => {
+		const diff = metadataMap.get(a).sizeBytes - metadataMap.get(b).sizeBytes;
+		return ascending ? diff : -diff;
+	});
+}
 
-// 				if (row.count === 0) {
-// 					// If path does not exist, prepare and run the insert statement
-// 					db.run(`
-//                         INSERT INTO metadata (
-//                             path,
-//                             baseName,
-//                             directory,
-//                             width,
-//                             height,
-//                             resolution,
-//                             sizeBytes,
-//                             sizeReadable,
-//                             mime,
-//                             type,
-//                             modifiedTime
-//                         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-//                     `, [
-// 						imageObject.path,
-// 						imageObject.baseName,
-// 						imageObject.directory,
-// 						imageObject.width,
-// 						imageObject.height,
-// 						imageObject.resolution,
-// 						imageObject.sizeBytes,
-// 						imageObject.sizeReadable,
-// 						imageObject.mime,
-// 						imageObject.type,
-// 						imageObject.modifiedTime
-// 					], function (err) {
-// 						if (err) {
-// 							console.error('Error inserting metadata:', err);
-// 						}
-// 					});
-// 				} else {
-// 					console.log(`Path already exists: ${imageObject.path}`);
-// 				}
-// 			});
-// 		});
+function sortByModifiedTime(imagePaths, ascending = true) {
+	return imagePaths.sort((a, b) => {
+		const diff = new Date(metadataMap.get(a).modifiedTime) - new Date(metadataMap.get(b).modifiedTime);
+		return ascending ? diff : -diff;
+	});
+}
 
-// 		// Commit transaction
-// 		db.run('COMMIT', (err) => {
-// 			if (err) {
-// 				console.error('Error committing transaction:', err);
-// 			} else {
-// 				console.log("Commit complete");
-// 			}
-// 		});
-// 	});
-// }
+function sortByDimensions(imagePaths, ascending = true) {
+	return imagePaths.sort((a, b) => {
+		const metadataA = metadataMap.get(a);
+		const metadataB = metadataMap.get(b);
+		// Compare width
+		let diff = metadataA.width - metadataB.width;
+		// If width is the same, compare height
+		if (diff === 0) {
+			diff = metadataA.height - metadataB.height;
+		}
+		return ascending ? diff : -diff;
+	});
+}
 
 // Start the server
 fs.appendFileSync('./logs/rename.log', `Starting server|||\n`);
