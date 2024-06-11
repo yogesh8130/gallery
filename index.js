@@ -21,13 +21,12 @@ db.run(`
     )
 `);
 
-
 // for reading image and video metadata
 // const sharp = require('sharp');
 // const ffprobe = require('ffprobe');
 // const ffprobeStatic = require('ffprobe-static');
 const { readMediaAttributes } = require('leather'); // much smaller
-const { log, error } = require('console');
+const { log, error, info } = require('console');
 
 const app = express();
 const port = 3000;
@@ -52,6 +51,37 @@ const imagePath = "./public/images";
 
 // Create an array to store all image paths recursively
 let imagePaths = [];
+
+// Create map of all image metadata
+let metadataMap = new Map();
+db.all(`SELECT * FROM metadata`, (err, rows) => {
+	if (err) {
+		console.error('Error getting metadata from DB', err);
+		return;
+	}
+	rows.forEach(row => {
+		const { imagePath, baseName, directory, width, height, resolution, sizeBytes, sizeReadable, mime, type, modifiedTime } = row;
+
+		// Create an object with the row values (except imagePath)
+		const rowData = {
+			baseName,
+			directory,
+			width,
+			height,
+			resolution,
+			sizeBytes,
+			sizeReadable,
+			mime,
+			type,
+			modifiedTime
+		};
+		// Set the object as a value in the map with imagePath as key
+		metadataMap.set(imagePath, rowData);
+	});
+
+	// retrieve data like this:
+	// console.log(metadataMap.get("\\images\\Misc\\bunny girl senpai sakurajima.png").baseName);
+});
 
 const videoExtensions = ['.mp4', '.webm', '.mkv'];
 const imageExtensions = ['.jpeg', '.jpg', '.png', '.webp', '.gif']
@@ -97,11 +127,12 @@ const startTime = Date.now();
 
 	imagePaths.sort();
 
-	console.log("Getting metadata for files");
-	let imageObjects = await getImagesMetadata(imagePaths);
+	console.log("Initialize Images Metadata, looking for new files");
 
-	// console.log("Adding metadata to DB");
-	// addMetadataToDB(imageObjects);
+	console.log(`Files in map before initialization: ${metadataMap.size}`);
+	await initializeImagesMetadata(imagePaths);
+	console.log(`Files in map after initialization: ${metadataMap.size}`);
+
 
 	// Capture the end time
 	const endTime = Date.now();
@@ -1149,120 +1180,105 @@ app.get('/config', async (req, res) => {
 
 
 function getImageMetadata(imagePath) {
-	// console.log(`Getting metadata for ${imagePath}`);
+	imageObject = metadataMap.get(imagePath);
+	return ({
+		imagePath,
+		baseName: imageObject.baseName,
+		directory: imageObject.directory,
+		width: imageObject.width,
+		height: imageObject.height,
+		resolution: imageObject.resolution,
+		sizeBytes: imageObject.sizeBytes,
+		sizeReadable: imageObject.sizeReadable,
+		mime: imageObject.mime,
+		type: imageObject.type,
+		modifiedTime: imageObject.modifiedTime
+	});
+}
 
-	// DB FIELDS
-	let baseName;
-	let directory;
-	let width;
-	let height;
-	let resolution;
-	let sizeBytes;
-	let sizeReadable;
-	let mime;
-	let type;
-	let modifiedTime;
-
-	// check if metadata present in DB:
+async function getImagesMetadata(imagePaths) {
 	try {
-		db.get(`SELECT * FROM metadata WHERE imagePath = ? LIMIT 1`, [imagePath], (err, row) => {
-			if (err) {
-				console.error('Error checking for existing metadata:', err);
+		// takes an array of image/video paths and returns array of image objects by calling getImageMetadata for each file
+		const promises = imagePaths.map(imagePath => getImageMetadata(imagePath));
+		return Promise.all(promises);
+	} catch (error) {
+		console.error(`Error getting metadata: ${error}`);
+	}
+}
+
+function initializeImageMetadata(imagePath) {
+	console.log(`Metadata NOT found in metadataMap, reading from file: ${imagePath}`);
+	const absolutePath = path.join(pwd, "public", imagePath);
+	const extension = path.extname(imagePath);
+	const isVideo = videoExtensions.includes(extension.toLowerCase());
+	const isImage = imageExtensions.includes(extension.toLowerCase());
+
+	if (!isVideo && !isImage) {
+		reject(new Error(`Unsupported file format: ${extension}`));
+		return;
+	}
+
+	const fileAttrs = readMediaAttributes(absolutePath);
+	const stats = fs.statSync(absolutePath);
+	const modifiedTime = stats.mtime.toISOString();
+	const sizeBytes = stats.size;
+	let sizeReadable;
+	const sizeKB = (sizeBytes / 1024).toFixed(2);
+	const sizeMB = (sizeBytes / 1048576).toFixed(2);
+	if (sizeMB >= 1) {
+		sizeReadable = `${sizeMB} MB`;
+	} else if (sizeKB >= 1) {
+		sizeReadable = `${sizeKB} KB`;
+	} else {
+		sizeReadable = `${sizeBytes} B`;
+	}
+	const baseName = path.basename(imagePath);
+	const directory = path.dirname(imagePath);
+	const width = fileAttrs.width || 400;
+	const height = fileAttrs.height || 300;
+	const resolution = fileAttrs.width + ' x ' + fileAttrs.height || "0 x 0";
+	const mime = fileAttrs.mime;
+	const type = isVideo ? 'video' : 'image';
+
+	// adding this to the loaded map (so we dont need to read from DB again)
+	metadataMap.set(imagePath, { baseName, directory, width, height, resolution, sizeBytes, sizeReadable, mime, type, modifiedTime });
+
+	// adding to DB for future runs
+	insertMetadataToDB(imagePath, baseName, directory, width, height, resolution, sizeBytes, sizeReadable, mime, type, modifiedTime);
+	return;
+}
+
+async function initializeImagesMetadata(imagePaths) {
+	try {
+		const promises = imagePaths.map(async imagePath => {
+			if (!metadataMap.has(imagePath)) {
+				initializeImageMetadata(imagePath);
 				return;
-			} else if (row) {
-				baseName = row.baseName;
-				directory = row.directory;
-				width = row.width;
-				height = row.height;
-				resolution = row.resolution;
-				sizeBytes = row.sizeBytes;
-				sizeReadable = row.sizeReadable;
-				mime = row.mime;
-				type = row.type;
-				modifiedTime = row.modifiedTime;
-			} else {
-				// read the metadata from filesystem:
-				const absolutePath = path.join(pwd, "public", imagePath);
-				const extension = path.extname(imagePath);
-				const isVideo = videoExtensions.includes(extension.toLowerCase());
-				const isImage = imageExtensions.includes(extension.toLowerCase());
-
-				if (!isVideo && !isImage) {
-					throw new Error(`Unsupported file format: ${extension}`);
-				}
-
-				const fileAttrs = readMediaAttributes(absolutePath);
-
-				// Get file stats to retrieve the modified time
-				const stats = fs.statSync(absolutePath);
-				modifiedTime = stats.mtime.toISOString();
-				sizeBytes = stats.size;
-
-				// Convert file size to KB or MB
-				const sizeKB = (sizeBytes / 1024).toFixed(2); // Convert to KB
-				const sizeMB = (sizeBytes / 1048576).toFixed(2); // Convert to MB
-
-				// Determine the appropriate unit based on the file size
-				let size;
-				if (sizeMB >= 1) {
-					sizeReadable = `${sizeMB} MB`;
-				} else if (sizeKB >= 1) {
-					sizeReadable = `${sizeKB} KB`;
-				} else {
-					sizeReadable = `${sizeBytes} B`;
-				}
-
-				if (!fileAttrs.mime) {
-					console.warn('Issues reading the mime type for: ', absolutePath);
-				}
-
-				baseName = path.basename(imagePath);
-				directory = path.dirname(imagePath);
-				width = fileAttrs.width || 400;
-				height = fileAttrs.height || 300;
-				resolution = fileAttrs.width + ' x ' + fileAttrs.height || "0 x 0";
-				sizeBytes;
-				sizeReadable;
-				mime = fileAttrs.mime;
-				type = isVideo ? 'video' : 'image';
-				modifiedTime;
-
-				// Now insert in DB as this was not found in it
-				db.run(`
-				INSERT INTO metadata (
-					imagePath,
-					baseName,
-					directory,
-					width,
-					height,
-					resolution,
-					sizeBytes,
-					sizeReadable,
-					mime,
-					type,
-					modifiedTime
-				) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-				`, [
-					imagePath,
-					baseName,
-					directory,
-					width,
-					height,
-					resolution,
-					sizeBytes,
-					sizeReadable,
-					mime,
-					type,
-					modifiedTime
-				], function (err) {
-					if (err) {
-						console.error('Error inserting metadata into db:', err);
-					}
-				});
 			}
 		});
+		return Promise.all(promises);
+	} catch (error) {
+		console.error(`Error initializing metadata for images: ${error}`);
+	}
+}
 
-		return {
+function insertMetadataToDB(imagePath, baseName, directory, width, height, resolution, sizeBytes, sizeReadable, mime, type, modifiedTime) {
+	return new Promise((resolve, reject) => {
+		db.run(`
+			INSERT INTO metadata (
+				imagePath,
+				baseName,
+				directory,
+				width,
+				height,
+				resolution,
+				sizeBytes,
+				sizeReadable,
+				mime,
+				type,
+				modifiedTime
+			) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		`, [
 			imagePath,
 			baseName,
 			directory,
@@ -1274,21 +1290,15 @@ function getImageMetadata(imagePath) {
 			mime,
 			type,
 			modifiedTime
-		};
-
-	} catch (error) {
-		console.error(`Error while reading metadata for file: ${imagePath}`, error);
-	}
-}
-
-async function getImagesMetadata(imagePaths) {
-	try {
-		// takes an array of image/video paths and returns array of image objects by calling getImageMetadata for each file
-		const promises = imagePaths.map(imagePath => getImageMetadata(imagePath));
-		return Promise.all(promises);
-	} catch (error) {
-		console.error(`Error getting metadata: ${error}`);
-	}
+		], function (err) {
+			if (err) {
+				console.error('Error inserting metadata into db:', err);
+				reject(err);
+			} else {
+				resolve();
+			}
+		});
+	});
 }
 
 // function addMetadataToDB(imageObjects) {

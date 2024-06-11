@@ -4,7 +4,7 @@ else
 	each image, index in images
 		- const folderName = image.directory
 		- const imageName = image.baseName
-		- const imageLinkEscaped = encodeURIComponent(image.path)
+		- const imageLinkEscaped = encodeURIComponent(image.imagePath)
 		//- this sets the approximate size of a row height in tiles mode
 		//- it is in rem units and 25 is around 50% of a 1080p screen with the provided css
 		- const baseSize = 25
