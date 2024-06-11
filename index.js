@@ -1,6 +1,26 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const sqlite3 = require('sqlite3').verbose();
+// Create SQLite database connection
+const db = new sqlite3.Database('metadata.db');
+// Create a table to store metadata if it doesn't exist
+db.run(`
+    CREATE TABLE IF NOT EXISTS metadata (
+        path TEXT PRIMARY KEY,
+        baseName TEXT,
+        directory TEXT,
+        width INTEGER,
+        height INTEGER,
+        resolution TEXT,
+        sizeBytes INTEGER,
+        sizeReadable TEXT,
+        mime TEXT,
+        type TEXT,
+        modifiedTime TIMESTAMP
+    )
+`);
+
 
 // for reading image and video metadata
 // const sharp = require('sharp');
@@ -76,6 +96,14 @@ const startTime = Date.now();
 	await readImageFiles(imagePath);
 
 	imagePaths.sort();
+
+	console.log("Getting metadata for files");
+	let imageObjects = await getImagesMetadata(imagePaths);
+
+	console.log("Adding metadata to DB");
+	let entriesInserted = addMetadataToDB(imageObjects);
+
+	console.log(entriesInserted);
 
 	// Capture the end time
 	const endTime = Date.now();
@@ -1143,7 +1171,7 @@ function getImageMetadata(imagePath) {
 
 		// Get file stats to retrieve the modified time
 		const stats = fs.statSync(absolutePath);
-		const modifiedTime = stats.mtime;
+		const modifiedTime = stats.mtime.toISOString();;
 		const sizeBytes = stats.size;
 
 		// Convert file size to KB or MB
@@ -1165,20 +1193,20 @@ function getImageMetadata(imagePath) {
 		}
 
 		if (!fileAttrs.mime) {
-			console.warn('Possible issues reading the file attributes for: ', absolutePath);
+			console.warn('Issues reading the mime type for: ', absolutePath);
 		}
 
 		return {
-			baseName,
 			path: imagePath,
+			baseName,
 			directory,
 			width: fileAttrs.width || 400,
 			height: fileAttrs.height || 300,
-			resolution: fileAttrs.width + ' x ' + fileAttrs.height,
+			resolution: fileAttrs.width + ' x ' + fileAttrs.height || "0 x 0",
 			sizeBytes: sizeBytes,
 			sizeReadable: sizeReadable,
 			mime: fileAttrs.mime,
-			type: isImage ? 'image' : 'video',
+			type: isImage ? 'image' : 'video' || 'image',
 			modifiedTime: modifiedTime
 		};
 	} catch (error) {
@@ -1196,6 +1224,74 @@ async function getImagesMetadata(imagePaths) {
 	}
 }
 
+function addMetadataToDB(imageObjects) {
+	db.serialize(() => {
+		// Begin transaction
+		db.run('BEGIN TRANSACTION');
+
+		imageObjects.forEach(imageObject => {
+			// Check if the path already exists
+			db.get(`SELECT COUNT(*) AS count FROM metadata WHERE path = ?`, [imageObject.path], (err, row) => {
+				if (err) {
+					console.error('Error checking for existing metadata:', err);
+					return;
+				}
+
+				if (row.count === 0) {
+					// If path does not exist, prepare and run the insert statement
+					db.run(`
+                        INSERT INTO metadata (
+                            path,
+                            baseName,
+                            directory,
+                            width,
+                            height,
+                            resolution,
+                            sizeBytes,
+                            sizeReadable,
+                            mime,
+                            type,
+                            modifiedTime
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    `, [
+						imageObject.path,
+						imageObject.baseName,
+						imageObject.directory,
+						imageObject.width,
+						imageObject.height,
+						imageObject.resolution,
+						imageObject.sizeBytes,
+						imageObject.sizeReadable,
+						imageObject.mime,
+						imageObject.type,
+						imageObject.modifiedTime
+					], function (err) {
+						if (err) {
+							console.error('Error inserting metadata:', err);
+						}
+					});
+				} else {
+					console.log(`Path already exists: ${imageObject.path}`);
+				}
+			});
+		});
+
+		// Commit transaction
+		db.run('COMMIT', (err) => {
+			if (err) {
+				console.error('Error committing transaction:', err);
+			} else {
+				console.log("Commit complete");
+			}
+		});
+	});
+}
+
 // Start the server
 fs.appendFileSync('./logs/rename.log', `Starting server|||\n`);
 app.listen(port, () => console.log(`Server listening on port ${port}`));
+
+// Close the database connection when the program exits
+process.on('exit', () => {
+	db.close();
+});

@@ -1,3 +1,5 @@
 node_modules
 public/images*
 logs/*
+public/metadata.db
+metadata.db
