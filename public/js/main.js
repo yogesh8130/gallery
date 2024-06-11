@@ -368,7 +368,7 @@ function search() {
 	const searchText = document.querySelector('#searchText').value;
 	if (searchText.trim() !== '') {
 		// window.location.href = `/search?searchText=${searchText}`; // opens in same window
-		const searchUrl = `/search?searchText=${encodeURIComponent(searchText)}`;
+		const searchUrl = `/search?searchText=${encodeURIComponent(searchText)}&sortBy=path&sortAsc=true`;
 		window.open(searchUrl,'_self');
 	}
 }

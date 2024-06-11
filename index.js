@@ -445,6 +445,7 @@ app.post('/rename', (req, res) => {
 		// replacing in "DB"
 		imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
 		imagePaths.sort();
+		renameKey(metadataMap, currentFilePathRelative, newFilePathRelative);
 
 		const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
 		fs.appendFileSync('./logs/rename.log', logMessage);
@@ -526,6 +527,7 @@ app.post('/renameBulk', (req, res) => {
 				fs.renameSync(currentFilePath, newFilePath);
 				imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
 				imagePaths.sort();
+				renameKey(metadataMap, currentFilePathRelative, newFilePathRelative);
 				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
 				fs.appendFileSync('./logs/rename.log', logMessage);
 				success++;
@@ -616,6 +618,7 @@ app.post('/appendToName', (req, res) => {
 				fs.renameSync(currentFilePath, newFilePath);
 				imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
 				imagePaths.sort();
+				renameKey(metadataMap, currentFilePathRelative, newFilePathRelative);
 				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
 				fs.appendFileSync('./logs/rename.log', logMessage);
 				success++;
@@ -698,6 +701,7 @@ app.post('/prependToName', (req, res) => {
 				fs.renameSync(currentFilePath, newFilePath);
 				imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
 				imagePaths.sort();
+				renameKey(metadataMap, currentFilePathRelative, newFilePathRelative);
 				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
 				fs.appendFileSync('./logs/rename.log', logMessage);
 				success++;
@@ -780,6 +784,7 @@ app.post('/removeFromName', (req, res) => {
 				fs.renameSync(currentFilePath, newFilePath);
 				imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
 				imagePaths.sort();
+				renameKey(metadataMap, currentFilePathRelative, newFilePathRelative);
 				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
 				fs.appendFileSync('./logs/rename.log', logMessage);
 				success++;
@@ -859,6 +864,7 @@ app.post('/replaceInName', (req, res) => {
 				fs.renameSync(currentFilePath, newFilePath);
 				imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
 				imagePaths.sort();
+				renameKey(metadataMap, currentFilePathRelative, newFilePathRelative);
 				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
 				fs.appendFileSync('./logs/rename.log', logMessage);
 				success++;
@@ -940,6 +946,7 @@ app.post('/moveFiles', (req, res) => {
 				fs.renameSync(currentFilePath, newFilePath);
 				imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
 				imagePaths.sort();
+				renameKey(metadataMap, currentFilePathRelative, newFilePathRelative);
 				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
 				fs.appendFileSync('./logs/move.log', logMessage);
 				success++;
@@ -1352,6 +1359,13 @@ function sortByDimensions(imagePaths, ascending = true) {
 		}
 		return ascending ? diff : -diff;
 	});
+}
+
+function renameKey(map, oldKey, newKey) {
+	if (map.has(oldKey)) {
+		map.set(newKey, map.get(oldKey));
+		map.delete(oldKey);
+	}
 }
 
 // Start the server
