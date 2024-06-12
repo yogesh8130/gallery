@@ -4,6 +4,8 @@ const fs = require('fs');
 // for reading image and video metadata
 const { readMediaAttributes } = require('leather'); // much smaller
 
+const { insertMetadataToDB } = require('./dbUtils');
+
 const {
 	VIDEO_EXTENSIONS,
 	IMAGE_EXTENSIONS,
@@ -133,10 +135,33 @@ function initializeImageMetadata(imagePath, metadataMap) {
 	const type = isVideo ? 'video' : 'image';
 
 	// adding this to the loaded map (so we dont need to read from DB again)
-	metadataMap.set(imagePath, { baseName, directory, width, height, resolution, sizeBytes, sizeReadable, mime, type, modifiedTime });
+	metadataMap.set(imagePath, {
+		baseName,
+		directory,
+		width,
+		height,
+		resolution,
+		sizeBytes,
+		sizeReadable,
+		mime,
+		type,
+		modifiedTime
+	});
 
 	// adding to DB for future runs
-	insertMetadataToDB(imagePath, baseName, directory, width, height, resolution, sizeBytes, sizeReadable, mime, type, modifiedTime);
+	insertMetadataToDB(
+		imagePath,
+		baseName,
+		directory,
+		width,
+		height,
+		resolution,
+		sizeBytes,
+		sizeReadable,
+		mime,
+		type,
+		modifiedTime
+	);
 	return;
 }
 
@@ -144,7 +169,7 @@ async function initializeImagesMetadata(imagePaths, metadataMap) {
 	try {
 		const promises = imagePaths.map(async imagePath => {
 			if (!metadataMap.has(imagePath)) {
-				initializeImageMetadata(imagePath);
+				initializeImageMetadata(imagePath, metadataMap);
 				return;
 			}
 		});
@@ -152,45 +177,6 @@ async function initializeImagesMetadata(imagePaths, metadataMap) {
 	} catch (error) {
 		console.error(`Error initializing metadata for images: ${error}`);
 	}
-}
-
-function insertMetadataToDB(imagePath, baseName, directory, width, height, resolution, sizeBytes, sizeReadable, mime, type, modifiedTime) {
-	return new Promise((resolve, reject) => {
-		db.run(`
-			INSERT INTO metadata (
-				imagePath,
-				baseName,
-				directory,
-				width,
-				height,
-				resolution,
-				sizeBytes,
-				sizeReadable,
-				mime,
-				type,
-				modifiedTime
-			) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		`, [
-			imagePath,
-			baseName,
-			directory,
-			width,
-			height,
-			resolution,
-			sizeBytes,
-			sizeReadable,
-			mime,
-			type,
-			modifiedTime
-		], function (err) {
-			if (err) {
-				console.error('Error inserting metadata into db:', err);
-				reject(err);
-			} else {
-				resolve();
-			}
-		});
-	});
 }
 
 function sortByName(imagePaths, metadataMap, ascending = true) {

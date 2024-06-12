@@ -64,7 +64,59 @@ function loadMetadataMapFromDB(METADATA_MAP) {
 	});
 }
 
+function insertMetadataToDB(
+	imagePath,
+	baseName,
+	directory,
+	width,
+	height,
+	resolution,
+	sizeBytes,
+	sizeReadable,
+	mime,
+	type,
+	modifiedTime
+) {
+	return new Promise((resolve, reject) => {
+		db.run(`
+			INSERT INTO metadata (
+				imagePath,
+				baseName,
+				directory,
+				width,
+				height,
+				resolution,
+				sizeBytes,
+				sizeReadable,
+				mime,
+				type,
+				modifiedTime
+			) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		`, [
+			imagePath,
+			baseName,
+			directory,
+			width,
+			height,
+			resolution,
+			sizeBytes,
+			sizeReadable,
+			mime,
+			type,
+			modifiedTime
+		], function (err) {
+			if (err) {
+				console.error('Error inserting metadata into db:', err);
+				reject(err);
+			} else {
+				resolve();
+			}
+		});
+	});
+}
+
 module.exports = {
 	initializeMetadataTable,
-	loadMetadataMapFromDB
+	loadMetadataMapFromDB,
+	insertMetadataToDB
 };
