@@ -14,6 +14,10 @@ const {
 	shuffle
 } = require('./fileUtils');
 
+const {
+	VIDEO_EXTENSIONS,
+} = require('./constants');
+
 const searchResultBatchSize = 50;
 
 module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
@@ -100,7 +104,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		const extension = PATH.extname(randomImagePath).toLowerCase();
 		let filetype = 'image';
 
-		if (videoExtensions.includes(extension)) {
+		if (VIDEO_EXTENSIONS.includes(extension)) {
 			filetype = 'video'
 		}
 
@@ -161,7 +165,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		const extension = PATH.extname(nextImagePath).toLowerCase();
 		let filetype = 'image';
 
-		if (videoExtensions.includes(extension)) {
+		if (VIDEO_EXTENSIONS.includes(extension)) {
 			filetype = 'video'
 		}
 
@@ -215,7 +219,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		const extension = PATH.extname(previousImagePath).toLowerCase();
 		let filetype = 'image';
 
-		if (videoExtensions.includes(extension)) {
+		if (VIDEO_EXTENSIONS.includes(extension)) {
 			filetype = 'video'
 		}
 
