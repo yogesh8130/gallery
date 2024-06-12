@@ -1,7 +1,52 @@
 const path = require('path');
 const fs = require('fs');
-const sqlite3 = require('sqlite3').verbose();
-// Create SQLite database connection
+
+// for reading image and video metadata
+const { readMediaAttributes } = require('leather'); // much smaller
+
+const {
+	VIDEO_EXTENSIONS,
+	IMAGE_EXTENSIONS,
+	ALLOWED_EXTENSIONS
+} = require('./constants');
+
+const readImageFiles = async (IMAGE_PATHS, directory, depth = 0, maxDepth = 20) => {
+	let files;
+	try {
+		files = await fs.promises.readdir(directory);
+	} catch (error) {
+		console.error(`Error reading directory '${directory}': ${error.message}`);
+		return;
+	}
+	const subDirectories = [];
+
+	await Promise.all(
+		files.map(async (file) => {
+			const fullPath = path.join(directory, file);
+			try {
+				const stat = await fs.promises.stat(fullPath);
+				if (stat.isDirectory()) {
+					if (depth < maxDepth) {
+						subDirectories.push(fullPath);
+					}
+				} else {
+					const ext = path.extname(fullPath).toLowerCase();
+					if (ALLOWED_EXTENSIONS.includes(ext) && !fullPath.includes("###deleted")) {
+						IMAGE_PATHS.push(fullPath.replace(/^public/, ''));
+					}
+				}
+			} catch (error) {
+				console.error(`Error processing path: ${fullPath}: ${error.message}`);
+			}
+		})
+	);
+
+	await Promise.all(
+		subDirectories.map(async (subDirectory) => {
+			await readImageFiles(IMAGE_PATHS, subDirectory, depth + 1, maxDepth);
+		})
+	);
+};
 
 function shuffle(array) {
 	let currentIndex = array.length, randomIndex;
@@ -53,11 +98,12 @@ async function getImagesMetadata(imagePaths, metadataMap) {
 }
 
 function initializeImageMetadata(imagePath, metadataMap) {
+	pwd = process.cwd();
 	// console.log(`Metadata NOT found in metadataMap, reading from file: ${imagePath}`);
 	const absolutePath = path.join(pwd, "public", imagePath);
 	const extension = path.extname(imagePath);
-	const isVideo = videoExtensions.includes(extension.toLowerCase());
-	const isImage = imageExtensions.includes(extension.toLowerCase());
+	const isVideo = VIDEO_EXTENSIONS.includes(extension.toLowerCase());
+	const isImage = IMAGE_EXTENSIONS.includes(extension.toLowerCase());
 
 	if (!isVideo && !isImage) {
 		reject(new Error(`Unsupported file format: ${extension}`));
@@ -147,28 +193,28 @@ function insertMetadataToDB(imagePath, baseName, directory, width, height, resol
 	});
 }
 
-function sortByName(imagePaths,metadataMap, ascending = true) {
+function sortByName(imagePaths, metadataMap, ascending = true) {
 	return imagePaths.sort((a, b) => {
 		const diff = metadataMap.get(a).baseName.localeCompare(metadataMap.get(b).baseName);
 		return ascending ? diff : -diff;
 	});
 }
 
-function sortBySize(imagePaths,metadataMap, ascending = true) {
+function sortBySize(imagePaths, metadataMap, ascending = true) {
 	return imagePaths.sort((a, b) => {
 		const diff = metadataMap.get(a).sizeBytes - metadataMap.get(b).sizeBytes;
 		return ascending ? diff : -diff;
 	});
 }
 
-function sortByModifiedTime(imagePaths,metadataMap, ascending = true) {
+function sortByModifiedTime(imagePaths, metadataMap, ascending = true) {
 	return imagePaths.sort((a, b) => {
 		const diff = new Date(metadataMap.get(a).modifiedTime) - new Date(metadataMap.get(b).modifiedTime);
 		return ascending ? diff : -diff;
 	});
 }
 
-function sortByDimensions(imagePaths,metadataMap, ascending = true) {
+function sortByDimensions(imagePaths, metadataMap, ascending = true) {
 	return imagePaths.sort((a, b) => {
 		const metadataA = metadataMap.get(a);
 		const metadataB = metadataMap.get(b);
@@ -190,6 +236,7 @@ function renameKey(map, oldKey, newKey) {
 }
 
 module.exports = {
+	readImageFiles,
 	initializeImagesMetadata,
 	insertMetadataToDB,
 	shuffle,

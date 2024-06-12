@@ -8,7 +8,7 @@ const {
 	sortByDimensions,
 	renameKey,
 	shuffle
-} = require('./utils');
+} = require('./fileUtils');
 
 const searchResultBatchSize = 50;
 
@@ -969,7 +969,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		// adding results to Search results map to search faster next time
 		// and also preserve the imagelist when lazy loading shuffled results
 		const searchKey = searchText + ':::' + sortBy + ':::' + sortAsc;
-		console.log(searchKey);
+		// console.log(searchKey);
 		SEARCH_RESULTS.set(searchKey, matchingImagePaths);
 
 		const totalResultCount = matchingImagePaths.length;
@@ -981,7 +981,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		const pageImagePaths = matchingImagePaths.slice(startIndex, endIndex);
 		// const pageImageIndexes = matchingImageIndexes.slice(startIndex, endIndex);
 
-		console.log('getting image metadata');
+		// console.log('getting image metadata');
 		let images;
 		try {
 			images = await getImagesMetadata(pageImagePaths, METADATA_MAP);
@@ -992,7 +992,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 
 		const totalPages = Math.ceil(matchingImagePaths.length / perPage);
 
-		console.log('rendering search results');
+		// console.log('rendering search results');
 		const multiplier = 1;
 
 		res.render('home', {
