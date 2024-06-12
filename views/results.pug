@@ -4,6 +4,7 @@ else
 	each image, index in images
 		- const folderName = image.directory
 		- const imageName = image.baseName
+		- const imageNameNoExt = imageName.replace(/\.[^/.]+$/, "")
 		- const imageLinkEscaped = encodeURIComponent(image.imagePath)
 		//- this sets the approximate size of a row height in tiles mode
 		//- it is in rem units and 25 is around 50% of a 1080p screen with the provided css
@@ -38,6 +39,7 @@ else
 							input.currentFilePath(type = "text" name = 'currentFilePath'
 								placeholder = 'Curent File Path' value = imageLinkEscaped readonly hidden)
 							input.newFileName(type = "text" name = 'newFileName'
+								value = imageNameNoExt
 								placeholder = 'New Name (press Enter)' required)
 							input(type="submit" hidden)
 				div.infoDiv

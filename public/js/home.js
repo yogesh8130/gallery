@@ -703,6 +703,8 @@ function showRenameDialog(button) {
 			renameDialog.close();
 		} else {
 			renameDialog.show();
+			const newFileNameInput = renameDialog.querySelector('.newFileName');
+			newFileNameInput.select();
 		}
 
 		// yes the dialogs can be submitted too
@@ -735,7 +737,9 @@ function showRenameDialog(button) {
 					const imageTitle = document.querySelector('#imageTitle'+idNum);
 					const subTitle = document.querySelector('#subTitle'+idNum);
 					imageTitle.innerHTML = data.newImageTitle;
+					imageTitle.href = data.newImageTitleLink
 					subTitle.innerHTML = data.newSubTitle;
+					subTitle.href = data.newSubTitleLink;
 				})
 				.catch(error => {
 					showPopup(error, 'error');
@@ -1003,8 +1007,18 @@ function renameBulk() {
 					image.classList.add('renameFailed')
 					fail++;
 				} else {
-					image.src = value;
+					image.src = value.newFilePathRelative;
 					selectedImages.set(imageId, value)
+
+					// update image title and subtitle
+					idNum = imageId.replace('image', '');
+					const imageTitle = document.querySelector('#imageTitle'+idNum);
+					imageTitle.innerHTML = value.newImageTitle;
+					imageTitle.href = value.newImageTitleLink;
+					const subTitle = document.querySelector('#subTitle'+idNum);
+					subTitle.innerHTML = value.newSubTitle;
+					subTitle.href = value.newSubTitleLink;
+					
 					success++;
 				}
 

@@ -311,12 +311,19 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 			const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
 			FS.appendFileSync('./logs/rename.log', logMessage);
 
+			newImageTitle = METADATA_MAP.get(newFilePathRelative).baseName;
+			newSubTitle = METADATA_MAP.get(newFilePathRelative).directory;
+			newImageTitleLink = '/search?searchText=' + encodeURIComponent(newImageTitle.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim()) + '&view=tiles';
+			newSubTitleLink = '/search?searchText=' + encodeURIComponent(newSubTitle) + '&view=tiles';
+
 			return res.status(200).json({
 				message: 'File renamed successfully',
 				level: 'info',
 				newSrc: newFilePathRelative,
-				newImageTitle: METADATA_MAP.get(newFilePathRelative).baseName,
-				newSubTitle: METADATA_MAP.get(newFilePathRelative).directory
+				newImageTitle,
+				newSubTitle,
+				newImageTitleLink,
+				newSubTitleLink
 			});
 		} catch (err) {
 			console.error(err);
@@ -397,7 +404,17 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 					FS.appendFileSync('./logs/rename.log', logMessage);
 					success++;
 					index++;
-					results.set(imageId, newFilePathRelative);
+					newImageTitle = METADATA_MAP.get(newFilePathRelative).baseName;
+					newSubTitle = METADATA_MAP.get(newFilePathRelative).directory;
+					newImageTitleLink = '/search?searchText=' + encodeURIComponent(newImageTitle.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim()) + '&view=tiles';
+					newSubTitleLink = '/search?searchText=' + encodeURIComponent(newSubTitle) + '&view=tiles';
+					results.set(imageId, {
+						newFilePathRelative: newFilePathRelative,
+						newImageTitle: newImageTitle,
+						newSubTitle: newSubTitle,
+						newImageTitleLink: newImageTitleLink,
+						newSubTitleLink: newSubTitleLink
+					});
 				} catch (err) {
 					console.error('Error renaming file:', err);
 					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Fail: ${err}\n`;
