@@ -1,5 +1,6 @@
-const path = require('path');
-const fs = require('fs');
+const PATH = require('path');
+const FS = require('fs');
+const PWD = process.cwd();
 
 // for reading image and video metadata
 const { readMediaAttributes } = require('leather'); // much smaller
@@ -15,7 +16,7 @@ const {
 const readImageFiles = async (IMAGE_PATHS, directory, depth = 0, maxDepth = 20) => {
 	let files;
 	try {
-		files = await fs.promises.readdir(directory);
+		files = await FS.promises.readdir(directory);
 	} catch (error) {
 		console.error(`Error reading directory '${directory}': ${error.message}`);
 		return;
@@ -24,15 +25,15 @@ const readImageFiles = async (IMAGE_PATHS, directory, depth = 0, maxDepth = 20) 
 
 	await Promise.all(
 		files.map(async (file) => {
-			const fullPath = path.join(directory, file);
+			const fullPath = PATH.join(directory, file);
 			try {
-				const stat = await fs.promises.stat(fullPath);
+				const stat = await FS.promises.stat(fullPath);
 				if (stat.isDirectory()) {
 					if (depth < maxDepth) {
 						subDirectories.push(fullPath);
 					}
 				} else {
-					const ext = path.extname(fullPath).toLowerCase();
+					const ext = PATH.extname(fullPath).toLowerCase();
 					if (ALLOWED_EXTENSIONS.includes(ext) && !fullPath.includes("###deleted")) {
 						IMAGE_PATHS.push(fullPath.replace(/^public/, ''));
 					}
@@ -100,10 +101,9 @@ async function getImagesMetadata(imagePaths, metadataMap) {
 }
 
 function initializeImageMetadata(imagePath, metadataMap) {
-	pwd = process.cwd();
 	// console.log(`Metadata NOT found in metadataMap, reading from file: ${imagePath}`);
-	const absolutePath = path.join(pwd, "public", imagePath);
-	const extension = path.extname(imagePath);
+	const absolutePath = PATH.join(PWD, "public", imagePath);
+	const extension = PATH.extname(imagePath);
 	const isVideo = VIDEO_EXTENSIONS.includes(extension.toLowerCase());
 	const isImage = IMAGE_EXTENSIONS.includes(extension.toLowerCase());
 
@@ -113,7 +113,7 @@ function initializeImageMetadata(imagePath, metadataMap) {
 	}
 
 	const fileAttrs = readMediaAttributes(absolutePath);
-	const stats = fs.statSync(absolutePath);
+	const stats = FS.statSync(absolutePath);
 	const modifiedTime = stats.mtime.toISOString();
 	const sizeBytes = stats.size;
 	let sizeReadable;
@@ -126,8 +126,8 @@ function initializeImageMetadata(imagePath, metadataMap) {
 	} else {
 		sizeReadable = `${sizeBytes} B`;
 	}
-	const baseName = path.basename(imagePath);
-	const directory = path.dirname(imagePath);
+	const baseName = PATH.basename(imagePath);
+	const directory = PATH.dirname(imagePath);
 	const width = fileAttrs.width || 400;
 	const height = fileAttrs.height || 300;
 	const resolution = fileAttrs.width + ' x ' + fileAttrs.height || "0 x 0";

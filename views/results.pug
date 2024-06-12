@@ -10,11 +10,12 @@ else
 		- const baseSize = 25
 		- const width = (image.width * baseSize / image.height)*multiplier
 		- const padding = image.height / image.width * 100
+		- const idNum = (50*(page-1)+index)
 		- resultStyle = `width: ${width}rem; flex-grow: ${width}`
 		- istyle = `padding-bottom: ${padding}%`
 		div.result(data-width=width
 			style = `${view && view === 'tiles' ? resultStyle : ""}`
-			id = 'result'+(50*(page-1)+index)
+			id = 'result'+ idNum
 			)
 			i(
 				data-padding = padding 
@@ -32,19 +33,23 @@ else
 					button.renameButton(onclick = 'showRenameDialog(this)') &#9998;
 					dialog.renameDialog
 						form.renameForm
-							input(type = "text" name = 'currentFilePath' id = 'currentFilePath' 
+							input.idNum(type = "text" name = 'idNum'
+								value = idNum readonly hidden)
+							input.currentFilePath(type = "text" name = 'currentFilePath'
 								placeholder = 'Curent File Path' value = imageLinkEscaped readonly hidden)
-							input(type = "text" name = 'newFileName' id = 'newFileName'
-								placeholder = 'New File Name' required)
+							input.newFileName(type = "text" name = 'newFileName'
+								placeholder = 'New Name (press Enter)' required)
 							input(type="submit" hidden)
 				div.infoDiv
 					- let similarImageLink = encodeURIComponent(imageName.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())
 					a.imageTitle(
+						id = 'imageTitle'+idNum
 						href = '/search?searchText=' + similarImageLink + '&view=' + view
 						target = "_blank")
 						| #{imageName} 
 					- let folderlink = encodeURIComponent(folderName)
 					a.subTitle(
+						id = 'subTitle'+idNum
 						href = '/search?searchText=' + folderlink + '&view=' + view
 						target = "_blank")
 						|#{folderName}
@@ -52,6 +57,6 @@ else
 			div.mainContent
 				a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped)
 					if (image.type === 'image')
-						img.searchImg.resultFile(id = 'image'+(50*(page-1)+index) src = imageLinkEscaped)
+						img.searchImg.resultFile(id = 'image'+idNum src = imageLinkEscaped)
 					else
-						video.searchVid.resultFile.videoFile(id = 'image'+(50*(page-1)+index) data-src = imageLinkEscaped controls loop)
+						video.searchVid.resultFile.videoFile(id = 'image'+idNum data-src = imageLinkEscaped controls loop)

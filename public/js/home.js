@@ -709,8 +709,7 @@ function showRenameDialog(button) {
 		renameDialog.onsubmit = function (event) {
 			event.preventDefault(); // else the form will submit normally and reload the page
 			const renameForm = renameDialog.querySelector('.renameForm');
-			// console.log(renameForm.newFileName.value);
-
+			const idNum = renameForm.idNum.value;
 			const url = '/rename';
 			const formData = {
 				currentFilePath: renameForm.currentFilePath.value,
@@ -733,7 +732,10 @@ function showRenameDialog(button) {
 					showPopup(data.message, data.level);
 					// TODO update image SRC after rename
 					// sent in data.newSrc
-					// console.log(data);
+					const imageTitle = document.querySelector('#imageTitle'+idNum);
+					const subTitle = document.querySelector('#subTitle'+idNum);
+					imageTitle.innerHTML = data.newImageTitle;
+					subTitle.innerHTML = data.newSubTitle;
 				})
 				.catch(error => {
 					showPopup(error, 'error');

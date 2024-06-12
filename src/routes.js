@@ -1,4 +1,8 @@
 // routes.js
+const PATH = require('path');
+const FS = require('fs');
+const PWD = process.cwd();
+
 const {
 	initializeImagesMetadata,
 	getImagesMetadata,
@@ -65,8 +69,8 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 			imagePath = IMAGE_PATHS[randomIndex];
 		}
 
-		const imageName = path.basename(imagePath);
-		const directoryPath = path.dirname(imagePath);
+		const imageName = PATH.basename(imagePath);
+		const directoryPath = PATH.dirname(imagePath);
 
 		// Create an object to store the data
 		const data = {
@@ -91,9 +95,9 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		const randomIndex = Math.floor(Math.random() * IMAGE_PATHS.length);
 		const randomImagePath = IMAGE_PATHS[randomIndex];
 
-		const filename = path.basename(randomImagePath);
-		const directoryPath = path.dirname(randomImagePath);
-		const extension = path.extname(randomImagePath).toLowerCase();
+		const filename = PATH.basename(randomImagePath);
+		const directoryPath = PATH.dirname(randomImagePath);
+		const extension = PATH.extname(randomImagePath).toLowerCase();
 		let filetype = 'image';
 
 		if (videoExtensions.includes(extension)) {
@@ -152,9 +156,9 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		const nextIndex = (currentIndex + 1) % imageList.length;
 		const nextImagePath = imageList[nextIndex];
 
-		const filename = path.basename(nextImagePath);
-		const directoryPath = path.dirname(nextImagePath);
-		const extension = path.extname(nextImagePath).toLowerCase();
+		const filename = PATH.basename(nextImagePath);
+		const directoryPath = PATH.dirname(nextImagePath);
+		const extension = PATH.extname(nextImagePath).toLowerCase();
 		let filetype = 'image';
 
 		if (videoExtensions.includes(extension)) {
@@ -206,9 +210,9 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		const previousIndex = (currentIndex - 1 + imageList.length) % imageList.length;
 		const previousImagePath = imageList[previousIndex];
 
-		const filename = path.basename(previousImagePath);
-		const directoryPath = path.dirname(previousImagePath);
-		const extension = path.extname(previousImagePath).toLowerCase();
+		const filename = PATH.basename(previousImagePath);
+		const directoryPath = PATH.dirname(previousImagePath);
+		const extension = PATH.extname(previousImagePath).toLowerCase();
 		let filetype = 'image';
 
 		if (videoExtensions.includes(extension)) {
@@ -228,27 +232,27 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 	});
 
 	router.post('/deleteFile', (req, res) => {
-		const currentFilePath = path.resolve(path.join('.', 'public', decodeURIComponent(req.body.currentFilePath)));
+		const currentFilePath = PATH.resolve(PATH.join('.', 'public', decodeURIComponent(req.body.currentFilePath)));
 
-		const currentFilePathObj = path.parse(currentFilePath);
+		const currentFilePathObj = PATH.parse(currentFilePath);
 
 		let currentFileFolder = currentFilePathObj.dir;
 		let currentFileName = currentFilePathObj.name;
 		let currentFileExt = currentFilePathObj.ext;
 
-		let newFilePath = path.join(currentFileFolder, currentFileName + "###deleted" + currentFileExt);
+		let newFilePath = PATH.join(currentFileFolder, currentFileName + "###deleted" + currentFileExt);
 
 		// Rename the file using the fs module
-		fs.renameSync(currentFilePath, newFilePath);
+		FS.renameSync(currentFilePath, newFilePath);
 
 		// to find and replace in "DB"
-		const currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
+		const currentFilePathRelative = currentFilePath.replace(PWD + '\\public', '');
 
 		// removing from "DB"
 		IMAGE_PATHS.splice(IMAGE_PATHS.indexOf(currentFilePathRelative), 1);
 
 		const logMessage = `${new Date().toISOString()}|${currentFilePath}|###deleted|Success\n`;
-		fs.appendFileSync('./logs/rename.log', logMessage);
+		FS.appendFileSync('./logs/rename.log', logMessage);
 
 		return res.status(200).json({
 			message: 'File deleted successfully',
@@ -259,19 +263,19 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 
 	// Define a route to handle file renaming
 	router.post('/rename', (req, res) => {
-		const currentFilePath = path.resolve(path.join('.', 'public', decodeURIComponent(req.body.currentFilePath)));
+		const currentFilePath = PATH.resolve(PATH.join('.', 'public', decodeURIComponent(req.body.currentFilePath)));
 		const newFileName = req.body.newFileName;
 
-		const currentFilePathObj = path.parse(currentFilePath);
-		let newFilePath = path.join(currentFilePathObj.dir, newFileName + currentFilePathObj.ext);
+		const currentFilePathObj = PATH.parse(currentFilePath);
+		let newFilePath = PATH.join(currentFilePathObj.dir, newFileName + currentFilePathObj.ext);
 		// this allows having .. in new filename to goback directory levels
-		newFilePath = path.normalize(newFilePath);
+		newFilePath = PATH.normalize(newFilePath);
 
 		try {
 			// Check if new file's directory exists or not, and create if necessary
-			if (!fs.existsSync(path.dirname(newFilePath))) {
+			if (!FS.existsSync(PATH.dirname(newFilePath))) {
 				console.log("new file's directory not found, hence creating");
-				fs.mkdirSync(path.dirname(newFilePath), { recursive: true });
+				FS.mkdirSync(PATH.dirname(newFilePath), { recursive: true });
 			}
 
 			let index = 1;
@@ -279,43 +283,45 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 			let uniqueFileName = newFileName;
 
 			// Check if a file with the new file name already exists
-			while (fs.existsSync(newFilePath)) {
+			while (FS.existsSync(newFilePath)) {
 				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Collision\n`;
-				fs.appendFileSync('./logs/rename.log', logMessage);
+				FS.appendFileSync('./logs/rename.log', logMessage);
 
 				uniqueFileName = `${newFileName}-${indexWithPadding}`;
-				newFilePath = path.join(currentFilePathObj.dir, uniqueFileName + currentFilePathObj.ext);
-				newFilePath = path.normalize(newFilePath);
+				newFilePath = PATH.join(currentFilePathObj.dir, uniqueFileName + currentFilePathObj.ext);
+				newFilePath = PATH.normalize(newFilePath);
 				index++;
 				indexWithPadding = index.toString().padStart(3, '0');
 			}
 
 			// Rename the file using the fs module
-			fs.renameSync(currentFilePath, newFilePath);
+			FS.renameSync(currentFilePath, newFilePath);
 
 			// to find and replace in "DB"
-			const currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
-			const newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
+			const currentFilePathRelative = currentFilePath.replace(PWD + '\\public', '');
+			const newFilePathRelative = newFilePath.replace(PWD + '\\public', '');
 
 			// replacing in "DB"
 			IMAGE_PATHS[IMAGE_PATHS.indexOf(currentFilePathRelative)] = newFilePathRelative;
 			IMAGE_PATHS.sort();
-			renameKey(metadataMap, currentFilePathRelative, newFilePathRelative);
-			metadataMap.get(newFilePathRelative).baseName = path.basename(newFilePathRelative);
-			metadataMap.get(newFilePathRelative).directory = path.dirname(newFilePathRelative);
+			renameKey(METADATA_MAP, currentFilePathRelative, newFilePathRelative);
+			METADATA_MAP.get(newFilePathRelative).baseName = PATH.basename(newFilePathRelative);
+			METADATA_MAP.get(newFilePathRelative).directory = PATH.dirname(newFilePathRelative);
 
 			const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
-			fs.appendFileSync('./logs/rename.log', logMessage);
+			FS.appendFileSync('./logs/rename.log', logMessage);
 
 			return res.status(200).json({
 				message: 'File renamed successfully',
 				level: 'info',
-				newSrc: newFilePathRelative
+				newSrc: newFilePathRelative,
+				newImageTitle: METADATA_MAP.get(newFilePathRelative).baseName,
+				newSubTitle: METADATA_MAP.get(newFilePathRelative).directory
 			});
 		} catch (err) {
 			console.error(err);
 			const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Fail: ${err}\n`;
-			fs.appendFileSync('./logs/rename.log', logMessage);
+			FS.appendFileSync('./logs/rename.log', logMessage);
 			return res.status(500).json({
 				message: 'Error renaming file',
 				level: 'error'
@@ -337,13 +343,13 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		let index = 1;
 
 		currentFilePaths.forEach((currentFilePath, imageId) => {
-			currentFilePath = path.resolve(path.join('.', 'public', currentFilePath));
+			currentFilePath = PATH.resolve(PATH.join('.', 'public', currentFilePath));
 			let indexWithPadding = index.toString().padStart(3, '0');
 			let newFileNameWithIndex = newFileName + '-' + indexWithPadding;
 
-			const currentFilePathObj = path.parse(currentFilePath);
-			let newFilePath = path.join(currentFilePathObj.dir, newFileNameWithIndex + currentFilePathObj.ext);
-			newFilePath = path.normalize(newFilePath);
+			const currentFilePathObj = PATH.parse(currentFilePath);
+			let newFilePath = PATH.join(currentFilePathObj.dir, newFileNameWithIndex + currentFilePathObj.ext);
+			newFilePath = PATH.normalize(newFilePath);
 
 			// just for replacing in the DB
 			let currentFilePathRelative;
@@ -351,11 +357,11 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 
 			// checking if folder exists
 			try {
-				fs.accessSync(path.dirname(newFilePath));
+				FS.accessSync(PATH.dirname(newFilePath));
 			} catch (err) {
 				console.log("new file's directory not found, hence creating");
 				try {
-					fs.mkdirSync(path.dirname(newFilePath), { recursive: true });
+					FS.mkdirSync(PATH.dirname(newFilePath), { recursive: true });
 				} catch (err) {
 					console.error('Error creating directory:', err);
 				}
@@ -366,36 +372,36 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 				while (true) {
 					// try to access the new file name and keep generating new names by incrementing index
 					// unless we can not access, i.e. name is not used by existing file and error is raised.
-					fs.accessSync(newFilePath);
+					FS.accessSync(newFilePath);
 					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Collision\n`;
-					fs.appendFileSync('./logs/rename.log', logMessage);
+					FS.appendFileSync('./logs/rename.log', logMessage);
 					index++
 					// generating a new file name for collision
 					indexWithPadding = index.toString().padStart(3, '0');
 					newFileNameWithIndex = newFileName + '-' + indexWithPadding;
-					newFilePath = path.join(currentFilePathObj.dir, newFileNameWithIndex + currentFilePathObj.ext);
-					newFilePath = path.normalize(newFilePath);
+					newFilePath = PATH.join(currentFilePathObj.dir, newFileNameWithIndex + currentFilePathObj.ext);
+					newFilePath = PATH.normalize(newFilePath);
 				}
 			} catch (err) {
 				try {
-					currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
-					newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
+					currentFilePathRelative = currentFilePath.replace(PWD + '\\public', '');
+					newFilePathRelative = newFilePath.replace(PWD + '\\public', '');
 					// file not found so we can rename now
-					fs.renameSync(currentFilePath, newFilePath);
+					FS.renameSync(currentFilePath, newFilePath);
 					IMAGE_PATHS[IMAGE_PATHS.indexOf(currentFilePathRelative)] = newFilePathRelative;
 					IMAGE_PATHS.sort();
-					renameKey(metadataMap, currentFilePathRelative, newFilePathRelative);
-					metadataMap.get(newFilePathRelative).baseName = path.basename(newFilePathRelative);
-					metadataMap.get(newFilePathRelative).directory = path.dirname(newFilePathRelative);
+					renameKey(METADATA_MAP, currentFilePathRelative, newFilePathRelative);
+					METADATA_MAP.get(newFilePathRelative).baseName = PATH.basename(newFilePathRelative);
+					METADATA_MAP.get(newFilePathRelative).directory = PATH.dirname(newFilePathRelative);
 					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
-					fs.appendFileSync('./logs/rename.log', logMessage);
+					FS.appendFileSync('./logs/rename.log', logMessage);
 					success++;
 					index++;
 					results.set(imageId, newFilePathRelative);
 				} catch (err) {
 					console.error('Error renaming file:', err);
 					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Fail: ${err}\n`;
-					fs.appendFileSync('./logs/rename.log', logMessage);
+					FS.appendFileSync('./logs/rename.log', logMessage);
 					fail++;
 					results.set(imageId, 'fail');
 				}
@@ -428,8 +434,8 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		console.log("textToAppend: " + textToAppend);
 
 		currentFilePaths.forEach((currentFilePath, imageId) => {
-			currentFilePath = path.resolve(path.join('.', 'public', currentFilePath));
-			const currentFilePathObj = path.parse(currentFilePath);
+			currentFilePath = PATH.resolve(PATH.join('.', 'public', currentFilePath));
+			const currentFilePathObj = PATH.parse(currentFilePath);
 
 			let currentFileFolder = currentFilePathObj.dir;
 			let currentFileName = currentFilePathObj.name;
@@ -447,8 +453,8 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 				return;
 			}
 
-			let newFilePath = path.join(currentFileFolder, newFileName + currentFileExt);
-			newFilePath = path.normalize(newFilePath);
+			let newFilePath = PATH.join(currentFileFolder, newFileName + currentFileExt);
+			newFilePath = PATH.normalize(newFilePath);
 
 			// just for replacing in the DB
 			let currentFilePathRelative;
@@ -459,36 +465,36 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 				while (true) {
 					// try to access the new file name and keep generating new names by incrementing index
 					// unless we can not access, i.e. name is not used by existing file and error is raised.
-					fs.accessSync(newFilePath);
+					FS.accessSync(newFilePath);
 					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Collision\n`;
-					fs.appendFileSync('./logs/rename.log', logMessage);
+					FS.appendFileSync('./logs/rename.log', logMessage);
 					index++
 					// generating a new file name for collision
 					indexWithPadding = index.toString().padStart(3, '0');
 					newFileName = newFileName + '-' + indexWithPadding;
-					newFilePath = path.join(currentFileFolder, newFileName + currentFileExt);
-					newFilePath = path.normalize(newFilePath);
+					newFilePath = PATH.join(currentFileFolder, newFileName + currentFileExt);
+					newFilePath = PATH.normalize(newFilePath);
 				}
 			} catch (err) {
 				try {
-					currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
-					newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
+					currentFilePathRelative = currentFilePath.replace(PWD + '\\public', '');
+					newFilePathRelative = newFilePath.replace(PWD + '\\public', '');
 					// file not found so we can rename now
-					fs.renameSync(currentFilePath, newFilePath);
+					FS.renameSync(currentFilePath, newFilePath);
 					IMAGE_PATHS[IMAGE_PATHS.indexOf(currentFilePathRelative)] = newFilePathRelative;
 					IMAGE_PATHS.sort();
-					renameKey(metadataMap, currentFilePathRelative, newFilePathRelative);
-					metadataMap.get(newFilePathRelative).baseName = path.basename(newFilePathRelative);
-					metadataMap.get(newFilePathRelative).directory = path.dirname(newFilePathRelative);
+					renameKey(METADATA_MAP, currentFilePathRelative, newFilePathRelative);
+					METADATA_MAP.get(newFilePathRelative).baseName = PATH.basename(newFilePathRelative);
+					METADATA_MAP.get(newFilePathRelative).directory = PATH.dirname(newFilePathRelative);
 					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
-					fs.appendFileSync('./logs/rename.log', logMessage);
+					FS.appendFileSync('./logs/rename.log', logMessage);
 					success++;
 					index++;
 					results.set(imageId, newFilePathRelative);
 				} catch (err) {
 					console.error('Error renaming file:', err);
 					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Fail: ${err}\n`;
-					fs.appendFileSync('./logs/rename.log', logMessage);
+					FS.appendFileSync('./logs/rename.log', logMessage);
 					fail++;
 					results.set(imageId, 'fail');
 				}
@@ -517,8 +523,8 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		console.log("textToPrepend: " + textToPrepend);
 
 		currentFilePaths.forEach((currentFilePath, imageId) => {
-			currentFilePath = path.resolve(path.join('.', 'public', currentFilePath));
-			const currentFilePathObj = path.parse(currentFilePath);
+			currentFilePath = PATH.resolve(PATH.join('.', 'public', currentFilePath));
+			const currentFilePathObj = PATH.parse(currentFilePath);
 
 			let currentFileFolder = currentFilePathObj.dir;
 			let currentFileName = currentFilePathObj.name;
@@ -532,8 +538,8 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 				return;
 			}
 
-			let newFilePath = path.join(currentFileFolder, newFileName + currentFileExt);
-			newFilePath = path.normalize(newFilePath);
+			let newFilePath = PATH.join(currentFileFolder, newFileName + currentFileExt);
+			newFilePath = PATH.normalize(newFilePath);
 
 			// just for replacing in the DB
 			let currentFilePathRelative;
@@ -544,36 +550,36 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 				while (true) {
 					// try to access the new file name and keep generating new names by incrementing index
 					// unless we can not access, i.e. name is not used by existing file and error is raised.
-					fs.accessSync(newFilePath);
+					FS.accessSync(newFilePath);
 					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Collision\n`;
-					fs.appendFileSync('./logs/rename.log', logMessage);
+					FS.appendFileSync('./logs/rename.log', logMessage);
 					index++
 					// generating a new file name for collision
 					indexWithPadding = index.toString().padStart(3, '0');
 					newFileName = newFileName + '-' + indexWithPadding;
-					newFilePath = path.join(currentFileFolder, newFileName + currentFileExt);
-					newFilePath = path.normalize(newFilePath);
+					newFilePath = PATH.join(currentFileFolder, newFileName + currentFileExt);
+					newFilePath = PATH.normalize(newFilePath);
 				}
 			} catch (err) {
 				try {
-					currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
-					newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
+					currentFilePathRelative = currentFilePath.replace(PWD + '\\public', '');
+					newFilePathRelative = newFilePath.replace(PWD + '\\public', '');
 					// file not found so we can rename now
-					fs.renameSync(currentFilePath, newFilePath);
+					FS.renameSync(currentFilePath, newFilePath);
 					IMAGE_PATHS[IMAGE_PATHS.indexOf(currentFilePathRelative)] = newFilePathRelative;
 					IMAGE_PATHS.sort();
-					renameKey(metadataMap, currentFilePathRelative, newFilePathRelative);
-					metadataMap.get(newFilePathRelative).baseName = path.basename(newFilePathRelative);
-					metadataMap.get(newFilePathRelative).directory = path.dirname(newFilePathRelative);
+					renameKey(METADATA_MAP, currentFilePathRelative, newFilePathRelative);
+					METADATA_MAP.get(newFilePathRelative).baseName = PATH.basename(newFilePathRelative);
+					METADATA_MAP.get(newFilePathRelative).directory = PATH.dirname(newFilePathRelative);
 					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
-					fs.appendFileSync('./logs/rename.log', logMessage);
+					FS.appendFileSync('./logs/rename.log', logMessage);
 					success++;
 					index++;
 					results.set(imageId, newFilePathRelative);
 				} catch (err) {
 					console.error('Error renaming file:', err);
 					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Fail: ${err}\n`;
-					fs.appendFileSync('./logs/rename.log', logMessage);
+					FS.appendFileSync('./logs/rename.log', logMessage);
 					fail++;
 					results.set(imageId, 'fail');
 				}
@@ -602,8 +608,8 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		console.log("textToRemove: " + textToRemove);
 
 		currentFilePaths.forEach((currentFilePath, imageId) => {
-			currentFilePath = path.resolve(path.join('.', 'public', currentFilePath));
-			const currentFilePathObj = path.parse(currentFilePath);
+			currentFilePath = PATH.resolve(PATH.join('.', 'public', currentFilePath));
+			const currentFilePathObj = PATH.parse(currentFilePath);
 
 			let currentFileFolder = currentFilePathObj.dir;
 			let currentFileName = currentFilePathObj.name;
@@ -617,8 +623,8 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 				return;
 			}
 
-			let newFilePath = path.join(currentFileFolder, newFileName + currentFileExt);
-			newFilePath = path.normalize(newFilePath);
+			let newFilePath = PATH.join(currentFileFolder, newFileName + currentFileExt);
+			newFilePath = PATH.normalize(newFilePath);
 
 			// just for replacing in the DB
 			let currentFilePathRelative;
@@ -629,36 +635,36 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 				while (true) {
 					// try to access the new file name and keep generating new names by incrementing index
 					// unless we can not access, i.e. name is not used by existing file and error is raised.
-					fs.accessSync(newFilePath);
+					FS.accessSync(newFilePath);
 					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Collision\n`;
-					fs.appendFileSync('./logs/rename.log', logMessage);
+					FS.appendFileSync('./logs/rename.log', logMessage);
 					index++
 					// generating a new file name for collision
 					indexWithPadding = index.toString().padStart(3, '0');
 					newFileName = newFileName + '-' + indexWithPadding;
-					newFilePath = path.join(currentFileFolder, newFileName + currentFileExt);
-					newFilePath = path.normalize(newFilePath);
+					newFilePath = PATH.join(currentFileFolder, newFileName + currentFileExt);
+					newFilePath = PATH.normalize(newFilePath);
 				}
 			} catch (err) {
 				try {
-					currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
-					newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
+					currentFilePathRelative = currentFilePath.replace(PWD + '\\public', '');
+					newFilePathRelative = newFilePath.replace(PWD + '\\public', '');
 					// file not found so we can rename now
-					fs.renameSync(currentFilePath, newFilePath);
+					FS.renameSync(currentFilePath, newFilePath);
 					IMAGE_PATHS[IMAGE_PATHS.indexOf(currentFilePathRelative)] = newFilePathRelative;
 					IMAGE_PATHS.sort();
-					renameKey(metadataMap, currentFilePathRelative, newFilePathRelative);
-					metadataMap.get(newFilePathRelative).baseName = path.basename(newFilePathRelative);
-					metadataMap.get(newFilePathRelative).directory = path.dirname(newFilePathRelative);
+					renameKey(METADATA_MAP, currentFilePathRelative, newFilePathRelative);
+					METADATA_MAP.get(newFilePathRelative).baseName = PATH.basename(newFilePathRelative);
+					METADATA_MAP.get(newFilePathRelative).directory = PATH.dirname(newFilePathRelative);
 					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
-					fs.appendFileSync('./logs/rename.log', logMessage);
+					FS.appendFileSync('./logs/rename.log', logMessage);
 					success++;
 					index++;
 					results.set(imageId, newFilePathRelative);
 				} catch (err) {
 					console.error('Error renaming file:', err);
 					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Fail: ${err}\n`;
-					fs.appendFileSync('./logs/rename.log', logMessage);
+					FS.appendFileSync('./logs/rename.log', logMessage);
 					fail++;
 					results.set(imageId, 'fail');
 				}
@@ -686,8 +692,8 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		let index = 0;
 
 		currentFilePaths.forEach((currentFilePath, imageId) => {
-			currentFilePath = path.resolve(path.join('.', 'public', currentFilePath));
-			const currentFilePathObj = path.parse(currentFilePath);
+			currentFilePath = PATH.resolve(PATH.join('.', 'public', currentFilePath));
+			const currentFilePathObj = PATH.parse(currentFilePath);
 
 			let currentFileFolder = currentFilePathObj.dir;
 			let currentFileName = currentFilePathObj.name;
@@ -699,8 +705,8 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 				return;
 			}
 
-			let newFilePath = path.join(currentFileFolder, newFileName + currentFileExt);
-			newFilePath = path.normalize(newFilePath);
+			let newFilePath = PATH.join(currentFileFolder, newFileName + currentFileExt);
+			newFilePath = PATH.normalize(newFilePath);
 
 			// just for replacing in the DB
 			let currentFilePathRelative;
@@ -711,36 +717,36 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 				while (true) {
 					// try to access the new file name and keep generating new names by incrementing index
 					// unless we can not access, i.e. name is not used by existing file and error is raised.
-					fs.accessSync(newFilePath);
+					FS.accessSync(newFilePath);
 					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Collision\n`;
-					fs.appendFileSync('./logs/rename.log', logMessage);
+					FS.appendFileSync('./logs/rename.log', logMessage);
 					index++
 					// generating a new file name for collision
 					indexWithPadding = index.toString().padStart(3, '0');
 					newFileName = newFileName + '-' + indexWithPadding;
-					newFilePath = path.join(currentFileFolder, newFileName + currentFileExt);
-					newFilePath = path.normalize(newFilePath);
+					newFilePath = PATH.join(currentFileFolder, newFileName + currentFileExt);
+					newFilePath = PATH.normalize(newFilePath);
 				}
 			} catch (err) {
 				try {
-					currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
-					newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
+					currentFilePathRelative = currentFilePath.replace(PWD + '\\public', '');
+					newFilePathRelative = newFilePath.replace(PWD + '\\public', '');
 					// file not found so we can rename now
-					fs.renameSync(currentFilePath, newFilePath);
+					FS.renameSync(currentFilePath, newFilePath);
 					IMAGE_PATHS[IMAGE_PATHS.indexOf(currentFilePathRelative)] = newFilePathRelative;
 					IMAGE_PATHS.sort();
-					renameKey(metadataMap, currentFilePathRelative, newFilePathRelative);
-					metadataMap.get(newFilePathRelative).baseName = path.basename(newFilePathRelative);
-					metadataMap.get(newFilePathRelative).directory = path.dirname(newFilePathRelative);
+					renameKey(METADATA_MAP, currentFilePathRelative, newFilePathRelative);
+					METADATA_MAP.get(newFilePathRelative).baseName = PATH.basename(newFilePathRelative);
+					METADATA_MAP.get(newFilePathRelative).directory = PATH.dirname(newFilePathRelative);
 					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
-					fs.appendFileSync('./logs/rename.log', logMessage);
+					FS.appendFileSync('./logs/rename.log', logMessage);
 					success++;
 					index++;
 					results.set(imageId, newFilePathRelative);
 				} catch (err) {
 					console.error('Error renaming file:', err);
 					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Fail: ${err}\n`;
-					fs.appendFileSync('./logs/rename.log', logMessage);
+					FS.appendFileSync('./logs/rename.log', logMessage);
 					fail++;
 					results.set(imageId, 'fail');
 				}
@@ -761,15 +767,15 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		// console.log(targetFolder);
 		// console.log(selectedImages);
 
-		const targetFolderPath = path.resolve(path.join('.', 'public', 'images', targetFolder));
+		const targetFolderPath = PATH.resolve(PATH.join('.', 'public', 'images', targetFolder));
 
 		// checking if folder exists
 		try {
-			fs.accessSync(targetFolderPath);
+			FS.accessSync(targetFolderPath);
 		} catch (err) {
 			console.log("new file's directory not found, hence creating");
 			try {
-				fs.mkdirSync(targetFolderPath, { recursive: true });
+				FS.mkdirSync(targetFolderPath, { recursive: true });
 			} catch (err) {
 				console.error('Error creating directory:', err);
 			}
@@ -785,9 +791,9 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 
 
 		selectedImages.forEach((currentFilePath, imageId) => {
-			currentFilePath = path.resolve(path.join('.', 'public', currentFilePath));
-			const currentFilePathObj = path.parse(currentFilePath);
-			let newFilePath = path.join(targetFolderPath, currentFilePathObj.base);
+			currentFilePath = PATH.resolve(PATH.join('.', 'public', currentFilePath));
+			const currentFilePathObj = PATH.parse(currentFilePath);
+			let newFilePath = PATH.join(targetFolderPath, currentFilePathObj.base);
 			// just for replacing in the DB
 			let currentFilePathRelative;
 			let newFilePathRelative;
@@ -796,34 +802,34 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 			try {
 				let index = 0;
 				while (true) {
-					fs.accessSync(newFilePath);
+					FS.accessSync(newFilePath);
 					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Collision\n`;
-					fs.appendFileSync('./logs/move.log', logMessage);
+					FS.appendFileSync('./logs/move.log', logMessage);
 					index++
 					// generating a new file name for collision
 					indexWithPadding = index.toString().padStart(3, '0');
 					newFileNameWithIndex = currentFilePathObj.name + '-' + indexWithPadding;
-					newFilePath = path.join(targetFolderPath, newFileNameWithIndex + currentFilePathObj.ext);
+					newFilePath = PATH.join(targetFolderPath, newFileNameWithIndex + currentFilePathObj.ext);
 				}
 			} catch (err) {
 				try {
-					currentFilePathRelative = currentFilePath.replace(pwd + '\\public', '');
-					newFilePathRelative = newFilePath.replace(pwd + '\\public', '');
+					currentFilePathRelative = currentFilePath.replace(PWD + '\\public', '');
+					newFilePathRelative = newFilePath.replace(PWD + '\\public', '');
 					// file not found so we can rename now
-					fs.renameSync(currentFilePath, newFilePath);
+					FS.renameSync(currentFilePath, newFilePath);
 					IMAGE_PATHS[IMAGE_PATHS.indexOf(currentFilePathRelative)] = newFilePathRelative;
 					IMAGE_PATHS.sort();
-					renameKey(metadataMap, currentFilePathRelative, newFilePathRelative);
-					metadataMap.get(newFilePathRelative).baseName = path.basename(newFilePathRelative);
-					metadataMap.get(newFilePathRelative).directory = path.dirname(newFilePathRelative);
+					renameKey(METADATA_MAP, currentFilePathRelative, newFilePathRelative);
+					METADATA_MAP.get(newFilePathRelative).baseName = PATH.basename(newFilePathRelative);
+					METADATA_MAP.get(newFilePathRelative).directory = PATH.dirname(newFilePathRelative);
 					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
-					fs.appendFileSync('./logs/move.log', logMessage);
+					FS.appendFileSync('./logs/move.log', logMessage);
 					success++;
 					results.set(imageId, newFilePathRelative);
 				} catch (err) {
 					console.error('Error renaming file:', err);
 					const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Fail: ${err}\n`;
-					fs.appendFileSync('./logs/move.log', logMessage);
+					FS.appendFileSync('./logs/move.log', logMessage);
 					fail++;
 					results.set(imageId, 'fail');
 				}
