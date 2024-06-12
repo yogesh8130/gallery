@@ -90,23 +90,32 @@ const allowedExtensions = [...videoExtensions, ...imageExtensions];
 console.log('Loading files...');
 // Function to read image files recursively and populate the imagePaths array
 const readImageFiles = async (directory, depth = 0, maxDepth = 20) => {
-	const files = await fs.promises.readdir(directory);
+	let files;
+	try {
+		files = await fs.promises.readdir(directory);
+	} catch (error) {
+		console.error(`Error reading directory: ${directory}`);
+		return;
+	}
 	const subDirectories = [];
 
 	await Promise.all(
 		files.map(async (file) => {
 			const fullPath = path.join(directory, file);
-			const stat = await fs.promises.stat(fullPath);
-
-			if (stat.isDirectory()) {
-				if (depth < maxDepth) {
-					subDirectories.push(fullPath);
+			try {
+				const stat = await fs.promises.stat(fullPath);
+				if (stat.isDirectory()) {
+					if (depth < maxDepth) {
+						subDirectories.push(fullPath);
+					}
+				} else {
+					const ext = path.extname(fullPath).toLowerCase();
+					if (allowedExtensions.includes(ext) && !fullPath.includes("###deleted")) {
+						imagePaths.push(fullPath.replace(/^public/, ''));
+					}
 				}
-			} else {
-				const ext = path.extname(fullPath).toLowerCase();
-				if (allowedExtensions.includes(ext) && !fullPath.includes("###deleted")) {
-					imagePaths.push(fullPath.replace(/^public/, ''));
-				}
+			} catch (error) {
+				console.error(`Error processing path: ${fullPath}`);
 			}
 		})
 	);
@@ -117,6 +126,7 @@ const readImageFiles = async (directory, depth = 0, maxDepth = 20) => {
 		})
 	);
 };
+
 
 // Capture the start time
 const startTime = Date.now();
@@ -446,6 +456,8 @@ app.post('/rename', (req, res) => {
 		imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
 		imagePaths.sort();
 		renameKey(metadataMap, currentFilePathRelative, newFilePathRelative);
+		metadataMap.get(newFilePathRelative).baseName = path.basename(newFilePathRelative);
+		metadataMap.get(newFilePathRelative).directory = path.dirname(newFilePathRelative);
 
 		const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
 		fs.appendFileSync('./logs/rename.log', logMessage);
@@ -528,6 +540,8 @@ app.post('/renameBulk', (req, res) => {
 				imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
 				imagePaths.sort();
 				renameKey(metadataMap, currentFilePathRelative, newFilePathRelative);
+				metadataMap.get(newFilePathRelative).baseName = path.basename(newFilePathRelative);
+				metadataMap.get(newFilePathRelative).directory = path.dirname(newFilePathRelative);
 				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
 				fs.appendFileSync('./logs/rename.log', logMessage);
 				success++;
@@ -619,6 +633,8 @@ app.post('/appendToName', (req, res) => {
 				imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
 				imagePaths.sort();
 				renameKey(metadataMap, currentFilePathRelative, newFilePathRelative);
+				metadataMap.get(newFilePathRelative).baseName = path.basename(newFilePathRelative);
+				metadataMap.get(newFilePathRelative).directory = path.dirname(newFilePathRelative);
 				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
 				fs.appendFileSync('./logs/rename.log', logMessage);
 				success++;
@@ -702,6 +718,8 @@ app.post('/prependToName', (req, res) => {
 				imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
 				imagePaths.sort();
 				renameKey(metadataMap, currentFilePathRelative, newFilePathRelative);
+				metadataMap.get(newFilePathRelative).baseName = path.basename(newFilePathRelative);
+				metadataMap.get(newFilePathRelative).directory = path.dirname(newFilePathRelative);
 				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
 				fs.appendFileSync('./logs/rename.log', logMessage);
 				success++;
@@ -785,6 +803,8 @@ app.post('/removeFromName', (req, res) => {
 				imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
 				imagePaths.sort();
 				renameKey(metadataMap, currentFilePathRelative, newFilePathRelative);
+				metadataMap.get(newFilePathRelative).baseName = path.basename(newFilePathRelative);
+				metadataMap.get(newFilePathRelative).directory = path.dirname(newFilePathRelative);
 				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
 				fs.appendFileSync('./logs/rename.log', logMessage);
 				success++;
@@ -865,6 +885,8 @@ app.post('/replaceInName', (req, res) => {
 				imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
 				imagePaths.sort();
 				renameKey(metadataMap, currentFilePathRelative, newFilePathRelative);
+				metadataMap.get(newFilePathRelative).baseName = path.basename(newFilePathRelative);
+				metadataMap.get(newFilePathRelative).directory = path.dirname(newFilePathRelative);
 				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
 				fs.appendFileSync('./logs/rename.log', logMessage);
 				success++;
@@ -947,6 +969,8 @@ app.post('/moveFiles', (req, res) => {
 				imagePaths[imagePaths.indexOf(currentFilePathRelative)] = newFilePathRelative;
 				imagePaths.sort();
 				renameKey(metadataMap, currentFilePathRelative, newFilePathRelative);
+				metadataMap.get(newFilePathRelative).baseName = path.basename(newFilePathRelative);
+				metadataMap.get(newFilePathRelative).directory = path.dirname(newFilePathRelative);
 				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
 				fs.appendFileSync('./logs/move.log', logMessage);
 				success++;
