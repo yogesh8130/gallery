@@ -24,7 +24,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 
 	// Define a route to handle requests for the home page
 	router.get('/', (req, res) => {
-		res.redirect('/search?searchText=.&shuffle=true&view=tiles');
+		res.redirect('/search?searchText=.&view=tiles&sortBy=shuffle');
 	})
 
 	router.get('/refreshDB', (req, res) => {
@@ -131,13 +131,14 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 			.replace(/\//g, '\\'));
 		const fromResults = req.query.fromResults;
 		const searchText = req.query.searchText;
-		let shuffleFlag = false;
-		if (req.query.shuffle
-			&& (req.query.shuffle === 'true'
-				|| req.query.shuffle === 'on')) {
-			shuffleFlag = true;
+		let sortBy = req.query.sortBy;
+		let sortAsc;
+		if (req.query.sortAsc === 'true') {
+			sortAsc = true;
+		} else {
+			sortAsc = false;
 		}
-		const searchKey = searchText + ':::' + shuffleFlag;
+		const searchKey = searchText + ':::' + sortBy + ':::' + sortAsc;
 
 		let imageList;
 		if (fromResults && fromResults === 'true') {
@@ -188,13 +189,15 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 			.replace(/\//g, '\\'));
 		const fromResults = req.query.fromResults;
 		const searchText = req.query.searchText;
-		let shuffleFlag = false;
-		if (req.query.shuffle
-			&& (req.query.shuffle === 'true'
-				|| req.query.shuffle === 'on')) {
-			shuffleFlag = true;
+		let sortBy = req.query.sortBy;
+		let sortAsc;
+		if (req.query.sortAsc === 'true') {
+			sortAsc = true;
+		} else {
+			sortAsc = false;
 		}
-		const searchKey = searchText + ':::' + shuffleFlag;
+
+		const searchKey = searchText + ':::' + sortBy + ':::' + sortAsc;
 
 		let imageList;
 		if (fromResults && fromResults === 'true') {
