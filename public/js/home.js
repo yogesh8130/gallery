@@ -5,7 +5,7 @@ const videosList = []; // to keep track of all videos on the page, even as they 
 const searchResultBatchSize = 50 // should be same as server for correct image id
 let imageIndex = 51 // newly loaded images will be assigned id numbers from here on
 let multiplier = 1 // zoom slider value
-const selectedImages = new Map();
+const selectedImages = new Map(); // imageId => imageLink
 let allFilesSelected = false;
 let suggestedTargetFolders = [];
 let modalActive = false;
@@ -998,18 +998,16 @@ function renameBulk() {
 		.then(response => response.json())
 		.then(data => {
 			// console.log(data);
-			let success = 0;
-			let fail = 0;
-			const results = new Map(Object.entries(data.results));
-			results.forEach((value, imageId) => {
+			const successCount = data.successCount;
+			const failCount = data.failCount;
+			const newImagesData = new Map(Object.entries(data.newImagesData));
+			newImagesData.forEach((value, imageId) => {
 				const image = document.getElementById(imageId);
 				if (value === 'fail') {
 					image.classList.add('renameFailed')
-					fail++;
 				} else {
 					image.src = value.newFilePathRelative;
 					selectedImages.set(imageId, value)
-
 					// update image title and subtitle
 					idNum = imageId.replace('image', '');
 					const imageTitle = document.querySelector('#imageTitle'+idNum);
@@ -1018,20 +1016,14 @@ function renameBulk() {
 					const subTitle = document.querySelector('#subTitle'+idNum);
 					subTitle.innerHTML = value.newSubTitle;
 					subTitle.href = value.newSubTitleLink;
-					
-					success++;
 				}
-
 			})
-
-			if (success !== 0) {
-				showPopup(`Renamed ${success} files`, 'info')
+			if (successCount !== 0) {
+				showPopup(`Renamed ${successCount} files`, 'info')
 			}
-			if (fail !== 0) {
-				showPopup(`Failed ${fail} files`, 'error')
+			if (failCount !== 0) {
+				showPopup(`Failed ${failCount} files`, 'error')
 			}
-
-			// TODO udpate image title and subtitle after rename
 		})
 		.catch(error => {
 			showPopup(error, 'error');
