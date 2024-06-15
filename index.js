@@ -58,7 +58,7 @@ initializeMetadataTable().then(
 	}
 ).catch(
 	(err) => console.error('Error initializing metadata table', err)
-)
+);
 
 console.log('Loading files...');
 
@@ -78,6 +78,7 @@ let startTime = Date.now();
 	console.log(`Files in map after initialization: ${METADATA_MAP.size}`);
 	console.log(`Loaded metadata in ${(Date.now() - startTime) / 1000} seconds.`);
 })();
+
 
 // Start the server
 fs.appendFileSync('./logs/rename.log', `Starting server|||\n`);

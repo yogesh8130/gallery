@@ -4,6 +4,7 @@ const FS = require('fs');
 const PWD = process.cwd();
 
 const {
+	readImageFiles,
 	initializeImagesMetadata,
 	getImagesMetadata,
 	sortByName,
@@ -16,8 +17,15 @@ const {
 } = require('./fileUtils');
 
 const {
-	VIDEO_EXTENSIONS,
+	ROOT_IMAGE_PATH,
+	VIDEO_EXTENSIONS
 } = require('./constants');
+
+const {
+	initializeMetadataTable,
+	loadMetadataMapFromDB,
+	pruneDB
+} = require('./dbUtils');
 
 const searchResultBatchSize = 50;
 
@@ -29,29 +37,50 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 	})
 
 	router.get('/refreshDB', (req, res) => {
+		let recordCountBefore = 0;
+		let recordCountAfter = 0;
 		try {
 			IMAGE_PATHS = [];
-
 			// Capture the start time
-			const startTime = Date.now();
-
+			let startTime = Date.now();
+			initializeMetadataTable().then(
+				() => {
+					console.log('Initialized metadata table')
+					loadMetadataMapFromDB(METADATA_MAP);
+				}
+			).catch(
+				(err) => console.error('Error initializing metadata table', err)
+			);
 			(async () => {
-				await readImageFiles(imagePath);
-
+				await readImageFiles(IMAGE_PATHS, ROOT_IMAGE_PATH);
 				IMAGE_PATHS.sort();
+				console.log(`Read ${IMAGE_PATHS.length} files in ${(Date.now() - startTime) / 1000} seconds.`);
 
-				// Capture the end time
-				const endTime = Date.now();
-
-				// Log the time it took to load the files in seconds
-				console.log(`Loaded ${IMAGE_PATHS.length} files in ${(endTime - startTime) / 1000} seconds.`);
-				res.sendStatus(200); // send a success response to the client
+				startTime = Date.now();
+				console.log("Initialize Images Metadata, looking for new files");
+				recordCountBefore = METADATA_MAP.size;
+				console.log(`Files in map before initialization: ${recordCountBefore}`);
+				await initializeImagesMetadata(IMAGE_PATHS, METADATA_MAP);
+				recordCountAfter = METADATA_MAP.size;
+				console.log(`Files in map after initialization: ${recordCountAfter}`);
+				console.log(`Loaded metadata in ${(Date.now() - startTime) / 1000} seconds.`);
+				console.log(`Loaded ${recordCountAfter - recordCountBefore} new entries`);
+				res.status(200).send(`Refreshed database; loaded ${IMAGE_PATHS.length} files in ${(Date.now() - startTime) / 1000} seconds; added ${recordCountAfter - recordCountBefore} new entries`);
 			})();
-
 		} catch (error) {
 			console.error(error);
 			res.status(500).send('Error refreshing database'); // send an error response to the client
 		}
+	});
+
+	router.get('/pruneDB', (req, res) => {
+		pruneDB(IMAGE_PATHS).then((entriesPruned) => {
+			console.log(`Pruned ${entriesPruned} stale entries from the database`);
+			res.status(200).send(`Pruned ${entriesPruned} stale entries from the database`);
+		}).catch((err) => {
+			console.error('Error pruning metadata table', err);
+			res.status(500).send('Error pruning database'); // send an error response to the client
+		});
 	});
 
 	router.get('/singleView', (req, res) => {

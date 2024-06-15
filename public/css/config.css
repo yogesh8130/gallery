@@ -1,10 +1,19 @@
 body {
 	background-color: black;
+	color: white;
+	font-family: Tahoma, Geneva, Verdana, sans-serif;
+	font-size: smaller;
+}
+
+.buttonControls{
+	padding: 3px;
 }
 
 button {
+	width: 8rem;
 	font-size: 1.2rem;
 	border: none;
+	margin: 0 5px;
 }
 
 button.default {
