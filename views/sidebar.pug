@@ -38,7 +38,7 @@ div(id = "sidebar" onclick = "toggleSidebar(event)")
 
 	div.bulkRow
 		label(for="selectionModeCheckbox") Selection Mode
-		input(type="checkbox", id="selectionModeCheckbox", name="selectionMode", value="1", onclick="selectionModeToggle()")
+		input(type="checkbox" id="selectionModeCheckbox" name="selectionMode" value="1" onclick="selectionModeToggle()")
 	div.bulkRow
 		button(id = 'selectAll' onclick = 'selectAllImages()' 
 		title = 'Ctrl + A (Toggle)') Select all
@@ -47,39 +47,39 @@ div(id = "sidebar" onclick = "toggleSidebar(event)")
 		button(id = 'invertSelection' onclick = 'invertSelection()' 
 		title = 'Invert Selection') Invert
 	form.bulkRow(id = 'moveForm')
-		input(type = "text" id = 'targetFolderName' name = 'targetFolderName'
+		input(type = "text" id = 'targetFolderNameInput' name = 'targetFolderNameInput'
 		placeholder = "Target folder name" autocomplete = 'on'
 		list = "suggestedFolders")
 		//- to add suggestions for the target folder text box
 		datalist(id="suggestedFolders")
-		button(id = 'moveFilesButton' onclick = 'moveFiles()') Move
+		button(id = 'moveFilesButton' onclick = 'moveRenameFiles("moveFiles")') Move
 		input(type="submit" hidden)
 	form.bulkRow(id = 'renameBulkForm')
-		input(type = "text" id = 'renameBulkText' name = 'renameBulkText'
+		input(type = "text" id = 'renameBulkInput' name = 'renameBulkInput'
 		placeholder = "New Base name" autocomplete = 'on')
-		button(id = 'renameBulkButton' onclick = 'renameBulk()') Rename
+		button(id = 'renameBulkButton' onclick = 'moveRenameFiles("renameBulk")') Rename
 		input(type="submit" hidden)
 	form.bulkRow(id = 'appendToNameForm')
-		input(type = "text" id = 'appendToNameText' name = 'appendToNameText'
+		input(type = "text" id = 'appendToNameInput' name = 'appendToNameInput'
 		placeholder = "Text, to; append" autocomplete = 'on')
-		button(id = 'appendToNameButton' onclick = 'appendToName()') Append
+		button(id = 'appendToNameButton' onclick = 'moveRenameFiles("appendToName")') Append
 		input(type="submit" hidden)
 	form.bulkRow(id = 'prependToNameForm')
-		input(type = "text" id = 'prependToNameText' name = 'prependToNameText'
+		input(type = "text" id = 'prependToNameInput' name = 'prependToNameInput'
 		placeholder = "Text to prepend" autocomplete = 'on')
-		button(id = 'prependToNameButton' onclick = 'prependToName()') Prepend
+		button(id = 'prependToNameButton' onclick = 'moveRenameFiles("prependToName")') Prepend
 		input(type="submit" hidden)
 	form.bulkRow(id = 'removeFromNameForm')
-		input(type = "text" id = 'removeFromNameText' name = 'removeFromNameText'
+		input(type = "text" id = 'removeFromNameInput' name = 'removeFromNameInput'
 		placeholder = "Text to remove" autocomplete = 'on')
-		button(id = 'removeFromNameButton' onclick = 'removeFromName()') Remove
+		button(id = 'removeFromNameButton' onclick = 'moveRenameFiles("removeFromName")') Remove
 		input(type="submit" hidden)
 	form.bulkCol(id = 'replaceInNameForm')
 		div.bulkRow
-			input(type = "text" id = 'textToFind' name = 'textToFind'
+			input(type = "text" id = 'textToFindInput' name = 'textToFindInput'
 			placeholder = "Text to find" autocomplete = 'on')
 		div.bulkRow
-			input(type = "text" id = 'textToSubstitute' name = 'textToSubstitute'
+			input(type = "text" id = 'textToSubstituteInput' name = 'textToSubstituteInput'
 			placeholder = "Text to substitute" autocomplete = 'on')
-			button(id = 'replaceInNameButton' onclick = 'replaceInName()') Replace
+			button(id = 'replaceInNameButton' onclick = 'moveRenameFiles("replaceInName")') Replace
 			input(type="submit" hidden)

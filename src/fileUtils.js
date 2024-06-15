@@ -222,7 +222,9 @@ function renameKey(map, oldKey, newKey) {
 	}
 }
 
-function moveRenameFiles(IMAGE_PATHS, METADATA_MAP, operation, currentFilePaths, argument1, argument2 = null) {
+function moveRenameFiles(IMAGE_PATHS, METADATA_MAP,
+	operation, currentFilePaths, argument1, argument2) {
+
 	let successCount = 0;
 	let failCount = 0;
 	let newImagesData = new Map();
@@ -234,8 +236,9 @@ function moveRenameFiles(IMAGE_PATHS, METADATA_MAP, operation, currentFilePaths,
 		currentFilePath = PATH.resolve(PATH.join('.', 'public', currentFilePath));
 		const currentFilePathObj = PATH.parse(currentFilePath);
 		const currentFileDir = currentFilePathObj.dir;
+		const currentFileName = currentFilePathObj.name;
 		const currentFileExt = currentFilePathObj.ext;
-		let newFileName
+		let newFileName;
 		let newFilePath;
 		// For udpating IMAGE_PATHS and METADATA_MAP
 		let currentFilePathRelative = currentFilePath.replace(PWD + '\\public', '');
@@ -243,21 +246,79 @@ function moveRenameFiles(IMAGE_PATHS, METADATA_MAP, operation, currentFilePaths,
 
 		switch (operation) {
 			case 'renameBulk':
-				console.log("Bulk rename started");
 				newFileName = argument1;
 				index++;
 				let indexWithPadding = index.toString().padStart(3, '0');
 				// index is ALWAYS appended during bulkrename
-				let newFileNameWithIndex = newFileName + '-' + indexWithPadding;
-				newFilePath = PATH.join(currentFileDir, (newFileNameWithIndex + currentFileExt));
-				newFilePath = PATH.normalize(newFilePath);
+				newFileName = newFileName + '-' + indexWithPadding;
+				newFilePath = PATH.join(currentFileDir, (newFileName + currentFileExt));
 				break;
-			case 'move':
-				// TODO
+			case 'appendToName':
+				const textToAppend = argument1;
+				const parts = textToAppend.split(/[;,]/);
+				const trimmedParts = parts.map(function (part) {
+					return part.trim();
+				});
+				newFileName = currentFileName;
+				trimmedParts.forEach(function (part) {
+					if (newFileName.toLocaleLowerCase().indexOf(part.toLowerCase()) === -1) {
+						newFileName += " " + part;
+					}
+				});
+				if (newFileName == currentFileName) {
+					console.log("Not appending as text is already in current name");
+					return;
+				}
+				// because we dont want to keep incrementing index
+				index = 0;
+				newFilePath = PATH.join(currentFileDir, (newFileName + currentFileExt));
 				break;
+			case 'prependToName':
+				const textToPrepend = argument1;
+				if (!currentFileName.startsWith(textToPrepend)) {
+					newFileName = textToPrepend + ' ' + currentFileName;
+				} else {
+					console.log("Not prepending as name already starts with the prefix");
+					return;
+				}
+				index = 0;
+				newFilePath = PATH.join(currentFileDir, (newFileName + currentFileExt));
+				break;
+			case "removeFromName":
+				const textToRemove = argument1;
+				const removeregex = new RegExp(textToRemove, 'gi'); // case insensitive
+				newFileName = currentFileName;
+				if (currentFileName.toLowerCase().includes(textToRemove.toLowerCase())) {
+					newFileName = currentFileName.replace(removeregex, "").trim();
+				} else {
+					console.log("Nothing to remove");
+					return;
+				}
+				index = 0;
+				newFilePath = PATH.join(currentFileDir, (newFileName + currentFileExt));
+				break;
+			case 'replaceInName':
+				const textToFind = argument1;
+				const textToSubstitute = argument2;
+				const replaceregex = new RegExp(textToFind, 'gi'); // case insensitive
+				newFileName = currentFileName.replace(replaceregex, textToSubstitute);
+				if (newFileName == currentFileName) {
+					console.log("Skipping as names are same");
+					return;
+				}
+				index = 0;
+				newFilePath = PATH.join(currentFileDir, (newFileName + currentFileExt));
+				break;
+			case 'moveFiles':
+				const targetFolder = argument1;
+				const targetFolderPath = PATH.resolve(PATH.join('.', 'public', 'images', targetFolder));
+				newFilePath = PATH.join(targetFolderPath, (currentFileName + currentFileExt));
+			break;
 			default:
 				throw new Error(`Invalid operation: ${operation}`);
 		}
+
+		newFilePath = PATH.normalize(newFilePath);
 
 		// checking if folder exists as per the new file name
 		try {
@@ -276,7 +337,8 @@ function moveRenameFiles(IMAGE_PATHS, METADATA_MAP, operation, currentFilePaths,
 			}
 		}
 
-		// checking if file already exists
+		// checking if file already exists, we MUST prevent collisions beforehand
+		// FS.renameSync otherwise will overwrite existing file with the new file on collision
 		try {
 			while (true) {
 				// try to access the new file name and keep generating new names by incrementing index
