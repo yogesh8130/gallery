@@ -2,7 +2,6 @@ const sqlite3 = require('sqlite3').verbose();
 // Create SQLite database connection
 const db = new sqlite3.Database('metadata.db');
 
-
 function initializeMetadataTable() {
 	return new Promise((resolve, reject) => {
 		// Create a table to store metadata if it doesn't exist
@@ -123,42 +122,45 @@ function insertMetadataToDB(
 }
 
 function pruneDB(IMAGE_PATHS) {
+	console.log('Pruning metadata table...');
 	return new Promise((resolve, reject) => {
-		const batchSize = 10000;
-		const numBatches = Math.ceil(IMAGE_PATHS.length / batchSize);
-		let currentBatch = 0;
-		let entriesPruned = 0;
-		function pruneNextBatch() {
-			const start = currentBatch * batchSize;
-			const end = Math.min((currentBatch + 1) * batchSize, IMAGE_PATHS.length);
-			const batch = IMAGE_PATHS.slice(start, end);
-			// Prepare array of placeholders for parameterized query
-			const placeholders = Array(batch.length).fill('?').join(', ');
-			// Delete entries not in the current batch
-			db.run(`DELETE FROM metadata WHERE imagePath NOT IN (${placeholders})`, batch, function (err, result) {
-				if (err) {
-					console.error('Error pruning metadata table:', err);
-					reject(err);
-					return;
-				}
-				// Count the number of entries pruned in this batch
-				entriesPruned += this.changes;
-				// Move to the next batch
-				currentBatch++;
-				// If there are more batches, recursively prune the next batch
-				if (currentBatch < numBatches) {
-					pruneNextBatch();
-				} else {
-					// Resolve with the total number of entries pruned
-					resolve(entriesPruned);
-				}
-			});
-		}
-		// Start pruning with the first batch
-		pruneNextBatch();
+		// Fetch all existing image paths from the database
+		db.all('SELECT imagePath FROM metadata', (err, rows) => {
+			if (err) {
+				console.error('Error fetching image paths from metadata table:', err);
+				reject(err);
+				return;
+			}
+			// Extract the image paths from the database result
+			console.log("creating array of image paths");
+			const dbImagePaths = rows.map(row => row.imagePath);
+			console.log("Converting IMAGE_PATHS to a Set for fast lookup");
+			// with this: 0.829 seconds, without: 189 seconds LOL
+			const imagePathSet = new Set(IMAGE_PATHS);
+			console.log("Identifying image paths to delete (not in IMAGE_PATHS)");
+			const pathsToDelete = dbImagePaths.filter(path => !imagePathSet.has(path));
+			// Delete the identified paths from metadata table
+			if (pathsToDelete.length > 0) {
+				console.log("deleting image paths from metadata table");
+				// Prepare array of placeholders for parameterized query
+				const placeholders = Array(pathsToDelete.length).fill('?').join(', ');
+				// Delete entries not in IMAGE_PATHS
+				db.run(`DELETE FROM metadata WHERE imagePath IN (${placeholders})`, pathsToDelete, function (err, result) {
+					if (err) {
+						console.error('Error pruning metadata table:', err);
+						reject(err);
+						return;
+					}
+					// Resolve with the number of entries pruned
+					resolve(this.changes);
+				});
+			} else {
+				// If no paths to delete, resolve with 0 changes
+				resolve(0);
+			}
+		});
 	});
 }
-
 
 module.exports = {
 	initializeMetadataTable,

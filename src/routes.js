@@ -56,8 +56,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 				await readImageFiles(IMAGE_PATHS, ROOT_IMAGE_PATH);
 				IMAGE_PATHS.sort();
 				console.log(`Read ${IMAGE_PATHS.length} files in ${(Date.now() - startTime) / 1000} seconds.`);
-
-				startTime = Date.now();
+				// startTime = Date.now();
 				console.log("Initialize Images Metadata, looking for new files");
 				recordCountBefore = METADATA_MAP.size;
 				console.log(`Files in map before initialization: ${recordCountBefore}`);
@@ -76,9 +75,10 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 	});
 
 	router.get('/pruneDB', (req, res) => {
+		let startTime = Date.now();
 		pruneDB(IMAGE_PATHS).then((entriesPruned) => {
 			console.log(`Pruned ${entriesPruned} stale entries from the database`);
-			res.status(200).send(`Pruned ${entriesPruned} stale entries from the database`);
+			res.status(200).send(`Pruned ${entriesPruned} stale entries from the database; pruned in ${(Date.now() - startTime) / 1000} seconds`);
 		}).catch((err) => {
 			console.error('Error pruning metadata table', err);
 			res.status(500).send('Error pruning database'); // send an error response to the client
