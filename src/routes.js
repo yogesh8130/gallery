@@ -393,7 +393,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 			try {
 				let pattern = new RegExp(searchText.slice(2), "i") // remove the leading forward slashes
 			} catch (error) {
-				return res.status(400).send('Invalid search term');
+				return res.status(400).send('Invalid search term (unable to parse as regex)');
 			}
 			console.log("pattern: " + pattern);
 			let regex = new RegExp(pattern, 'i'); // create a case-insensitive regular expression
