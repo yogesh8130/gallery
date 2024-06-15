@@ -50,8 +50,15 @@ let METADATA_MAP = new Map();
 
 require('./src/routes')(app, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS);
 
-initializeMetadataTable();
-loadMetadataMapFromDB(METADATA_MAP);
+// Initialize the database
+initializeMetadataTable().then(
+	() => {
+		console.log('Initialized metadata table')
+		loadMetadataMapFromDB(METADATA_MAP);
+	}
+).catch(
+	(err) => console.error('Error initializing metadata table', err)
+)
 
 console.log('Loading files...');
 
@@ -62,8 +69,8 @@ let startTime = Date.now();
 (async () => {
 	await readImageFiles(IMAGE_PATHS, ROOT_IMAGE_PATH);
 	IMAGE_PATHS.sort();
-	console.log(`Read ${IMAGE_PATHS.length} files in ${(Date.now() - startTime)/1000} seconds.`);
-	
+	console.log(`Read ${IMAGE_PATHS.length} files in ${(Date.now() - startTime) / 1000} seconds.`);
+
 	startTime = Date.now();
 	console.log("Initialize Images Metadata, looking for new files");
 	console.log(`Files in map before initialization: ${METADATA_MAP.size}`);

@@ -371,16 +371,17 @@ function moveRenameFiles(IMAGE_PATHS, METADATA_MAP,
 				successCount++;
 				let newImageTitle, newSubTitle, newImageTitleLink, newSubTitleLink;
 				if (operation !== 'delete') {
-					newImageTitle = METADATA_MAP.get(newFilePathRelative).baseName;
-					newSubTitle = METADATA_MAP.get(newFilePathRelative).directory;
-					newImageTitleLink = '/search?searchText=' + encodeURIComponent(newImageTitle.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim()) + '&view=tiles';
-					newSubTitleLink = '/search?searchText=' + encodeURIComponent(newSubTitle) + '&view=tiles';
 					// updating IMAGE_PATHS	and METADATA_MAP
 					IMAGE_PATHS[IMAGE_PATHS.indexOf(currentFilePathRelative)] = newFilePathRelative;
 					IMAGE_PATHS.sort();
 					renameKey(METADATA_MAP, currentFilePathRelative, newFilePathRelative);
 					METADATA_MAP.get(newFilePathRelative).baseName = PATH.basename(newFilePathRelative);
 					METADATA_MAP.get(newFilePathRelative).directory = PATH.dirname(newFilePathRelative);
+					// getting new image data to update stuff on page
+					newImageTitle = METADATA_MAP.get(newFilePathRelative).baseName;
+					newSubTitle = METADATA_MAP.get(newFilePathRelative).directory;
+					newImageTitleLink = '/search?searchText=' + encodeURIComponent(newImageTitle.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim()) + '&view=tiles';
+					newSubTitleLink = '/search?searchText=' + encodeURIComponent(newSubTitle) + '&view=tiles';
 				} else {
 					IMAGE_PATHS.splice(IMAGE_PATHS.indexOf(currentFilePathRelative), 1);
 					METADATA_MAP.delete(currentFilePathRelative);

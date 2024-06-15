@@ -4,22 +4,29 @@ const db = new sqlite3.Database('metadata.db');
 
 
 function initializeMetadataTable() {
-	// Create a table to store metadata if it doesn't exist
-	db.run(`
-	CREATE TABLE IF NOT EXISTS metadata (
-		imagePath TEXT PRIMARY KEY,
-		baseName TEXT,
-		directory TEXT,
-		width INTEGER,
-		height INTEGER,
-		resolution TEXT,
-		sizeBytes INTEGER,
-		sizeReadable TEXT,
-		mime TEXT,
-		type TEXT,
-		modifiedTime TIMESTAMP
-	)
-	`);
+	return new Promise((resolve, reject) => {
+		// Create a table to store metadata if it doesn't exist
+		db.run(`
+		CREATE TABLE IF NOT EXISTS metadata (
+			imagePath TEXT PRIMARY KEY,
+			baseName TEXT,
+			directory TEXT,
+			width INTEGER,
+			height INTEGER,
+			resolution TEXT,
+			sizeBytes INTEGER,
+			sizeReadable TEXT,
+			mime TEXT,
+			type TEXT,
+			modifiedTime TIMESTAMP
+		)`, (err) => {
+			if (err) {
+				reject(err);
+			} else {
+				resolve();
+			}
+		});
+	});
 }
 
 function loadMetadataMapFromDB(METADATA_MAP) {
