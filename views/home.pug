@@ -13,33 +13,35 @@ html
 		include sidebar.pug
 		div.mainDiv
 			div.header
-				div.headingDiv
+				div.vertical
 					a(href='/' title = 'HOME')
 						h1 Search Results for "#{searchText}"
 					h2 Showing #{images.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
 				div.controlsDiv
-					form.searchForm(action = "" method = "get" target = '_blank')
-						input(type = "text" name = 'searchText' id = 'searchText'
-						placeholder = 'Search' onfocus = 'this.select()' 
-						title = 'F3')
-						input(type = "hidden" name = 'view' id = 'view')
-					button#shuffleButton.sortButton(onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=shuffle&sortAsc=true"`
-						title = 'Path Ascending') Shuffle
-					div.zoomAndConfig
-						div.buttonControls#sliderContainer
-							label(for = "slider") Zoom
-							input.slider(
-								type = "range" 
-								min = "0.2" max="3" 
-								step = "0.1" value="1" 
-								id = "slider"
-								name = slider 
-								oninput = 'changeTileSize()'
-								ondblclick = 'this.value = 1; changeTileSize()'
-								title = '<- ArrowLeft - ArrowRight ->'
-								)
-						div.config.buttonControls
-							button.default(id = 'configButton' onclick = "window.open('/config', '_blank')" title = 'settings') &#9881;
+					.vertical
+						.horizontal
+							form.searchForm(action = "" method = "get" target = '_blank')
+								input(type = "text" name = 'searchText' id = 'searchText'
+								placeholder = 'Search' onfocus = 'this.select()' 
+								title = 'F3')
+								input(type = "hidden" name = 'view' id = 'view')
+							button#shuffleButton.sortButton(onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=shuffle&sortAsc=true"`
+								title = 'Path Ascending') Shuffle
+						.horizontal
+							div.buttonControls#sliderContainer
+								label(for = "slider") Zoom
+								input.slider(
+									type = "range" 
+									min = "0.2" max="3" 
+									step = "0.1" value="1" 
+									id = "slider"
+									name = slider 
+									oninput = 'changeTileSize()'
+									ondblclick = 'this.value = 1; changeTileSize()'
+									title = '<- ArrowLeft - ArrowRight ->'
+									)
+							div.config.buttonControls
+								button.default(id = 'configButton' onclick = "window.open('/config', '_blank')" title = 'settings') &#9881;
 					div.scaleButtons.buttonControls
 						button.default(
 							onclick = 'showAllImagesAtActualSize()'
@@ -55,28 +57,29 @@ html
 							id = 'switchToTileViewButton' 
 							onclick = 'switchToTileView()'
 							) Tile View
-					div.sortButtons.buttonControls
-						button.sortButton(id = 'sortByPathAsc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=path&sortAsc=true"`
-						title = 'Path Ascending') Path ⇩
-						button.sortButton(id = 'sortByNameAsc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=name&sortAsc=true"`
-						title = 'Name Ascending') Name ⇩
-						button.sortButton(id = 'sortBySizeAsc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=size&sortAsc=true"`
-						title = 'Size Ascending') Size ⇩
-						button.sortButton(id = 'sortByModifiedTimeAsc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=modifiedTime&sortAsc=true"`
-						title = 'Modified Time Ascending') Time ⇩
-						button.sortButton(id = 'sortByDimensionsAsc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=dimensions&sortAsc=true"`
-						title = 'Dimensions Ascending') Dim. ⇩
-					div.sortButtons.buttonControls
-						button.sortButton(id = 'sortByPathDesc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=path&sortAsc=false"`
-						title = 'Path Descending') Path ⇧
-						button.sortButton(id = 'sortByNameDesc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=name&sortAsc=false"`
-						title = 'Name Descending') Name ⇧
-						button.sortButton(id = 'sortBySizeDesc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=size&sortAsc=false"`
-						title = 'Size Descending') Size ⇧
-						button.sortButton(id = 'sortByModifiedTimeDesc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=modifiedTime&sortAsc=false"`
-						title = 'Modified Time Descending') Time ⇧
-						button.sortButton(id = 'sortByDimensionsDesc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=dimensions&sortAsc=false"`
-						title = 'Dimensions Descending') Dim. ⇧
+					.vertical
+						div.sortButtons.buttonControls
+							button.sortButton(id = 'sortByPathAsc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=path&sortAsc=true"`
+							title = 'Path Ascending') Path⇩
+							button.sortButton(id = 'sortByNameAsc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=name&sortAsc=true"`
+							title = 'Name Ascending') Name⇩
+							button.sortButton(id = 'sortBySizeAsc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=size&sortAsc=true"`
+							title = 'Size Ascending') Size⇩
+							button.sortButton(id = 'sortByModifiedTimeAsc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=modifiedTime&sortAsc=true"`
+							title = 'Modified Time Ascending') Time⇩
+							button.sortButton(id = 'sortByDimensionsAsc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=dimensions&sortAsc=true"`
+							title = 'Dimensions Ascending') Dim.⇩
+						div.sortButtons.buttonControls
+							button.sortButton(id = 'sortByPathDesc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=path&sortAsc=false"`
+							title = 'Path Descending') Path⇧
+							button.sortButton(id = 'sortByNameDesc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=name&sortAsc=false"`
+							title = 'Name Descending') Name⇧
+							button.sortButton(id = 'sortBySizeDesc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=size&sortAsc=false"`
+							title = 'Size Descending') Size⇧
+							button.sortButton(id = 'sortByModifiedTimeDesc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=modifiedTime&sortAsc=false"`
+							title = 'Modified Time Descending') Time⇧
+							button.sortButton(id = 'sortByDimensionsDesc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=dimensions&sortAsc=false"`
+							title = 'Dimensions Descending') Dim.⇧
 			//- uncomment this if you want to scroll horizontally with mousewheen
 			//- - div.results(onwheel="this.scrollLeft += event.deltaY * 2" 
 				onmouseenter="stopMainScroll()" onmouseleave="allowMainScroll()")

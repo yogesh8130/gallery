@@ -67,6 +67,7 @@ let startTime = Date.now();
 
 // Wrap the call to readImageFiles in an async function
 (async () => {
+	console.log(`Reading file paths`);
 	await readImageFiles(IMAGE_PATHS, ROOT_IMAGE_PATH);
 	IMAGE_PATHS.sort();
 	console.log(`Read ${IMAGE_PATHS.length} files in ${(Date.now() - startTime) / 1000} seconds.`);
@@ -74,6 +75,7 @@ let startTime = Date.now();
 	startTime = Date.now();
 	console.log("Initialize Images Metadata, looking for new files");
 	console.log(`Files in map before initialization: ${METADATA_MAP.size}`);
+	console.log(`Loading metadata...`);
 	await initializeImagesMetadata(IMAGE_PATHS, METADATA_MAP);
 	console.log(`Files in map after initialization: ${METADATA_MAP.size}`);
 	console.log(`Loaded metadata in ${(Date.now() - startTime) / 1000} seconds.`);

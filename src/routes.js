@@ -52,6 +52,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 				(err) => console.error('Error initializing metadata table', err)
 			);
 			(async () => {
+				console.log('Reading file paths');
 				await readImageFiles(IMAGE_PATHS, ROOT_IMAGE_PATH);
 				IMAGE_PATHS.sort();
 				console.log(`Read ${IMAGE_PATHS.length} files in ${(Date.now() - startTime) / 1000} seconds.`);
@@ -60,6 +61,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 				console.log("Initialize Images Metadata, looking for new files");
 				recordCountBefore = METADATA_MAP.size;
 				console.log(`Files in map before initialization: ${recordCountBefore}`);
+				console.log('Loading metadata...');
 				await initializeImagesMetadata(IMAGE_PATHS, METADATA_MAP);
 				recordCountAfter = METADATA_MAP.size;
 				console.log(`Files in map after initialization: ${recordCountAfter}`);
