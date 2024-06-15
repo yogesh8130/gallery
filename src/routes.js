@@ -390,8 +390,9 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 
 		} else if (searchText.startsWith('\\\\')) {
 			console.log('regex search started');
+			let pattern
 			try {
-				let pattern = new RegExp(searchText.slice(2), "i") // remove the leading forward slashes
+				pattern = new RegExp(searchText.slice(2), "i") // remove the leading forward slashes
 			} catch (error) {
 				return res.status(400).send('Invalid search term (unable to parse as regex)');
 			}
