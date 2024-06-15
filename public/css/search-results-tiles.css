@@ -69,6 +69,8 @@ video {
 	opacity: 0%;
 	gap: .3rem;
 	align-items: flex-start;
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
 }
 
 .result:hover>.imageSidebar {
@@ -105,6 +107,10 @@ video {
 	border-width: 1px;
 	border-radius: 5px;
 	padding: 0;
+}
+
+.sidebarButton {
+	border-radius: 4px;
 }
 
 .renameButton {

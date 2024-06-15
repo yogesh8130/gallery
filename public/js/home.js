@@ -702,7 +702,8 @@ function deleteFile(imageLinkRelative, index) {
 			newImagesData.forEach((newImageData, imageId) => {
 				showPopup("File Deleted", "warn");
 				elementToRemove = document.getElementById("result" + index);
-				elementToRemove.style.display = "none";
+				// elementToRemove.style.display = "none";
+				elementToRemove.style.opacity = "20%";
 			});
 		})
 		.catch(error => {

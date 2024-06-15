@@ -29,9 +29,9 @@ else
 						onclick = `showAtActualScale(${index})`
 						) ⭕
 				div.deleteDiv
-					button.deleteButton(onclick = `deleteFile("${image.imagePath.replace(/\\/g, "\\\\")}", "${index}")` title = "delete") 🗑️
+					button.deleteButton.sidebarButton(onclick = `deleteFile("${image.imagePath.replace(/\\/g, "\\\\")}", "${idNum}")` title = "delete") 🗑️
 				div.rename
-					button.renameButton(onclick = 'showRenameDialog(this)') &#9998;
+					button.renameButton.sidebarButton(onclick = 'showRenameDialog(this)') &#9998;
 					dialog.renameDialog
 						form.renameForm
 							input.idNum(type = "text" name = 'idNum'
@@ -59,6 +59,11 @@ else
 			div.mainContent
 				a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped)
 					if (image.type === 'image')
-						img.searchImg.resultFile(id = 'image'+idNum src = imageLinkEscaped)
+						img.searchImg.resultFile(
+							id = 'image'+idNum
+							title = imageName
+							src = imageLinkEscaped)
 					else
-						video.searchVid.resultFile.videoFile(id = 'image'+idNum data-src = imageLinkEscaped controls loop)
+						video.searchVid.resultFile.videoFile(
+							id = 'image'+idNum 
+							data-src = imageLinkEscaped controls loop)
