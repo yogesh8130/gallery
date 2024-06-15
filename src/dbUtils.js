@@ -2,39 +2,52 @@ const sqlite3 = require('sqlite3').verbose();
 // Create SQLite database connection
 const db = new sqlite3.Database('metadata.db');
 
-function initializeMetadataTable() {
-	return new Promise((resolve, reject) => {
+async function initializeMetadataTable() {
+	try {
 		// Create a table to store metadata if it doesn't exist
-		db.run(`
-		CREATE TABLE IF NOT EXISTS metadata (
-			imagePath TEXT PRIMARY KEY,
-			baseName TEXT,
-			directory TEXT,
-			width INTEGER,
-			height INTEGER,
-			resolution TEXT,
-			sizeBytes INTEGER,
-			sizeReadable TEXT,
-			mime TEXT,
-			type TEXT,
-			modifiedTime TIMESTAMP
-		)`, (err) => {
-			if (err) {
-				reject(err);
-			} else {
-				resolve();
-			}
+		await new Promise((resolve, reject) => {
+			db.run(`
+			CREATE TABLE IF NOT EXISTS metadata (
+				imagePath TEXT PRIMARY KEY,
+				baseName TEXT,
+				directory TEXT,
+				width INTEGER,
+				height INTEGER,
+				resolution TEXT,
+				sizeBytes INTEGER,
+				sizeReadable TEXT,
+				mime TEXT,
+				type TEXT,
+				modifiedTime TIMESTAMP
+			)`, (err) => {
+				if (err) {
+					reject(err);
+				} else {
+					resolve();
+				}
+			});
 		});
-	});
+		console.log('Metadata table initialized');
+	} catch (err) {
+		throw err;
+	}
 }
 
-function loadMetadataMapFromDB(METADATA_MAP) {
-	db.all(`SELECT * FROM metadata`, (err, rows) => {
-		if (err) {
-			console.error('Error getting metadata from DB', err);
-			return;
-		}
-		rows.forEach(row => {
+async function loadMetadataMapFromDB(METADATA_MAP) {
+	console.log('Loading metadata from DB...');
+	const startTime = Date.now();
+	try {
+		const rows = await new Promise((resolve, reject) => {
+			db.all(`SELECT * FROM metadata`, (err, rows) => {
+				if (err) {
+					reject(err);
+				} else {
+					resolve(rows);
+				}
+			});
+		});
+
+		for (const row of rows) {
 			const { imagePath,
 				baseName,
 				directory,
@@ -63,11 +76,11 @@ function loadMetadataMapFromDB(METADATA_MAP) {
 			};
 			// Set the object as a value in the map with imagePath as key
 			METADATA_MAP.set(imagePath, rowData);
-		});
-
-		// retrieve data like this:
-		// console.log(metadataMap.get("\\images\\Misc\\test.png").baseName);
-	});
+		}
+	} catch (err) {
+		console.error('Error getting metadata from DB', err);
+		throw err;
+	}
 }
 
 function insertMetadataToDB(

@@ -50,37 +50,32 @@ let METADATA_MAP = new Map();
 
 require('./src/routes')(app, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS);
 
-// Initialize the database
-initializeMetadataTable().then(
-	() => {
-		console.log('Initialized metadata table')
-		loadMetadataMapFromDB(METADATA_MAP);
-	}
-).catch(
-	(err) => console.error('Error initializing metadata table', err)
-);
-
-console.log('Loading files...');
-
-// Capture the start time
-let startTime = Date.now();
-
-// Wrap the call to readImageFiles in an async function
+// Initialize the Image List and metadata
 (async () => {
-	console.log(`Reading file paths`);
-	await readImageFiles(IMAGE_PATHS, ROOT_IMAGE_PATH);
-	IMAGE_PATHS.sort();
-	console.log(`Read ${IMAGE_PATHS.length} files in ${(Date.now() - startTime) / 1000} seconds.`);
-
-	startTime = Date.now();
-	console.log("Initialize Images Metadata, looking for new files");
-	console.log(`Files in map before initialization: ${METADATA_MAP.size}`);
-	console.log(`Loading metadata...`);
-	await initializeImagesMetadata(IMAGE_PATHS, METADATA_MAP);
-	console.log(`Files in map after initialization: ${METADATA_MAP.size}`);
-	console.log(`Loaded metadata in ${(Date.now() - startTime) / 1000} seconds.`);
+	try {
+		const startTimeTotal = Date.now();
+		let startTime = Date.now();
+		await initializeMetadataTable();
+		await loadMetadataMapFromDB(METADATA_MAP);
+		console.log(`Loaded metadata from DB in ${(Date.now() - startTime) / 1000} seconds.`);
+		startTime = Date.now();
+		console.log(`Files in map: ${METADATA_MAP.size}`);
+		console.log('Reading files from disk...');
+		await readImageFiles(IMAGE_PATHS, ROOT_IMAGE_PATH);
+		IMAGE_PATHS.sort();
+		console.log(`Read ${IMAGE_PATHS.length} files in ${(Date.now() - startTime) / 1000} seconds.`);
+		startTime = Date.now();
+		console.log("Initializing Image Metadata (reading metadata from disk for files missing in DB)");
+		console.log(`Files in map before initialization: ${METADATA_MAP.size}`);
+		console.log(`Loading metadata...`);
+		await initializeImagesMetadata(IMAGE_PATHS, METADATA_MAP);
+		console.log(`Files in map after initialization: ${METADATA_MAP.size}`);
+		console.log(`Loaded metadata in ${(Date.now() - startTime) / 1000} seconds.`);
+		console.log(`Total time: ${(Date.now() - startTimeTotal) / 1000} seconds.`);
+	} catch (err) {
+		console.error('Error initializing metadata table', err);
+	}
 })();
-
 
 // Start the server
 fs.appendFileSync('./logs/rename.log', `Starting server|||\n`);

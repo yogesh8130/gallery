@@ -37,41 +37,41 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 	})
 
 	router.get('/refreshDB', (req, res) => {
-		let recordCountBefore = 0;
-		let recordCountAfter = 0;
-		try {
-			IMAGE_PATHS = [];
-			// Capture the start time
-			let startTime = Date.now();
-			initializeMetadataTable().then(
-				() => {
-					console.log('Initialized metadata table')
-					loadMetadataMapFromDB(METADATA_MAP);
-				}
-			).catch(
-				(err) => console.error('Error initializing metadata table', err)
-			);
-			(async () => {
-				console.log('Reading file paths');
+		(async () => {
+			try {
+				IMAGE_PATHS = [];
+				const metadataSizeBefore = METADATA_MAP.size;
+
+				// This block is same from index.js
+				const startTimeTotal = Date.now();
+				let startTime = Date.now();
+				await initializeMetadataTable();
+				await loadMetadataMapFromDB(METADATA_MAP);
+				console.log(`Loaded metadata from DB in ${(Date.now() - startTime) / 1000} seconds.`);
+				startTime = Date.now();
+				console.log(`Files in map: ${METADATA_MAP.size}`);
+				console.log('Reading files from disk...');
 				await readImageFiles(IMAGE_PATHS, ROOT_IMAGE_PATH);
 				IMAGE_PATHS.sort();
 				console.log(`Read ${IMAGE_PATHS.length} files in ${(Date.now() - startTime) / 1000} seconds.`);
-				// startTime = Date.now();
-				console.log("Initialize Images Metadata, looking for new files");
-				recordCountBefore = METADATA_MAP.size;
-				console.log(`Files in map before initialization: ${recordCountBefore}`);
-				console.log('Loading metadata...');
+				startTime = Date.now();
+				console.log("Initializing Image Metadata (reading metadata from disk for files missing in DB)");
+				console.log(`Files in map before initialization: ${METADATA_MAP.size}`);
+				console.log(`Loading metadata...`);
 				await initializeImagesMetadata(IMAGE_PATHS, METADATA_MAP);
-				recordCountAfter = METADATA_MAP.size;
-				console.log(`Files in map after initialization: ${recordCountAfter}`);
+				console.log(`Files in map after initialization: ${METADATA_MAP.size}`);
 				console.log(`Loaded metadata in ${(Date.now() - startTime) / 1000} seconds.`);
-				console.log(`Loaded ${recordCountAfter - recordCountBefore} new entries`);
-				res.status(200).send(`Refreshed database; loaded ${IMAGE_PATHS.length} files in ${(Date.now() - startTime) / 1000} seconds; added ${recordCountAfter - recordCountBefore} new entries`);
-			})();
-		} catch (error) {
-			console.error(error);
-			res.status(500).send('Error refreshing database'); // send an error response to the client
-		}
+				console.log(`Total time: ${(Date.now() - startTimeTotal) / 1000} seconds.`);
+				// Till here
+				
+				const metadataSizeAfter = METADATA_MAP.size;
+
+				res.status(200).send(`Refreshed database; refreshed in ${(Date.now() - startTimeTotal) / 1000} seconds; New Files added: ${metadataSizeAfter - metadataSizeBefore}`);
+			} catch (err) {
+				console.error('Error initializing metadata table', err);
+				res.status(500).send('Error refreshing database');
+			}
+		})();
 	});
 
 	router.get('/pruneDB', (req, res) => {
@@ -390,7 +390,11 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 
 		} else if (searchText.startsWith('\\\\')) {
 			console.log('regex search started');
-			let pattern = new RegExp(searchText.slice(2), "i") // remove the leading forward slashes
+			try {
+				let pattern = new RegExp(searchText.slice(2), "i") // remove the leading forward slashes
+			} catch (error) {
+				return res.status(400).send('Invalid search term');
+			}
 			console.log("pattern: " + pattern);
 			let regex = new RegExp(pattern, 'i'); // create a case-insensitive regular expression
 			matchingImagePaths = imageList.filter((imagePath) => regex.test(imagePath));
