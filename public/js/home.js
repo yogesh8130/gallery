@@ -78,6 +78,12 @@ document.addEventListener("DOMContentLoaded", function () {
 			const searchText = document.getElementById('searchText');
 			searchText.focus();
 		}
+		if (event.key === 'F4') {
+			toggleSidebar();
+			event.preventDefault();
+			const appendToNameInput = document.getElementById('appendToNameInput');
+			appendToNameInput.focus();
+		}
 
 		if (focusedElement.nodeName === 'INPUT') {
 			// console.log('Currently focused element is an input field');
