@@ -29,7 +29,7 @@ else
 						onclick = `showAtActualScale(${index})`
 						) ⭕
 				div.deleteDiv
-					button.deleteButton(onclick = `deleteFile("${imageLinkEscaped}", "${index}")` title = "delete") 🗑️
+					button.deleteButton(onclick = `deleteFile("${image.imagePath.replace(/\\/g, "\\\\")}", "${index}")` title = "delete") 🗑️
 				div.rename
 					button.renameButton(onclick = 'showRenameDialog(this)') &#9998;
 					dialog.renameDialog
@@ -37,7 +37,7 @@ else
 							input.idNum(type = "text" name = 'idNum'
 								value = idNum readonly hidden)
 							input.currentFilePath(type = "text" name = 'currentFilePath'
-								placeholder = 'Curent File Path' value = imageLinkEscaped readonly hidden)
+								placeholder = 'Curent File Path' value = image.imagePath readonly hidden)
 							input.newFileName(type = "text" name = 'newFileName'
 								value = imageNameNoExt
 								placeholder = 'New Name (press Enter)' required)

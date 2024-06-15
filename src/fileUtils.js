@@ -245,6 +245,14 @@ function moveRenameFiles(IMAGE_PATHS, METADATA_MAP,
 		let newFilePathRelative;
 
 		switch (operation) {
+			case 'delete':
+				newFileName = currentFileName + "###deleted";
+				newFilePath = PATH.join(currentFileDir, (newFileName + currentFileExt));
+				break;
+			case 'rename':
+				newFileName = argument1;
+				newFilePath = PATH.join(currentFileDir, (newFileName + currentFileExt));
+				break;
 			case 'renameBulk':
 				newFileName = argument1;
 				index++;
@@ -313,7 +321,7 @@ function moveRenameFiles(IMAGE_PATHS, METADATA_MAP,
 				const targetFolder = argument1;
 				const targetFolderPath = PATH.resolve(PATH.join('.', 'public', 'images', targetFolder));
 				newFilePath = PATH.join(targetFolderPath, (currentFileName + currentFileExt));
-			break;
+				break;
 			default:
 				throw new Error(`Invalid operation: ${operation}`);
 		}
@@ -358,19 +366,25 @@ function moveRenameFiles(IMAGE_PATHS, METADATA_MAP,
 			try {
 				newFilePathRelative = newFilePath.replace(PWD + '\\public', '');
 				FS.renameSync(currentFilePath, newFilePath);
-				// updating IMAGE_PATHS	and METADATA_MAP
-				IMAGE_PATHS[IMAGE_PATHS.indexOf(currentFilePathRelative)] = newFilePathRelative;
-				IMAGE_PATHS.sort();
-				renameKey(METADATA_MAP, currentFilePathRelative, newFilePathRelative);
-				METADATA_MAP.get(newFilePathRelative).baseName = PATH.basename(newFilePathRelative);
-				METADATA_MAP.get(newFilePathRelative).directory = PATH.dirname(newFilePathRelative);
 				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
 				FS.appendFileSync(RENAME_LOG_FILE, logMessage);
 				successCount++;
-				newImageTitle = METADATA_MAP.get(newFilePathRelative).baseName;
-				newSubTitle = METADATA_MAP.get(newFilePathRelative).directory;
-				newImageTitleLink = '/search?searchText=' + encodeURIComponent(newImageTitle.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim()) + '&view=tiles';
-				newSubTitleLink = '/search?searchText=' + encodeURIComponent(newSubTitle) + '&view=tiles';
+				let newImageTitle, newSubTitle, newImageTitleLink, newSubTitleLink;
+				if (operation !== 'delete') {
+					newImageTitle = METADATA_MAP.get(newFilePathRelative).baseName;
+					newSubTitle = METADATA_MAP.get(newFilePathRelative).directory;
+					newImageTitleLink = '/search?searchText=' + encodeURIComponent(newImageTitle.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim()) + '&view=tiles';
+					newSubTitleLink = '/search?searchText=' + encodeURIComponent(newSubTitle) + '&view=tiles';
+					// updating IMAGE_PATHS	and METADATA_MAP
+					IMAGE_PATHS[IMAGE_PATHS.indexOf(currentFilePathRelative)] = newFilePathRelative;
+					IMAGE_PATHS.sort();
+					renameKey(METADATA_MAP, currentFilePathRelative, newFilePathRelative);
+					METADATA_MAP.get(newFilePathRelative).baseName = PATH.basename(newFilePathRelative);
+					METADATA_MAP.get(newFilePathRelative).directory = PATH.dirname(newFilePathRelative);
+				} else {
+					IMAGE_PATHS.splice(IMAGE_PATHS.indexOf(currentFilePathRelative), 1);
+					METADATA_MAP.delete(currentFilePathRelative);
+				}
 				newImagesData.set(imageId, {
 					newFilePathRelative: newFilePathRelative,
 					newImageTitle: newImageTitle,
@@ -379,7 +393,7 @@ function moveRenameFiles(IMAGE_PATHS, METADATA_MAP,
 					newSubTitleLink: newSubTitleLink
 				});
 			} catch (err) {
-				console.error(`Error renaming file: ${currentFilePath}: ${err.message}`);
+				console.error(`Error renaming file: ${currentFilePath}: ${err.message}`, err);
 				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Fail: ${err}\n`;
 				FS.appendFileSync(RENAME_LOG_FILE, logMessage);
 				failCount++;

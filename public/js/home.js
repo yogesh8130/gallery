@@ -668,16 +668,19 @@ function loadMore() {
 	}
 }
 
-function deleteFile(imageLinkEscaped, index) {
-
-	console.log(imageLinkEscaped);
-	console.log(index);
-
-	const url = '/deleteFile';
+function deleteFile(imageLinkRelative, index) {
+	// console.log(imageLinkRelative);
+	// console.log(index);
+	const imageId = 'image' + index;
+	const url = '/moveRenameFiles';
 	const formData = {
-		currentFilePath: imageLinkEscaped,
+		operation: "delete",
+		currentFilePaths: {
+			[imageId]: imageLinkRelative
+		},
+		argument1: "###deleted"
 	}
-
+	// console.log(`formData: ${JSON.stringify(formData)}`);
 	const options = {
 		method: 'POST',
 		headers: {
@@ -688,14 +691,18 @@ function deleteFile(imageLinkEscaped, index) {
 	fetch(url, options)
 		.then(response => response.json())
 		.then(data => {
-			showPopup(data.message, data.level);
+			// console.log(data);
+			const newImagesData = new Map(Object.entries(data.newImagesData));
+			newImagesData.forEach((newImageData, imageId) => {
+				showPopup("File Deleted", "warn");
+				elementToRemove = document.getElementById("result" + index);
+				elementToRemove.style.display = "none";
+			});
 		})
 		.catch(error => {
 			showPopup(error, 'error');
+			console.error(`Error deleting file: ${error}`);
 		});
-
-	elementToRemove = document.getElementById("result" + index);
-	elementToRemove.style.display = "none";
 }
 
 function showRenameDialog(button) {
@@ -714,14 +721,18 @@ function showRenameDialog(button) {
 			event.preventDefault(); // else the form will submit normally and reload the page
 			const renameForm = renameDialog.querySelector('.renameForm');
 			const idNum = renameForm.idNum.value;
-			const url = '/rename';
+			const imageId = 'image' + idNum;
+			const imageLinkRelative = renameForm.currentFilePath.value;
+			const newFileName = renameForm.newFileName.value
+			const url = '/moveRenameFiles';
 			const formData = {
-				currentFilePath: renameForm.currentFilePath.value,
-				newFileName: renameForm.newFileName.value
+				operation: 'rename',
+				currentFilePaths: {
+					[imageId]: imageLinkRelative
+				},
+				argument1: newFileName
 			}
-
-			// console.log(formData);
-
+			// console.log(`form data: ${JSON.stringify(formData)}`);
 			const options = {
 				method: 'POST',
 				headers: {
@@ -733,15 +744,32 @@ function showRenameDialog(button) {
 			fetch(url, options)
 				.then(response => response.json())
 				.then(data => {
-					showPopup(data.message, data.level);
-					// TODO update image SRC after rename
-					// sent in data.newSrc
-					const imageTitle = document.querySelector('#imageTitle' + idNum);
-					const subTitle = document.querySelector('#subTitle' + idNum);
-					imageTitle.innerHTML = data.newImageTitle;
-					imageTitle.href = data.newImageTitleLink
-					subTitle.innerHTML = data.newSubTitle;
-					subTitle.href = data.newSubTitleLink;
+					// console.log(`response: ${JSON.stringify(data)}`);
+					const successCount = data.successCount;
+					const failCount = data.failCount;
+					const newImagesData = new Map(Object.entries(data.newImagesData));
+					newImagesData.forEach((newImageData, imageId) => {
+						const image = document.getElementById(imageId);
+						if (newImageData === 'fail') {
+							image.classList.add('renameFailed')
+						} else {
+							const imageLinkRelative = newImageData.newFilePathRelative;
+							image.src = imageLinkRelative
+							selectedImages.set(imageId, imageLinkRelative)
+							// console.log(selectedImages);
+							// update image title and subtitle
+							const imageTitle = document.querySelector('#imageTitle' + idNum);
+							imageTitle.innerHTML = newImageData.newImageTitle;
+							imageTitle.href = newImageData.newImageTitleLink;
+							const subTitle = document.querySelector('#subTitle' + idNum);
+							subTitle.innerHTML = newImageData.newSubTitle;
+							subTitle.href = newImageData.newSubTitleLink;
+						}
+					})
+					showPopup(`Renamed ${successCount} files`, 'info')
+					if (failCount !== 0) {
+						showPopup(`Failed ${failCount} files`, 'error')
+					}
 				})
 				.catch(error => {
 					showPopup(error, 'error');
@@ -893,7 +921,7 @@ function moveRenameFiles(operation) {
 	let argument2;
 	let pattern;
 	let isValid;
-	console.log(selectedImages);
+	// console.log(selectedImages);
 	// console.log(renameBulkInput.value);
 
 	if (selectedImages.size == 0) {
@@ -985,7 +1013,7 @@ function moveRenameFiles(operation) {
 		argument1: argument1,
 		argument2: argument2
 	}
-
+	// console.log(Object.fromEntries(selectedImages));
 	const options = {
 		method: 'POST',
 		headers: {
@@ -1010,7 +1038,7 @@ function moveRenameFiles(operation) {
 					const imageLinkRelative = value.newFilePathRelative;
 					image.src = imageLinkRelative
 					selectedImages.set(imageId, imageLinkRelative)
-					console.log(selectedImages);
+					// console.log(selectedImages);
 					// update image title and subtitle
 					idNum = imageId.replace('image', '');
 					const imageTitle = document.querySelector('#imageTitle' + idNum);
@@ -1030,19 +1058,4 @@ function moveRenameFiles(operation) {
 			showPopup(error, 'error');
 			console.error(error);
 		});
-}
-
-function addSuggestedTargetFolder(folder) {
-	suggestedTargetFolders.push(folder);
-
-	if (suggestedTargetFolders.length > 100) {
-		suggestedTargetFolders.splice(0, suggestedTargetFolders.length - 100);
-	}
-
-	const datalist = document.getElementById('suggestedFolders');
-	const option = document.createElement('option');
-	option.value = folder;
-	datalist.appendChild(option);
-
-	localStorage.setItem('suggestedTargetFolders', JSON.stringify(suggestedTargetFolders));
 }
