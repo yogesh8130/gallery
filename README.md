@@ -1,64 +1,61 @@
 ## Introduction
-This is just a gallery that works in yout browser, and is meant for viewing your images and videos without being constrained to the directory structures.
+A gallery that works in your browser. Runs on Node.JS
+This is meant for viewing your images and videos without being constrained to the directory structures.
 Makes discovering stuff easier with instant search and exploring fun with shuffle mode.
 The text you see on the screen is always hyperlinked and will take you to similar content based on the file/directory names.
 
 Currently this does not read the file tags but may integrate that in furture, so currently it is important that your image names and folder names are meaningful for search to work.
 
-Notes:
-1. Images are only shuffled once per every search and list is not shuffled untill next search
+## Features
 
-## Getting Started
-Place the hardlinks / junctions / symlinks / folders containing images in `<project folder>/public/images/<here>`  
+- Supports large libraries: Tested with 200,000+ images
+- Instantaneous search with support for token based search (using and/or/not logic) or regex
+- Bulk renaming/moving files (deleting only renames the files by adding "###deleted" to their name so you can review and delete them later all in one go)
 
-Using a terminal `cd` to the project folder where `index.js` file is located  
-Run the server with `node .\index.js`
+## Screenshots
 
-The gallery website can then be accessed on the same system with below url:  
-`Localhost:3000`  
-or you can access on your lan with
-`<ip address where server is running>:3000`
+![vgy.me](https://i.vgy.me/kLmV3y.png)
 
-## Searching
-Searching is done in three modes (case insensitive)
-1. Normal: entire string is searched in all filenames
-2. Advanced: if the search string includes && || or !! then search is automatically done in advanced mode  
-E.g. potato && tomato || apple !! mango  
+## Setting Up
 
-	1. First && tokens are processed, file must contain all such tokens to be included in the result. First token is by default an && token, so file name must contain potato AND tomato  
-	2. The || tokens are processed, if file contains ANY one of these tokens, it will be included in result i.e. any files containing apple will be added even if they dont contain potato or tomato and these will be added to the list created by first step  
-	3. Lastly !! tokens are processed, any file containing any of these are removed from the results computed so far by first two steps  
+1. **Clone the Git Repository**: First, you need to clone the Git repository to your local machine. Open a terminal or command prompt and use the git clone command followed by the repository URL.
 
-3. Regex: If you're one of those, just begin your search by //
+	```
+	git clone https://github.com/yogesh8130/gallery.git
+	```
 
-## Browsing
-All file names and folder names are hyperlinks and will start another search
+2. **Navigate to the Project Directory**: Once the repository is cloned, navigate into the project directory using the cd command:
 
-1. File name links are searched after stripping numbers and extensions, so if you are viewing apple (11).png or apple-111.mp4, then search will be done for "apple" and "apple-" respectively. This is helpful when you want to list down entire series of a picture or video or something
-2. Folder names are searched as is and will return everthing in recursive manner
+	```
+	cd <project directory>
+	```
 
-Clicking on image will take you to its own separate page. And you can traverse forward or backward.
+3. **Install Node.js Dependencies**: Dependencies are listed in a package.json file. To install these dependencies, use npm (Node Package Manager). Run the following command in the project directory:
 
-## Hotkeys
-Work when a text box is not in focus.
+	This command reads the package.json file and installs all the necessary dependencies into a node_modules folder in your project directory.
+	```
+	npm install
+	```
+3. Place the hardlinks / junctions / symlinks / folders containing images in `<project folder>/public/images/<here>`  
+   
+4. **Start the Application**: To start the Node.js application run the following command:
 
-- f - toggle fullscreen(immersive)
+	```
+	cd <project directory>
+	node index.js
+	```
+	First start may take more time as the files are scanned for metadata. (You can see this as high disk READ activity in Task Manager and CPU usage)
 
-### Search Screen
+	Note: Turning off windows defender drastically improves the read speed on SSD.
 
-- s - Toggle shuffle
-- 1 - View images at actual size
-- 2 - Images are streched to available space
-- 3 - Images bigger than screen are shrinked to fit smaller images are zoomed to a max of 75% of screen height
+5. The gallery website can then be accessed on the same system with below url:  
+	```
+	Localhost:3000
+	```
+	or you can access on your lan with (may need to open firewall port)
+	```
+	<ip address of PC where server is running>:3000
+	```
 
-### Main Screen
+6. See the in application side bar (in the UI in your browser) for more details like search syntax and other tips and tricks.
 
-- Left - previous image/video as per folder path
-- Right - next image/video as per folder paths
-- Down - a random image/video is shown
-- Up - previous random image
-
-PC / landscape  
-![PC / landscape](https://i.vgy.me/rSixTa.png)
-Phone / Portrait  
-<img src='https://i.vgy.me/6fXWzS.png' style="width:600px;">
