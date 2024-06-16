@@ -313,7 +313,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 
 		if (searchText.includes('&&')
 			|| searchText.includes('||')
-			|| searchText.includes('\\\\')
+			|| searchText.includes('??')
 			|| searchText.includes('!!')) {
 
 			console.log('Wildcard search started');
@@ -335,10 +335,10 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 				splitIndexes.push(splitIndex);
 				splitIndex = searchText.indexOf('!!', splitIndex + 1);
 			}
-			splitIndex = searchText.indexOf('\\\\');
+			splitIndex = searchText.indexOf('??');
 			while (splitIndex !== -1) {
 				splitIndexes.push(splitIndex);
-				splitIndex = searchText.indexOf('\\\\', splitIndex + 1);
+				splitIndex = searchText.indexOf('??', splitIndex + 1);
 			}
 
 			splitIndexes = splitIndexes.sort((a, b) => a - b); // sort numerically
@@ -365,7 +365,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 					orTokens.push(searchToken.replace('||', '').trim());
 				} else if (searchToken.startsWith('!!')) {
 					notTokens.push(searchToken.replace('!!', '').trim());
-				} else if (searchToken.startsWith('\\\\')) {
+				} else if (searchToken.startsWith('??')) {
 					regexTokens.push(searchToken.slice(2).trim());
 				}
 			});
@@ -376,6 +376,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 				let pattern;
 				try {
 					pattern = new RegExp(regexToken, "i");
+					// console.log(`pattern: ${pattern}`);
 				} catch (error) {
 					return res.status(400).send('Invalid search term (unable to parse as regex)');
 				}
@@ -403,6 +404,11 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 				});
 			}
 
+			// if matchingImagePaths is still empty then add all images from imageList
+			if (!matchingImagePaths) {
+				matchingImagePaths = matchingImagePaths.concat(imageList);
+			}
+
 			if (notTokens.length !== 0) {
 				// console.log("Processing NOT tokens");
 				for (let i = matchingImagePaths.length - 1; i >= 0; i--) {
@@ -414,7 +420,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 				}
 			}
 
-		} else if (searchText.startsWith('\\\\')) {
+		} else if (searchText.startsWith('??')) {
 			// console.log('regex search started');
 			let pattern
 			try {
@@ -426,7 +432,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 			let regex = new RegExp(pattern, 'i'); // create a case-insensitive regular expression
 			matchingImagePaths = imageList.filter((imagePath) => regex.test(imagePath));
 		} else if (searchText.endsWith('\\')) {
-			log('show directory in non recursive mode');
+			// console.log('show directory in non recursive mode');
 			let pattern = new RegExp(searchText.replaceAll('\\', '\\\\') + '[^\\\\]*$', "i")
 			// console.log("pattern: " + pattern);
 			let regex = new RegExp(pattern, 'i');

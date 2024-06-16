@@ -9,15 +9,15 @@ div(id = "sidebar" onclick = "toggleSidebar(event)")
 			li Advanced: If the search string includes &amp; &amp; || or !! then search is automatically done in advanced mode
 			ul
 				li E.g. &&potato && tomato || apple !! mango
-				li First \\ tokens are processed, everything after \\ is used as a regex to add files to search results.
+				li First ?? tokens are processed, everything after ?? is used as a regex to add files to search results.
 				li Then && tokens are processed, file must contain all such tokens to be included in the result, so file name must contain potato AND tomato.
 				li The || tokens are processed, if file contains ANY one of these tokens, it will be included in result i.e. any files containing apple will be added even if they dont contain potato or tomato and these will be added to the list created by first step
 				li Lastly !! tokens are processed, any file containing any of these are removed from the results computed so far by first three steps
-			li Regex: just begin your search by \\
+			li Regex: just begin your search by ??
 			ul
 				li Everything after first two slashes is converted to a regex pattern.
 				li Searches are done with i flag set (case insensitive)
-				li e.g.: \\^test.*$, search will be performed with /^test.*$/ as the pattern.
+				li e.g.: ??^test.*$, search will be performed with /^test.*$/ as the pattern.
 			li Directory non recursive: By default directories are searched in recursive manner, ie if you search for "\images\personal" all images form personal folder and it's subfolders will be shown. You can override this by adding an additional "\" at the end like this "\images\personal\", now only the images that are directly in personal will be shown. Images in subfolders will not be shown.
 		b Moving
 		ul
