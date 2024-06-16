@@ -63,7 +63,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 				console.log(`Loaded metadata in ${(Date.now() - startTime) / 1000} seconds.`);
 				console.log(`Total time: ${(Date.now() - startTimeTotal) / 1000} seconds.`);
 				// Till here
-				
+
 				const metadataSizeAfter = METADATA_MAP.size;
 
 				res.status(200).send(`Refreshed database; refreshed in ${(Date.now() - startTimeTotal) / 1000} seconds; New Files added: ${metadataSizeAfter - metadataSizeBefore}`);
@@ -313,6 +313,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 
 		if (searchText.includes('&&')
 			|| searchText.includes('||')
+			|| searchText.includes('\\\\')
 			|| searchText.includes('!!')) {
 
 			console.log('Wildcard search started');
@@ -334,6 +335,11 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 				splitIndexes.push(splitIndex);
 				splitIndex = searchText.indexOf('!!', splitIndex + 1);
 			}
+			splitIndex = searchText.indexOf('\\\\');
+			while (splitIndex !== -1) {
+				splitIndexes.push(splitIndex);
+				splitIndex = searchText.indexOf('\\\\', splitIndex + 1);
+			}
 
 			splitIndexes = splitIndexes.sort((a, b) => a - b); // sort numerically
 			// console.log("splitIndexes: " + splitIndexes);
@@ -350,6 +356,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 			let andTokens = [];
 			let orTokens = [];
 			let notTokens = [];
+			let regexTokens = [];
 
 			searchTokens.forEach(searchToken => {
 				if (searchToken.startsWith('&&')) {
@@ -358,51 +365,69 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 					orTokens.push(searchToken.replace('||', '').trim());
 				} else if (searchToken.startsWith('!!')) {
 					notTokens.push(searchToken.replace('!!', '').trim());
-				} else {
-					andTokens.push(searchToken.trim());
+				} else if (searchToken.startsWith('\\\\')) {
+					regexTokens.push(searchToken.slice(2).trim());
 				}
 			});
 
-			// console.log("Processing AND tokens");
-			imageList.forEach(imagePath => {
-				let containsAll = andTokens.every(andToken => imagePath.toLowerCase().includes(andToken.toLowerCase()));
-				if (containsAll) {
-					matchingImagePaths.push(imagePath);
+			// console.log("Processing Regex tokens");
+			// console.log(`regexTokens: ${regexTokens}`);
+			regexTokens.forEach(regexToken => {
+				let pattern;
+				try {
+					pattern = new RegExp(regexToken, "i");
+				} catch (error) {
+					return res.status(400).send('Invalid search term (unable to parse as regex)');
 				}
-			});
+				matchingImagePaths.push(...imageList.filter(imagePath => pattern.test(imagePath)));
+			})
 
-			// console.log("Processing OR tokens");
-			imageList.forEach(imagePath => {
-				let containsSome = orTokens.some(orToken => imagePath.toLowerCase().includes(orToken.toLowerCase()));
-				if (containsSome) {
-					matchingImagePaths.push(imagePath);
-				}
-			});
+			if (andTokens.length !== 0) {
+				// console.log("Processing AND tokens");
+				imageList.forEach(imagePath => {
+					let containsAll = andTokens.every(andToken => imagePath.toLowerCase().includes(andToken.toLowerCase()));
+					if (containsAll) {
+						matchingImagePaths.push(imagePath);
+					}
+				});
+			}
 
-			// console.log("Processing NOT tokens");
-			for (let i = matchingImagePaths.length - 1; i >= 0; i--) {
-				let matchingPath = matchingImagePaths[i];
-				let containsAny = notTokens.some(notToken => matchingPath.toLowerCase().includes(notToken.toLowerCase()));
-				if (containsAny) {
-					matchingImagePaths.splice(i, 1);
+			if (orTokens.length !== 0) {
+				// console.log("Processing OR tokens");
+				imageList.forEach(imagePath => {
+					let containsSome = orTokens.some(orToken => imagePath.toLowerCase().includes(orToken.toLowerCase()));
+					if (containsSome) {
+						matchingImagePaths.push(imagePath);
+					}
+				});
+			}
+
+			if (notTokens.length !== 0) {
+				// console.log("Processing NOT tokens");
+				for (let i = matchingImagePaths.length - 1; i >= 0; i--) {
+					let matchingPath = matchingImagePaths[i];
+					let containsAny = notTokens.some(notToken => matchingPath.toLowerCase().includes(notToken.toLowerCase()));
+					if (containsAny) {
+						matchingImagePaths.splice(i, 1);
+					}
 				}
 			}
 
 		} else if (searchText.startsWith('\\\\')) {
-			console.log('regex search started');
+			// console.log('regex search started');
 			let pattern
 			try {
 				pattern = new RegExp(searchText.slice(2), "i") // remove the leading forward slashes
 			} catch (error) {
 				return res.status(400).send('Invalid search term (unable to parse as regex)');
 			}
-			console.log("pattern: " + pattern);
+			// console.log("pattern: " + pattern);
 			let regex = new RegExp(pattern, 'i'); // create a case-insensitive regular expression
 			matchingImagePaths = imageList.filter((imagePath) => regex.test(imagePath));
 		} else if (searchText.endsWith('\\')) {
 			log('show directory in non recursive mode');
 			let pattern = new RegExp(searchText.replaceAll('\\', '\\\\') + '[^\\\\]*$', "i")
-			console.log("pattern: " + pattern);
+			// console.log("pattern: " + pattern);
 			let regex = new RegExp(pattern, 'i');
 			matchingImagePaths = imageList.filter((imagePath) => regex.test(imagePath));
 		} else {
