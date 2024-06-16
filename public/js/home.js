@@ -11,6 +11,21 @@ let suggestedTargetFolders = [];
 let modalActive = false;
 let selectionMode = 0 // whether click opens an image or selects it
 
+// To keep track of the image being viewed in modal
+let currentImagePath;
+let currentImageIdNum;
+
+let viewer;
+let modal;
+let modalImageContainer;
+let modalVideoContainer;
+let modalVideo;
+let modalCloseButton;
+let modalNextButton;
+let modalPreviousButton;
+let modalNextFromResultsButton;
+let modalPreviousFromResultsButton;
+
 document.addEventListener("DOMContentLoaded", function () {
 	// convertin URL query params to
 	queryString = window.location.search;
@@ -66,73 +81,6 @@ document.addEventListener("DOMContentLoaded", function () {
 		window.addEventListener('scroll', loadMore);
 	}
 
-	document.addEventListener('keydown', function (event) {
-		const focusedElement = document.activeElement;
-		if (event.key === 'F2') {
-			toggleSidebar();
-			const renameBulkInput = document.getElementById('renameBulkInput');
-			renameBulkInput.focus();
-		}
-		if (event.key === 'F3') {
-			event.preventDefault();
-			const searchText = document.getElementById('searchText');
-			searchText.focus();
-		}
-		if (event.key === 'F4') {
-			toggleSidebar();
-			event.preventDefault();
-			const appendToNameInput = document.getElementById('appendToNameInput');
-			appendToNameInput.focus();
-		}
-
-		if (focusedElement.nodeName === 'INPUT') {
-			// console.log('Currently focused element is an input field');
-			return
-		}
-
-		if (event.ctrlKey && event.key === 'a') {
-			event.preventDefault();
-			if (allFilesSelected) {
-				deselectAllImages();
-			} else {
-				selectAllImages();
-			}
-			allFilesSelected = !allFilesSelected;
-		}
-		if (event.key === 'f') {
-			goFullscreen()
-		}
-		if (event.key === '1') {
-			showAllImagesAtActualSize();
-		}
-		if (event.key === '2') {
-			showAllImagesStreched();
-		}
-		if (event.key === '3') {
-			showAllImagesAtDefaultScale();
-		}
-		if (event.key === 's') {
-			const shuffleCheckbox = document.getElementById("shuffle");
-			shuffleCheckbox.checked = !shuffleCheckbox.checked;
-			shuffleToggle();
-		}
-		if (!modalActive && event.key === 'ArrowRight') {
-			const slider = document.getElementById('slider');
-			slider.value -= -(0.1);
-			changeTileSize();
-			console.log(slider.value);
-		}
-		if (!modalActive && event.key === 'ArrowLeft') {
-			const slider = document.getElementById('slider');
-			slider.value -= 0.1;
-			changeTileSize();
-			console.log(slider.value);
-		}
-		if (event.altKey && event.key === 't') {
-			document.documentElement.scrollTop = 0;
-		}
-	});
-
 	// MODAL SINGLE IMAGE VIEWER
 
 	// Get the parent element that contains all the images
@@ -143,20 +91,17 @@ document.addEventListener("DOMContentLoaded", function () {
 	// Attach a click event listener to the parent element
 	resultsContainer.addEventListener('click', function (event) {
 
-		const modal = document.getElementById("modal");
-		const modalImageContainer = document.querySelector('.modalImageContainer');
-		const modalVideoContainer = document.querySelector('.modalVideoContainer');
-		const modalVideo = document.querySelector('.modalVideo');
-		const modalCloseButton = document.getElementById('modalCloseButton');
-		const modalNextButton = document.getElementById('modalNextButton');
-		const modalPreviousButton = document.getElementById('modalPreviousButton');
-		const modalNextFromResultsButton = document.getElementById('modalNextFromResultsButton');
-		const modalPreviousFromResultsButton = document.getElementById('modalPreviousFromResultsButton');
+		modal = document.getElementById("modal");
+		modalImageContainer = document.querySelector('.modalImageContainer');
+		modalVideoContainer = document.querySelector('.modalVideoContainer');
+		modalVideo = document.querySelector('.modalVideo');
+		modalCloseButton = document.getElementById('modalCloseButton');
+		modalNextButton = document.getElementById('modalNextButton');
+		modalPreviousButton = document.getElementById('modalPreviousButton');
+		modalNextFromResultsButton = document.getElementById('modalNextFromResultsButton');
+		modalPreviousFromResultsButton = document.getElementById('modalPreviousFromResultsButton');
 
 		let clickedElement = event.target;
-		let currentImagePath;
-
-		let viewer;
 
 		if (lastSelectedImageIndex > -1 &&
 			clickedElement.classList.contains('resultFile') && event.shiftKey) {
@@ -230,6 +175,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			viewer = new ImageViewer(modalImageContainer);
 			showModal(clickedElement.src);
 			currentImagePath = clickedElement.src;
+			currentImageIdNum = clickedElement.id.replace('image', '');
 			event.preventDefault(); // this makes the videos play on click and keeps info links working
 		}
 
@@ -288,6 +234,7 @@ document.addEventListener("DOMContentLoaded", function () {
 					currentImagePath = data.nextImagePath;
 				})
 				.catch(error => console.error(error));
+			currentImageIdNum++;
 		}
 
 		modalPreviousFromResultsButton.onclick = function () {
@@ -301,49 +248,7 @@ document.addEventListener("DOMContentLoaded", function () {
 					currentImagePath = data.previousImagePath;
 				})
 				.catch(error => console.error(error));
-		}
-
-		document.addEventListener('keydown', function (event) {
-			const focusedElement = document.activeElement;
-			if (focusedElement.nodeName === 'INPUT') {
-				// console.log('Currently focused element is an input field');
-				return
-			} else if (modalActive) {
-				if (event.shiftKey && event.key === 'ArrowRight') {
-					modalNextButton.click();
-				} else if (event.shiftKey && event.key === 'ArrowLeft') {
-					modalPreviousButton.click();
-				} else if (event.key === 'ArrowRight') {
-					modalNextFromResultsButton.click();
-				} else if (event.key === 'ArrowLeft') {
-					modalPreviousFromResultsButton.click();
-				} else if (event.key === 'Escape') {
-					closeModal();
-				}
-			}
-		});
-
-		function showModal(fileLink) {
-			modal.style.display = 'block';
-			if (fileLink.toLowerCase().endsWith('.mp4') || fileLink.toLowerCase().endsWith('.mkv') || fileLink.toLowerCase().endsWith('.webm')) {
-				modalVideoContainer.style.display = 'block';
-				modalImageContainer.style.display = 'none';
-				modalVideo.src = fileLink;
-				modalVideo.play();
-			} else {
-				modalVideoContainer.style.display = 'none';
-				modalVideo.pause();
-				modalImageContainer.style.display = 'block';
-				viewer.load(fileLink);
-			}
-			modalActive = true;
-		}
-
-		function closeModal() {
-			modal.style.display = 'none';
-			viewer.destroy();
-			modalVideo.pause();
-			modalActive = false;
+			currentImageIdNum--;
 		}
 
 	});
@@ -379,6 +284,100 @@ document.addEventListener("DOMContentLoaded", function () {
 	replaceInNameForm.onsubmit = (event) => { event.preventDefault(); }
 
 });
+
+// Keyboard shotcuts
+document.addEventListener('keydown', function (event) {
+	const focusedElement = document.activeElement;
+
+	switch (event.key) {
+		case 'F2':
+			toggleSidebar();
+			document.getElementById('renameBulkInput').focus();
+			break;
+		case 'F3':
+			event.preventDefault();
+			document.getElementById('searchText').focus();
+			break;
+		case 'F4':
+			toggleSidebar();
+			event.preventDefault();
+			document.getElementById('appendToNameInput').focus();
+			break;
+		case 'Delete':
+			if (modalActive === false) {
+				// delete selected files
+				event.preventDefault();
+				moveRenameFiles("delete");
+			}
+			break;
+		case 'Escape':
+			closeModal();
+			break;
+		default:
+			break;
+	}
+
+	// Hotkeys which dont work when a text field is active:
+	if (focusedElement.nodeName === 'INPUT') {
+		// console.log('Currently focused element is an input field');
+		return
+	} else switch (event.key) {
+		case 'a':
+			event.preventDefault();
+			if (allFilesSelected) {
+				deselectAllImages();
+			} else {
+				selectAllImages();
+			}
+			allFilesSelected = !allFilesSelected;
+			break;
+		case 'i':
+			invertSelection();
+			break;
+		case 'f':
+			goFullscreen()
+			break;
+		case 's':
+			shuffleToggle();
+			break;
+		case 't':
+			document.documentElement.scrollTop = 0;
+			break;
+		case 'ArrowRight':
+			if (modalActive && !event.shiftKey) {
+				modalNextFromResultsButton.click();
+			} else if (modalActive && event.shiftKey) {
+				modalNextButton.click();
+			} else {
+				const slider = document.getElementById('slider');
+				slider.value -= -(0.1);
+				changeTileSize();
+			}
+			break;
+		case 'ArrowLeft':
+			if (modalActive && !event.shiftKey) {
+				modalPreviousFromResultsButton.click();
+			} else if (modalActive && event.shiftKey) {
+				modalPreviousButton.click();
+			} else {
+				const slider = document.getElementById('slider');
+				slider.value -= 0.1;
+				changeTileSize();
+			}
+			break;
+		case 'Delete':
+			event.preventDefault();
+			// console.log(clickedElement);
+			imageLinkRelative = decodeURIComponent(currentImagePath).replace(origin, '').replace(/^\//, '');
+			console.log("Delete: " + imageLinkRelative + " " + currentImageIdNum);
+			deleteFile(imageLinkRelative, currentImageIdNum);
+			modalNextFromResultsButton.click();
+			break;
+		default:
+			break;
+	}
+});
+
 
 function goFullscreen() {
 	const toggleButton = document.getElementById('fullscreenButton');
@@ -448,16 +447,16 @@ function showAllImagesAtDefaultScale() {
 }
 
 function shuffleToggle() {
-	let shuffleCheckbox = document.getElementById('shuffle');
-	const currentUrl = window.location.href;
-
-	if (shuffleCheckbox.checked) {
-		const newUrl = `${currentUrl}&shuffle=true`;
-		window.location.href = newUrl;
+	const queryParams = new URLSearchParams(window.location.search);
+	const sortByParam = queryParams.get('sortBy');
+	if (sortByParam === 'shuffle') {
+		queryParams.set('sortBy', 'path');
 	} else {
-		const newUrl = currentUrl.replace("&shuffle=true", "").replace("&shuffle=on", "");
-		window.location.href = newUrl;
+		queryParams.set('sortBy', 'shuffle');
 	}
+	const newUrl = `${window.location.pathname}?${queryParams.toString()}`;
+	window.history.replaceState({}, '', newUrl);
+	window.location.reload();
 }
 
 function removeImageLinksAndSave() {
@@ -703,7 +702,7 @@ function deleteFile(imageLinkRelative, index) {
 				showPopup("File Deleted", "warn");
 				elementToRemove = document.getElementById("result" + index);
 				// elementToRemove.style.display = "none";
-				elementToRemove.style.opacity = "20%";
+				elementToRemove.style.opacity = "5%";
 			});
 		})
 		.catch(error => {
@@ -854,6 +853,29 @@ function showPopup(message, level, timeout) {
 	}, timeout);
 }
 
+function showModal(fileLink) {
+	modal.style.display = 'block';
+	if (fileLink.toLowerCase().endsWith('.mp4') || fileLink.toLowerCase().endsWith('.mkv') || fileLink.toLowerCase().endsWith('.webm')) {
+		modalVideoContainer.style.display = 'block';
+		modalImageContainer.style.display = 'none';
+		modalVideo.src = fileLink;
+		modalVideo.play();
+	} else {
+		modalVideoContainer.style.display = 'none';
+		modalVideo.pause();
+		modalImageContainer.style.display = 'block';
+		viewer.load(fileLink);
+	}
+	modalActive = true;
+}
+
+function closeModal() {
+	modal.style.display = 'none';
+	viewer.destroy();
+	modalVideo.pause();
+	modalActive = false;
+}
+
 function toggleSidebar(event) {
 	const sidebar = document.getElementById('sidebar');
 	const sidebarToggleButton = document.getElementById('sidebarToggleButton');
@@ -936,6 +958,8 @@ function moveRenameFiles(operation) {
 		return;
 	}
 	switch (operation) {
+		case "delete":
+			break;
 		case "renameBulk":
 			argument1 = document.getElementById('renameBulkInput').value;
 			if (!argument1) {
@@ -1041,7 +1065,7 @@ function moveRenameFiles(operation) {
 				const image = document.getElementById(imageId);
 				if (value === 'fail') {
 					image.classList.add('renameFailed')
-				} else {
+				} else if (operation != "delete") {
 					const imageLinkRelative = value.newFilePathRelative;
 					image.src = imageLinkRelative
 					selectedImages.set(imageId, imageLinkRelative)
@@ -1054,6 +1078,13 @@ function moveRenameFiles(operation) {
 					const subTitle = document.querySelector('#subTitle' + idNum);
 					subTitle.innerHTML = value.newSubTitle;
 					subTitle.href = value.newSubTitleLink;
+				} else {
+					idNum = imageId.replace('image', '');
+					elementToRemove = document.getElementById("result" + idNum);
+					elementToRemove.style.opacity = "5%";
+					// clear selected images
+					selectedImages.delete(imageId);
+					image.classList.remove('selectedImage');
 				}
 			})
 			showPopup(`Renamed ${successCount} files`, 'info')
