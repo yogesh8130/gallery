@@ -729,7 +729,7 @@ function showRenameDialog(button) {
 			const idNum = renameForm.idNum.value;
 			const imageId = 'image' + idNum;
 			const imageLinkRelative = renameForm.currentFilePath.value;
-			const newFileName = renameForm.newFileName.value
+			const newFileName = renameForm.newFileName.value.trim();
 			const url = '/moveRenameFiles';
 			const formData = {
 				operation: 'rename',
