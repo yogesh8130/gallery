@@ -379,7 +379,8 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 				} catch (error) {
 					return res.status(400).send('Invalid search term (unable to parse as regex)');
 				}
-				matchingImagePaths.push(...imageList.filter(imagePath => pattern.test(imagePath)));
+				let regexMatchingImages = imageList.filter(imagePath => pattern.test(imagePath));
+				matchingImagePaths = matchingImagePaths.concat(regexMatchingImages);
 			})
 
 			if (andTokens.length !== 0) {
