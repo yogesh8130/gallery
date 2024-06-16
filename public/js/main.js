@@ -368,16 +368,7 @@ function search() {
 	const searchText = document.querySelector('#searchText').value;
 	if (searchText.trim() !== '') {
 		// window.location.href = `/search?searchText=${searchText}`; // opens in same window
-		const searchUrl = `/search?searchText=${encodeURIComponent(searchText)}`;
-		window.open(searchUrl,'_self');
-	}
-}
-
-function searchShuffled() {
-	const searchText = document.querySelector('#searchText').value;
-	if (searchText.trim() !== '') {
-		// window.location.href = `/search?searchText=${searchText}`; // opens in same window
-		const searchUrl = `/search?searchText=${encodeURIComponent(searchText)}&shuffle=true`;
+		const searchUrl = `/search?searchText=${encodeURIComponent(searchText)}&sortBy=path&sortAsc=true`;
 		window.open(searchUrl,'_self');
 	}
 }

@@ -6,9 +6,14 @@ html(lang="en")
 		title Settings
 		link(rel = 'stylesheet' href = '/css/config.css')
 	body
-		div.refreshDBDiv.buttonControls
-			button.default(
-				id = 'refreshDBButton' 
+		.buttonControls
+			button#refreshDBButton.default(
 				onclick = 'refreshDB()'
 				) Refresh DB
+			span#refreshDBResponse Reload DB with changes on disk.
+		.buttonControls
+			button#pruneDBButton.default(
+				onclick = 'pruneDB()'
+				) Prune DB
+			span#pruneDBResponse Delete entries from DB which are no longer on disk.
 		script(src = '/js/config.js')

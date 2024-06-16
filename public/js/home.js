@@ -5,11 +5,26 @@ const videosList = []; // to keep track of all videos on the page, even as they 
 const searchResultBatchSize = 50 // should be same as server for correct image id
 let imageIndex = 51 // newly loaded images will be assigned id numbers from here on
 let multiplier = 1 // zoom slider value
-const selectedImages = new Map();
+const selectedImages = new Map(); // imageId => imageLink
 let allFilesSelected = false;
 let suggestedTargetFolders = [];
 let modalActive = false;
 let selectionMode = 0 // whether click opens an image or selects it
+
+// To keep track of the image being viewed in modal
+let currentImagePath;
+let currentImageIdNum;
+
+let viewer;
+let modal;
+let modalImageContainer;
+let modalVideoContainer;
+let modalVideo;
+let modalCloseButton;
+let modalNextButton;
+let modalPreviousButton;
+let modalNextFromResultsButton;
+let modalPreviousFromResultsButton;
 
 document.addEventListener("DOMContentLoaded", function () {
 	// convertin URL query params to
@@ -66,65 +81,6 @@ document.addEventListener("DOMContentLoaded", function () {
 		window.addEventListener('scroll', loadMore);
 	}
 
-	document.addEventListener('keydown', function (event) {
-		const focusedElement = document.activeElement;
-		if (event.key === 'F2') {
-			toggleSidebar();
-		}
-		if (event.key === 'F3') {
-			event.preventDefault();
-			const searchText = document.getElementById('searchText');
-			searchText.focus();
-		}
-
-		if (focusedElement.nodeName === 'INPUT') {
-			// console.log('Currently focused element is an input field');
-			return
-		}
-
-		if (event.ctrlKey && event.key === 'a') {
-			event.preventDefault();
-			if (allFilesSelected) {
-				deselectAllImages();
-			} else {
-				selectAllImages();
-			}
-			allFilesSelected = !allFilesSelected;
-		}
-		if (event.key === 'f') {
-			goFullscreen()
-		}
-		if (event.key === '1') {
-			showAllImagesAtActualSize();
-		}
-		if (event.key === '2') {
-			showAllImagesStreched();
-		}
-		if (event.key === '3') {
-			showAllImagesAtDefaultScale();
-		}
-		if (event.key === 's') {
-			const shuffleCheckbox = document.getElementById("shuffle");
-			shuffleCheckbox.checked = !shuffleCheckbox.checked;
-			shuffleToggle();
-		}
-		if (!modalActive && event.key === 'ArrowRight') {
-			const slider = document.getElementById('slider');
-			slider.value -= -(0.1);
-			changeTileSize();
-			console.log(slider.value);
-		}
-		if (!modalActive && event.key === 'ArrowLeft') {
-			const slider = document.getElementById('slider');
-			slider.value -= 0.1;
-			changeTileSize();
-			console.log(slider.value);
-		}
-		if (event.altKey && event.key === 't') {
-			document.documentElement.scrollTop = 0;
-		}
-	});
-
 	// MODAL SINGLE IMAGE VIEWER
 
 	// Get the parent element that contains all the images
@@ -135,20 +91,17 @@ document.addEventListener("DOMContentLoaded", function () {
 	// Attach a click event listener to the parent element
 	resultsContainer.addEventListener('click', function (event) {
 
-		const modal = document.getElementById("modal");
-		const modalImageContainer = document.querySelector('.modalImageContainer');
-		const modalVideoContainer = document.querySelector('.modalVideoContainer');
-		const modalVideo = document.querySelector('.modalVideo');
-		const modalCloseButton = document.getElementById('modalCloseButton');
-		const modalNextButton = document.getElementById('modalNextButton');
-		const modalPreviousButton = document.getElementById('modalPreviousButton');
-		const modalNextFromResultsButton = document.getElementById('modalNextFromResultsButton');
-		const modalPreviousFromResultsButton = document.getElementById('modalPreviousFromResultsButton');
+		modal = document.getElementById("modal");
+		modalImageContainer = document.querySelector('.modalImageContainer');
+		modalVideoContainer = document.querySelector('.modalVideoContainer');
+		modalVideo = document.querySelector('.modalVideo');
+		modalCloseButton = document.getElementById('modalCloseButton');
+		modalNextButton = document.getElementById('modalNextButton');
+		modalPreviousButton = document.getElementById('modalPreviousButton');
+		modalNextFromResultsButton = document.getElementById('modalNextFromResultsButton');
+		modalPreviousFromResultsButton = document.getElementById('modalPreviousFromResultsButton');
 
 		let clickedElement = event.target;
-		let currentImagePath;
-
-		let viewer;
 
 		if (lastSelectedImageIndex > -1 &&
 			clickedElement.classList.contains('resultFile') && event.shiftKey) {
@@ -222,6 +175,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			viewer = new ImageViewer(modalImageContainer);
 			showModal(clickedElement.src);
 			currentImagePath = clickedElement.src;
+			currentImageIdNum = clickedElement.id.replace('image', '');
 			event.preventDefault(); // this makes the videos play on click and keeps info links working
 		}
 
@@ -280,6 +234,7 @@ document.addEventListener("DOMContentLoaded", function () {
 					currentImagePath = data.nextImagePath;
 				})
 				.catch(error => console.error(error));
+			currentImageIdNum++;
 		}
 
 		modalPreviousFromResultsButton.onclick = function () {
@@ -293,49 +248,7 @@ document.addEventListener("DOMContentLoaded", function () {
 					currentImagePath = data.previousImagePath;
 				})
 				.catch(error => console.error(error));
-		}
-
-		document.addEventListener('keydown', function (event) {
-			const focusedElement = document.activeElement;
-			if (focusedElement.nodeName === 'INPUT') {
-				// console.log('Currently focused element is an input field');
-				return
-			} else if (modalActive) {
-				if (event.shiftKey && event.key === 'ArrowRight') {
-					modalNextButton.click();
-				} else if (event.shiftKey && event.key === 'ArrowLeft') {
-					modalPreviousButton.click();
-				} else if (event.key === 'ArrowRight') {
-					modalNextFromResultsButton.click();
-				} else if (event.key === 'ArrowLeft') {
-					modalPreviousFromResultsButton.click();
-				} else if (event.key === 'Escape') {
-					closeModal();
-				}
-			}
-		});
-
-		function showModal(fileLink) {
-			modal.style.display = 'block';
-			if (fileLink.toLowerCase().endsWith('.mp4') || fileLink.toLowerCase().endsWith('.mkv') || fileLink.toLowerCase().endsWith('.webm')) {
-				modalVideoContainer.style.display = 'block';
-				modalImageContainer.style.display = 'none';
-				modalVideo.src = fileLink;
-				modalVideo.play();
-			} else {
-				modalVideoContainer.style.display = 'none';
-				modalVideo.pause();
-				modalImageContainer.style.display = 'block';
-				viewer.load(fileLink);
-			}
-			modalActive = true;
-		}
-
-		function closeModal() {
-			modal.style.display = 'none';
-			viewer.destroy();
-			modalVideo.pause();
-			modalActive = false;
+			currentImageIdNum--;
 		}
 
 	});
@@ -371,6 +284,100 @@ document.addEventListener("DOMContentLoaded", function () {
 	replaceInNameForm.onsubmit = (event) => { event.preventDefault(); }
 
 });
+
+// Keyboard shotcuts
+document.addEventListener('keydown', function (event) {
+	const focusedElement = document.activeElement;
+
+	switch (event.key) {
+		case 'F2':
+			toggleSidebar();
+			document.getElementById('renameBulkInput').focus();
+			break;
+		case 'F3':
+			event.preventDefault();
+			document.getElementById('searchText').focus();
+			break;
+		case 'F4':
+			toggleSidebar();
+			event.preventDefault();
+			document.getElementById('appendToNameInput').focus();
+			break;
+		case 'Delete':
+			if (modalActive === false) {
+				// delete selected files
+				event.preventDefault();
+				moveRenameFiles("delete");
+			}
+			break;
+		case 'Escape':
+			closeModal();
+			break;
+		default:
+			break;
+	}
+
+	// Hotkeys which dont work when a text field is active:
+	if (focusedElement.nodeName === 'INPUT') {
+		// console.log('Currently focused element is an input field');
+		return
+	} else switch (event.key) {
+		case 'a':
+			event.preventDefault();
+			if (allFilesSelected) {
+				deselectAllImages();
+			} else {
+				selectAllImages();
+			}
+			allFilesSelected = !allFilesSelected;
+			break;
+		case 'i':
+			invertSelection();
+			break;
+		case 'f':
+			goFullscreen()
+			break;
+		case 's':
+			shuffleToggle();
+			break;
+		case 't':
+			document.documentElement.scrollTop = 0;
+			break;
+		case 'ArrowRight':
+			if (modalActive && !event.shiftKey) {
+				modalNextFromResultsButton.click();
+			} else if (modalActive && event.shiftKey) {
+				modalNextButton.click();
+			} else {
+				const slider = document.getElementById('slider');
+				slider.value -= -(0.1);
+				changeTileSize();
+			}
+			break;
+		case 'ArrowLeft':
+			if (modalActive && !event.shiftKey) {
+				modalPreviousFromResultsButton.click();
+			} else if (modalActive && event.shiftKey) {
+				modalPreviousButton.click();
+			} else {
+				const slider = document.getElementById('slider');
+				slider.value -= 0.1;
+				changeTileSize();
+			}
+			break;
+		case 'Delete':
+			event.preventDefault();
+			// console.log(clickedElement);
+			imageLinkRelative = decodeURIComponent(currentImagePath).replace(origin, '').replace(/^\//, '');
+			console.log("Delete: " + imageLinkRelative + " " + currentImageIdNum);
+			deleteFile(imageLinkRelative, currentImageIdNum);
+			modalNextFromResultsButton.click();
+			break;
+		default:
+			break;
+	}
+});
+
 
 function goFullscreen() {
 	const toggleButton = document.getElementById('fullscreenButton');
@@ -440,16 +447,16 @@ function showAllImagesAtDefaultScale() {
 }
 
 function shuffleToggle() {
-	let shuffleCheckbox = document.getElementById('shuffle');
-	const currentUrl = window.location.href;
-
-	if (shuffleCheckbox.checked) {
-		const newUrl = `${currentUrl}&shuffle=true`;
-		window.location.href = newUrl;
+	const queryParams = new URLSearchParams(window.location.search);
+	const sortByParam = queryParams.get('sortBy');
+	if (sortByParam === 'shuffle') {
+		queryParams.set('sortBy', 'path');
 	} else {
-		const newUrl = currentUrl.replace("&shuffle=true", "").replace("&shuffle=on", "");
-		window.location.href = newUrl;
+		queryParams.set('sortBy', 'shuffle');
 	}
+	const newUrl = `${window.location.pathname}?${queryParams.toString()}`;
+	window.history.replaceState({}, '', newUrl);
+	window.location.reload();
 }
 
 function removeImageLinksAndSave() {
@@ -666,16 +673,19 @@ function loadMore() {
 	}
 }
 
-function deleteFile(imageLinkEscaped, index) {
-
-	console.log(imageLinkEscaped);
-	console.log(index);
-
-	const url = '/deleteFile';
+function deleteFile(imageLinkRelative, index) {
+	// console.log(imageLinkRelative);
+	// console.log(index);
+	const imageId = 'image' + index;
+	const url = '/moveRenameFiles';
 	const formData = {
-		currentFilePath: imageLinkEscaped,
+		operation: "delete",
+		currentFilePaths: {
+			[imageId]: imageLinkRelative
+		},
+		argument1: "###deleted"
 	}
-
+	// console.log(`formData: ${JSON.stringify(formData)}`);
 	const options = {
 		method: 'POST',
 		headers: {
@@ -686,14 +696,19 @@ function deleteFile(imageLinkEscaped, index) {
 	fetch(url, options)
 		.then(response => response.json())
 		.then(data => {
-			showPopup(data.message, data.level);
+			// console.log(data);
+			const newImagesData = new Map(Object.entries(data.newImagesData));
+			newImagesData.forEach((newImageData, imageId) => {
+				showPopup("File Deleted", "warn");
+				elementToRemove = document.getElementById("result" + index);
+				// elementToRemove.style.display = "none";
+				elementToRemove.style.opacity = "5%";
+			});
 		})
 		.catch(error => {
 			showPopup(error, 'error');
+			console.error(`Error deleting file: ${error}`);
 		});
-
-	elementToRemove = document.getElementById("result" + index);
-	elementToRemove.style.display = "none";
 }
 
 function showRenameDialog(button) {
@@ -703,22 +718,27 @@ function showRenameDialog(button) {
 			renameDialog.close();
 		} else {
 			renameDialog.show();
+			const newFileNameInput = renameDialog.querySelector('.newFileName');
+			newFileNameInput.select();
 		}
 
 		// yes the dialogs can be submitted too
 		renameDialog.onsubmit = function (event) {
 			event.preventDefault(); // else the form will submit normally and reload the page
 			const renameForm = renameDialog.querySelector('.renameForm');
-			// console.log(renameForm.newFileName.value);
-
-			const url = '/rename';
+			const idNum = renameForm.idNum.value;
+			const imageId = 'image' + idNum;
+			const imageLinkRelative = renameForm.currentFilePath.value;
+			const newFileName = renameForm.newFileName.value.trim();
+			const url = '/moveRenameFiles';
 			const formData = {
-				currentFilePath: renameForm.currentFilePath.value,
-				newFileName: renameForm.newFileName.value
+				operation: 'rename',
+				currentFilePaths: {
+					[imageId]: imageLinkRelative
+				},
+				argument1: newFileName
 			}
-
-			// console.log(formData);
-
+			// console.log(`form data: ${JSON.stringify(formData)}`);
 			const options = {
 				method: 'POST',
 				headers: {
@@ -730,10 +750,32 @@ function showRenameDialog(button) {
 			fetch(url, options)
 				.then(response => response.json())
 				.then(data => {
-					showPopup(data.message, data.level);
-					// TODO update image SRC after rename
-					// sent in data.newSrc
-					// console.log(data);
+					// console.log(`response: ${JSON.stringify(data)}`);
+					const successCount = data.successCount;
+					const failCount = data.failCount;
+					const newImagesData = new Map(Object.entries(data.newImagesData));
+					newImagesData.forEach((newImageData, imageId) => {
+						const image = document.getElementById(imageId);
+						if (newImageData === 'fail') {
+							image.classList.add('renameFailed')
+						} else {
+							const imageLinkRelative = newImageData.newFilePathRelative;
+							image.src = imageLinkRelative
+							selectedImages.set(imageId, imageLinkRelative)
+							// console.log(selectedImages);
+							// update image title and subtitle
+							const imageTitle = document.querySelector('#imageTitle' + idNum);
+							imageTitle.innerHTML = newImageData.newImageTitle;
+							imageTitle.href = newImageData.newImageTitleLink;
+							const subTitle = document.querySelector('#subTitle' + idNum);
+							subTitle.innerHTML = newImageData.newSubTitle;
+							subTitle.href = newImageData.newSubTitleLink;
+						}
+					})
+					showPopup(`Renamed ${successCount} files`, 'info')
+					if (failCount !== 0) {
+						showPopup(`Failed ${failCount} files`, 'error')
+					}
 				})
 				.catch(error => {
 					showPopup(error, 'error');
@@ -811,6 +853,29 @@ function showPopup(message, level, timeout) {
 	}, timeout);
 }
 
+function showModal(fileLink) {
+	modal.style.display = 'block';
+	if (fileLink.toLowerCase().endsWith('.mp4') || fileLink.toLowerCase().endsWith('.mkv') || fileLink.toLowerCase().endsWith('.webm')) {
+		modalVideoContainer.style.display = 'block';
+		modalImageContainer.style.display = 'none';
+		modalVideo.src = fileLink;
+		modalVideo.play();
+	} else {
+		modalVideoContainer.style.display = 'none';
+		modalVideo.pause();
+		modalImageContainer.style.display = 'block';
+		viewer.load(fileLink);
+	}
+	modalActive = true;
+}
+
+function closeModal() {
+	modal.style.display = 'none';
+	viewer.destroy();
+	modalVideo.pause();
+	modalActive = false;
+}
+
 function toggleSidebar(event) {
 	const sidebar = document.getElementById('sidebar');
 	const sidebarToggleButton = document.getElementById('sidebarToggleButton');
@@ -836,8 +901,8 @@ function toggleSidebar(event) {
 		// open sidebar
 		sidebar.style.right = '0px';
 		sidebarToggleButton.style.right = '300px';
-		const renameBulkText = document.getElementById('renameBulkText');
-		// renameBulkText.focus();
+		const renameBulkInput = document.getElementById('renameBulkInput');
+		// renameBulkInput.focus();
 	}
 }
 
@@ -880,104 +945,106 @@ function invertSelection() {
 	});
 }
 
-function moveFiles() {
-	const targetFolder = document.getElementById('targetFolderName').value;
+function moveRenameFiles(operation) {
+	let argument1;
+	let argument2;
+	let pattern;
+	let isValid;
 	// console.log(selectedImages);
-	// console.log(targetFolderName.value);
-	const pattern = /^[a-zA-Z0-9\\ ]*$/;
-	const isValid = pattern.test(targetFolder);
-
-	if (!isValid) {
-		showPopup('Folder name contains disallowed characters', 'warn');
-		return;
-	}
-
-	if (!targetFolder) {
-		showPopup('Provide a target folder', 'warn');
-		return;
-	}
+	// console.log(renameBulkInput.value);
 
 	if (selectedImages.size == 0) {
 		showPopup('No files selected', 'warn');
 		return;
 	}
-
-	if (!suggestedTargetFolders.includes(targetFolder)) {
-		addSuggestedTargetFolder(targetFolder);
-	}
-
-	const url = '/moveFiles';
-	const formData = {
-		// have to convert map to an Object so it can be serialized into a JSON
-		selectedImages: Object.fromEntries(selectedImages),
-		targetFolder: targetFolder
-	}
-
-	const options = {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify(formData)
-	};
-
-	fetch(url, options)
-		.then(response => response.json())
-		.then(data => {
-			// console.log(data);
-			let success = 0;
-			let fail = 0;
-			const results = new Map(Object.entries(data.results));
-			results.forEach((value, imageId) => {
-				const image = document.getElementById(imageId);
-				if (value === 'fail') {
-					// just adding red border so renameFailed is fine even tho we are moving not renaming
-					image.classList.add('renameFailed')
-					fail++;
-				} else {
-					image.src = value;
-					selectedImages.set(imageId, value)
-					success++;
-				}
-			})
-
-			if (success !== 0) {
-				showPopup(`Moved ${success} files`, 'info')
+	switch (operation) {
+		case "delete":
+			break;
+		case "renameBulk":
+			argument1 = document.getElementById('renameBulkInput').value;
+			if (!argument1) {
+				showPopup('Provide a value first', 'warn');
+				return;
 			}
-			if (fail !== 0) {
-				showPopup(`Failed to move ${fail} files`, 'error')
+			break;
+		case "appendToName":
+			argument1 = document.getElementById('appendToNameInput').value;
+			pattern = /^[a-zA-Z0-9 _\-,;]*$/;
+			isValid = pattern.test(argument1);
+			if (!isValid) {
+				showPopup('text contains disallowed characters', 'warn');
+				return;
 			}
-
-			// TODO udpate image title and subtitle after rename
-		})
-		.catch(error => {
-			showPopup(error, 'error');
-			console.error(error);
-		});
-}
-
-function renameBulk() {
-	const renameBulkText = document.getElementById('renameBulkText');
-	// console.log(selectedImages);
-	// console.log(renameBulkText.value);
-
-	if (!renameBulkText.value) {
-		showPopup('Provide a value first', 'warn');
-		return;
+			if (!argument1) {
+				showPopup('Provide a value first', 'warn');
+				return;
+			}
+			break;
+		case "prependToName":
+			argument1 = document.getElementById('prependToNameInput').value;
+			pattern = /^[a-zA-Z0-9 ]*$/;
+			isValid = pattern.test(argument1);
+			if (!isValid) {
+				showPopup('text contains disallowed characters', 'warn');
+				return;
+			}
+			if (!argument1) {
+				showPopup('Provide a value first', 'warn');
+				return;
+			}
+			break
+		case "removeFromName":
+			argument1 = document.getElementById('removeFromNameInput').value;
+			if (!argument1) {
+				showPopup('Provide a value first', 'warn');
+				return;
+			}
+			break;
+		case "replaceInName":
+			argument1 = document.getElementById('textToFindInput').value;
+			argument2 = document.getElementById('textToSubstituteInput').value;
+			pattern = /^[a-zA-Z0-9 ]*$/;
+			isValid = pattern.test(argument2);
+			if (!isValid) {
+				showPopup('"Text to substitute" contains disallowed characters', 'warn');
+				return;
+			}
+			if (!argument1 || !argument2) {
+				showPopup('Provide a value for "Text to find" and "Text to substitute"', 'warn');
+				return;
+			}
+			if (argument1 == argument2) {
+				showPopup('"Text to find" and "Text to substitute" should be different', 'warn');
+				return;
+			}
+			break;
+		case "moveFiles":
+			argument1 = document.getElementById('targetFolderNameInput').value;
+			pattern = /^[a-zA-Z0-9\\ ]*$/;
+			isValid = pattern.test(argument1);
+			if (!isValid) {
+				showPopup('Folder name contains disallowed characters', 'warn');
+				return;
+			}
+			if (!argument1) {
+				showPopup('Provide a target folder', 'warn');
+				return;
+			}
+			break;
+		default:
+			showPopup('Unsupported operation', 'warn');
+			break;
 	}
 
-	if (selectedImages.size == 0) {
-		showPopup('No files selected', 'warn');
-		return;
-	}
-
-	const url = '/renameBulk';
+	const url = '/moveRenameFiles';
 	const formData = {
+		operation: operation,
 		// have to convert map to an Object so it can be serialized into a JSON
 		currentFilePaths: Object.fromEntries(selectedImages),
-		newFileName: renameBulkText.value
+		argument1: argument1,
+		argument2: argument2
 	}
-
+	// console.log(Object.fromEntries(selectedImages));
 	const options = {
 		method: 'POST',
 		headers: {
@@ -986,350 +1053,47 @@ function renameBulk() {
 		body: JSON.stringify(formData)
 	};
 
-	console.log(options.body);
-
+	// console.log(options.body);
 	fetch(url, options)
 		.then(response => response.json())
 		.then(data => {
 			// console.log(data);
-			let success = 0;
-			let fail = 0;
-			const results = new Map(Object.entries(data.results));
-			results.forEach((value, imageId) => {
+			const successCount = data.successCount;
+			const failCount = data.failCount;
+			const newImagesData = new Map(Object.entries(data.newImagesData));
+			newImagesData.forEach((value, imageId) => {
 				const image = document.getElementById(imageId);
 				if (value === 'fail') {
 					image.classList.add('renameFailed')
-					fail++;
+				} else if (operation != "delete") {
+					const imageLinkRelative = value.newFilePathRelative;
+					image.src = imageLinkRelative
+					selectedImages.set(imageId, imageLinkRelative)
+					// console.log(selectedImages);
+					// update image title and subtitle
+					idNum = imageId.replace('image', '');
+					const imageTitle = document.querySelector('#imageTitle' + idNum);
+					imageTitle.innerHTML = value.newImageTitle;
+					imageTitle.href = value.newImageTitleLink;
+					const subTitle = document.querySelector('#subTitle' + idNum);
+					subTitle.innerHTML = value.newSubTitle;
+					subTitle.href = value.newSubTitleLink;
 				} else {
-					image.src = value;
-					selectedImages.set(imageId, value)
-					success++;
+					idNum = imageId.replace('image', '');
+					elementToRemove = document.getElementById("result" + idNum);
+					elementToRemove.style.opacity = "5%";
+					// clear selected images
+					selectedImages.delete(imageId);
+					image.classList.remove('selectedImage');
 				}
-
 			})
-
-			if (success !== 0) {
-				showPopup(`Renamed ${success} files`, 'info')
+			showPopup(`Renamed ${successCount} files`, 'info')
+			if (failCount !== 0) {
+				showPopup(`Failed ${failCount} files`, 'error')
 			}
-			if (fail !== 0) {
-				showPopup(`Failed ${fail} files`, 'error')
-			}
-
-			// TODO udpate image title and subtitle after rename
 		})
 		.catch(error => {
 			showPopup(error, 'error');
 			console.error(error);
 		});
-}
-
-function appendToName() {
-	const textToAppend = document.getElementById('appendToNameText').value;
-	// console.log(selectedImages);
-	// console.log(appendToNameText.value);
-	const pattern = /^[a-zA-Z0-9 _\-,;]*$/;
-	const isValid = pattern.test(textToAppend);
-
-	if (!isValid) {
-		showPopup('text contains disallowed characters', 'warn');
-		return;
-	}
-
-	if (!textToAppend) {
-		showPopup('Provide a value first', 'warn');
-		return;
-	}
-
-	if (selectedImages.size == 0) {
-		showPopup('No files selected', 'warn');
-		return;
-	}
-
-	const url = '/appendToName';
-	const formData = {
-		// have to convert map to an Object so it can be serialized into a JSON
-		currentFilePaths: Object.fromEntries(selectedImages),
-		textToAppend: textToAppend
-	}
-
-	const options = {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify(formData)
-	};
-
-	fetch(url, options)
-		.then(response => response.json())
-		.then(data => {
-			// console.log(data);
-			let success = 0;
-			let fail = 0;
-			const results = new Map(Object.entries(data.results));
-			results.forEach((value, imageId) => {
-				const image = document.getElementById(imageId);
-				if (value === 'fail') {
-					image.classList.add('renameFailed')
-					fail++;
-				} else {
-					image.src = value;
-					selectedImages.set(imageId, value)
-					success++;
-				}
-
-			})
-
-			if (success !== 0) {
-				showPopup(`Renamed ${success} files`, 'info')
-			} else {
-				showPopup(`No files renamed`, 'info')
-			}
-			if (fail !== 0) {
-				showPopup(`Failed ${fail} files`, 'error')
-			}
-
-			// TODO udpate image title and subtitle after rename
-		})
-		.catch(error => {
-			showPopup(error, 'error');
-			console.error(error);
-		});
-}
-
-function prependToName() {
-	const textToPrepend = document.getElementById('prependToNameText').value;
-	// console.log(selectedImages);
-	// console.log(prependToNameText.value);
-	const pattern = /^[a-zA-Z0-9 ]*$/;
-	const isValid = pattern.test(textToPrepend);
-
-	if (!isValid) {
-		showPopup('text contains disallowed characters', 'warn');
-		return;
-	}
-
-	if (!textToPrepend) {
-		showPopup('Provide a value first', 'warn');
-		return;
-	}
-
-	if (selectedImages.size == 0) {
-		showPopup('No files selected', 'warn');
-		return;
-	}
-
-	const url = '/prependToName';
-	const formData = {
-		// have to convert map to an Object so it can be serialized into a JSON
-		currentFilePaths: Object.fromEntries(selectedImages),
-		textToPrepend: textToPrepend
-	}
-
-	const options = {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify(formData)
-	};
-
-	fetch(url, options)
-		.then(response => response.json())
-		.then(data => {
-			// console.log(data);
-			let success = 0;
-			let fail = 0;
-			const results = new Map(Object.entries(data.results));
-			results.forEach((value, imageId) => {
-				const image = document.getElementById(imageId);
-				if (value === 'fail') {
-					image.classList.add('renameFailed')
-					fail++;
-				} else {
-					image.src = value;
-					selectedImages.set(imageId, value)
-					success++;
-				}
-
-			})
-
-			if (success !== 0) {
-				showPopup(`Renamed ${success} files`, 'info')
-			} else {
-				showPopup(`No files renamed`, 'info')
-			}
-			if (fail !== 0) {
-				showPopup(`Failed ${fail} files`, 'error')
-			}
-
-			// TODO udpate image title and subtitle after rename
-		})
-		.catch(error => {
-			showPopup(error, 'error');
-			console.error(error);
-		});
-}
-
-
-function removeFromName() {
-	const textToRemove = document.getElementById('removeFromNameText').value;
-	// console.log(selectedImages);
-	// console.log(removeFromNameText.value);
-
-	if (!textToRemove) {
-		showPopup('Provide a value first', 'warn');
-		return;
-	}
-
-	if (selectedImages.size == 0) {
-		showPopup('No files selected', 'warn');
-		return;
-	}
-
-	const url = '/removeFromName';
-	const formData = {
-		// have to convert map to an Object so it can be serialized into a JSON
-		currentFilePaths: Object.fromEntries(selectedImages),
-		textToRemove: textToRemove
-	}
-
-	const options = {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify(formData)
-	};
-
-	fetch(url, options)
-		.then(response => response.json())
-		.then(data => {
-			// console.log(data);
-			let success = 0;
-			let fail = 0;
-			const results = new Map(Object.entries(data.results));
-			results.forEach((value, imageId) => {
-				const image = document.getElementById(imageId);
-				if (value === 'fail') {
-					image.classList.add('renameFailed')
-					fail++;
-				} else {
-					image.src = value;
-					selectedImages.set(imageId, value)
-					success++;
-				}
-
-			})
-
-			if (success !== 0) {
-				showPopup(`Renamed ${success} files`, 'info')
-			} else {
-				showPopup(`No files renamed`, 'info')
-			}
-			if (fail !== 0) {
-				showPopup(`Failed ${fail} files`, 'error')
-			}
-
-			// TODO udpate image title and subtitle after rename
-		})
-		.catch(error => {
-			showPopup(error, 'error');
-			console.error(error);
-		});
-}
-
-function replaceInName() {
-	const textToFind = document.getElementById('textToFind').value;
-	const textToSubstitute = document.getElementById('textToSubstitute').value;
-
-	const pattern = /^[a-zA-Z0-9 ]*$/;
-	const isValid = pattern.test(textToSubstitute);
-
-	if (!isValid) {
-		showPopup('"Text to substitute" contains disallowed characters', 'warn');
-		return;
-	}
-
-	if (!textToFind || !textToSubstitute) {
-		showPopup('Provide a value for "Text to find" and "Text to substitute"', 'warn');
-		return;
-	}
-
-	if (textToFind == textToSubstitute) {
-		showPopup('"Text to find" and "Text to substitute" should be different', 'warn');
-		return;
-	}
-
-	if (selectedImages.size == 0) {
-		showPopup('No files selected', 'warn');
-		return;
-	}
-
-	const url = '/replaceInName';
-	const formData = {
-		// have to convert map to an Object so it can be serialized into a JSON
-		currentFilePaths: Object.fromEntries(selectedImages),
-		textToFind: textToFind,
-		textToSubstitute: textToSubstitute
-	}
-
-	const options = {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify(formData)
-	};
-
-	fetch(url, options)
-		.then(response => response.json())
-		.then(data => {
-			// console.log(data);
-			let success = 0;
-			let fail = 0;
-			const results = new Map(Object.entries(data.results));
-			results.forEach((value, imageId) => {
-				const image = document.getElementById(imageId);
-				if (value === 'fail') {
-					image.classList.add('renameFailed')
-					fail++;
-				} else {
-					image.src = value;
-					selectedImages.set(imageId, value)
-					success++;
-				}
-
-			})
-
-			if (success !== 0) {
-				showPopup(`Renamed ${success} files`, 'info')
-			} else {
-				showPopup(`No files renamed`, 'info')
-			}
-			if (fail !== 0) {
-				showPopup(`Failed ${fail} files`, 'error')
-			}
-
-			// TODO udpate image title and subtitle after rename
-		})
-		.catch(error => {
-			showPopup(error, 'error');
-			console.error(error);
-		});
-}
-
-function addSuggestedTargetFolder(folder) {
-	suggestedTargetFolders.push(folder);
-
-	if (suggestedTargetFolders.length > 100) {
-		suggestedTargetFolders.splice(0, suggestedTargetFolders.length - 100);
-	}
-
-	const datalist = document.getElementById('suggestedFolders');
-	const option = document.createElement('option');
-	option.value = folder;
-	datalist.appendChild(option);
-
-	localStorage.setItem('suggestedTargetFolders', JSON.stringify(suggestedTargetFolders));
 }
