@@ -794,7 +794,7 @@ const observer = new IntersectionObserver((entries, observer) => {
 		if (entry.isIntersecting) {
 			const video = entry.target;
 			// Set the src attribute from the data-src attribute
-			video.src = video.dataset.src;
+			// video.src = video.dataset.src;
 			if (isMobile) {
 				// no need to have this on desktop as videos only play till the
 				// cursor is over them
