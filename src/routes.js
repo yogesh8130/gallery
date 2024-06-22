@@ -388,12 +388,25 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 
 			if (andTokens.length !== 0) {
 				// console.log("Processing AND tokens");
-				imageList.forEach(imagePath => {
-					let containsAll = andTokens.every(andToken => imagePath.toLowerCase().includes(andToken.toLowerCase()));
-					if (containsAll) {
-						matchingImagePaths.push(imagePath);
+				// search all images if matchingImagePaths is empty i.e. regex returned nothing or no regex search
+				if (matchingImagePaths.length === 0) {
+					imageList.forEach(imagePath => {
+						let containsAll = andTokens.every(andToken => imagePath.toLowerCase().includes(andToken.toLowerCase()));
+						if (containsAll) {
+							matchingImagePaths.push(imagePath);
+						}
+					});
+				} else {
+					// apply the and filter to matchingImagePaths
+					for (let i = matchingImagePaths.length - 1; i >= 0; i--) {
+						let matchingPath = matchingImagePaths[i];
+						let containsAll = andTokens.every(andToken => matchingPath.toLowerCase().includes(andToken.toLowerCase()));
+						if (!containsAll) {
+							// remove imagePath from matchingImagePaths if it doesn't contain all andTokens
+							matchingImagePaths.splice(i, 1);
+						}
 					}
-				});
+				}
 			}
 
 			if (orTokens.length !== 0) {
