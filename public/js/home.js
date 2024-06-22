@@ -761,7 +761,6 @@ function showRenameDialog(button) {
 						} else {
 							const imageLinkRelative = newImageData.newFilePathRelative;
 							image.src = imageLinkRelative
-							selectedImages.set(imageId, imageLinkRelative)
 							// console.log(selectedImages);
 							// update image title and subtitle
 							const imageTitle = document.querySelector('#imageTitle' + idNum);
