@@ -728,7 +728,7 @@ function showRenameDialog(button) {
 			const renameForm = renameDialog.querySelector('.renameForm');
 			const idNum = renameForm.idNum.value;
 			const imageId = 'image' + idNum;
-			const imageLinkRelative = renameForm.currentFilePath.value;
+			let imageLinkRelative = renameForm.currentFilePath.value;
 			const newFileName = renameForm.newFileName.value.trim();
 			const url = '/moveRenameFiles';
 			const formData = {
@@ -759,7 +759,7 @@ function showRenameDialog(button) {
 						if (newImageData === 'fail') {
 							image.classList.add('renameFailed')
 						} else {
-							const imageLinkRelative = newImageData.newFilePathRelative;
+							imageLinkRelative = newImageData.newFilePathRelative;
 							image.src = imageLinkRelative
 							// console.log(selectedImages);
 							// update image title and subtitle
