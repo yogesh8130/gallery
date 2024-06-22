@@ -367,6 +367,8 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 					notTokens.push(searchToken.replace('!!', '').trim());
 				} else if (searchToken.startsWith('??')) {
 					regexTokens.push(searchToken.slice(2).trim());
+				} else {
+					andTokens.push(searchToken.trim());
 				}
 			});
 
