@@ -968,7 +968,7 @@ function moveRenameFiles(operation) {
 			break;
 		case "appendToName":
 			argument1 = document.getElementById('appendToNameInput').value;
-			pattern = /^[a-zA-Z0-9 _\-,;]*$/;
+			pattern = /^[a-zA-Z0-9 _\-,;#@$&*\(\)]*$/;
 			isValid = pattern.test(argument1);
 			if (!isValid) {
 				showPopup('text contains disallowed characters', 'warn');
