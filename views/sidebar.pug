@@ -84,3 +84,6 @@ div(id = "sidebar" onclick = "toggleSidebar(event)")
 			placeholder = "Text to substitute" autocomplete = 'on')
 			button(id = 'replaceInNameButton' onclick = 'moveRenameFiles("replaceInName")') Replace
 			input(type="submit" hidden)
+	div.bulkRow
+		button(id = 'deleteButton' onclick = 'moveRenameFiles("delete")' 
+		title = 'Del') Delete Selected
