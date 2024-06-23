@@ -65,7 +65,7 @@ video {
 	align-items: center;
 	background-image: linear-gradient(to bottom, rgba(0, 0, 0, .9), rgba(0, 0, 0, .7));
 	word-wrap: break-word;
-	word-break: break-all;
+	word-break: break-word;
 	opacity: 0%;
 	gap: .3rem;
 	align-items: flex-start;
