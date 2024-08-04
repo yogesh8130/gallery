@@ -145,28 +145,38 @@ function pruneDB(IMAGE_PATHS) {
 				return;
 			}
 			// Extract the image paths from the database result
-			console.log("creating array of image paths");
+			console.log("Creating array of image paths");
 			const dbImagePaths = rows.map(row => row.imagePath);
 			console.log("Converting IMAGE_PATHS to a Set for fast lookup");
 			// with this: 0.829 seconds, without: 189 seconds LOL
 			const imagePathSet = new Set(IMAGE_PATHS);
 			console.log("Identifying image paths to delete (not in IMAGE_PATHS)");
 			const pathsToDelete = dbImagePaths.filter(path => !imagePathSet.has(path));
-			// Delete the identified paths from metadata table
+
+			// Function to execute deletion in batches
+			const deleteInBatches = async (paths, batchSize = 999) => {
+				for (let i = 0; i < paths.length; i += batchSize) {
+					const batch = paths.slice(i, i + batchSize);
+					const placeholders = batch.map(() => '?').join(', ');
+					await new Promise((batchResolve, batchReject) => {
+						db.run(`DELETE FROM metadata WHERE imagePath IN (${placeholders})`, batch, function (err) {
+							if (err) {
+								console.error('Error pruning metadata table:', err);
+								batchReject(err);
+							} else {
+								batchResolve(this.changes);
+							}
+						});
+					});
+				}
+			};
+
+			// Delete the identified paths from metadata table in batches
 			if (pathsToDelete.length > 0) {
-				console.log("deleting image paths from metadata table");
-				// Prepare array of placeholders for parameterized query
-				const placeholders = Array(pathsToDelete.length).fill('?').join(', ');
-				// Delete entries not in IMAGE_PATHS
-				db.run(`DELETE FROM metadata WHERE imagePath IN (${placeholders})`, pathsToDelete, function (err, result) {
-					if (err) {
-						console.error('Error pruning metadata table:', err);
-						reject(err);
-						return;
-					}
-					// Resolve with the number of entries pruned
-					resolve(this.changes);
-				});
+				console.log("Deleting image paths from metadata table");
+				deleteInBatches(pathsToDelete, 999)
+					.then(() => resolve(pathsToDelete.length))
+					.catch(err => reject(err));
 			} else {
 				// If no paths to delete, resolve with 0 changes
 				resolve(0);
