@@ -452,6 +452,17 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 			// console.log("pattern: " + pattern);
 			let regex = new RegExp(pattern, 'i');
 			matchingImagePaths = imageList.filter((imagePath) => regex.test(imagePath));
+		} else if (searchText.endsWith('>')) {
+			// return all images starting from this image
+			const startIndex = imageList.findIndex((imagePath) =>
+				imagePath.toLowerCase().includes(searchText.toLowerCase().slice(0, -1)));
+			if (startIndex !== -1) {
+				matchingImagePaths = imageList.slice(startIndex);
+			} else {
+				console.log("Image not found: " + searchText);
+			}
+			sortBy = "path";
+			sortAsc = true;
 		} else {
 			matchingImagePaths = imageList.filter((imagePath) =>
 				imagePath.toLowerCase().includes(searchText.toLowerCase().trim()));

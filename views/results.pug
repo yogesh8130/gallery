@@ -55,7 +55,11 @@ else
 						href = '/search?searchText=' + folderlink + '&view=' + view + '&sortBy=shuffle'
 						target = "_blank")
 						|#{folderName}
-					a.subTitle|#{image.resolution} (#{image.sizeReadable})
+					a.subTitle(
+						id = 'imageTitle'+idNum
+						href = '/search?searchText=' + imageLinkEscaped + '>&view=' + view + '&sortBy=shuffle'
+						target = "_blank")
+						|#{image.resolution} (#{image.sizeReadable})
 			div.mainContent
 				a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped)
 					if (image.type === 'image')

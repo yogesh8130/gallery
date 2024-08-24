@@ -19,6 +19,7 @@ div(id = "sidebar" onclick = "toggleSidebar(event)")
 				li Searches are done with i flag set (case insensitive)
 				li e.g.: ??^test.*$, search will be performed with /^test.*$/ as the pattern.
 			li Directory non recursive: By default directories are searched in recursive manner, ie if you search for "\images\personal" all images form personal folder and it's subfolders will be shown. You can override this by adding an additional "\" at the end like this "\images\personal\", now only the images that are directly in personal will be shown. Images in subfolders will not be shown.
+			li Serial: Search ending with > will return all images starting from the searched image to the end of all images.
 		b Moving
 		ul
 			li Moves the selected images to a specified path, irrespective of their original path.
