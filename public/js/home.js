@@ -806,6 +806,7 @@ const observer = new IntersectionObserver((entries, observer) => {
 });
 
 function pauseOtherVideos() {
+	// console.log('pause other videos');
 	videosList.forEach(video => {
 		if (!video.paused && video !== this) {
 			video.pause();
@@ -813,12 +814,16 @@ function pauseOtherVideos() {
 	});
 }
 
-function pauseOtherVideos(videoElement) {
-	videosList.forEach(video => {
-		if (!video.paused && video !== videoElement) {
-			video.pause();
-		}
-	});
+function pauseOtherVideos2(videoElement) {
+	// console.log('pause other videos 2');
+	// console.log(videoElement);
+	if (videoElement) {
+		videosList.forEach(video => {
+			if (!video.paused && video !== videoElement) {
+				video.pause();
+			}
+		});
+	}
 }
 
 function showPopup(message, level, timeout) {
