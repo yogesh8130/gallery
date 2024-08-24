@@ -71,10 +71,14 @@ else
 						// Generate the thumbnail URL
 						- var thumbnailUrl = '/thumbnail?videoPath=' + encodeURIComponent(imageLinkEscaped)
 						// Use a container for the video thumbnail
-						img(
-							src = thumbnailUrl
-							onclick=`this.style.display='none'; document.getElementById('video' + ${idNum}).style.display='block'; document.getElementById('video' + ${idNum}).play(); pauseOtherVideos2(getElementById('video' + ${idNum}));` 
+						.thumbnailContainer(
+							onclick=`this.style.display='none'; document.getElementById('video' + ${idNum}).style.display='block'; document.getElementById('video' + ${idNum}).play(); pauseOtherVideos2(getElementById('video' + ${idNum}));`
 						)
+							img.thumbnail(
+								src = thumbnailUrl
+							)
+							span.thumbnailOverlay
+								| ▷ 
 						video.searchVid.resultFile.videoFile(
 							id = 'video' + idNum
 							src = imageLinkEscaped

@@ -2,7 +2,7 @@ const PATH = require('path');
 const FS = require('fs');
 const ffmpeg = require('fluent-ffmpeg');
 const PWD = process.cwd();
-
+const { readMediaAttributes } = require('leather'); // much smaller and faster than ffmpeg
 const { insertMetadataToDB } = require('./dbUtils');
 
 const {
@@ -111,6 +111,7 @@ function initializeImageMetadata(imagePath, metadataMap) {
 		return;
 	}
 
+	const fileAttrs = readMediaAttributes(absolutePath);
 	const stats = FS.statSync(absolutePath);
 	const modifiedTime = stats.mtime.toISOString();
 	const sizeBytes = stats.size;
@@ -126,20 +127,58 @@ function initializeImageMetadata(imagePath, metadataMap) {
 	}
 	const baseName = PATH.basename(imagePath);
 	const directory = PATH.dirname(imagePath);
+	const mime = fileAttrs.mime;
+	const type = isVideo ? 'video' : 'image';
 
-	ffmpeg.ffprobe(absolutePath, (err, metadata) => {
-		if (err) {
-			reject(err);
-			return;
-		}
+	if (!fileAttrs.width) {
+		console.log(`Unable to read resolution metadata with leather so trying with ffmpeg: ${imagePath}`);
+		// Use ffmpeg to get the resolution
+		ffmpeg.ffprobe(absolutePath, function (err, metadata) {
+			if (err) {
+				console.error(`Error retrieving metadata with ffmpeg for ${imagePath}`);
+				// console.error(`Error retrieving metadata with ffmpeg for ${imagePath}: ${err.message}`);
+				return;
+			}
 
-		const width = metadata.streams[0].width || 400;
-		const height = metadata.streams[0].height || 300;
-		const resolution = `${width} x ${height}`;
-		const mime = metadata.format.format_name;
-		const type = isVideo ? 'video' : 'image';
+			const stream = metadata.streams.find(s => s.width && s.height);
+			const width = stream.width;
+			const height = stream.height;
+			const resolution = `${width} x ${height}`;
 
-		// adding this to the loaded map (so we don't need to read from DB again)
+			// adding this to the loaded map (so we don't need to read from DB again)
+			metadataMap.set(imagePath, {
+				baseName,
+				directory,
+				width,
+				height,
+				resolution,
+				sizeBytes,
+				sizeReadable,
+				mime,
+				type,
+				modifiedTime
+			});
+
+			// adding to DB for future runs
+			insertMetadataToDB(
+				imagePath,
+				baseName,
+				directory,
+				width,
+				height,
+				resolution,
+				sizeBytes,
+				sizeReadable,
+				mime,
+				type,
+				modifiedTime
+			);
+		});
+	} else {
+		const width = fileAttrs.width || 400;
+		const height = fileAttrs.height || 300;
+		const resolution = fileAttrs.width + ' x ' + fileAttrs.height || "0 x 0";
+		// adding this to the loaded map (so we dont need to read from DB again)
 		metadataMap.set(imagePath, {
 			baseName,
 			directory,
@@ -167,8 +206,7 @@ function initializeImageMetadata(imagePath, metadataMap) {
 			type,
 			modifiedTime
 		);
-	});
-	return;
+	}
 }
 
 async function initializeImagesMetadata(imagePaths, metadataMap) {
