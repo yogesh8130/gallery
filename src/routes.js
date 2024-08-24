@@ -2,6 +2,7 @@
 const PATH = require('path');
 const FS = require('fs');
 const PWD = process.cwd();
+const ffmpeg = require('fluent-ffmpeg');
 
 const {
 	readImageFiles,
@@ -26,6 +27,7 @@ const {
 	loadMetadataMapFromDB,
 	pruneDB
 } = require('./dbUtils');
+const { log } = require('console');
 
 const searchResultBatchSize = 50;
 
@@ -307,8 +309,10 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		let sortAsc;
 		if (req.query.sortAsc === 'true') {
 			sortAsc = true;
-		} else {
+		} else if (req.query.sortAsc === 'false') {
 			sortAsc = false;
+		} else {
+			sortAsc = true;
 		}
 
 		if (searchText.includes('&&')
@@ -490,7 +494,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		// adding results to Search results map to search faster next time
 		// and also preserve the imagelist when lazy loading shuffled results
 		const searchKey = searchText + ':::' + sortBy + ':::' + sortAsc;
-		// console.log(searchKey);
+		// console.log("searchKey: " + searchKey);
 		SEARCH_RESULTS.set(searchKey, matchingImagePaths);
 
 		const totalResultCount = matchingImagePaths.length;
@@ -552,9 +556,9 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		if (SEARCH_RESULTS.has(searchKey)) {
 			matchingImagePaths = SEARCH_RESULTS.get(searchKey);
 		} else {
-			console.error('searchKey not found in SEARCH_RESULTS');
+			// console.error('searchKey not found in SEARCH_RESULTS' + searchKey);
 			return res.status(404).json({
-				message: 'This has not been searched before'
+				message: 'searchKey not found in SEARCH_RESULTS'
 			});
 		}
 
@@ -591,6 +595,51 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 			multiplier
 		});
 	})
+
+	router.get('/thumbnail', (req, res) => {
+		const relativeVideoFilePath = decodeURIComponent(req.query.videoPath);
+		// console.log("relativeVideoFilePath: " + relativeVideoFilePath);
+		const absoluteVideoFilePath = PATH.join(PWD, "public", relativeVideoFilePath);
+		// console.log("absoluteVideoFilePath: " + absoluteVideoFilePath);
+
+
+		if (!absoluteVideoFilePath) {
+			return res.status(400).send('Missing videoPath query parameter');
+		}
+
+		// Sanitize filename to avoid file system issues
+		const sanitizedFileName = relativeVideoFilePath.replace(/[/\\?%*:|"<>\.]/g, '_') + '.jpg';
+		// console.log("sanitizedFileName: " + sanitizedFileName);
+		const thumbFolder = PATH.join(PWD, '/public/thumbs');
+		const relativeThumbFilePath = PATH.join('/thumbs', sanitizedFileName);
+		const absoluteThumbFilePath = PATH.join(thumbFolder, sanitizedFileName);
+		// console.log("outputFilePath: " + relativeThumbFilePath);
+
+
+		// Check if thumbnail already exists
+		if (FS.existsSync(relativeThumbFilePath)) {
+			// console.log('Thumbnail already exists' + relativeThumbFilePath);
+			return res.sendFile(absoluteThumbFilePath);
+		}
+
+		// Generate thumbnail
+		// console.log('Generating thumbnail...');
+		ffmpeg(absoluteVideoFilePath)
+			.screenshots({
+				count: 1,
+				timestamps: ['00:00:05.000'],
+				filename: sanitizedFileName,
+				folder: thumbFolder
+			})
+			.on('end', () => {
+				res.sendFile(absoluteThumbFilePath);
+				res.status(200);
+			})
+			.on('error', (err) => {
+				console.error('Error generating thumbnail:', err);
+				res.status(500).send('Error generating thumbnail');
+			});
+	});
 
 	router.get('/config', async (req, res) => {
 		res.render('config');

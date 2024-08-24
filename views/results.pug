@@ -68,7 +68,17 @@ else
 							title = imageName
 							src = imageLinkEscaped)
 					else
+						// Generate the thumbnail URL
+						- var thumbnailUrl = '/thumbnail?videoPath=' + encodeURIComponent(imageLinkEscaped)
+						// Use a container for the video thumbnail
+						img(
+							src = thumbnailUrl
+							onclick=`this.style.display='none'; document.getElementById('video' + ${idNum}).style.display='block'; document.getElementById('video' + ${idNum}).play();` 
+						)
 						video.searchVid.resultFile.videoFile(
-							id = 'image'+idNum 
-							src = imageLinkEscaped controls loop)
-							//- data-src = imageLinkEscaped controls loop)
+							id = 'video' + idNum
+							src = imageLinkEscaped
+							controls
+							loop
+							style="display: none;"
+						)
