@@ -813,6 +813,14 @@ function pauseOtherVideos() {
 	});
 }
 
+function pauseOtherVideos(videoElement) {
+	videosList.forEach(video => {
+		if (!video.paused && video !== videoElement) {
+			video.pause();
+		}
+	});
+}
+
 function showPopup(message, level, timeout) {
 	if (!timeout) {
 		timeout = 5000;
