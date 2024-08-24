@@ -622,23 +622,33 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 			return res.sendFile(absoluteThumbFilePath);
 		}
 
-		// Generate thumbnail
-		// console.log('Generating thumbnail...');
-		ffmpeg(absoluteVideoFilePath)
-			.screenshots({
-				count: 1,
-				timestamps: ['00:00:05.000'],
-				filename: sanitizedFileName,
-				folder: thumbFolder
-			})
-			.on('end', () => {
-				res.sendFile(absoluteThumbFilePath);
-				res.status(200);
-			})
-			.on('error', (err) => {
-				console.error('Error generating thumbnail:', err);
-				res.status(500).send('Error generating thumbnail');
-			});
+		// Retrieve video duration and generate thumbnail
+		ffmpeg.ffprobe(absoluteVideoFilePath, (err, metadata) => {
+			if (err) {
+				console.error('Error retrieving video metadata:', err);
+				return res.status(500).send('Error retrieving video metadata');
+			}
+
+			const videoDuration = metadata.format.duration;
+			const timestamp = videoDuration * 0.1; // 10% of video length
+			const formattedTimestamp = `00:00:${timestamp.toFixed(3)}`; // Format timestamp to HH:MM:SS.sss
+
+			ffmpeg(absoluteVideoFilePath)
+				.screenshots({
+					count: 1,
+					timestamps: [formattedTimestamp],
+					filename: sanitizedFileName,
+					folder: thumbFolder
+				})
+				.on('end', () => {
+					res.sendFile(absoluteThumbFilePath);
+					res.status(200);
+				})
+				.on('error', (err) => {
+					console.error('Error generating thumbnail:', err);
+					res.status(500).send('Error generating thumbnail');
+				});
+		});
 	});
 
 	router.get('/config', async (req, res) => {
