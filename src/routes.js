@@ -534,11 +534,16 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		const searchText = req.query.searchText;
 		const multiplier = req.query.multiplier;
 		let sortBy = req.query.sortBy;
+		if (!sortBy) {
+			sortBy = 'path';
+		}
 		let sortAsc;
 		if (req.query.sortAsc === 'true') {
 			sortAsc = true;
-		} else {
+		} else if (req.query.sortAsc === 'false') {
 			sortAsc = false;
+		} else {
+			sortAsc = true;
 		}
 
 		const searchKey = searchText + ':::' + sortBy + ':::' + sortAsc;
