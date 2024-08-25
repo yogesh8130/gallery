@@ -595,9 +595,10 @@ ul {
 	}
 }
 
-@media screen and (orientation: portrait) {
+/* mobile */
+/* devices that don't support hover */
+@media (hover: none) {
 
-	/* phone */
 	@media screen and (min-resolution: 100dpi) {
 		html {
 			font-size: 100%;
@@ -606,13 +607,6 @@ ul {
 		.results {
 			padding: 0;
 			padding-bottom: 50vh;
-		}
-
-		.result:hover {
-			scale: 100%;
-			z-index: 4;
-			box-shadow: none;
-			transition: none;
 		}
 
 		/* To permanently show the image title and actions*/
@@ -699,13 +693,6 @@ ul {
 		}
 	}
 
-	/* pc */
-	@media screen and (max-resolution: 100dpi) {
-		html {
-			font-size: 100%;
-		}
-	}
-
 	/* common portrait settings */
 	.controlsDiv {
 		display: flex;
@@ -715,6 +702,10 @@ ul {
 
 	.thumbnailOverlay {
 		transform: translateX(-50%) translateY(calc(-50% - 2rem));
+	}
+
+	.thumbnailOverlay.imageSidebarHidden {
+		transform: translateX(-50%) translateY(-50%);
 	}
 }
 

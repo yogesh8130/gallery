@@ -600,12 +600,13 @@ function switchToTileView() {
 	}
 }
 
-function changeTileSize(initialPageLoad) {
+function changeTileSize(isFirstPageLoad) {
 	const slider = document.getElementById('slider');
 	const results = document.querySelectorAll('.result');
 	const imageSidebar = document.querySelectorAll('.imageSidebar');
+	const thumbnailOverlays = document.querySelectorAll('.thumbnailOverlay');
 
-	if (!initialPageLoad) {
+	if (!isFirstPageLoad) {
 		// Get the current slider value
 		multiplier = parseFloat(slider.value);
 	} else {
@@ -630,6 +631,14 @@ function changeTileSize(initialPageLoad) {
 				subtitle.style.display = "none";
 			} else {
 				subtitle.style.display = null;
+			}
+		});
+
+		thumbnailOverlays.forEach(thumbnailOverlay => {
+			if (multiplier < 0.5) {
+				thumbnailOverlay.classList.add('imageSidebarHidden');
+			} else {
+				thumbnailOverlay.classList.remove('imageSidebarHidden');
 			}
 		});
 	});
