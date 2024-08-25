@@ -354,6 +354,25 @@ document.addEventListener('keydown', function (event) {
 	}
 });
 
+let previousScrollPosition = 0;
+// stuff to do on scroll
+window.onscroll = function () {
+	const currentScrollPosition = window.scrollY;
+	const header = document.querySelector('.header');
+	const headerHeight = header.offsetHeight;
+	if (currentScrollPosition > previousScrollPosition) {
+		// Scrolling down
+		setTimeout(() => {
+			header.style.top = `-${headerHeight}px`;
+		}, 300);
+	} else {
+		// Scrolling up
+
+		header.style.top = '0';
+	}
+
+	previousScrollPosition = currentScrollPosition;
+};
 
 function goFullscreen() {
 	const toggleButton = document.getElementById('fullscreenButton');
