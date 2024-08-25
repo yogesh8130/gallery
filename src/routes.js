@@ -306,6 +306,9 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		let imageList = IMAGE_PATHS;
 		const view = req.query.view;
 		let sortBy = req.query.sortBy;
+		if (!sortBy) {
+			sortBy = 'shuffle';
+		}
 		let sortAsc;
 		if (req.query.sortAsc === 'true') {
 			sortAsc = true;
@@ -494,7 +497,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		// adding results to Search results map to search faster next time
 		// and also preserve the imagelist when lazy loading shuffled results
 		const searchKey = searchText + ':::' + sortBy + ':::' + sortAsc;
-		// console.log("searchKey: " + searchKey);
+		console.log("searchKey: " + searchKey);
 		SEARCH_RESULTS.set(searchKey, matchingImagePaths);
 
 		const totalResultCount = matchingImagePaths.length;
@@ -539,7 +542,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		const multiplier = req.query.multiplier;
 		let sortBy = req.query.sortBy;
 		if (!sortBy) {
-			sortBy = 'path';
+			sortBy = 'shuffle';
 		}
 		let sortAsc;
 		if (req.query.sortAsc === 'true') {
