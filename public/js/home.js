@@ -1106,3 +1106,9 @@ function toggleContextMenu(contextMenuButton) {
 	const additionalButtons = contextMenuButton.parentNode.querySelector('.additionalButtons');
 	additionalButtons.classList.toggle('show');
 }
+
+function shareExternally(imagePath) {
+	navigator.share({
+		url: imagePath
+	});
+}	

@@ -27,14 +27,12 @@ else
 					button.contextMenuButton.sidebarButton(onclick="toggleContextMenu(this)" title = "Context Menu")
 						img.contextMenuIcon.actionButtonIcon(src = "/icons/contextMenu.svg")
 					.additionalButtons
-						button.extraButton.sidebarButton
-							img.contextMenuIcon.actionButtonIcon(src = "/icons/contextMenu.svg")
-						button.extraButton.sidebarButton
-							img.contextMenuIcon.actionButtonIcon(src = "/icons/contextMenu.svg")
-						button.extraButton.sidebarButton
-							img.contextMenuIcon.actionButtonIcon(src = "/icons/contextMenu.svg")
-						button.extraButton.sidebarButton
-							img.contextMenuIcon.actionButtonIcon(src = "/icons/contextMenu.svg")
+						a.extraButton.sidebarButton.urlButton(
+							href = `${imageLinkEscaped}` target = "_blank"
+						)
+							img.contextMenuIcon.actionButtonIcon(src = "/icons/url.svg")
+						button.extraButton.sidebarButton.shareButton(onclick = `shareExternally('${imageLinkEscaped}')`)
+							img.contextMenuIcon.actionButtonIcon(src = "/icons/share.svg")
 				div.rename
 					button.renameButton.sidebarButton(onclick = 'showRenameDialog(this)')
 						img.renameIcon.actionButtonIcon(src = "/icons/rename.svg")
