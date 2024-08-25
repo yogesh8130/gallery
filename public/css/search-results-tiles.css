@@ -19,6 +19,7 @@ h2 {
 	z-index: 9999;
 	background: black;
 	transition: top 0.3s ease-in-out;
+	padding-bottom: 5px;
 }
 
 .results {
@@ -38,13 +39,6 @@ h2 {
 	margin: 2px;
 	position: relative;
 	z-index: 3;
-}
-
-.result:hover {
-	scale: 102%;
-	z-index: 6;
-	box-shadow: rgb(0, 0, 0) 0px 10px 30px 10px;
-	transition: all 0.2s ease;
 }
 
 i {
@@ -79,13 +73,6 @@ video {
 	align-items: flex-start;
 	border-bottom-left-radius: 4px;
 	border-bottom-right-radius: 4px;
-}
-
-.result:hover>.imageSidebar {
-	opacity: 100%;
-	top: 100%;
-	z-index: 0;
-	transition: all 0.3s ease;
 }
 
 .rename {
@@ -593,6 +580,23 @@ ul {
 		padding-right: 2.5rem;
 		gap: .4rem;
 	}
+}
+
+@media (hover: hover) {
+	.result:hover {
+		scale: 102%;
+		z-index: 6;
+		box-shadow: rgb(0, 0, 0) 0px 10px 30px 10px;
+		transition: all 0.2s ease;
+	}
+
+	.result:hover>.imageSidebar {
+		opacity: 100%;
+		top: 100%;
+		z-index: 0;
+		transition: all 0.3s ease;
+	}
+
 }
 
 /* mobile */

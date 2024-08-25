@@ -497,7 +497,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		// adding results to Search results map to search faster next time
 		// and also preserve the imagelist when lazy loading shuffled results
 		const searchKey = searchText + ':::' + sortBy + ':::' + sortAsc;
-		console.log("searchKey: " + searchKey);
+		// console.log("searchKey: " + searchKey);
 		SEARCH_RESULTS.set(searchKey, matchingImagePaths);
 
 		const totalResultCount = matchingImagePaths.length;

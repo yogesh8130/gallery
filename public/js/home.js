@@ -246,14 +246,14 @@ document.addEventListener("DOMContentLoaded", function () {
 	});
 
 	// play video on hover
-	resultsContainer.addEventListener('mouseover', function (event) {
-		const target = event.target;
-		if (target.classList.contains('videoFile')) {
-			target.play();
-		} else if (target.classList.contains('thumbnail')) {
-			target.click();
-		}
-	})
+	// resultsContainer.addEventListener('mouseover', function (event) {
+	// 	const target = event.target;
+	// 	if (target.classList.contains('videoFile')) {
+	// 		target.play();
+	// 	} else if (target.classList.contains('thumbnail')) {
+	// 		target.click();
+	// 	}
+	// })
 
 	// // pause video on mouse leave
 	// resultsContainer.addEventListener('mouseout', function (event) {
