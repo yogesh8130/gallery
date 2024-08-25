@@ -380,12 +380,9 @@ window.onscroll = function () {
 	const headerHeight = header.offsetHeight;
 	if (currentScrollPosition > previousScrollPosition) {
 		// Scrolling down
-		setTimeout(() => {
-			header.style.top = `-${headerHeight}px`;
-		}, 300);
+		header.style.top = `-${headerHeight}px`;
 	} else {
 		// Scrolling up
-
 		header.style.top = '0';
 	}
 
@@ -1103,4 +1100,9 @@ function moveRenameFiles(operation) {
 			showPopup(error, 'error');
 			console.error(error);
 		});
+}
+
+function toggleContextMenu(contextMenuButton) {
+	const additionalButtons = contextMenuButton.parentNode.querySelector('.additionalButtons');
+	additionalButtons.classList.toggle('show');
 }

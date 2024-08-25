@@ -23,15 +23,21 @@ else
 				style = `${view && view === 'tiles' ? istyle : ""}`
 				)
 			div.imageSidebar(style=(multiplier <= 0.5) ? 'display: none' : '')
-				div.actionButtons
-					button.hideSimilarButton ⛔
-					button.showAtActualScaleButton(
-						onclick = `showAtActualScale(${index})`
-						) ⭕
-				div.deleteDiv
-					button.deleteButton.sidebarButton(onclick = `deleteFile("${image.imagePath.replace(/\\/g, "\\\\")}", "${idNum}")` title = "delete") 🗑️
+				div.contextMenu
+					button.contextMenuButton.sidebarButton(onclick="toggleContextMenu(this)" title = "Context Menu")
+						img.contextMenuIcon.actionButtonIcon(src = "/icons/contextMenu.svg")
+					.additionalButtons
+						button.extraButton.sidebarButton
+							img.contextMenuIcon.actionButtonIcon(src = "/icons/contextMenu.svg")
+						button.extraButton.sidebarButton
+							img.contextMenuIcon.actionButtonIcon(src = "/icons/contextMenu.svg")
+						button.extraButton.sidebarButton
+							img.contextMenuIcon.actionButtonIcon(src = "/icons/contextMenu.svg")
+						button.extraButton.sidebarButton
+							img.contextMenuIcon.actionButtonIcon(src = "/icons/contextMenu.svg")
 				div.rename
-					button.renameButton.sidebarButton(onclick = 'showRenameDialog(this)') &#9998;
+					button.renameButton.sidebarButton(onclick = 'showRenameDialog(this)')
+						img.renameIcon.actionButtonIcon(src = "/icons/rename.svg")
 					dialog.renameDialog
 						form.renameForm
 							input.idNum(type = "text" name = 'idNum'
@@ -42,24 +48,30 @@ else
 								value = imageNameNoExt
 								placeholder = 'New Name (press Enter)' required)
 							input(type="submit" hidden)
-				div.infoDiv
+				div.infoDiv.marquee-container
 					- let similarImageLink = encodeURIComponent(imageName.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())
-					a.imageTitle(
-						id = 'imageTitle'+idNum
-						href = '/search?searchText=' + similarImageLink + '&view=' + view + '&sortBy=shuffle'
-						target = "_blank")
-						| #{imageName} 
-					- let folderlink = encodeURIComponent(folderName)
-					a.subTitle(
-						id = 'subTitle'+idNum
-						href = '/search?searchText=' + folderlink + '&view=' + view + '&sortBy=shuffle'
-						target = "_blank")
-						|#{folderName}
-					a.subTitle(
-						id = 'imageTitle'+idNum
-						href = '/search?searchText=' + imageLinkEscaped + '>&view=' + view + '&sortBy=path&sortAsc=true'
-						target = "_blank")
-						|#{image.resolution} (#{image.sizeReadable})
+					.marquee.marquee1
+						a.imageTitle(
+							id = 'imageTitle'+idNum
+							href = '/search?searchText=' + similarImageLink + '&view=' + view + '&sortBy=shuffle'
+							target = "_blank")
+							| #{imageName} 
+						- let folderlink = encodeURIComponent(folderName)
+					.marquee.marquee2
+						a.subTitle(
+							id = 'imageTitle'+idNum
+							href = '/search?searchText=' + imageLinkEscaped + '>&view=' + view + '&sortBy=path&sortAsc=true'
+							target = "_blank")
+							|#{image.resolution} (#{image.sizeReadable})
+					.marquee.marquee3
+						a.subTitle(
+							id = 'subTitle'+idNum
+							href = '/search?searchText=' + folderlink + '&view=' + view + '&sortBy=shuffle'
+							target = "_blank")
+							|#{folderName}
+				div.deleteDiv
+					button.deleteButton.sidebarButton(onclick = `deleteFile("${image.imagePath.replace(/\\/g, "\\\\")}", "${idNum}")` title = "delete")
+						img.deleteIcon.actionButtonIcon(src = "/icons/delete.svg")
 			div.mainContent
 				a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped)
 					if (image.type === 'image')
