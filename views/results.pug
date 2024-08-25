@@ -72,7 +72,7 @@ else
 						- var thumbnailUrl = '/thumbnail?videoPath=' + encodeURIComponent(imageLinkEscaped)
 						// Use a container for the video thumbnail
 						.thumbnailContainer(
-							onclick=`this.style.display='none'; document.getElementById('video' + ${idNum}).style.display='block'; document.getElementById('video' + ${idNum}).play(); pauseOtherVideos2(getElementById('video' + ${idNum}));`
+							onclick=`this.style.display='none'; document.getElementById('video' + ${idNum}).style.display='block'; document.getElementById('video' + ${idNum}).play(); pauseOtherVideos(getElementById('video' + ${idNum}));`
 						)
 							img.thumbnail(
 								src = thumbnailUrl
@@ -85,4 +85,5 @@ else
 							controls
 							loop
 							style="display: none;"
+							onplay="pauseOtherVideos(this);"
 						)

@@ -1,7 +1,6 @@
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 let queryString; // stores URLs query part, used for lazy loading (getNextResults)
 const baseSize = 25;
-const videosList = []; // to keep track of all videos on the page, even as they load
 const searchResultBatchSize = 50 // should be same as server for correct image id
 let imageIndex = 51 // newly loaded images will be assigned id numbers from here on
 let multiplier = 1 // zoom slider value
@@ -41,13 +40,6 @@ document.addEventListener("DOMContentLoaded", function () {
 	const searchText = document.getElementById('searchText');
 	view.value = queryParams.view;
 	searchText.value = queryParams.searchText;
-
-	// Creating videos list
-	videosList.push(...Array.from(document.querySelectorAll('.videoFile')));
-	videosList.forEach(video => {
-		// to load the src value from data-src
-		observer.observe(video);
-	});
 
 	const storedSuggestedTargetFolders = localStorage.getItem('suggestedTargetFolders');
 	if (storedSuggestedTargetFolders) {
@@ -252,22 +244,6 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
 
 	});
-
-	// play video on hover
-	resultsContainer.addEventListener('mouseover', function (event) {
-		const video = event.target;
-		if (video.classList.contains('videoFile')) {
-			video.play();
-		}
-	})
-
-	// pause video on mouse leave
-	resultsContainer.addEventListener('mouseout', function (event) {
-		const video = event.target;
-		if (video.classList.contains('videoFile')) {
-			video.pause();
-		}
-	})
 
 	// prevent the page form reloading when these forms are submitted
 	const moveForm = document.getElementById('moveForm');
@@ -786,37 +762,10 @@ function showRenameDialog(button) {
 	}
 }
 
-// this contains a callback that will be called for each video that we observe
-const observer = new IntersectionObserver((entries, observer) => {
-	entries.forEach(entry => {
-		// Check if the video is in view
-		if (entry.isIntersecting) {
-			const video = entry.target;
-			// Set the src attribute from the data-src attribute
-			// video.src = video.dataset.src;
-			if (isMobile) {
-				// no need to have this on desktop as videos only play till the
-				// cursor is over them
-				video.addEventListener('play', pauseOtherVideos)
-			}
-			// Stop observing the video
-			observer.unobserve(video);
-		}
-	});
-});
-
-function pauseOtherVideos() {
-	// console.log('pause other videos');
-	videosList.forEach(video => {
-		if (!video.paused && video !== this) {
-			video.pause();
-		}
-	});
-}
-
-function pauseOtherVideos2(videoElement) {
+function pauseOtherVideos(videoElement) {
 	// console.log('pause other videos 2');
 	// console.log(videoElement);
+	const videosList = document.querySelectorAll('video');
 	if (videoElement) {
 		videosList.forEach(video => {
 			if (!video.paused && video !== videoElement) {
