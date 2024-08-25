@@ -72,7 +72,7 @@ else
 						- var thumbnailUrl = '/thumbnail?videoPath=' + encodeURIComponent(imageLinkEscaped)
 						// Use a container for the video thumbnail
 						.thumbnailContainer(
-							onclick=`this.style.display='none'; document.getElementById('video' + ${idNum}).style.display='block'; document.getElementById('video' + ${idNum}).play(); pauseOtherVideos(getElementById('video' + ${idNum}));`
+							onclick=`this.style.display='none'; document.getElementById('image' + ${idNum}).style.display='block'; document.getElementById('image' + ${idNum}).play(); pauseOtherVideos(getElementById('image' + ${idNum}));`
 						)
 							img.thumbnail(
 								src = thumbnailUrl
@@ -80,7 +80,7 @@ else
 							span.thumbnailOverlay
 								| ▷ 
 						video.searchVid.resultFile.videoFile(
-							id = 'video' + idNum
+							id = 'image' + idNum
 							src = imageLinkEscaped
 							controls
 							loop
