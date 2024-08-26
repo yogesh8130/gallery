@@ -54,19 +54,21 @@ else
 							href = '/search?searchText=' + similarImageLink + '&view=' + view + '&sortBy=shuffle'
 							target = "_blank")
 							| #{imageName} 
-						- let folderlink = encodeURIComponent(folderName)
 					.marquee.marquee2
 						a.subTitle(
 							id = 'imageTitle'+idNum
 							href = '/search?searchText=' + imageLinkEscaped + '>&view=' + view + '&sortBy=path&sortAsc=true'
 							target = "_blank")
 							|#{image.resolution} (#{image.sizeReadable})
-					.marquee.marquee3
-						a.subTitle(
-							id = 'subTitle'+idNum
-							href = '/search?searchText=' + folderlink + '&view=' + view + '&sortBy=shuffle'
-							target = "_blank")
-							|#{folderName}
+					- const pathSegments = folderName.split('\\').slice(1, -1);
+					- let currentPath = '';
+					.marquee.marquee3(id = 'subTitle'+idNum)
+						each pathSegment, index in pathSegments
+							- currentPath += '\\' + pathSegment
+							a.subTitle(
+								href = '/search?searchText=' + encodeURIComponent(currentPath) + '&view=' + view + '&sortBy=shuffle'
+								target = "_blank")
+								|  / #{pathSegment}
 				div.deleteDiv
 					button.deleteButton.sidebarButton(onclick = `deleteFile("${image.imagePath.replace(/\\/g, "\\\\")}", "${idNum}")` title = "delete")
 						img.deleteIcon.actionButtonIcon(src = "/icons/delete.svg")
