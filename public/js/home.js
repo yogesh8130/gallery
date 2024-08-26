@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			multiplier = localStorage.sliderValue;
 			slider.value = localStorage.sliderValue;
 		} else {
-			console.log('sliderValue not found in local storage');
+			// console.log('sliderValue not found in local storage');
 			localStorage.sliderValue = 1;
 		}
 
@@ -374,7 +374,7 @@ document.addEventListener('keydown', function (event) {
 			event.preventDefault();
 			// console.log(clickedElement);
 			imageLinkRelative = decodeURIComponent(currentImagePath).replace(origin, '').replace(/^\//, '');
-			console.log("Delete: " + imageLinkRelative + " " + currentImageIdNum);
+			// console.log("Delete: " + imageLinkRelative + " " + currentImageIdNum);
 			deleteFile(imageLinkRelative, currentImageIdNum);
 			modalNextFromResultsButton.click();
 			break;
@@ -453,16 +453,18 @@ document.addEventListener('touchstart', function (event) {
 
 document.addEventListener('touchend', function (event) {
 	const target = event.target;
-	console.log(target);
+	// console.log(target);
+	// alert(event.touches.length);
 
 	const touch = event.changedTouches[0];
 	const touchEndX = touch.clientX;
 	const touchEndY = touch.clientY;
 
+
 	const touchDeltaX = touchEndX - touchStartX;
 	const touchDeltaY = touchEndY - touchStartY;
 
-	console.log(touchDeltaX, touchDeltaY);
+	// console.log(touchDeltaX, touchDeltaY);
 
 
 	if (target && (target.tagName === 'VIDEO')) {
@@ -485,18 +487,18 @@ document.addEventListener('touchend', function (event) {
 	}
 
 	// swipe left or right for next or previous
-	if (target && modalActive) {
-		if (touchDeltaX < -100) {
-			modalNextButton.click();
-		} else if (touchDeltaX > 100) {
-			modalPreviousButton.click();
+		if (target && modalActive) {
+			if (touchDeltaX < -100) {
+				modalNextButton.click();
+			} else if (touchDeltaX > 100) {
+				modalPreviousButton.click();
+			}
 		}
-	}
 
-	// swipe up to close modal
-	if (target && modalActive) {
-		if (touchDeltaY < -100) {
-			closeModal();
+		// swipe up to close modal
+		if (target && modalActive) {
+			if (touchDeltaY < -100) {
+				closeModal();
 		}
 	}
 

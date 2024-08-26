@@ -7,6 +7,9 @@
 .iv-container {
 	overflow: hidden;
 	position: relative;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
 }
 
 .iv-fullscreen {
@@ -91,15 +94,13 @@
 
 .iv-snap-image {
 	position: relative;
-	-ms-touch-action: none;
 	touch-action: none;
-	object-fit: contain;
 }
 
 .iv-snap-handle {
 	box-sizing: border-box;
 	position: absolute;
-	border: 1px solid #fff;
+	border: 1px solid #aaa;
 	transform: translate3d(0, 0, 0);
 	box-shadow: 0 0 0 200px rgba(0, 0, 0, 0.5);
 	cursor: pointer;
@@ -117,7 +118,7 @@
 	top: 150px;
 	left: -1px;
 	height: 20px;
-	border: 1px solid #fff;
+	border: 1px solid #aaa;
 	border-top: 0;
 	background: rgba(0, 0, 0, 0.3);
 }
@@ -157,11 +158,8 @@
 	bottom: 0;
 	width: 24px;
 	cursor: pointer;
-	display: -ms-flexbox;
 	display: flex;
-	-ms-flex-align: center;
 	align-items: center;
-	-ms-flex-pack: center;
 	justify-content: center;
 }
 
@@ -211,13 +209,11 @@
 }
 
 .iv-image {
-	max-width: none;
-	max-height: none;
+	max-width: 100%;
+	max-height: 100%;
 	position: absolute;
-	-ms-touch-action: none;
 	touch-action: none;
 	transform: translate3d(0, 0, 0);
-	object-fit: contain;
 }
 
 .iv-loader {
