@@ -399,7 +399,6 @@ document.addEventListener('click', function (event) {
 })
 
 document.addEventListener('mousedown', function (event) {
-	event.preventDefault();
 	const target = event.target;
 	// console.log(target);
 	if (target && (target.tagName === 'VIDEO')) {
@@ -410,7 +409,6 @@ document.addEventListener('mousedown', function (event) {
 })
 
 document.addEventListener('mouseup', function (event) {
-	event.preventDefault();
 	const target = event.target;
 	// console.log(target);
 	if (target && (target.tagName === 'VIDEO')) {
