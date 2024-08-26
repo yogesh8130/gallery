@@ -386,6 +386,8 @@ document.addEventListener('click', function (event) {
 		// get nearest video element
 		const videoFile = target.parentNode.nextSibling;
 		if (videoFile) {
+			// populate src from data-src
+			videoFile.src = videoFile.getAttribute('data-src');
 			videoFile.style.display = 'block';
 			videoFile.play();
 			pauseOtherVideos(videoFile);

@@ -89,9 +89,10 @@ else
 								| ▷ 
 						video.searchVid.resultFile.videoFile(
 							id = 'image' + idNum
-							src = imageLinkEscaped
+							data-src = imageLinkEscaped
 							controls
 							loop
 							style="display: none;"
 							onplay="pauseOtherVideos(this);"
+							poster = thumbnailUrl
 						)
