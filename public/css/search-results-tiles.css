@@ -16,7 +16,7 @@ h2 {
 .header {
 	position: sticky;
 	top: 0;
-	z-index: 9999;
+	z-index: 5;
 	background: black;
 	transition: top 0.3s ease-in-out;
 	padding-bottom: 5px;

@@ -479,8 +479,13 @@ window.onscroll = function () {
 	} else {
 		// Scrolling up
 		header.style.top = '0';
+		// for letting the header scroll in gradually
+		// if (parseInt(header.style.top) < 0) {
+		// 	header.style.top = `${parseInt(header.style.top) + (previousScrollPosition - currentScrollPosition)}px`;
+		// } else {
+		// 	header.style.top = '0';
+		// }
 	}
-
 	previousScrollPosition = currentScrollPosition;
 };
 
