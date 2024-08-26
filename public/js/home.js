@@ -24,7 +24,10 @@ let modalNextButton;
 let modalPreviousButton;
 let modalNextFromResultsButton;
 let modalPreviousFromResultsButton;
+
 let videoSpeedUpTimeout;
+const speedupDelay = 500;
+const spedUpRate = 4;
 
 document.addEventListener("DOMContentLoaded", function () {
 	// convertin URL query params to
@@ -403,8 +406,8 @@ document.addEventListener('mousedown', function (event) {
 	// console.log(target);
 	if (target && (target.tagName === 'VIDEO')) {
 		videoSpeedUpTimeout = setTimeout(function () {
-			target.playbackRate = 2;
-		}, 1000);
+			target.playbackRate = spedUpRate;
+		}, speedupDelay);
 	}
 })
 
@@ -416,6 +419,48 @@ document.addEventListener('mouseup', function (event) {
 		if (videoSpeedUpTimeout) {
 			clearTimeout(videoSpeedUpTimeout);
 		}
+	}
+})
+
+document.addEventListener('touchstart', function (event) {
+	const target = event.target;
+	// console.log(target);
+	if (target && (target.tagName === 'VIDEO')) {
+		target.controls = false;
+		videoSpeedUpTimeout = setTimeout(function () {
+			target.playbackRate = spedUpRate;
+			target.controls = false;
+		}, speedupDelay);
+	}
+})
+
+document.addEventListener('touchend', function (event) {
+	const target = event.target;
+	// console.log(target);
+	if (target && (target.tagName === 'VIDEO')) {
+		// if timeout is still set
+		if (videoSpeedUpTimeout) {
+			clearTimeout(videoSpeedUpTimeout);
+			event.preventDefault();
+		}
+		if (target.playbackRate == spedUpRate) {
+			target.playbackRate = 1;
+		} else {
+			// toggle play/pause
+			if (target.paused) {
+				target.play();
+			} else {
+				target.pause();
+				target.controls = true;
+			}
+		}
+	}
+})
+
+document.addEventListener('contextmenu', function (event) {
+	const target = event.target;
+	if (target && (target.tagName === 'VIDEO')) {
+		event.preventDefault();
 	}
 })
 
