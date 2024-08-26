@@ -584,6 +584,7 @@ ul {
 	padding: 0.5rem 2rem;
 	/* border: 2px solid white; */
 	background-color: #00000073;
+	cursor: pointer;
 }
 
 /* scaling */

@@ -81,9 +81,7 @@ else
 						// Generate the thumbnail URL
 						- var thumbnailUrl = '/thumbnail?videoPath=' + encodeURIComponent(imageLinkEscaped)
 						// Use a container for the video thumbnail
-						.thumbnailContainer(
-							onclick=`this.style.display='none'; document.getElementById('image' + ${idNum}).style.display='block'; document.getElementById('image' + ${idNum}).play(); pauseOtherVideos(getElementById('image' + ${idNum}));`
-						)
+						.thumbnailContainer
 							img.thumbnail(
 								src = thumbnailUrl
 							)

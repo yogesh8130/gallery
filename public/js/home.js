@@ -24,6 +24,7 @@ let modalNextButton;
 let modalPreviousButton;
 let modalNextFromResultsButton;
 let modalPreviousFromResultsButton;
+let videoSpeedUpTimeout;
 
 document.addEventListener("DOMContentLoaded", function () {
 	// convertin URL query params to
@@ -161,7 +162,8 @@ document.addEventListener("DOMContentLoaded", function () {
 			}
 			// console.log(selectedImages);
 
-		} else if (clickedElement.classList.contains('resultFile')) {
+		} else if (clickedElement.classList.contains('resultFile')
+			&& clickedElement.tagName == 'IMG') {
 			// View Clicked image
 			// setting modal image src to the clicked image
 			viewer = new ImageViewer(modalImageContainer);
@@ -279,7 +281,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
-// Keyboard shotcuts
+// Keyboard shortcuts
 document.addEventListener('keydown', function (event) {
 	const focusedElement = document.activeElement;
 
@@ -371,6 +373,54 @@ document.addEventListener('keydown', function (event) {
 			break;
 	}
 });
+
+// Mouse click shotcuts
+document.addEventListener('click', function (event) {
+	const target = event.target;
+	// console.log(target);
+	if (target && (target.classList.contains('thumbnail') || target.classList.contains('thumbnailOverlay'))) {
+		target.style.display = 'none';
+		// get nearest video element
+		const videoFile = target.parentNode.nextSibling;
+		if (videoFile) {
+			videoFile.style.display = 'block';
+			videoFile.play();
+			pauseOtherVideos(videoFile);
+		}
+	}
+
+	if (target && target.tagName === 'VIDEO') {
+		// if playback speed is 2x then prevent the click
+		if (target.playbackRate != 1) {
+			target.playbackRate = 1;
+			event.preventDefault();
+		}
+	}
+})
+
+document.addEventListener('mousedown', function (event) {
+	event.preventDefault();
+	const target = event.target;
+	// console.log(target);
+	if (target && (target.tagName === 'VIDEO')) {
+		videoSpeedUpTimeout = setTimeout(function () {
+			target.playbackRate = 2;
+		}, 1000);
+	}
+})
+
+document.addEventListener('mouseup', function (event) {
+	event.preventDefault();
+	const target = event.target;
+	// console.log(target);
+	if (target && (target.tagName === 'VIDEO')) {
+		// if timeout is still set
+		if (videoSpeedUpTimeout) {
+			clearTimeout(videoSpeedUpTimeout);
+		}
+	}
+})
+
 
 let previousScrollPosition = 0;
 // stuff to do on scroll
