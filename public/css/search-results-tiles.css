@@ -254,8 +254,11 @@ video {
 	color: cornflowerblue;
 	text-decoration: none;
 	cursor: pointer;
-	transition: all 0.3s ease;
 	opacity: 100%;
+}
+
+.modalButton {
+	transition: all 2s ease;
 }
 
 .renameDialog {

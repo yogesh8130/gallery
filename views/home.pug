@@ -130,15 +130,15 @@ html
 			div.modalImageContainer
 			div.modalVideoContainer
 				video.modalVideo.videoFile(src = '' controls loop autoplay)
-			span#modalCloseButton(title = 'Close')
+			span#modalCloseButton.modalButton(title = 'Close')
 				| &times;
-			span#modalNextFromResultsButton(title = 'Next from search results (right)')
+			span#modalNextFromResultsButton.modalButton(title = 'Next from search results (right)')
 				| &RightAngleBracket;
-			span#modalPreviousFromResultsButton(title = 'Previous from search results (left)')
+			span#modalPreviousFromResultsButton.modalButton(title = 'Previous from search results (left)')
 				| &LeftAngleBracket;
-			span#modalNextButton(title = 'Next from directory (shift + right)')
+			span#modalNextButton.modalButton(title = 'Next from directory (shift + right)')
 				| &Rang;
-			span#modalPreviousButton(title = 'Previous from directory (shift + left)')
+			span#modalPreviousButton.modalButton(title = 'Previous from directory (shift + left)')
 				| &Lang;
 		script(src = '/js/home.js')
 		script(src = '/js/iv-viewer.js')

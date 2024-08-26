@@ -424,9 +424,16 @@ document.addEventListener('mouseup', function (event) {
 	}
 })
 
+
+let touchStartX = 0;
+let touchStartY = 0;
 document.addEventListener('touchstart', function (event) {
 	const target = event.target;
 	// console.log(target);
+	const touch = event.touches[0];
+	touchStartX = touch.clientX;
+	touchStartY = touch.clientY;
+
 	if (target && (target.tagName === 'VIDEO')) {
 		target.controls = false;
 		videoSpeedUpTimeout = setTimeout(function () {
@@ -438,7 +445,18 @@ document.addEventListener('touchstart', function (event) {
 
 document.addEventListener('touchend', function (event) {
 	const target = event.target;
-	// console.log(target);
+	console.log(target);
+
+	const touch = event.changedTouches[0];
+	const touchEndX = touch.clientX;
+	const touchEndY = touch.clientY;
+
+	const touchDeltaX = touchEndX - touchStartX;
+	const touchDeltaY = touchEndY - touchStartY;
+
+	console.log(touchDeltaX, touchDeltaY);
+
+
 	if (target && (target.tagName === 'VIDEO')) {
 		// if timeout is still set
 		if (videoSpeedUpTimeout) {
@@ -457,6 +475,16 @@ document.addEventListener('touchend', function (event) {
 			}
 		}
 	}
+
+	// swipe left or right for next or previous
+	if (target && modalActive) {
+		if (touchDeltaX < -100) {
+			modalNextButton.click();
+		} else if (touchDeltaX > 100) {
+			modalPreviousButton.click();
+		}
+	}
+
 })
 
 document.addEventListener('contextmenu', function (event) {
@@ -969,6 +997,10 @@ function showModal(fileLink) {
 		modalVideo.pause();
 		modalImageContainer.style.display = 'block';
 		viewer.load(fileLink);
+		const modalButtons = document.querySelectorAll('.modalButton');
+		modalButtons.forEach(button => {
+			button.style.opacity = 0;
+		});
 	}
 	modalActive = true;
 }
@@ -978,6 +1010,10 @@ function closeModal() {
 	viewer.destroy();
 	modalVideo.pause();
 	modalActive = false;
+	const modalButtons = document.querySelectorAll('.modalButton');
+	modalButtons.forEach(button => {
+		button.style.opacity = 1;
+	});
 }
 
 function toggleSidebar(event) {
@@ -1211,4 +1247,4 @@ function shareExternally(imagePath) {
 	navigator.share({
 		url: imagePath
 	});
-}	
+}
