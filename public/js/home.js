@@ -25,6 +25,9 @@ let modalPreviousButton;
 let modalNextFromResultsButton;
 let modalPreviousFromResultsButton;
 
+let header;
+let headerHeight;
+
 let videoSpeedUpTimeout;
 const speedupDelay = 500;
 const spedUpRate = 4;
@@ -55,6 +58,9 @@ document.addEventListener("DOMContentLoaded", function () {
 			datalist.appendChild(option);
 		})
 	}
+
+	header = document.querySelector('.header');
+	headerHeight = header.offsetHeight;
 
 	// view specific stuff
 	if (view.value !== 'tiles') {
@@ -391,6 +397,8 @@ document.addEventListener('click', function (event) {
 			videoFile.style.display = 'block';
 			videoFile.play();
 			pauseOtherVideos(videoFile);
+			// hide header if visible
+			header.style.top = `-${headerHeight}px`;
 		}
 	}
 
@@ -496,17 +504,23 @@ document.addEventListener('contextmenu', function (event) {
 
 
 let previousScrollPosition = 0;
+let scrollTimeout;
 // stuff to do on scroll
 window.onscroll = function () {
 	const currentScrollPosition = window.scrollY;
-	const header = document.querySelector('.header');
-	const headerHeight = header.offsetHeight;
 	if (currentScrollPosition > previousScrollPosition) {
-		// Scrolling down
+		// Scrolling down - hide header
 		header.style.top = `-${headerHeight}px`;
+		scrollTimeout = setTimeout(function () {
+			// this prevents the header from re-showing instantly
+			clearTimeout(scrollTimeout);
+			scrollTimeout = null;
+		}, 1000)
 	} else {
-		// Scrolling up
-		header.style.top = '0';
+		// Scrolling up - show header
+		if (!scrollTimeout) {
+			header.style.top = '0';
+		}
 		// for letting the header scroll in gradually
 		// if (parseInt(header.style.top) < 0) {
 		// 	header.style.top = `${parseInt(header.style.top) + (previousScrollPosition - currentScrollPosition)}px`;
