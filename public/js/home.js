@@ -493,6 +493,13 @@ document.addEventListener('touchend', function (event) {
 		}
 	}
 
+	// swipe up to close modal
+	if (target && modalActive) {
+		if (touchDeltaY < -100) {
+			closeModal();
+		}
+	}
+
 })
 
 document.addEventListener('contextmenu', function (event) {
@@ -502,11 +509,10 @@ document.addEventListener('contextmenu', function (event) {
 	}
 })
 
-
 let previousScrollPosition = 0;
 let scrollTimeout;
 // stuff to do on scroll
-window.onscroll = function () {
+window.addEventListener('scroll', function (event) {
 	const currentScrollPosition = window.scrollY;
 	if (currentScrollPosition > previousScrollPosition) {
 		// Scrolling down - hide header
@@ -529,7 +535,7 @@ window.onscroll = function () {
 		// }
 	}
 	previousScrollPosition = currentScrollPosition;
-};
+});
 
 function goFullscreen() {
 	const toggleButton = document.getElementById('fullscreenButton');
