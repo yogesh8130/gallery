@@ -78,7 +78,8 @@ else
 						img.searchImg.resultFile(
 							id = 'image'+idNum
 							title = imageName
-							src = imageLinkEscaped)
+							src = imageLinkEscaped
+							data-src = imageLinkEscaped)
 					else
 						// Generate the thumbnail URL
 						- var thumbnailUrl = '/thumbnail?videoPath=' + encodeURIComponent(imageLinkEscaped)

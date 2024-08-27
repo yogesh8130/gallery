@@ -1096,11 +1096,18 @@ function selectionModeToggle() {
 function selectAllImages() {
 	const images = document.querySelectorAll('.resultFile');
 	images.forEach(image => {
-		const imageLinkRelative = decodeURIComponent(image.src.replace(origin, '').replace(/^\//, ''));
+		const imageLinkRelative = decodeURIComponent(image
+			.getAttribute('data-src').replace(origin, '').replace(/^\//, ''));
 		const imageId = image.id;
 
 		selectedImages.set(imageId, imageLinkRelative)
 		image.classList.add('selectedImage');
+
+		if (image.tagName == 'VIDEO') {
+			image.parentElement
+				.querySelector('.thumbnailContainer')
+				.querySelector('.thumbnail').classList.add('selectedImage');
+		}
 	});
 }
 
@@ -1119,10 +1126,21 @@ function invertSelection() {
 		if (selectedImages.has(imageId)) {
 			selectedImages.delete(imageId);
 			image.classList.remove('selectedImage');
+			if (image.tagName == 'VIDEO') {
+				image.parentElement
+					.querySelector('.thumbnailContainer')
+					.querySelector('.thumbnail').classList.remove('selectedImage');
+			}
 		} else {
-			const imageLinkRelative = decodeURIComponent(image.src.replace(origin, '').replace(/^\//, ''));
+			const imageLinkRelative = decodeURIComponent(image
+				.getAttribute('data-src').replace(origin, '').replace(/^\//, ''));
 			selectedImages.set(imageId, imageLinkRelative);
 			image.classList.add('selectedImage');
+			if (image.tagName == 'VIDEO') {
+				image.parentElement
+					.querySelector('.thumbnailContainer')
+					.querySelector('.thumbnail').classList.add('selectedImage');
+			}
 		}
 	});
 }
