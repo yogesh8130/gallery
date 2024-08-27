@@ -60,7 +60,7 @@ else
 							href = '/search?searchText=' + imageLinkEscaped + '>&view=' + view + '&sortBy=path&sortAsc=true'
 							target = "_blank")
 							|#{image.resolution} (#{image.sizeReadable})
-					- const pathSegments = folderName.split('\\').slice(1, -1);
+					- const pathSegments = folderName.split('\\').slice(1);
 					- let currentPath = '';
 					.marquee.marquee3(id = 'subTitle'+idNum)
 						each pathSegment, index in pathSegments
