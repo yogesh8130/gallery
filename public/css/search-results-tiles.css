@@ -158,8 +158,16 @@ video {
 }
 
 .marquee3 {
+	margin-top: 0.1rem;
 	margin-left: -5rem;
 	margin-right: -2.5rem;
+}
+
+.marquee3>.subTitle {
+	background: #2e2e2e;
+	border-radius: 0.2rem;
+	margin: 0.1rem;
+	padding: 0 0.2rem;
 }
 
 /* The Modal (background) */

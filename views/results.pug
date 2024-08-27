@@ -68,7 +68,7 @@ else
 							a.subTitle(
 								href = '/search?searchText=' + encodeURIComponent(currentPath) + '&view=' + view + '&sortBy=shuffle'
 								target = "_blank")
-								|  / #{pathSegment}
+								| /#{pathSegment}
 				div.deleteDiv
 					button.deleteButton.sidebarButton(onclick = `deleteFile("${image.imagePath.replace(/\\/g, "\\\\")}", "${idNum}")` title = "delete")
 						img.deleteIcon.actionButtonIcon(src = "/icons/delete.svg")

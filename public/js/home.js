@@ -435,12 +435,15 @@ document.addEventListener('mouseup', function (event) {
 
 let touchStartX = 0;
 let touchStartY = 0;
+let touchCount;
 document.addEventListener('touchstart', function (event) {
 	const target = event.target;
 	// console.log(target);
 	const touch = event.touches[0];
 	touchStartX = touch.clientX;
 	touchStartY = touch.clientY;
+
+	touchCount = event.touches.length;
 
 	if (target && (target.tagName === 'VIDEO')) {
 		target.controls = false;
@@ -451,23 +454,32 @@ document.addEventListener('touchstart', function (event) {
 	}
 })
 
+document.addEventListener('touchmove', function (event) {
+	const touch = event.touches[0];
+	const touchMoveY = touch.clientY;
+	// cancel speed up if touch is moved
+	if (touchMoveY && videoSpeedUpTimeout) {
+		clearTimeout(videoSpeedUpTimeout);
+	}
+})
+
 document.addEventListener('touchend', function (event) {
 	const target = event.target;
 	// console.log(target);
-	// alert(event.touches.length);
 
 	const touch = event.changedTouches[0];
 	const touchEndX = touch.clientX;
 	const touchEndY = touch.clientY;
 
+	// console.log("touchCount: " + touchCount);
+	// console.log(event.touches.length);
 
 	const touchDeltaX = touchEndX - touchStartX;
 	const touchDeltaY = touchEndY - touchStartY;
 
 	// console.log(touchDeltaX, touchDeltaY);
 
-
-	if (target && (target.tagName === 'VIDEO')) {
+	if (target && (target.tagName === 'VIDEO') && Math.abs(touchDeltaY) < 10) {
 		// if timeout is still set
 		if (videoSpeedUpTimeout) {
 			clearTimeout(videoSpeedUpTimeout);
@@ -486,7 +498,14 @@ document.addEventListener('touchend', function (event) {
 		}
 	}
 
+	const ivZoomHandle = document.querySelector('.iv-zoom-handle');
+	let zoomValue;
+	if (ivZoomHandle) {
+		zoomValue = parseInt(ivZoomHandle.style.left);
+	}
+
 	// swipe left or right for next or previous
+	if (touchCount === 1 && zoomValue === 0) {
 		if (target && modalActive) {
 			if (touchDeltaX < -100) {
 				modalNextButton.click();
@@ -499,6 +518,7 @@ document.addEventListener('touchend', function (event) {
 		if (target && modalActive) {
 			if (touchDeltaY < -100) {
 				closeModal();
+			}
 		}
 	}
 
