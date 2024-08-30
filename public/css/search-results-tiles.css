@@ -53,6 +53,15 @@ video {
 	vertical-align: bottom;
 }
 
+.progressBarContainer {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 2px;
+	background: rgba(0, 0, 0, 0.50);
+}
+
 .progressBar {
 	position: absolute;
 	top: 0;
@@ -60,6 +69,7 @@ video {
 	width: 0;
 	height: 2px;
 	background: rgba(255, 255, 255, 0.74);
+	transition: all 0.3s linear;
 }
 
 .imageSidebar {
