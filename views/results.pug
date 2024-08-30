@@ -22,7 +22,7 @@ else
 				data-padding = padding 
 				style = `${view && view === 'tiles' ? istyle : ""}`
 				)
-			div.imageSidebar(style=(multiplier <= 0.5) ? 'display: none' : '')
+			div.imageSidebar(style=(multiplier <= 1) ? 'display: none' : '')
 				div.infoDiv.marquee-container
 					//- - let similarImageLink = encodeURIComponent(imageName.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())
 					- const nameSegments = imageName.split('-').slice();
@@ -35,12 +35,13 @@ else
 									a.imageTitle(
 										href = '/search?searchText=' + encodeURIComponent(currentName) + '&view=' + view + '&sortBy=shuffle'
 										target = "_blank")
-										| #{index == 0 ? '' : '-'}#{nameSegment}
+										|#{nameSegment}
 								- else
 									a.imageTitle(
 										href = '/search?searchText=' + imageLinkEscaped + '>&view=' + view + '&sortBy=path&sortAsc=true'
 										target = "_blank")
-										| #{index == 0 ? '' : '-'}#{nameSegment}
+										|#{nameSegment}
+							|#{index == nameSegments.length - 1 ? '' : '-'}
 					.marquee.marquee2
 						.subTitle|#{image.resolution} (#{image.sizeReadable})
 						//- a.subTitle(

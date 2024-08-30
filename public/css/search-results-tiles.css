@@ -163,6 +163,7 @@ video {
 
 .marquee1,
 .marquee3 {
+	color: white;
 	margin-top: 0.1rem;
 	display: flex;
 	flex-wrap: wrap;
@@ -178,6 +179,7 @@ video {
 	border-radius: 0.2rem;
 	margin: 0.1rem;
 	padding: 0 0.2rem;
+	text-wrap: wrap;
 }
 
 .marquee2 {

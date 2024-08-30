@@ -779,6 +779,7 @@ function changeTileSize(isFirstPageLoad) {
 	} else {
 		multiplier = localStorage.sliderValue;
 	}
+	console.log(`multiplier: ${multiplier}`);
 
 	// Loop over all the result elements
 	results.forEach(result => {
@@ -794,7 +795,7 @@ function changeTileSize(isFirstPageLoad) {
 
 		// Loop over each element in imageSidebar to set display property
 		imageSidebar.forEach(subtitle => {
-			if (multiplier < 0.5) {
+			if (multiplier < 1) {
 				subtitle.style.display = "none";
 			} else {
 				subtitle.style.display = null;
@@ -802,7 +803,7 @@ function changeTileSize(isFirstPageLoad) {
 		});
 
 		thumbnailOverlays.forEach(thumbnailOverlay => {
-			if (multiplier < 0.5) {
+			if (multiplier < 1) {
 				thumbnailOverlay.classList.add('imageSidebarHidden');
 			} else {
 				thumbnailOverlay.classList.remove('imageSidebarHidden');
