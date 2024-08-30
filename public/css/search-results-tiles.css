@@ -157,17 +157,33 @@ video {
 	background-color: cornflowerblue;
 }
 
-.marquee3 {
-	margin-top: 0.1rem;
-	margin-left: -5rem;
-	margin-right: -2.5rem;
+.subTitle {
+	color: white
 }
 
-.marquee3>.subTitle {
+.marquee1,
+.marquee3 {
+	margin-top: 0.1rem;
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.marquee3 {
+	margin-right: -7.5rem;
+}
+
+.nameSegment,
+.pathSegment {
 	background: #2e2e2e;
 	border-radius: 0.2rem;
 	margin: 0.1rem;
 	padding: 0 0.2rem;
+}
+
+.marquee2 {
+	padding-left: 2px;
+	padding-top: 2px;
+	font-size: 0.7rem;
 }
 
 /* The Modal (background) */

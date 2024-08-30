@@ -23,6 +23,41 @@ else
 				style = `${view && view === 'tiles' ? istyle : ""}`
 				)
 			div.imageSidebar(style=(multiplier <= 0.5) ? 'display: none' : '')
+				div.infoDiv.marquee-container
+					//- - let similarImageLink = encodeURIComponent(imageName.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())
+					- const nameSegments = imageName.split('-').slice();
+					- let currentName = '';
+					.marquee.marquee1
+						each nameSegment, index in nameSegments
+							- currentName += (index == 0 ? '' : '-') + nameSegment
+							.nameSegment
+								- if (index != nameSegments.length - 1)
+									a.imageTitle(
+										href = '/search?searchText=' + encodeURIComponent(currentName) + '&view=' + view + '&sortBy=shuffle'
+										target = "_blank")
+										| #{index == 0 ? '' : '-'}#{nameSegment}
+								- else
+									a.imageTitle(
+										href = '/search?searchText=' + imageLinkEscaped + '>&view=' + view + '&sortBy=path&sortAsc=true'
+										target = "_blank")
+										| #{index == 0 ? '' : '-'}#{nameSegment}
+					.marquee.marquee2
+						.subTitle|#{image.resolution} (#{image.sizeReadable})
+						//- a.subTitle(
+						//- 	id = 'imageTitle'+idNum
+						//- 	href = '/search?searchText=' + imageLinkEscaped + '>&view=' + view + '&sortBy=path&sortAsc=true'
+						//- 	target = "_blank")
+						//- 	|#{image.resolution} (#{image.sizeReadable})
+					- const pathSegments = folderName.split('\\').slice(1);
+					- let currentPath = '';
+					.marquee.marquee3(id = 'subTitle'+idNum)
+						each pathSegment, index in pathSegments
+							- currentPath += '\\' + pathSegment
+							.pathSegment
+								a.subTitle(
+									href = '/search?searchText=' + encodeURIComponent(currentPath) + '&view=' + view + '&sortBy=shuffle'
+									target = "_blank")
+									| /#{pathSegment}
 				div.contextMenu
 					button.contextMenuButton.sidebarButton(onclick="toggleContextMenu(this)" title = "Context Menu")
 						img.contextMenuIcon.actionButtonIcon(src = "/icons/contextMenu.svg")
@@ -46,29 +81,6 @@ else
 								value = imageNameNoExt
 								placeholder = 'New Name (press Enter)' required)
 							input(type="submit" hidden)
-				div.infoDiv.marquee-container
-					- let similarImageLink = encodeURIComponent(imageName.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())
-					.marquee.marquee1
-						a.imageTitle(
-							id = 'imageTitle'+idNum
-							href = '/search?searchText=' + similarImageLink + '&view=' + view + '&sortBy=shuffle'
-							target = "_blank")
-							| #{imageName} 
-					.marquee.marquee2
-						a.subTitle(
-							id = 'imageTitle'+idNum
-							href = '/search?searchText=' + imageLinkEscaped + '>&view=' + view + '&sortBy=path&sortAsc=true'
-							target = "_blank")
-							|#{image.resolution} (#{image.sizeReadable})
-					- const pathSegments = folderName.split('\\').slice(1);
-					- let currentPath = '';
-					.marquee.marquee3(id = 'subTitle'+idNum)
-						each pathSegment, index in pathSegments
-							- currentPath += '\\' + pathSegment
-							a.subTitle(
-								href = '/search?searchText=' + encodeURIComponent(currentPath) + '&view=' + view + '&sortBy=shuffle'
-								target = "_blank")
-								| /#{pathSegment}
 				div.deleteDiv
 					button.deleteButton.sidebarButton(onclick = `deleteFile("${image.imagePath.replace(/\\/g, "\\\\")}", "${idNum}")` title = "delete")
 						img.deleteIcon.actionButtonIcon(src = "/icons/delete.svg")
