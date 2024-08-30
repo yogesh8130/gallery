@@ -467,7 +467,7 @@ document.addEventListener('touchmove', function (event) {
 		// console.log("scrolling up");
 		scrollingUp = true;
 	}
-	
+
 })
 
 document.addEventListener('touchend', function (event) {
@@ -547,7 +547,7 @@ let scrollTimeout;
 // stuff to do on scroll
 window.addEventListener('scroll', function (event) {
 	const currentScrollPosition = window.scrollY;
-	
+
 	if (currentScrollPosition > previousScrollPosition) {
 		// Scrolling down - hide header
 		header.style.top = `-${headerHeight}px`;
@@ -1320,4 +1320,10 @@ function shareExternally(imagePath) {
 	navigator.share({
 		url: imagePath
 	});
+}
+
+function updateProgressBar(video) {
+	const progressBar = video.parentNode.querySelector('.progressBar');
+	const progress = (video.currentTime / video.duration) * 100;
+	progressBar.style.width = `${progress}%`;
 }

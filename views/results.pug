@@ -110,5 +110,7 @@ else
 							loop
 							style="display: none;"
 							onplay="pauseOtherVideos(this);"
+							ontimeupdate="updateProgressBar(this);"
 							poster = thumbnailUrl
 						)
+						.progressBar
