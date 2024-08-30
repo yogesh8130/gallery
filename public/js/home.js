@@ -436,6 +436,7 @@ document.addEventListener('mouseup', function (event) {
 let touchStartX = 0;
 let touchStartY = 0;
 let touchCount;
+let scrollingUp = false;
 document.addEventListener('touchstart', function (event) {
 	const target = event.target;
 	// console.log(target);
@@ -461,6 +462,12 @@ document.addEventListener('touchmove', function (event) {
 	if (touchMoveY && videoSpeedUpTimeout) {
 		clearTimeout(videoSpeedUpTimeout);
 	}
+
+	if (touch.clientY < touchStartY) {
+		// console.log("scrolling up");
+		scrollingUp = true;
+	}
+	
 })
 
 document.addEventListener('touchend', function (event) {
@@ -478,6 +485,10 @@ document.addEventListener('touchend', function (event) {
 	const touchDeltaY = touchEndY - touchStartY;
 
 	// console.log(touchDeltaX, touchDeltaY);
+
+	setTimeout(() => {
+		scrollingUp = false;
+	}, 1500);
 
 	if (target && (target.tagName === 'VIDEO') && Math.abs(touchDeltaY) < 10) {
 		// if timeout is still set
@@ -536,6 +547,7 @@ let scrollTimeout;
 // stuff to do on scroll
 window.addEventListener('scroll', function (event) {
 	const currentScrollPosition = window.scrollY;
+	
 	if (currentScrollPosition > previousScrollPosition) {
 		// Scrolling down - hide header
 		header.style.top = `-${headerHeight}px`;
@@ -544,7 +556,7 @@ window.addEventListener('scroll', function (event) {
 			clearTimeout(scrollTimeout);
 			scrollTimeout = null;
 		}, 1000)
-	} else {
+	} else if (!scrollingUp) {
 		// Scrolling up - show header
 		if (!scrollTimeout) {
 			header.style.top = '0';
