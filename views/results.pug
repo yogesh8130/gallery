@@ -2,8 +2,11 @@ if images.length === 0
 	p No matching images found.
 else
 	each image, index in images
+		- const imagePath = image.imagePath
 		- const folderName = image.directory
 		- const imageName = image.baseName
+		- const imageResolution = image.resolution
+		- const imageSizeReadable = image.sizeReadable
 		- const imageNameNoExt = imageName.replace(/\.[^/.]+$/, "")
 		- const imageLinkEscaped = encodeURIComponent(image.imagePath)
 		//- this sets the approximate size of a row height in tiles mode
@@ -23,68 +26,7 @@ else
 				style = `${view && view === 'tiles' ? istyle : ""}`
 				)
 			div.imageSidebar(style=(multiplier <= 1) ? 'display: none' : '')
-				div.infoDiv.marquee-container
-					//- - let similarImageLink = encodeURIComponent(imageName.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim())
-					- const nameSegments = imageName.split('-').slice();
-					- let currentName = '';
-					.marquee.marquee1
-						each nameSegment, index in nameSegments
-							- currentName += (index == 0 ? '' : '-') + nameSegment
-							.nameSegment
-								- if (index != nameSegments.length - 1)
-									a.imageTitle(
-										href = '/search?searchText=' + encodeURIComponent(currentName) + '&view=' + view + '&sortBy=shuffle'
-										target = "_blank")
-										|#{nameSegment}
-								- else
-									a.imageTitle(
-										href = '/search?searchText=' + imageLinkEscaped + '>&view=' + view + '&sortBy=path&sortAsc=true'
-										target = "_blank")
-										|#{nameSegment}
-							|#{index == nameSegments.length - 1 ? '' : '-'}
-					.marquee.marquee2
-						.subTitle|#{image.resolution} (#{image.sizeReadable})
-						//- a.subTitle(
-						//- 	id = 'imageTitle'+idNum
-						//- 	href = '/search?searchText=' + imageLinkEscaped + '>&view=' + view + '&sortBy=path&sortAsc=true'
-						//- 	target = "_blank")
-						//- 	|#{image.resolution} (#{image.sizeReadable})
-					- const pathSegments = folderName.split('\\').slice(1);
-					- let currentPath = '';
-					.marquee.marquee3(id = 'subTitle'+idNum)
-						each pathSegment, index in pathSegments
-							- currentPath += '\\' + pathSegment
-							.pathSegment
-								a.subTitle(
-									href = '/search?searchText=' + encodeURIComponent(currentPath) + '&view=' + view + '&sortBy=shuffle'
-									target = "_blank")
-									| /#{pathSegment}
-				div.contextMenu
-					button.contextMenuButton.sidebarButton(onclick="toggleContextMenu(this)" title = "Context Menu")
-						img.contextMenuIcon.actionButtonIcon(src = "/icons/contextMenu.svg")
-					.additionalButtons
-						a.extraButton.sidebarButton.urlButton(
-							href = `${imageLinkEscaped}` target = "_blank"
-						)
-							img.contextMenuIcon.actionButtonIcon(src = "/icons/url.svg")
-						button.extraButton.sidebarButton.shareButton(onclick = `shareExternally('${imageLinkEscaped}')`)
-							img.contextMenuIcon.actionButtonIcon(src = "/icons/share.svg")
-				div.rename
-					button.renameButton.sidebarButton(onclick = 'showRenameDialog(this)')
-						img.renameIcon.actionButtonIcon(src = "/icons/rename.svg")
-					dialog.renameDialog
-						form.renameForm
-							input.idNum(type = "text" name = 'idNum'
-								value = idNum readonly hidden)
-							input.currentFilePath(type = "text" name = 'currentFilePath'
-								placeholder = 'Curent File Path' value = image.imagePath readonly hidden)
-							input.newFileName(type = "text" name = 'newFileName'
-								value = imageNameNoExt
-								placeholder = 'New Name (press Enter)' required)
-							input(type="submit" hidden)
-				div.deleteDiv
-					button.deleteButton.sidebarButton(onclick = `deleteFile("${image.imagePath.replace(/\\/g, "\\\\")}", "${idNum}")` title = "delete")
-						img.deleteIcon.actionButtonIcon(src = "/icons/delete.svg")
+				include image-details.pug
 			div.mainContent
 				a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped)
 					if (image.type === 'image')

@@ -913,6 +913,7 @@ function deleteFile(imageLinkRelative, index) {
 		});
 }
 
+// rename single image/file
 function showRenameDialog(button) {
 	if (button.nextSibling.classList.contains('renameDialog')) {
 		const renameDialog = button.nextSibling;
@@ -963,14 +964,9 @@ function showRenameDialog(button) {
 						} else {
 							imageLinkRelative = newImageData.newFilePathRelative;
 							image.src = imageLinkRelative
-							// console.log(selectedImages);
-							// update image title and subtitle
-							const imageTitle = document.querySelector('#imageTitle' + idNum);
-							imageTitle.innerHTML = newImageData.newImageTitle;
-							imageTitle.href = newImageData.newImageTitleLink;
-							const subTitle = document.querySelector('#subTitle' + idNum);
-							subTitle.innerHTML = newImageData.newSubTitle;
-							subTitle.href = newImageData.newSubTitleLink;
+							const resultDiv = document.getElementById("result" + idNum);
+							const imageSidebar = resultDiv.querySelector('.imageSidebar');
+							imageSidebar.innerHTML = newImageData.newImageDetails;
 						}
 					})
 					showPopup(`Renamed ${successCount} files`, 'info')
@@ -1285,12 +1281,9 @@ function moveRenameFiles(operation) {
 					// console.log(selectedImages);
 					// update image title and subtitle
 					idNum = imageId.replace('image', '');
-					const imageTitle = document.querySelector('#imageTitle' + idNum);
-					imageTitle.innerHTML = value.newImageTitle;
-					imageTitle.href = value.newImageTitleLink;
-					const subTitle = document.querySelector('#subTitle' + idNum);
-					subTitle.innerHTML = value.newSubTitle;
-					subTitle.href = value.newSubTitleLink;
+					const resultDiv = document.getElementById("result" + idNum);
+					const imageSidebar = resultDiv.querySelector('.imageSidebar');
+					imageSidebar.innerHTML = value.newImageDetails;
 				} else {
 					idNum = imageId.replace('image', '');
 					elementToRemove = document.getElementById("result" + idNum);

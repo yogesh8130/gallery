@@ -4,6 +4,9 @@ const ffmpeg = require('fluent-ffmpeg');
 const PWD = process.cwd();
 const { readMediaAttributes } = require('leather'); // much smaller and faster than ffmpeg
 const { insertMetadataToDB } = require('./dbUtils');
+const pug = require('pug');
+
+const compileImageDetailsTemplate = pug.compileFile('views/image-details.pug');
 
 const {
 	VIDEO_EXTENSIONS,
@@ -412,7 +415,7 @@ function moveRenameFiles(IMAGE_PATHS, METADATA_MAP,
 				const logMessage = `${new Date().toISOString()}|${currentFilePath}|${newFilePath}|Success\n`;
 				FS.appendFileSync(RENAME_LOG_FILE, logMessage);
 				successCount++;
-				let newImageTitle, newSubTitle, newImageTitleLink, newSubTitleLink;
+				let newImageName, newFolderName, newImageDetails;
 				if (operation !== 'delete') {
 					// updating IMAGE_PATHS	and METADATA_MAP
 					IMAGE_PATHS[IMAGE_PATHS.indexOf(currentFilePathRelative)] = newFilePathRelative;
@@ -421,20 +424,27 @@ function moveRenameFiles(IMAGE_PATHS, METADATA_MAP,
 					METADATA_MAP.get(newFilePathRelative).baseName = PATH.basename(newFilePathRelative);
 					METADATA_MAP.get(newFilePathRelative).directory = PATH.dirname(newFilePathRelative);
 					// getting new image data to update stuff on page
-					newImageTitle = METADATA_MAP.get(newFilePathRelative).baseName;
-					newSubTitle = METADATA_MAP.get(newFilePathRelative).directory;
-					newImageTitleLink = '/search?searchText=' + encodeURIComponent(newImageTitle.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").replace(/\(\d*\)|\d+$/g, "").trim()) + '&view=tiles';
-					newSubTitleLink = '/search?searchText=' + encodeURIComponent(newSubTitle) + '&view=tiles';
+					newImageName = METADATA_MAP.get(newFilePathRelative).baseName;
+					newFolderName = METADATA_MAP.get(newFilePathRelative).directory;
+					// render .imagesidebar again
+					newImageDetails = compileImageDetailsTemplate({
+						imagePath : newFilePathRelative,
+						imageLinkEscaped : encodeURIComponent(newFilePathRelative),
+						imageName: newImageName,
+						folderName: newFolderName,
+						imageResolution: METADATA_MAP.get(newFilePathRelative).resolution,
+						imageSizeReadable: METADATA_MAP.get(newFilePathRelative).sizeReadable
+					})
+					console.log(newImageDetails);
 				} else {
 					IMAGE_PATHS.splice(IMAGE_PATHS.indexOf(currentFilePathRelative), 1);
 					METADATA_MAP.delete(currentFilePathRelative);
 				}
 				newImagesData.set(imageId, {
 					newFilePathRelative: newFilePathRelative,
-					newImageTitle: newImageTitle,
-					newSubTitle: newSubTitle,
-					newImageTitleLink: newImageTitleLink,
-					newSubTitleLink: newSubTitleLink
+					newImageTitle: newImageName,
+					newSubTitle: newFolderName,
+					newImageDetails: newImageDetails
 				});
 			} catch (err) {
 				console.error(`Error renaming file: ${currentFilePath}: ${err.message}`, err);
