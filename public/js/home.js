@@ -1191,7 +1191,7 @@ function moveRenameFiles(operation) {
 			break;
 		case "prependToName":
 			argument1 = document.getElementById('prependToNameInput').value;
-			pattern = /^[a-zA-Z0-9 ]*$/;
+			pattern = /^[a-zA-Z0-9\- ]*$/;
 			isValid = pattern.test(argument1);
 			if (!isValid) {
 				showPopup('text contains disallowed characters', 'warn');
@@ -1212,7 +1212,7 @@ function moveRenameFiles(operation) {
 		case "replaceInName":
 			argument1 = document.getElementById('textToFindInput').value;
 			argument2 = document.getElementById('textToSubstituteInput').value;
-			pattern = /^[a-zA-Z0-9 ]*$/;
+			pattern = /^[a-zA-Z0-9\- ]*$/;
 			isValid = pattern.test(argument2);
 			if (!isValid) {
 				showPopup('"Text to substitute" contains disallowed characters', 'warn');
