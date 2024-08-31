@@ -304,7 +304,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 
 		let matchingImagePaths = [];
 		let imageList = IMAGE_PATHS;
-		const view = req.query.view;
+		let view = req.query.view;
 		let sortBy = req.query.sortBy;
 		if (!sortBy) {
 			sortBy = 'shuffle';
@@ -316,6 +316,10 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 			sortAsc = false;
 		} else {
 			sortAsc = true;
+		}
+
+		if (!view) {
+			view = 'tiles';
 		}
 
 		if (searchText.includes('&&')
@@ -651,6 +655,30 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 					console.error('Error generating thumbnail:', err);
 					res.status(500).send('Error generating thumbnail');
 				});
+		});
+	});
+
+	router.get('/getFileDetails', async (req, res) => {
+		const relativeFilePath = decodeURIComponent(req.query.relativeFilePath);
+		// console.log("relativeFilePath: " + relativeFilePath);
+
+		let imagePath, imageName, folderName, imageResolution, imageSizeReadable;
+
+		if (relativeFilePath) {
+			imagePath = relativeFilePath;
+			imageName = METADATA_MAP.get(imagePath).baseName;
+			folderName = METADATA_MAP.get(imagePath).directory;
+			imageResolution = METADATA_MAP.get(imagePath).resolution;
+			imageSizeReadable = METADATA_MAP.get(imagePath).sizeReadable;
+		}
+
+		res.render('image-details', {
+			imagePath,
+			imageLinkEscaped: encodeURIComponent(imagePath),
+			imageName,
+			folderName,
+			imageResolution,
+			imageSizeReadable
 		});
 	});
 

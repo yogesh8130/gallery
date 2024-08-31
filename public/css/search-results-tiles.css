@@ -238,6 +238,27 @@ video {
 	object-fit: contain;
 }
 
+.modalImageDetails {
+	position: fixed;
+	z-index: 1;
+	display: flex;
+}
+
+.modalImageDetails .imageDetailsButton {
+	display: none;
+}
+
+.modalImageDetails .marquee1 {
+	order: 1;
+}
+.modalImageDetails .marquee2 {
+	order: 3;
+}
+.modalImageDetails .marquee3 {
+	order: 2;
+}
+
+
 #modalCloseButton {
 	position: fixed;
 	right: 1.5rem;

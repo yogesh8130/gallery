@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	// setting form fields on load
 	const view = document.getElementById('view');
 	const searchText = document.getElementById('searchText');
-	view.value = queryParams.view;
+	view.value = queryParams.view || 'tiles';
 	searchText.value = queryParams.searchText;
 
 	const storedSuggestedTargetFolders = localStorage.getItem('suggestedTargetFolders');
@@ -1037,6 +1037,20 @@ function showPopup(message, level, timeout) {
 }
 
 function showModal(fileLink) {
+	// remove the localhost url part
+	const relativeFilePath = fileLink.replace(origin, '').replace(/^\//, '');
+	const modalImageDetails = document.querySelector('.modalImageDetails');
+	modalImageDetails.innerHTML = '';
+	fetch(`/getFileDetails?relativeFilePath=${relativeFilePath}`)
+		.then(response => response.text())
+		.then(html => {
+			// console.log(html);
+			modalImageDetails.innerHTML = html;
+		})
+		.catch(error => {
+			console.error(`Error getting file details: ${error}`);
+		});
+	
 	modal.style.display = 'block';
 	if (fileLink.toLowerCase().endsWith('.mp4') || fileLink.toLowerCase().endsWith('.mkv') || fileLink.toLowerCase().endsWith('.webm')) {
 		modalVideoContainer.style.display = 'block';

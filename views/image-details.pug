@@ -7,12 +7,12 @@ div.infoDiv.marquee-container
 			.nameSegment
 				- if (index != nameSegments.length - 1)
 					a.imageTitle(
-						href = '/search?searchText=' + encodeURIComponent(currentName) + '&view=' + view + '&sortBy=shuffle'
+						href = '/search?searchText=' + encodeURIComponent(currentName) + '&sortBy=shuffle'
 						target = "_blank")
 						|#{nameSegment}
 				- else
 					a.imageTitle(
-						href = '/search?searchText=' + imageLinkEscaped + '>&view=' + view + '&sortBy=path&sortAsc=true'
+						href = '/search?searchText=' + imageLinkEscaped + '>&sortBy=path&sortAsc=true'
 						target = "_blank")
 						|#{nameSegment}
 			|#{index == nameSegments.length - 1 ? '' : '-'}
@@ -25,10 +25,10 @@ div.infoDiv.marquee-container
 			- currentPath += '\\' + pathSegment
 			.pathSegment
 				a.subTitle(
-					href = '/search?searchText=' + encodeURIComponent(currentPath) + '&view=' + view + '&sortBy=shuffle'
+					href = '/search?searchText=' + encodeURIComponent(currentPath) + '&sortBy=shuffle'
 					target = "_blank")
 					| /#{pathSegment}
-div.contextMenu
+div.contextMenu.imageDetailsButton
 	button.contextMenuButton.sidebarButton(onclick="toggleContextMenu(this)" title = "Context Menu")
 		img.contextMenuIcon.actionButtonIcon(src = "/icons/contextMenu.svg")
 	.additionalButtons
@@ -38,7 +38,7 @@ div.contextMenu
 			img.contextMenuIcon.actionButtonIcon(src = "/icons/url.svg")
 		button.extraButton.sidebarButton.shareButton(onclick = `shareExternally('${imageLinkEscaped}')`)
 			img.contextMenuIcon.actionButtonIcon(src = "/icons/share.svg")
-div.rename
+div.rename.imageDetailsButton
 	button.renameButton.sidebarButton(onclick = 'showRenameDialog(this)')
 		img.renameIcon.actionButtonIcon(src = "/icons/rename.svg")
 	dialog.renameDialog
@@ -51,6 +51,6 @@ div.rename
 				value = imageNameNoExt
 				placeholder = 'New Name (press Enter)' required)
 			input(type="submit" hidden)
-div.deleteDiv
+div.deleteDiv.imageDetailsButton
 	button.deleteButton.sidebarButton(onclick = `deleteFile("${imagePath.replace(/\\/g, "\\\\")}", "${idNum}")` title = "delete")
 		img.deleteIcon.actionButtonIcon(src = "/icons/delete.svg")
