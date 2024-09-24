@@ -7,12 +7,12 @@ div.infoDiv.marquee-container
 			.nameSegment
 				- if (index != nameSegments.length - 1)
 					a.imageTitle(
-						href = '/search?searchText=' + encodeURIComponent(currentName) + '&sortBy=shuffle'
+						href = '/search?view=tiles&searchText=' + encodeURIComponent(currentName) + '&sortBy=shuffle'
 						target = "_blank")
 						|#{nameSegment}
 				- else
 					a.imageTitle(
-						href = '/search?searchText=' + imageLinkEscaped + '>&sortBy=path&sortAsc=true'
+						href = '/search?view=tiles&searchText=' + imageLinkEscaped + '>&sortBy=path&sortAsc=true'
 						target = "_blank")
 						|#{nameSegment}
 			|#{index == nameSegments.length - 1 ? '' : '-'}
@@ -25,7 +25,7 @@ div.infoDiv.marquee-container
 			- currentPath += '\\' + pathSegment
 			.pathSegment
 				a.subTitle(
-					href = '/search?searchText=' + encodeURIComponent(currentPath) + '&sortBy=shuffle'
+					href = '/search?view=tiles&searchText=' + encodeURIComponent(currentPath) + '&sortBy=shuffle'
 					target = "_blank")
 					| /#{pathSegment}
 div.contextMenu.imageDetailsButton
