@@ -144,8 +144,8 @@ function initializeImageMetadata(imagePath, metadataMap) {
 			}
 
 			const stream = metadata.streams.find(s => s.width && s.height);
-			const width = stream.width;
-			const height = stream.height;
+			const width = stream?.width || 400;
+			const height = stream?.height || 300;
 			const resolution = `${width} x ${height}`;
 
 			// adding this to the loaded map (so we don't need to read from DB again)

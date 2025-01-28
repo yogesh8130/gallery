@@ -713,7 +713,7 @@ ul {
 
 /* touch screens */
 /* devices that don't support hover */
-@media (hover: none) {
+@media (pointer: coarse) {
 
 	@media screen and (min-resolution: 100dpi) {
 		html {
