@@ -8,6 +8,7 @@ const {
 	readImageFiles,
 	initializeImagesMetadata,
 	getImagesMetadata,
+	sortByPath,
 	sortByName,
 	sortBySize,
 	sortByModifiedTime,
@@ -483,11 +484,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		if (sortBy === "shuffle") {
 			shuffle(matchingImagePaths);
 		} else if (sortBy === "path") {
-			if (sortAsc) {
-				matchingImagePaths.sort();
-			} else {
-				matchingImagePaths.sort((a, b) => b.localeCompare(a));
-			}
+			matchingImagePaths = sortByPath(matchingImagePaths, sortAsc);
 		} else if (sortBy === "name") {
 			matchingImagePaths = sortByName(matchingImagePaths, METADATA_MAP, sortAsc);
 		} else if (sortBy === "size") {
