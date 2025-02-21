@@ -7,6 +7,7 @@ const {
 } = require('./src/constants');
 
 const {
+	sortByPath,
 	readImageFiles,
 	initializeImagesMetadata
 } = require('./src/fileUtils');
@@ -62,7 +63,7 @@ require('./src/routes')(app, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS);
 		console.log(`Files in map: ${METADATA_MAP.size}`);
 		console.log('Reading files from disk...');
 		await readImageFiles(IMAGE_PATHS, ROOT_IMAGE_PATH);
-		IMAGE_PATHS.sort();
+		sortByPath(IMAGE_PATHS);
 		console.log(`Read ${IMAGE_PATHS.length} files in ${(Date.now() - startTime) / 1000} seconds.`);
 		startTime = Date.now();
 		console.log("Initializing Image Metadata (reading metadata from disk for files missing in DB)");
