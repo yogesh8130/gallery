@@ -79,7 +79,7 @@ require('./src/routes')(app, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS);
 })();
 
 // Start the server
-fs.appendFileSync('./logs/rename.log', `Starting server|||\n`);
+fs.appendFileSync('./logs/rename.log', `${new Date().toISOString()}|Starting server||\n`);
 app.listen(port, () => console.log(`Server listening on port ${port}`));
 
 // Close the database connection when the program exits
