@@ -36,7 +36,7 @@ const readImageFiles = async (IMAGE_PATHS, directory, depth = 0, maxDepth = 20) 
 					}
 				} else {
 					const ext = PATH.extname(fullPath).toLowerCase();
-					if (ALLOWED_EXTENSIONS.includes(ext) && !fullPath.includes("###deleted")) {
+					if (ALLOWED_EXTENSIONS.includes(ext) && !fullPath.includes("###deleted") && !fullPath.includes(".unwanted")) {
 						IMAGE_PATHS.push(fullPath.replace(/^public/, ''));
 					}
 				}
@@ -284,7 +284,7 @@ function sortBySize(imagePaths, metadataMap, ascending = true) {
 
 function sortByModifiedTime(imagePaths, metadataMap, ascending = true) {
 	return imagePaths.sort((a, b) => {
-		const diff = new Date(metadataMap.get(a).modifiedTime) - new Date(metadataMap.get(b).modifiedTime);
+		const diff = new Date(metadataMap.get(a)?.modifiedTime) - new Date(metadataMap.get(b)?.modifiedTime);
 		return ascending ? diff : -diff;
 	});
 }
