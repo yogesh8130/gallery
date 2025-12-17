@@ -1050,7 +1050,7 @@ function showModal(fileLink) {
 		.catch(error => {
 			console.error(`Error getting file details: ${error}`);
 		});
-	
+
 	modal.style.display = 'block';
 	if (fileLink.toLowerCase().endsWith('.mp4') || fileLink.toLowerCase().endsWith('.mkv') || fileLink.toLowerCase().endsWith('.webm')) {
 		modalVideoContainer.style.display = 'block';
@@ -1061,7 +1061,11 @@ function showModal(fileLink) {
 		modalVideoContainer.style.display = 'none';
 		modalVideo.pause();
 		modalImageContainer.style.display = 'block';
-		viewer.load(fileLink);
+		const img = new Image();
+		img.src = fileLink;
+		img.onload = () => {
+			viewer.load(fileLink);
+		};
 		const modalButtons = document.querySelectorAll('.modalButton');
 		modalButtons.forEach(button => {
 			button.style.opacity = 0;
