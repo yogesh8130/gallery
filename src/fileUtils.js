@@ -262,21 +262,25 @@ function sortByPath(imagePaths, ascending = true) {
 function sortByName(imagePaths, metadataMap, ascending = true) {
 	// natural sort
 	return imagePaths.sort((a, b) => {
-		const re = /(\d+|\D+)/g;
-		const aParts = metadataMap.get(a).baseName.match(re);
-		const bParts = metadataMap.get(b).baseName.match(re);
-		for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
-			const aPart = aParts[i] || "";
-			const bPart = bParts[i] || "";
-			if (aPart !== bPart) {
-				const aIsNumber = /^\d+$/.test(aPart);
-				const bIsNumber = /^\d+$/.test(bPart);
-				if (aIsNumber && bIsNumber) {
-					return (parseInt(aPart) - parseInt(bPart)) * (ascending ? 1 : -1);
-				} else {
-					return aPart.localeCompare(bPart) * (ascending ? 1 : -1);
+		try {
+			const re = /(\d+|\D+)/g;
+			const aParts = metadataMap.get(a).baseName.match(re);
+			const bParts = metadataMap.get(b).baseName.match(re);
+			for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
+				const aPart = aParts[i] || "";
+				const bPart = bParts[i] || "";
+				if (aPart !== bPart) {
+					const aIsNumber = /^\d+$/.test(aPart);
+					const bIsNumber = /^\d+$/.test(bPart);
+					if (aIsNumber && bIsNumber) {
+						return (parseInt(aPart) - parseInt(bPart)) * (ascending ? 1 : -1);
+					} else {
+						return aPart.localeCompare(bPart) * (ascending ? 1 : -1);
+					}
 				}
 			}
+		} catch (error) {
+			// unable to sort
 		}
 		return 0;
 	});
