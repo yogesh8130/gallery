@@ -111,13 +111,16 @@ function initializeImageMetadata(imagePath, metadataMap) {
 
 	if (!isVideo && !isImage) {
 		reject(new Error(`Unsupported file format: ${extension}`));
-		return;
+		return 1;
 	}
 
 	const fileAttrs = readMediaAttributes(absolutePath);
 	const stats = FS.statSync(absolutePath);
 	const modifiedTime = stats.mtime.toISOString();
 	const sizeBytes = stats.size;
+	if (!sizeBytes) {
+		return 1;
+	}
 	let sizeReadable;
 	const sizeKB = (sizeBytes / 1024).toFixed(2);
 	const sizeMB = (sizeBytes / 1048576).toFixed(2);
@@ -140,7 +143,7 @@ function initializeImageMetadata(imagePath, metadataMap) {
 			if (err) {
 				console.error(`Error retrieving metadata with ffmpeg for ${imagePath}`);
 				// console.error(`Error retrieving metadata with ffmpeg for ${imagePath}: ${err.message}`);
-				return;
+				return 1;
 			}
 
 			const stream = metadata.streams.find(s => s.width && s.height);
@@ -210,14 +213,18 @@ function initializeImageMetadata(imagePath, metadataMap) {
 			modifiedTime
 		);
 	}
+	return 0;
 }
 
 async function initializeImagesMetadata(imagePaths, metadataMap) {
 	try {
 		const promises = imagePaths.map(async imagePath => {
 			if (!metadataMap.has(imagePath)) {
-				initializeImageMetadata(imagePath, metadataMap);
-				return;
+				if (initializeImageMetadata(imagePath, metadataMap) === 1) {
+					// error in reading metadata, remove the file from array
+					console.error("Error in reading metadata, removing file from array: ", imagePath);
+					imagePaths.splice(imagePaths.indexOf(imagePath), 1);
+				}
 			}
 		});
 		return Promise.all(promises);
@@ -277,7 +284,13 @@ function sortByName(imagePaths, metadataMap, ascending = true) {
 
 function sortBySize(imagePaths, metadataMap, ascending = true) {
 	return imagePaths.sort((a, b) => {
-		const diff = metadataMap.get(a).sizeBytes - metadataMap.get(b).sizeBytes;
+		let diff
+		try {
+			diff = metadataMap.get(a).sizeBytes - metadataMap.get(b).sizeBytes;
+		} catch (error) {
+			// unable to sort
+			diff = 0
+		}
 		return ascending ? diff : -diff;
 	});
 }
@@ -294,10 +307,16 @@ function sortByDimensions(imagePaths, metadataMap, ascending = true) {
 		const metadataA = metadataMap.get(a);
 		const metadataB = metadataMap.get(b);
 		// Compare width
-		let diff = metadataA.width - metadataB.width;
-		// If width is the same, compare height
-		if (diff === 0) {
-			diff = metadataA.height - metadataB.height;
+		let diff;
+		try {
+			diff = metadataA.width - metadataB.width;
+			// If width is the same, compare height
+			if (diff === 0) {
+				diff = metadataA.height - metadataB.height;
+			}
+		} catch (error) {
+			// unable to sort
+			diff = 0
 		}
 		return ascending ? diff : -diff;
 	});
@@ -470,8 +489,8 @@ function moveRenameFiles(IMAGE_PATHS, METADATA_MAP,
 					newFolderName = METADATA_MAP.get(newFilePathRelative).directory;
 					// render .imagesidebar again
 					newImageDetails = compileImageDetailsTemplate({
-						imagePath : newFilePathRelative,
-						imageLinkEscaped : encodeURIComponent(newFilePathRelative),
+						imagePath: newFilePathRelative,
+						imageLinkEscaped: encodeURIComponent(newFilePathRelative),
 						imageName: newImageName,
 						folderName: newFolderName,
 						imageResolution: METADATA_MAP.get(newFilePathRelative).resolution,

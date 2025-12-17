@@ -393,9 +393,9 @@ document.addEventListener('keydown', function (event) {
 			break;
 		case 'ArrowRight':
 			if (modalActive && !event.shiftKey) {
-				modalNextFromResultsButton.click();
-			} else if (modalActive && event.shiftKey) {
 				modalNextButton.click();
+			} else if (modalActive && event.shiftKey) {
+				modalNextFromResultsButton.click();
 			} else {
 				const slider = document.getElementById('slider');
 				slider.value -= -(0.1);
@@ -404,9 +404,9 @@ document.addEventListener('keydown', function (event) {
 			break;
 		case 'ArrowLeft':
 			if (modalActive && !event.shiftKey) {
-				modalPreviousFromResultsButton.click();
-			} else if (modalActive && event.shiftKey) {
 				modalPreviousButton.click();
+			} else if (modalActive && event.shiftKey) {
+				modalPreviousFromResultsButton.click();
 			} else {
 				const slider = document.getElementById('slider');
 				slider.value -= 0.1;

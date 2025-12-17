@@ -663,10 +663,10 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 
 		if (relativeFilePath) {
 			imagePath = relativeFilePath;
-			imageName = METADATA_MAP.get(imagePath).baseName;
-			folderName = METADATA_MAP.get(imagePath).directory;
-			imageResolution = METADATA_MAP.get(imagePath).resolution;
-			imageSizeReadable = METADATA_MAP.get(imagePath).sizeReadable;
+			imageName = METADATA_MAP.get(imagePath)?.baseName;
+			folderName = METADATA_MAP.get(imagePath)?.directory;
+			imageResolution = METADATA_MAP.get(imagePath)?.resolution;
+			imageSizeReadable = METADATA_MAP.get(imagePath)?.sizeReadable;
 		}
 
 		res.render('image-details', {
