@@ -32,6 +32,49 @@ let videoSpeedUpTimeout;
 const speedupDelay = 500;
 const spedUpRate = 4;
 
+const preloadCache = new Map(); // to keep next images pre-loaded
+const MAX_PRELOAD = 5;
+function preloadImage(path) {
+	if (preloadCache.has(path)) return;
+
+	const img = new Image();
+	img.src = path;
+
+	img.onload = () => {
+		preloadCache.set(path, img);
+		if (preloadCache.size > MAX_PRELOAD) {
+			const firstKey = preloadCache.keys().next().value;
+			preloadCache.delete(firstKey);
+		}
+	};
+}
+
+function preloadNeighbors() {
+	if (!currentImagePath) return;
+
+	const cleanPath = currentImagePath.replace(origin, '').replace(/^\//, '');
+
+	fetch(`/next?currentImagePath=${cleanPath}`)
+		.then(r => r.json())
+		.then(d => {
+			if (d.nextImagePath && isImage(d.nextImagePath)) {
+				preloadImage(d.nextImagePath);
+			}
+		});
+
+	fetch(`/previous?currentImagePath=${cleanPath}`)
+		.then(r => r.json())
+		.then(d => {
+			if (d.previousImagePath && isImage(d.previousImagePath)) {
+				preloadImage(d.previousImagePath);
+			}
+		});
+}
+
+function isImage(path) {
+	return !path.match(/\.(mp4|mkv|webm)$/i);
+}
+
 document.addEventListener("DOMContentLoaded", function () {
 	// convertin URL query params to
 	queryString = window.location.search;
@@ -1065,6 +1108,7 @@ function showModal(fileLink) {
 		img.src = fileLink;
 		img.onload = () => {
 			viewer.load(fileLink);
+			preloadNeighbors();
 		};
 		const modalButtons = document.querySelectorAll('.modalButton');
 		modalButtons.forEach(button => {
