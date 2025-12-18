@@ -219,7 +219,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			// View Clicked image
 			// setting modal image src to the clicked image
 			viewer = new ImageViewer(modalImageContainer);
-			showModal(clickedElement.src);
+			showModal(clickedElement.src, true);
 			currentImagePath = clickedElement.src;
 			currentImageIdNum = clickedElement.id.replace('image', '');
 			event.preventDefault(); // this makes the videos play on click and keeps info links working
@@ -1079,7 +1079,9 @@ function showPopup(message, level, timeout) {
 	}, timeout);
 }
 
-function showModal(fileLink) {
+function showModal(fileLink, firstLoad = false) {
+	// firstLoad indicates that the function was called froml clicking an image in the vertical scrolling list, so preloading should not be applied
+
 	// remove the localhost url part
 	const relativeFilePath = fileLink.replace(origin, '').replace(/^\//, '');
 	const modalImageDetails = document.querySelector('.modalImageDetails');
@@ -1106,10 +1108,15 @@ function showModal(fileLink) {
 		modalImageContainer.style.display = 'block';
 		const img = new Image();
 		img.src = fileLink;
-		img.onload = () => {
+		if (firstLoad) {
 			viewer.load(fileLink);
 			preloadNeighbors();
-		};
+		} else {
+			img.onload = () => {
+				viewer.load(fileLink);
+				preloadNeighbors();
+			};
+		}
 		const modalButtons = document.querySelectorAll('.modalButton');
 		modalButtons.forEach(button => {
 			button.style.opacity = 0;
