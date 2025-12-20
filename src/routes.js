@@ -45,7 +45,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FO
 				IMAGE_PATHS = [];
 				const metadataSizeBefore = METADATA_MAP.size;
 
-				// This block is same from index.js
+				// THIS BLOCK IS SAME FROM INDEX.JS
 				const startTimeTotal = Date.now();
 				let startTime = Date.now();
 				await initializeMetadataTable();
@@ -54,7 +54,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FO
 				startTime = Date.now();
 				console.log(`Files in map: ${METADATA_MAP.size}`);
 				console.log('Reading files from disk...');
-				await readImageFiles(IMAGE_PATHS, ROOT_IMAGE_PATH);
+				await readImageFiles(IMAGE_PATHS, ROOT_IMAGE_PATH, FOLDER_PATHS);
 				IMAGE_PATHS.sort();
 				console.log(`Read ${IMAGE_PATHS.length} files in ${(Date.now() - startTime) / 1000} seconds.`);
 				startTime = Date.now();

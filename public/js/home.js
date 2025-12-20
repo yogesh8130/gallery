@@ -101,27 +101,38 @@ function pinSidebar() {
 	}
 }
 
+let folderSuggestTimeout;
+
 function updateSuggestedFolders() {
-	const folderHint = document.getElementById('targetFolderNameInput').value.trim();
-	let suggestedFoldersDatalist = document.getElementById('suggestedFolders');
-	let suggestedFolders = [];
-	if (folderHint != null) {
-		fetch(`/folderPaths?folderHint=${folderHint}`)
+	clearTimeout(folderSuggestTimeout);
+
+	folderSuggestTimeout = setTimeout(() => {
+		const folderHint = document
+			.getElementById('targetFolderNameInput')
+			.value
+			.trim();
+
+		const suggestedFoldersDatalist =
+			document.getElementById('suggestedFolders');
+
+		if (!folderHint) {
+			suggestedFoldersDatalist.innerHTML = "";
+			return;
+		}
+
+		fetch(`/folderPaths?folderHint=${encodeURIComponent(folderHint)}`)
 			.then(response => response.json())
 			.then(data => {
-				// console.log(data);
-				suggestedFolders = data;
+				suggestedFoldersDatalist.innerHTML = "";
 
-				suggestedFoldersDatalist.innerHTML = '';
-				suggestedFolders.map(folder => {
-					// console.log(folder);
+				data.forEach(folder => {
 					const option = document.createElement('option');
 					option.value = folder;
 					suggestedFoldersDatalist.appendChild(option);
-				})
+				});
 			})
-			.catch(error => console.error(error));
-	}
+			.catch(console.error);
+	}, 500);
 }
 
 function buildTree(paths) {

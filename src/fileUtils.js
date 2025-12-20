@@ -32,7 +32,9 @@ const readImageFiles = async (IMAGE_PATHS, ROOT_IMAGE_PATH, FOLDER_PATHS, depth 
 				const stat = await FS.promises.stat(fullPath);
 				if (stat.isDirectory()) {
 					if (depth < maxDepth) {
-						FOLDER_PATHS.push(fullPath.replace(/^public\\images\\/, ''));
+						trimmedFolderPath = fullPath.replace(/^public\\images\\/, '');
+						if (!FOLDER_PATHS.includes(trimmedFolderPath))
+							FOLDER_PATHS.push(trimmedFolderPath);
 						subDirectories.push(fullPath);
 					}
 				} else {

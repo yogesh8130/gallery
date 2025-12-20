@@ -53,6 +53,7 @@ let FOLDER_PATHS = [];
 require('./src/routes')(app, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FOLDER_PATHS);
 
 // Initialize the Image List and metadata
+// THIS IS CURRENTLY DUPLICATED IN ROUTES.JS; Needs refactoring
 (async () => {
 	try {
 		const startTimeTotal = Date.now();
