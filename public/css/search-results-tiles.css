@@ -27,6 +27,49 @@ h2 {
 	transition: all 1s;
 }
 
+#folderTree {
+	max-width: 100%;
+	overflow: auto;
+}
+
+#folderTree ul {
+	list-style: none;
+	padding-left: 12px;
+	margin: 0;
+}
+
+.folder-label {
+	cursor: pointer;
+	user-select: none;
+	color: white;
+	white-space: nowrap;
+}
+
+.folder-label.collapsible::before {
+	content: "▶";
+	display: inline-block;
+	width: 1em;
+	margin-right: 4px;
+}
+
+.folder-label.collapsible.open::before {
+	content: "▼";
+}
+
+.folder-label.leaf::before {
+	content: "○";
+	width: 1em;
+	display: inline-block;
+}
+
+.collapsed {
+	display: none;
+}
+
+.folder-link {
+	margin-left: 5px;
+}
+
 .results {
 	display: flex;
 	flex-wrap: wrap;
@@ -256,9 +299,11 @@ video {
 .modalImageDetails .marquee1 {
 	order: 1;
 }
+
 .modalImageDetails .marquee2 {
 	order: 3;
 }
+
 .modalImageDetails .marquee3 {
 	order: 2;
 }

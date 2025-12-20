@@ -124,6 +124,80 @@ function updateSuggestedFolders() {
 	}
 }
 
+function buildTree(paths) {
+	const root = {};
+
+	paths.forEach(path => {
+		const parts = path.split("\\");
+		let current = root;
+
+		parts.forEach(part => {
+			if (!current[part]) {
+				current[part] = {};
+			}
+			current = current[part];
+		});
+	});
+
+	return root;
+}
+
+function renderTree(tree, parentPath = "", currentPath = "") {
+	const ul = document.createElement("ul");
+
+	Object.keys(tree).sort().forEach(folder => {
+		const li = document.createElement("li");
+
+		const fullPath = parentPath ? `${parentPath}\\${folder}` : folder;
+		const hasChildren = Object.keys(tree[folder]).length > 0;
+
+		const label = document.createElement("div");
+		label.classList.add("folder-label");
+
+		const link = document.createElement("a");
+		link.href = `/search?&searchText=${encodeURIComponent(fullPath)}`;
+		link.textContent = folder;
+		link.classList.add("folder-link");
+
+		label.appendChild(link);
+
+		let children;
+		if (hasChildren) {
+			label.classList.add("collapsible");
+
+			children = renderTree(tree[folder], fullPath, currentPath);
+
+			// expand ONLY if current path is inside this branch
+			const shouldExpand =
+				currentPath === fullPath ||
+				currentPath.startsWith(fullPath + "\\");
+
+			if (!shouldExpand) {
+				children.classList.add("collapsed");
+			} else {
+				label.classList.add("open");
+			}
+
+			label.addEventListener("click", (e) => {
+				if (e.target.tagName === "A") return;
+				children.classList.toggle("collapsed");
+				label.classList.toggle("open");
+			});
+
+			li.appendChild(label);
+			li.appendChild(children);
+		} else {
+			label.classList.add("leaf");
+			li.appendChild(label);
+		}
+
+		ul.appendChild(li);
+	});
+
+	return ul;
+}
+
+
 document.addEventListener("DOMContentLoaded", function () {
 
 	if (sidebarPinned) {
@@ -133,6 +207,22 @@ document.addEventListener("DOMContentLoaded", function () {
 		const pinSidebarCheckbox = document.getElementById('pinSidebarCheckbox');
 		pinSidebarCheckbox.checked = true;
 	}
+
+	// render directory tree:
+	fetch("/folderPaths")
+		.then(res => res.json())
+		.then(paths => {
+			const treeData = buildTree(paths);
+			const container = document.getElementById("folderTree");
+
+			const currentFolder =
+				document.getElementById("searchText")?.value?.trim().replace(/^\\images\\/, '') || "";
+
+			container.innerHTML = "";
+			container.appendChild(
+				renderTree(treeData, "", currentFolder)
+			);
+		});
 
 	// convertin URL query params to
 	queryString = window.location.search;
