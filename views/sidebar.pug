@@ -40,7 +40,9 @@ div(id = "sidebar" onclick = "toggleSidebar(event)")
 
 	div.bulkRow
 		label(for="selectionModeCheckbox") Selection Mode
-		input(type="checkbox" id="selectionModeCheckbox" name="selectionMode" value="1" onclick="selectionModeToggle()")
+			input(type="checkbox" id="selectionModeCheckbox" name="selectionMode" value="1" onclick="selectionModeToggle()")
+		label(for="pinSidebarCheckbox") Pin Sidebar
+			input(type="checkbox" id="pinSidebarCheckbox" name="pinSidebar" value="0" onclick="pinSidebar()")
 	div.bulkRow
 		button(id = 'selectAll' onclick = 'selectAllImages()' 
 		title = 'Ctrl + A (Toggle)') Select all

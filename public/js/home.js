@@ -75,7 +75,47 @@ function isImage(path) {
 	return !path.match(/\.(mp4|mkv|webm)$/i);
 }
 
+let sidebarPinned;
+// load state from local storage and if not found then session storage and if still not found then default to false
+console.log(sessionStorage.getItem('sidebarPinned'));
+console.log(localStorage.getItem('sidebarPinned'));
+if (sessionStorage.getItem('sidebarPinned') != null) {
+	// load boolean properly from session storage
+	sidebarPinned = JSON.parse(sessionStorage.getItem('sidebarPinned'));
+} else if (localStorage.getItem('sidebarPinned') != null) {
+	sidebarPinned = JSON.parse(localStorage.getItem('sidebarPinned'));
+} else {
+	sidebarPinned = false;
+}
+console.log("sidebarPinned" + sidebarPinned);
+
+function pinSidebar() {
+	const pinSidebarCheckbox = document.getElementById('pinSidebarCheckbox');
+	sidebarPinned = pinSidebarCheckbox.checked;
+	// save state to local storage and session storage
+	localStorage.setItem('sidebarPinned', sidebarPinned);
+	sessionStorage.setItem('sidebarPinned', sidebarPinned);
+
+	const mainDiv = document.querySelector('.mainDiv');
+	if (sidebarPinned) {
+		mainDiv.classList.add('pinned');
+	} else {
+		mainDiv.classList.remove('pinned');
+	}
+}
+
 document.addEventListener("DOMContentLoaded", function () {
+	console.log("sidebarPinned domloaded", sidebarPinned);
+	
+	if (sidebarPinned) {
+		console.log("sidebarPinned domloaded 2", sidebarPinned);
+		const mainDiv = document.querySelector('.mainDiv');
+		mainDiv.classList.add('pinned');
+		toggleSidebar();
+		const pinSidebarCheckbox = document.getElementById('pinSidebarCheckbox');
+		pinSidebarCheckbox.checked = true;
+	}
+
 	// convertin URL query params to
 	queryString = window.location.search;
 	const searchParams = new URLSearchParams(queryString);
@@ -1155,6 +1195,10 @@ function toggleSidebar(event) {
 
 	if (sidebar.style.right === '0px') {
 		// close sidebar
+		if (sidebarPinned) {
+			showPopup('Sidebar is pinned', 'info', 1000);
+			return
+		};
 		sidebar.style.right = '-300px';
 		sidebarToggleButton.style.right = '0px';
 	} else {

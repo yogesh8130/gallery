@@ -22,6 +22,11 @@ h2 {
 	padding-bottom: 5px;
 }
 
+.mainDiv.pinned {
+	max-width: calc(100vw - 300px);
+	transition: all 1s;
+}
+
 .results {
 	display: flex;
 	flex-wrap: wrap;
@@ -416,6 +421,8 @@ label {
 	font-size: 1.3rem;
 	color: gray;
 	align-self: center;
+	display: flex;
+	gap: 5px;
 }
 
 input[type='checkbox'] {
