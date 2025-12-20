@@ -16,7 +16,7 @@ h2 {
 .header {
 	position: sticky;
 	top: 0;
-	z-index: 5;
+	z-index: 8;
 	background: black;
 	transition: top 0.3s ease-in-out;
 	padding-bottom: 5px;
@@ -614,6 +614,10 @@ ul {
 .instructions {
 	color: white;
 	margin: 5px;
+}
+
+#selectedFilesCount {
+	color: white;
 }
 
 #scrollToTopButton {

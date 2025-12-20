@@ -689,8 +689,10 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FO
 		const folderHint = req.query.folderHint;
 		// only return the folderPaths containing the hint string
 		let suggestedFolders;
+		// break the hint at spaces and then find folder paths containing all the parts
 		if (folderHint) {
-			suggestedFolders = FOLDER_PATHS.filter(folder => folder.toLowerCase().includes(folderHint.toLowerCase()));
+			const folderHintParts = folderHint.split(' ');
+			suggestedFolders = FOLDER_PATHS.filter(folder => folderHintParts.every(part => folder.toLowerCase().includes(part.toLowerCase())));
 		} else {
 			suggestedFolders = FOLDER_PATHS;
 		}

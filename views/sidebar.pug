@@ -50,6 +50,8 @@ div(id = "sidebar" onclick = "toggleSidebar(event)")
 		title = 'Ctrl + A (Toggle)') De-select all
 		button(id = 'invertSelection' onclick = 'invertSelection()' 
 		title = 'Invert Selection') Invert
+	div.bulkRow
+		span(id = 'selectedFilesCount') 0 files selected
 	form.bulkRow(id = 'moveForm')
 		input(type = "text" id = 'targetFolderNameInput' name = 'targetFolderNameInput'
 		placeholder = "Target folder name" autocomplete = 'on'

@@ -166,7 +166,7 @@ function renderTree(tree, parentPath = "", currentPath = "") {
 		label.classList.add("folder-label");
 
 		const link = document.createElement("a");
-		link.href = `/search?&searchText=${encodeURIComponent(fullPath)}`;
+		link.href = `/search?&searchText=\\images\\${encodeURIComponent(fullPath)}`;
 		link.textContent = folder;
 		link.classList.add("folder-link");
 
@@ -206,6 +206,14 @@ function renderTree(tree, parentPath = "", currentPath = "") {
 	});
 
 	return ul;
+}
+
+function udpateSelectedFilesCount() {
+	const selectedFilesCount = document.getElementById("selectedFilesCount");
+	const selectedImagesCount = selectedImages.size;
+
+	selectedFilesCount.textContent = `${selectedImagesCount} ${selectedImagesCount === 1 ? "file" : "files"
+		} selected`;
 }
 
 
@@ -383,6 +391,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			currentImageIdNum = clickedElement.id.replace('image', '');
 			event.preventDefault(); // this makes the videos play on click and keeps info links working
 		}
+		udpateSelectedFilesCount();
 
 		modal.onclick = function (event) {
 			if (event.target.classList.contains('iv-image-view')) {
@@ -1351,6 +1360,7 @@ function selectAllImages() {
 				.querySelector('.thumbnail').classList.add('selectedImage');
 		}
 	});
+	udpateSelectedFilesCount()
 }
 
 function deselectAllImages() {
@@ -1359,6 +1369,7 @@ function deselectAllImages() {
 	images.forEach(image => {
 		image.classList.remove('selectedImage');
 	});
+	udpateSelectedFilesCount()
 }
 
 function invertSelection() {
@@ -1385,6 +1396,7 @@ function invertSelection() {
 			}
 		}
 	});
+	udpateSelectedFilesCount()
 }
 
 function moveRenameFiles(operation) {
@@ -1462,7 +1474,7 @@ function moveRenameFiles(operation) {
 			break;
 		case "moveFiles":
 			argument1 = document.getElementById('targetFolderNameInput').value;
-			pattern = /^[a-zA-Z0-9-\\ ]*$/;
+			pattern = /^[a-zA-Z0-9-_\\ ]*$/;
 			isValid = pattern.test(argument1);
 			if (!isValid) {
 				showPopup('Folder name contains disallowed characters', 'warn');

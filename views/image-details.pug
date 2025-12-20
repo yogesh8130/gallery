@@ -18,7 +18,7 @@ div.infoDiv.marquee-container
 			|#{index == nameSegments.length - 1 ? '' : '-'}
 	.marquee.marquee2
 		.subTitle|#{imageResolution} (#{imageSizeReadable})
-	- const pathSegments = folderName.split('\\').slice(1);
+	- const pathSegments = folderName.replace(/^\\images/).split('\\').slice(1);
 	- let currentPath = '';
 	.marquee.marquee3(id = 'subTitle'+idNum)
 		each pathSegment, index in pathSegments
