@@ -77,8 +77,6 @@ function isImage(path) {
 
 let sidebarPinned;
 // load state from local storage and if not found then session storage and if still not found then default to false
-console.log(sessionStorage.getItem('sidebarPinned'));
-console.log(localStorage.getItem('sidebarPinned'));
 if (sessionStorage.getItem('sidebarPinned') != null) {
 	// load boolean properly from session storage
 	sidebarPinned = JSON.parse(sessionStorage.getItem('sidebarPinned'));
@@ -87,7 +85,6 @@ if (sessionStorage.getItem('sidebarPinned') != null) {
 } else {
 	sidebarPinned = false;
 }
-console.log("sidebarPinned" + sidebarPinned);
 
 function pinSidebar() {
 	const pinSidebarCheckbox = document.getElementById('pinSidebarCheckbox');
@@ -104,11 +101,32 @@ function pinSidebar() {
 	}
 }
 
+function updateSuggestedFolders() {
+	const folderHint = document.getElementById('targetFolderNameInput').value.trim();
+	let suggestedFoldersDatalist = document.getElementById('suggestedFolders');
+	let suggestedFolders = [];
+	if (folderHint != null) {
+		fetch(`/folderPaths?folderHint=${folderHint}`)
+			.then(response => response.json())
+			.then(data => {
+				// console.log(data);
+				suggestedFolders = data;
+
+				suggestedFoldersDatalist.innerHTML = '';
+				suggestedFolders.map(folder => {
+					// console.log(folder);
+					const option = document.createElement('option');
+					option.value = folder;
+					suggestedFoldersDatalist.appendChild(option);
+				})
+			})
+			.catch(error => console.error(error));
+	}
+}
+
 document.addEventListener("DOMContentLoaded", function () {
-	console.log("sidebarPinned domloaded", sidebarPinned);
-	
+
 	if (sidebarPinned) {
-		console.log("sidebarPinned domloaded 2", sidebarPinned);
 		const mainDiv = document.querySelector('.mainDiv');
 		mainDiv.classList.add('pinned');
 		toggleSidebar();
@@ -131,16 +149,16 @@ document.addEventListener("DOMContentLoaded", function () {
 	view.value = queryParams.view || 'tiles';
 	searchText.value = queryParams.searchText;
 
-	const storedSuggestedTargetFolders = localStorage.getItem('suggestedTargetFolders');
-	if (storedSuggestedTargetFolders) {
-		suggestedTargetFolders = JSON.parse(storedSuggestedTargetFolders);
-		const datalist = document.getElementById('suggestedFolders');
-		suggestedTargetFolders.forEach((folder) => {
-			const option = document.createElement('option');
-			option.value = folder;
-			datalist.appendChild(option);
-		})
-	}
+	// const storedSuggestedTargetFolders = localStorage.getItem('suggestedTargetFolders');
+	// if (storedSuggestedTargetFolders) {
+	// 	suggestedTargetFolders = JSON.parse(storedSuggestedTargetFolders);
+	// 	const datalist = document.getElementById('suggestedFolders');
+	// 	suggestedTargetFolders.forEach((folder) => {
+	// 		const option = document.createElement('option');
+	// 		option.value = folder;
+	// 		datalist.appendChild(option);
+	// 	})
+	// }
 
 	header = document.querySelector('.header');
 	headerHeight = header.offsetHeight;
@@ -392,7 +410,8 @@ document.addEventListener('keydown', function (event) {
 			document.getElementById('appendToNameInput').focus();
 			break;
 		case 'Delete':
-			if (modalActive === false) {
+			// if modal is not open and a text field is not focused
+			if (modalActive === false && focusedElement.nodeName !== 'INPUT') {
 				// delete selected files
 				event.preventDefault();
 				moveRenameFiles("delete");
@@ -1342,7 +1361,7 @@ function moveRenameFiles(operation) {
 			break;
 		case "moveFiles":
 			argument1 = document.getElementById('targetFolderNameInput').value;
-			pattern = /^[a-zA-Z0-9\\ ]*$/;
+			pattern = /^[a-zA-Z0-9-\\ ]*$/;
 			isValid = pattern.test(argument1);
 			if (!isValid) {
 				showPopup('Folder name contains disallowed characters', 'warn');

@@ -48,8 +48,9 @@ let IMAGE_PATHS = [];
 let SEARCH_RESULTS = new Map();
 // Create map of all image metadata
 let METADATA_MAP = new Map();
+let FOLDER_PATHS = [];
 
-require('./src/routes')(app, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS);
+require('./src/routes')(app, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FOLDER_PATHS);
 
 // Initialize the Image List and metadata
 (async () => {
@@ -62,7 +63,8 @@ require('./src/routes')(app, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS);
 		startTime = Date.now();
 		console.log(`Files in map: ${METADATA_MAP.size}`);
 		console.log('Reading files from disk...');
-		await readImageFiles(IMAGE_PATHS, ROOT_IMAGE_PATH);
+		await readImageFiles(IMAGE_PATHS, ROOT_IMAGE_PATH, FOLDER_PATHS);
+		// console.log(FOLDER_PATHS);
 		sortByPath(IMAGE_PATHS);
 		console.log(`Read ${IMAGE_PATHS.length} files in ${(Date.now() - startTime) / 1000} seconds.`);
 		startTime = Date.now();

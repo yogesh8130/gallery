@@ -15,23 +15,24 @@ const {
 	RENAME_LOG_FILE
 } = require('./constants');
 
-const readImageFiles = async (IMAGE_PATHS, directory, depth = 0, maxDepth = 20) => {
+const readImageFiles = async (IMAGE_PATHS, ROOT_IMAGE_PATH, FOLDER_PATHS, depth = 0, maxDepth = 20) => {
 	let files;
 	try {
-		files = await FS.promises.readdir(directory);
+		files = await FS.promises.readdir(ROOT_IMAGE_PATH);
 	} catch (error) {
-		console.error(`Error reading directory '${directory}': ${error.message}`);
+		console.error(`Error reading directory '${ROOT_IMAGE_PATH}': ${error.message}`);
 		return;
 	}
 	const subDirectories = [];
 
 	await Promise.all(
 		files.map(async (file) => {
-			const fullPath = PATH.join(directory, file);
+			const fullPath = PATH.join(ROOT_IMAGE_PATH, file);
 			try {
 				const stat = await FS.promises.stat(fullPath);
 				if (stat.isDirectory()) {
 					if (depth < maxDepth) {
+						FOLDER_PATHS.push(fullPath.replace(/^public\\images\\/, ''));
 						subDirectories.push(fullPath);
 					}
 				} else {
@@ -48,7 +49,7 @@ const readImageFiles = async (IMAGE_PATHS, directory, depth = 0, maxDepth = 20) 
 
 	await Promise.all(
 		subDirectories.map(async (subDirectory) => {
-			await readImageFiles(IMAGE_PATHS, subDirectory, depth + 1, maxDepth);
+			await readImageFiles(IMAGE_PATHS, subDirectory, FOLDER_PATHS, depth + 1, maxDepth);
 		})
 	);
 };
@@ -500,7 +501,7 @@ function moveRenameFiles(IMAGE_PATHS, METADATA_MAP,
 						imageResolution: METADATA_MAP.get(newFilePathRelative).resolution,
 						imageSizeReadable: METADATA_MAP.get(newFilePathRelative).sizeReadable
 					})
-					console.log(newImageDetails);
+					// console.log(newImageDetails);
 				} else {
 					IMAGE_PATHS.splice(IMAGE_PATHS.indexOf(currentFilePathRelative), 1);
 					METADATA_MAP.delete(currentFilePathRelative);

@@ -32,7 +32,7 @@ const { log } = require('console');
 
 const searchResultBatchSize = 50;
 
-module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
+module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FOLDER_PATHS) {
 
 	// Define a route to handle requests for the home page
 	router.get('/', (req, res) => {
@@ -281,6 +281,12 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 		const argument2 = req.body.argument2 || null;
 
 		// Array to store the results for renaming files
+		if (operation === 'moveFiles') {
+			if (FOLDER_PATHS.includes(argument1)) {
+				FOLDER_PATHS.splice(FOLDER_PATHS.indexOf(argument1), 1);
+			}
+			FOLDER_PATHS.unshift(argument1);
+		}
 
 		const fileOperationOutput = moveRenameFiles(IMAGE_PATHS, METADATA_MAP,
 			operation, currentFilePaths, argument1, argument2);
@@ -678,6 +684,18 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS) {
 			imageSizeReadable
 		});
 	});
+
+	router.get('/folderPaths', async (req, res) => {
+		const folderHint = req.query.folderHint;
+		// only return the folderPaths containing the hint string
+		let suggestedFolders;
+		if (folderHint) {
+			suggestedFolders = FOLDER_PATHS.filter(folder => folder.toLowerCase().includes(folderHint.toLowerCase()));
+		} else {
+			suggestedFolders = FOLDER_PATHS;
+		}
+		res.json(suggestedFolders);
+	})
 
 	router.get('/config', async (req, res) => {
 		res.render('config');
