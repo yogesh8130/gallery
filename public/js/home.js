@@ -110,15 +110,10 @@ function updateSuggestedFolders() {
 		const folderHint = document
 			.getElementById('targetFolderNameInput')
 			.value
-			.trim();
+			.trim() || '';
 
 		const suggestedFoldersDatalist =
 			document.getElementById('suggestedFolders');
-
-		if (!folderHint) {
-			suggestedFoldersDatalist.innerHTML = "";
-			return;
-		}
 
 		fetch(`/folderPaths?folderHint=${encodeURIComponent(folderHint)}`)
 			.then(response => response.json())
@@ -506,6 +501,7 @@ document.addEventListener("DOMContentLoaded", function () {
 document.addEventListener('keydown', function (event) {
 	const focusedElement = document.activeElement;
 
+	// Global Hotkeys DONT add keys here that are used for text input
 	switch (event.key) {
 		case 'F2':
 			toggleSidebar();
@@ -519,14 +515,6 @@ document.addEventListener('keydown', function (event) {
 			toggleSidebar();
 			event.preventDefault();
 			document.getElementById('appendToNameInput').focus();
-			break;
-		case 'Delete':
-			// if modal is not open and a text field is not focused
-			if (modalActive === false && focusedElement.nodeName !== 'INPUT') {
-				// delete selected files
-				event.preventDefault();
-				moveRenameFiles("delete");
-			}
 			break;
 		case 'Escape':
 			closeModal();
@@ -585,11 +573,15 @@ document.addEventListener('keydown', function (event) {
 			break;
 		case 'Delete':
 			event.preventDefault();
-			// console.log(clickedElement);
-			imageLinkRelative = decodeURIComponent(currentImagePath).replace(origin, '').replace(/^\//, '');
-			// console.log("Delete: " + imageLinkRelative + " " + currentImageIdNum);
-			deleteFile(imageLinkRelative, currentImageIdNum);
-			modalNextFromResultsButton.click();
+			if (modalActive) {
+				imageLinkRelative = decodeURIComponent(currentImagePath).replace(origin, '').replace(/^\//, '');
+				// console.log("Delete: " + imageLinkRelative + " " + currentImageIdNum);
+				deleteFile(imageLinkRelative, currentImageIdNum);
+				modalNextFromResultsButton.click();
+			} else {
+				// bulk deletion (of selected files)
+				moveRenameFiles("delete");
+			}
 			break;
 		default:
 			break;
