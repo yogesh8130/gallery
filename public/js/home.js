@@ -730,9 +730,9 @@ document.addEventListener('touchend', function (event) {
 			}
 		}
 
-		// swipe up to close modal
+		// swipe down to close modal
 		if (target && modalActive) {
-			if (touchDeltaY < -100) {
+			if (touchDeltaY > 100) {
 				closeModal();
 			}
 		}
@@ -752,7 +752,7 @@ let scrollTimeout;
 // stuff to do on scroll
 window.addEventListener('scroll', function (event) {
 	const currentScrollPosition = window.scrollY;
-
+	
 	if (currentScrollPosition > previousScrollPosition) {
 		// Scrolling down - hide header
 		header.style.top = `-${headerHeight}px`;
