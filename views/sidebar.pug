@@ -26,6 +26,7 @@ div(id = "sidebar" onclick = "toggleSidebar(event)")
 			li If only 'folder' is given then this folder will be used in images folder, if not found 'folder' will be created in the images directory.
 			li You can specify subfolders like 'folder\subfolder'.
 			li Collisions are automatically appended with numbers like -001 and logged on server along with all other moves.
+			li If folder name starts with '\' then treated as relative to current folder (the file sits in) else treated as absolute path within the root directory "images"
 		b Renaming
 		ul
 			li Doing a bulk rename (not append) will always append numbers like -001 to the images.

@@ -433,8 +433,15 @@ function moveRenameFiles(IMAGE_PATHS, METADATA_MAP,
 				break;
 			case 'moveFiles':
 				const targetFolder = argument1;
-				const targetFolderPath = PATH.resolve(PATH.join('.', 'public', 'images', targetFolder));
-				newFilePath = PATH.join(targetFolderPath, (currentFileName + currentFileExt));
+				// if targetFolder starts with '/' then treat it as relative to current folder the file sits init is absolute path, else treat it as absolute path within the root directory "images"
+				if (targetFolder.startsWith('\\')) {
+					const currentFolderPath = PATH.dirname(currentFilePath);
+					const targetFolderPath = PATH.resolve(PATH.join(currentFolderPath, targetFolder));
+					newFilePath = PATH.join(targetFolderPath, (currentFileName + currentFileExt));
+				} else {
+					const targetFolderPath = PATH.resolve(PATH.join('.', 'public', 'images', targetFolder));
+					newFilePath = PATH.join(targetFolderPath, (currentFileName + currentFileExt));
+				}
 				break;
 			default:
 				throw new Error(`Invalid operation: ${operation}`);

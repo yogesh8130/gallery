@@ -167,6 +167,7 @@ function renderTree(tree, parentPath = "", currentPath = "") {
 
 		const link = document.createElement("a");
 		link.href = `/search?&searchText=\\images\\${encodeURIComponent(fullPath)}`;
+		link.target = "_blank";
 		link.textContent = folder;
 		link.classList.add("folder-link");
 
