@@ -71,14 +71,14 @@
 	width: 150px;
 	height: 150px;
 	position: absolute;
-	top: 20px;
+	bottom: 40px;
+	right: 20px;
 	border: 1px solid #aaa;
 	background: black;
 	z-index: 100;
 	box-sizing: content-box;
 	transition: opacity ease 400ms;
 	opacity: 0;
-	left: 20px;
 }
 
 .iv-snap-image-wrap {

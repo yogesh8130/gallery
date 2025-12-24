@@ -1,58 +1,59 @@
-const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-let queryString; // stores URLs query part, used for lazy loading (getNextResults)
-const baseSize = 25;
-const searchResultBatchSize = 50 // should be same as server for correct image id
-let imageIndex = 51 // newly loaded images will be assigned id numbers from here on
-let multiplier = 1 // zoom slider value
-const selectedImages = new Map(); // imageId => imageLink
-let allFilesSelected = false;
-let suggestedTargetFolders = [];
-let modalActive = false;
-let selectionMode = 0 // whether click opens an image or selects it
+const IS_MOBILE = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+let QUERY_STRING; // stores URLs query part, used for lazy loading (getNextResults)
+const BASE_SIZE = 25;
+const SEARCH_RESULTS_BATCH_SIZE = 50 // should be same as server for correct image id
+let IMAGE_INDEX = 51 // newly loaded images will be assigned id numbers from here on
+let MULTIPLIER = 1 // zoom slider value
+const SELECTED_IMAGES = new Map(); // imageId => imageLink
+let ALL_FILES_SELECTED = false;
+let SUGGESTED_TARGET_FOLDERS = [];
+let IS_MODAL_ACTIVE = false;
+let SELECTION_MODE = 0 // whether click opens an image or selects it
 
 // To keep track of the image being viewed in modal
-let currentImagePath;
-let currentImageIdNum;
+let CURRENT_IMAGE_PATH;
+let CURRENT_IMAGE_ID_NUM;
 
-let viewer;
-let modal;
-let modalImageContainer;
-let modalVideoContainer;
-let modalVideo;
-let modalCloseButton;
-let modalNextButton;
-let modalPreviousButton;
-let modalNextFromResultsButton;
-let modalPreviousFromResultsButton;
+let VIEWER;
+let IS_VIEWER_ZOOMED = false;
+let MODAL;
+let MODAL_IMAGE_CONTAINER;
+let MODAL_VIDEO_CONTAINER;
+let MODAL_VIDEO;
+let MODAL_CLOSE_BUTTON;
+let NODAL_NEXT_BUTTON;
+let MODAL_PREV_BUTTON;
+let MODAL_NEXT_FROM_SEARCH_BUTTON;
+let MODAL_PREV_FROM_SEARCH_BUTTON;
 
-let header;
-let headerHeight;
+let HEADER;
+let HEADER_HEIGHT;
 
 let videoSpeedUpTimeout;
-const speedupDelay = 500;
-const spedUpRate = 4;
+const SPEEDUP_DELAY = 500;
+const SPEEDUP_RATE = 4;
 
-const preloadCache = new Map(); // to keep next images pre-loaded
+const PRELOAD_CACHE = new Map(); // to keep next images pre-loaded
 const MAX_PRELOAD = 5;
 function preloadImage(path) {
-	if (preloadCache.has(path)) return;
+	if (PRELOAD_CACHE.has(path)) return;
 
 	const img = new Image();
 	img.src = path;
 
 	img.onload = () => {
-		preloadCache.set(path, img);
-		if (preloadCache.size > MAX_PRELOAD) {
-			const firstKey = preloadCache.keys().next().value;
-			preloadCache.delete(firstKey);
+		PRELOAD_CACHE.set(path, img);
+		if (PRELOAD_CACHE.size > MAX_PRELOAD) {
+			const firstKey = PRELOAD_CACHE.keys().next().value;
+			PRELOAD_CACHE.delete(firstKey);
 		}
 	};
 }
 
 function preloadNeighbors() {
-	if (!currentImagePath) return;
+	if (!CURRENT_IMAGE_PATH) return;
 
-	const cleanPath = currentImagePath.replace(origin, '').replace(/^\//, '');
+	const cleanPath = CURRENT_IMAGE_PATH.replace(origin, '').replace(/^\//, '');
 
 	fetch(`/next?currentImagePath=${cleanPath}`)
 		.then(r => r.json())
@@ -75,38 +76,38 @@ function isImage(path) {
 	return !path.match(/\.(mp4|mkv|webm)$/i);
 }
 
-let sidebarPinned;
+let SIDEBAR_PINNED;
 // load state from local storage and if not found then session storage and if still not found then default to false
 if (sessionStorage.getItem('sidebarPinned') != null) {
 	// load boolean properly from session storage
-	sidebarPinned = JSON.parse(sessionStorage.getItem('sidebarPinned'));
+	SIDEBAR_PINNED = JSON.parse(sessionStorage.getItem('sidebarPinned'));
 } else if (localStorage.getItem('sidebarPinned') != null) {
-	sidebarPinned = JSON.parse(localStorage.getItem('sidebarPinned'));
+	SIDEBAR_PINNED = JSON.parse(localStorage.getItem('sidebarPinned'));
 } else {
-	sidebarPinned = false;
+	SIDEBAR_PINNED = false;
 }
 
 function pinSidebar() {
 	const pinSidebarCheckbox = document.getElementById('pinSidebarCheckbox');
-	sidebarPinned = pinSidebarCheckbox.checked;
+	SIDEBAR_PINNED = pinSidebarCheckbox.checked;
 	// save state to local storage and session storage
-	localStorage.setItem('sidebarPinned', sidebarPinned);
-	sessionStorage.setItem('sidebarPinned', sidebarPinned);
+	localStorage.setItem('sidebarPinned', SIDEBAR_PINNED);
+	sessionStorage.setItem('sidebarPinned', SIDEBAR_PINNED);
 
 	const mainDiv = document.querySelector('.mainDiv');
-	if (sidebarPinned) {
+	if (SIDEBAR_PINNED) {
 		mainDiv.classList.add('pinned');
 	} else {
 		mainDiv.classList.remove('pinned');
 	}
 }
 
-let folderSuggestTimeout;
+let FOLDER_SUGGEST_TIMEOUT;
 
 function updateSuggestedFolders() {
-	clearTimeout(folderSuggestTimeout);
+	clearTimeout(FOLDER_SUGGEST_TIMEOUT);
 
-	folderSuggestTimeout = setTimeout(() => {
+	FOLDER_SUGGEST_TIMEOUT = setTimeout(() => {
 		const folderHint = document
 			.getElementById('targetFolderNameInput')
 			.value
@@ -204,9 +205,20 @@ function renderTree(tree, parentPath = "", currentPath = "") {
 	return ul;
 }
 
+function onZoomChange(viewerData) {
+	// console.log(data);
+	if (viewerData.zoomValue > 100) {
+		IS_VIEWER_ZOOMED = true
+	} else {
+		IS_VIEWER_ZOOMED = false
+	}
+	// console.log(IS_VIEWER_ZOOMED);
+
+}
+
 function udpateSelectedFilesCount() {
 	const selectedFilesCount = document.getElementById("selectedFilesCount");
-	const selectedImagesCount = selectedImages.size;
+	const selectedImagesCount = SELECTED_IMAGES.size;
 
 	selectedFilesCount.textContent = `${selectedImagesCount} ${selectedImagesCount === 1 ? "file" : "files"
 		} selected`;
@@ -215,7 +227,7 @@ function udpateSelectedFilesCount() {
 
 document.addEventListener("DOMContentLoaded", function () {
 
-	if (sidebarPinned) {
+	if (SIDEBAR_PINNED) {
 		const mainDiv = document.querySelector('.mainDiv');
 		mainDiv.classList.add('pinned');
 		toggleSidebar();
@@ -240,8 +252,8 @@ document.addEventListener("DOMContentLoaded", function () {
 		});
 
 	// convertin URL query params to
-	queryString = window.location.search;
-	const searchParams = new URLSearchParams(queryString);
+	QUERY_STRING = window.location.search;
+	const searchParams = new URLSearchParams(QUERY_STRING);
 	const queryParams = {};
 	for (const [key, value] of searchParams) {
 		queryParams[key] = value;
@@ -265,8 +277,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	// 	})
 	// }
 
-	header = document.querySelector('.header');
-	headerHeight = header.offsetHeight;
+	HEADER = document.querySelector('.header');
+	HEADER_HEIGHT = HEADER.offsetHeight;
 
 	// view specific stuff
 	if (view.value !== 'tiles') {
@@ -275,7 +287,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		// load slider values from localStorage
 		const slider = document.getElementById('slider')
 		if (localStorage.sliderValue) {
-			multiplier = localStorage.sliderValue;
+			MULTIPLIER = localStorage.sliderValue;
 			slider.value = localStorage.sliderValue;
 		} else {
 			// console.log('sliderValue not found in local storage');
@@ -299,15 +311,15 @@ document.addEventListener("DOMContentLoaded", function () {
 	// Attach a click event listener to the parent element
 	resultsContainer.addEventListener('click', function (event) {
 
-		modal = document.getElementById("modal");
-		modalImageContainer = document.querySelector('.modalImageContainer');
-		modalVideoContainer = document.querySelector('.modalVideoContainer');
-		modalVideo = document.querySelector('.modalVideo');
-		modalCloseButton = document.getElementById('modalCloseButton');
-		modalNextButton = document.getElementById('modalNextButton');
-		modalPreviousButton = document.getElementById('modalPreviousButton');
-		modalNextFromResultsButton = document.getElementById('modalNextFromResultsButton');
-		modalPreviousFromResultsButton = document.getElementById('modalPreviousFromResultsButton');
+		MODAL = document.getElementById("modal");
+		MODAL_IMAGE_CONTAINER = document.querySelector('.modalImageContainer');
+		MODAL_VIDEO_CONTAINER = document.querySelector('.modalVideoContainer');
+		MODAL_VIDEO = document.querySelector('.modalVideo');
+		MODAL_CLOSE_BUTTON = document.getElementById('modalCloseButton');
+		NODAL_NEXT_BUTTON = document.getElementById('modalNextButton');
+		MODAL_PREV_BUTTON = document.getElementById('modalPreviousButton');
+		MODAL_NEXT_FROM_SEARCH_BUTTON = document.getElementById('modalNextFromResultsButton');
+		MODAL_PREV_FROM_SEARCH_BUTTON = document.getElementById('modalPreviousFromResultsButton');
 
 		let clickedElement = event.target;
 
@@ -329,10 +341,10 @@ document.addEventListener("DOMContentLoaded", function () {
 					const imageId = image.id;
 
 					if (image.classList.contains('selectedImage')) {
-						selectedImages.delete(imageId);
+						SELECTED_IMAGES.delete(imageId);
 						image.classList.remove('selectedImage');
 					} else {
-						selectedImages.set(imageId, imageLinkRelative)
+						SELECTED_IMAGES.set(imageId, imageLinkRelative)
 						image.classList.add('selectedImage');
 						lastSelectedImageIndex = parseInt(image.id.replace('image', ''));
 					}
@@ -348,10 +360,10 @@ document.addEventListener("DOMContentLoaded", function () {
 					const imageId = image.id;
 
 					if (image.classList.contains('selectedImage')) {
-						selectedImages.delete(imageId);
+						SELECTED_IMAGES.delete(imageId);
 						image.classList.remove('selectedImage');
 					} else {
-						selectedImages.set(imageId, imageLinkRelative)
+						SELECTED_IMAGES.set(imageId, imageLinkRelative)
 						image.classList.add('selectedImage');
 						lastSelectedImageIndex = parseInt(image.id.replace('image', ''));
 					}
@@ -362,14 +374,14 @@ document.addEventListener("DOMContentLoaded", function () {
 			// console.log(selectedImages);
 
 		} else if ((clickedElement.classList.contains('resultFile') && event.ctrlKey)
-			|| clickedElement.classList.contains('resultFile') && selectionMode == 1) {
+			|| clickedElement.classList.contains('resultFile') && SELECTION_MODE == 1) {
 			// select unselect with ctrl key OR single left click (if selection mode is on)
 			if (clickedElement.classList.contains('selectedImage')) {
-				selectedImages.delete(clickedElement.id);
+				SELECTED_IMAGES.delete(clickedElement.id);
 				clickedElement.classList.remove('selectedImage');
 				lastSelectedImageIndex = parseInt(clickedElement.id.replace('image', ''));
 			} else {
-				selectedImages.set(clickedElement.id,
+				SELECTED_IMAGES.set(clickedElement.id,
 					decodeURIComponent(clickedElement.src.replace(origin, '').replace(/^\//, '')));
 				clickedElement.classList.add('selectedImage');
 				lastSelectedImageIndex = parseInt(clickedElement.id.replace('image', ''));
@@ -381,15 +393,19 @@ document.addEventListener("DOMContentLoaded", function () {
 			&& clickedElement.tagName == 'IMG') {
 			// View Clicked image
 			// setting modal image src to the clicked image
-			viewer = new ImageViewer(modalImageContainer);
+			VIEWER = new ImageViewer(MODAL_IMAGE_CONTAINER, {
+				listeners: {
+					onZoomChange: onZoomChange
+				}
+			});
 			showModal(clickedElement.src, true);
-			currentImagePath = clickedElement.src;
-			currentImageIdNum = clickedElement.id.replace('image', '');
+			CURRENT_IMAGE_PATH = clickedElement.src;
+			CURRENT_IMAGE_ID_NUM = clickedElement.id.replace('image', '');
 			event.preventDefault(); // this makes the videos play on click and keeps info links working
 		}
 		udpateSelectedFilesCount();
 
-		modal.onclick = function (event) {
+		MODAL.onclick = function (event) {
 			if (event.target.classList.contains('iv-image-view')) {
 				closeModal();
 				// } else if (event.target.classList.contains('modalVideo')) {
@@ -403,62 +419,62 @@ document.addEventListener("DOMContentLoaded", function () {
 			}
 		}
 
-		modalCloseButton.onclick = function () {
+		MODAL_CLOSE_BUTTON.onclick = function () {
 			closeModal();
 		}
 
-		modalNextButton.onclick = function () {
+		NODAL_NEXT_BUTTON.onclick = function () {
 			// remove localhost and leading slash
-			currentImagePath = currentImagePath.replace(origin, '').replace(/^\//, '');
+			CURRENT_IMAGE_PATH = CURRENT_IMAGE_PATH.replace(origin, '').replace(/^\//, '');
 
-			fetch(`/next?currentImagePath=${(currentImagePath)}`)
+			fetch(`/next?currentImagePath=${(CURRENT_IMAGE_PATH)}`)
 				.then(response => response.json())
 				.then(data => {
 					showModal(data.nextImagePath);
-					currentImagePath = data.nextImagePath;
+					CURRENT_IMAGE_PATH = data.nextImagePath;
 				})
 				.catch(error => console.error(error));
 		}
 
-		modalPreviousButton.onclick = function () {
+		MODAL_PREV_BUTTON.onclick = function () {
 			// remove localhost and leading slash
-			currentImagePath = currentImagePath.replace(origin, '').replace(/^\//, '');
+			CURRENT_IMAGE_PATH = CURRENT_IMAGE_PATH.replace(origin, '').replace(/^\//, '');
 
-			fetch(`/previous?currentImagePath=${(currentImagePath)}`)
+			fetch(`/previous?currentImagePath=${(CURRENT_IMAGE_PATH)}`)
 				.then(response => response.json())
 				.then(data => {
 					showModal(data.previousImagePath);
-					currentImagePath = data.previousImagePath;
+					CURRENT_IMAGE_PATH = data.previousImagePath;
 				})
 				.catch(error => console.error(error));
 		}
 
-		modalNextFromResultsButton.onclick = function () {
+		MODAL_NEXT_FROM_SEARCH_BUTTON.onclick = function () {
 			// remove localhost and leading slash
-			currentImagePath = currentImagePath.replace(origin, '').replace(/^\//, '');
+			CURRENT_IMAGE_PATH = CURRENT_IMAGE_PATH.replace(origin, '').replace(/^\//, '');
 
-			fetch(`/next${queryString}&fromResults=true&currentImagePath=${(currentImagePath)}`)
+			fetch(`/next${QUERY_STRING}&fromResults=true&currentImagePath=${(CURRENT_IMAGE_PATH)}`)
 				.then(response => response.json())
 				.then(data => {
 					showModal(data.nextImagePath);
-					currentImagePath = data.nextImagePath;
+					CURRENT_IMAGE_PATH = data.nextImagePath;
 				})
 				.catch(error => console.error(error));
-			currentImageIdNum++;
+			CURRENT_IMAGE_ID_NUM++;
 		}
 
-		modalPreviousFromResultsButton.onclick = function () {
+		MODAL_PREV_FROM_SEARCH_BUTTON.onclick = function () {
 			// remove localhost and leading slash
-			currentImagePath = currentImagePath.replace(origin, '').replace(/^\//, '');
+			CURRENT_IMAGE_PATH = CURRENT_IMAGE_PATH.replace(origin, '').replace(/^\//, '');
 
-			fetch(`/previous${queryString}&fromResults=true&currentImagePath=${(currentImagePath)}`)
+			fetch(`/previous${QUERY_STRING}&fromResults=true&currentImagePath=${(CURRENT_IMAGE_PATH)}`)
 				.then(response => response.json())
 				.then(data => {
 					showModal(data.previousImagePath);
-					currentImagePath = data.previousImagePath;
+					CURRENT_IMAGE_PATH = data.previousImagePath;
 				})
 				.catch(error => console.error(error));
-			currentImageIdNum--;
+			CURRENT_IMAGE_ID_NUM--;
 		}
 
 	});
@@ -495,6 +511,27 @@ document.addEventListener("DOMContentLoaded", function () {
 	const replaceInNameForm = document.getElementById('replaceInNameForm');
 	replaceInNameForm.onsubmit = (event) => { event.preventDefault(); }
 
+
+	// adding touch gestures to #modal using hammer
+	const modalContainer = document.getElementById('modal');
+	const modalHammer = new Hammer(modalContainer);
+	modalHammer.get('swipe').set({ direction: Hammer.DIRECTION_ALL });
+	modalHammer.on('swipeleft', function (event) {
+		if (!IS_VIEWER_ZOOMED)
+			NODAL_NEXT_BUTTON.click();
+	});
+	modalHammer.on('swiperight', function (event) {
+		if (!IS_VIEWER_ZOOMED)
+			MODAL_PREV_BUTTON.click();
+	});
+	modalHammer.on('swipedown', function (event) {
+		if (!IS_VIEWER_ZOOMED)
+			closeModal();
+	});
+	modalHammer.on('swipeup', function (event) {
+		if (!IS_VIEWER_ZOOMED)
+			closeModal();
+	});
 });
 
 // Keyboard shortcuts
@@ -530,12 +567,12 @@ document.addEventListener('keydown', function (event) {
 	} else switch (event.key) {
 		case 'a':
 			event.preventDefault();
-			if (allFilesSelected) {
+			if (ALL_FILES_SELECTED) {
 				deselectAllImages();
 			} else {
 				selectAllImages();
 			}
-			allFilesSelected = !allFilesSelected;
+			ALL_FILES_SELECTED = !ALL_FILES_SELECTED;
 			break;
 		case 'i':
 			invertSelection();
@@ -550,10 +587,10 @@ document.addEventListener('keydown', function (event) {
 			document.documentElement.scrollTop = 0;
 			break;
 		case 'ArrowRight':
-			if (modalActive && !event.shiftKey) {
-				modalNextButton.click();
-			} else if (modalActive && event.shiftKey) {
-				modalNextFromResultsButton.click();
+			if (IS_MODAL_ACTIVE && !event.shiftKey) {
+				NODAL_NEXT_BUTTON.click();
+			} else if (IS_MODAL_ACTIVE && event.shiftKey) {
+				MODAL_NEXT_FROM_SEARCH_BUTTON.click();
 			} else {
 				const slider = document.getElementById('slider');
 				slider.value -= -(0.1);
@@ -561,10 +598,10 @@ document.addEventListener('keydown', function (event) {
 			}
 			break;
 		case 'ArrowLeft':
-			if (modalActive && !event.shiftKey) {
-				modalPreviousButton.click();
-			} else if (modalActive && event.shiftKey) {
-				modalPreviousFromResultsButton.click();
+			if (IS_MODAL_ACTIVE && !event.shiftKey) {
+				MODAL_PREV_BUTTON.click();
+			} else if (IS_MODAL_ACTIVE && event.shiftKey) {
+				MODAL_PREV_FROM_SEARCH_BUTTON.click();
 			} else {
 				const slider = document.getElementById('slider');
 				slider.value -= 0.1;
@@ -573,11 +610,11 @@ document.addEventListener('keydown', function (event) {
 			break;
 		case 'Delete':
 			event.preventDefault();
-			if (modalActive) {
-				imageLinkRelative = decodeURIComponent(currentImagePath).replace(origin, '').replace(/^\//, '');
+			if (IS_MODAL_ACTIVE) {
+				imageLinkRelative = decodeURIComponent(CURRENT_IMAGE_PATH).replace(origin, '').replace(/^\//, '');
 				// console.log("Delete: " + imageLinkRelative + " " + currentImageIdNum);
-				deleteFile(imageLinkRelative, currentImageIdNum);
-				modalNextFromResultsButton.click();
+				deleteFile(imageLinkRelative, CURRENT_IMAGE_ID_NUM);
+				MODAL_NEXT_FROM_SEARCH_BUTTON.click();
 			} else {
 				// bulk deletion (of selected files)
 				moveRenameFiles("delete");
@@ -603,7 +640,7 @@ document.addEventListener('click', function (event) {
 			videoFile.play();
 			pauseOtherVideos(videoFile);
 			// hide header if visible
-			header.style.top = `-${headerHeight}px`;
+			HEADER.style.top = `-${HEADER_HEIGHT}px`;
 		}
 	}
 
@@ -621,8 +658,8 @@ document.addEventListener('mousedown', function (event) {
 	// console.log(target);
 	if (target && (target.tagName === 'VIDEO')) {
 		videoSpeedUpTimeout = setTimeout(function () {
-			target.playbackRate = spedUpRate;
-		}, speedupDelay);
+			target.playbackRate = SPEEDUP_RATE;
+		}, SPEEDUP_DELAY);
 	}
 })
 
@@ -638,24 +675,24 @@ document.addEventListener('mouseup', function (event) {
 })
 
 
-let touchStartX = 0;
-let touchStartY = 0;
-let touchCount;
+let TOUCH_START_X = 0;
+let TOUCH_START_Y = 0;
+let TOUCH_COUNT;
 document.addEventListener('touchstart', function (event) {
 	const target = event.target;
 	// console.log(target);
 	const touch = event.touches[0];
-	touchStartX = touch.clientX;
-	touchStartY = touch.clientY;
+	TOUCH_START_X = touch.clientX;
+	TOUCH_START_Y = touch.clientY;
 
-	touchCount = event.touches.length;
+	TOUCH_COUNT = event.touches.length;
 
 	if (target && (target.tagName === 'VIDEO')) {
 		target.controls = false;
 		videoSpeedUpTimeout = setTimeout(function () {
-			target.playbackRate = spedUpRate;
+			target.playbackRate = SPEEDUP_RATE;
 			target.controls = false;
-		}, speedupDelay);
+		}, SPEEDUP_DELAY);
 	}
 })
 
@@ -679,8 +716,8 @@ document.addEventListener('touchend', function (event) {
 	// console.log("touchCount: " + touchCount);
 	// console.log(event.touches.length);
 
-	const touchDeltaX = touchEndX - touchStartX;
-	const touchDeltaY = touchEndY - touchStartY;
+	const touchDeltaX = touchEndX - TOUCH_START_X;
+	const touchDeltaY = touchEndY - TOUCH_START_Y;
 
 	// console.log(touchDeltaX, touchDeltaY);
 
@@ -690,7 +727,7 @@ document.addEventListener('touchend', function (event) {
 			clearTimeout(videoSpeedUpTimeout);
 			event.preventDefault();
 		}
-		if (target.playbackRate == spedUpRate) {
+		if (target.playbackRate == SPEEDUP_RATE) {
 			target.playbackRate = 1;
 		} else {
 			// toggle play/pause
@@ -702,31 +739,6 @@ document.addEventListener('touchend', function (event) {
 			}
 		}
 	}
-
-	const ivZoomHandle = document.querySelector('.iv-zoom-handle');
-	let zoomValue;
-	if (ivZoomHandle) {
-		zoomValue = parseInt(ivZoomHandle.style.left);
-	}
-
-	// swipe left or right for next or previous
-	if (touchCount === 1 && zoomValue === 0) {
-		if (target && modalActive) {
-			if (touchDeltaX < -100) {
-				modalNextButton.click();
-			} else if (touchDeltaX > 100) {
-				modalPreviousButton.click();
-			}
-		}
-
-		// swipe down to close modal
-		if (target && modalActive) {
-			if (touchDeltaY > 100) {
-				closeModal();
-			}
-		}
-	}
-
 })
 
 document.addEventListener('contextmenu', function (event) {
@@ -736,32 +748,32 @@ document.addEventListener('contextmenu', function (event) {
 	}
 })
 
-let previousScrollPosition = 0;
-let scrollTimeout;
+let PREVIOUS_SCROLL_POSITION = 0;
+let SCROLL_TIMEOUT;
 // stuff to do on scroll
 window.addEventListener('scroll', function (event) {
 	const currentScrollPosition = window.scrollY;
 
-	if (scrollTimeout) {
+	if (SCROLL_TIMEOUT) {
 		// to prevent thrashing this function
-		previousScrollPosition = currentScrollPosition;
+		PREVIOUS_SCROLL_POSITION = currentScrollPosition;
 		return;
 	}
 
-	console.log("scrolling");
+	// console.log("scrolling");
 
-	if (currentScrollPosition > previousScrollPosition) {
+	if (currentScrollPosition > PREVIOUS_SCROLL_POSITION) {
 		// Scrolling down - hide header
-		header.classList.remove('pinned');
-		header.classList.add('unpinned');
+		HEADER.classList.remove('pinned');
+		HEADER.classList.add('unpinned');
 	} else {
 		// Scrolling up - show header
-		header.classList.remove('unpinned');
-		header.classList.add('pinned');
+		HEADER.classList.remove('unpinned');
+		HEADER.classList.add('pinned');
 	}
-	scrollTimeout = setTimeout(function () {
+	SCROLL_TIMEOUT = setTimeout(function () {
 		// this prevents the header from re-showing instantly
-		scrollTimeout = null;
+		SCROLL_TIMEOUT = null;
 	}, 500)
 });
 
@@ -981,11 +993,11 @@ function changeTileSize(isFirstPageLoad) {
 
 	if (!isFirstPageLoad) {
 		// Get the current slider value
-		multiplier = parseFloat(slider.value);
+		MULTIPLIER = parseFloat(slider.value);
 	} else {
-		multiplier = localStorage.sliderValue;
+		MULTIPLIER = localStorage.sliderValue;
 	}
-	console.log(`multiplier: ${multiplier}`);
+	console.log(`multiplier: ${MULTIPLIER}`);
 
 	// Loop over all the result elements
 	results.forEach(result => {
@@ -993,7 +1005,7 @@ function changeTileSize(isFirstPageLoad) {
 		const defaultWidth = parseFloat(result.getAttribute('data-width'));
 
 		// Calculate the new width and flex-grow values based on the multiplier
-		const newWidth = defaultWidth * multiplier;
+		const newWidth = defaultWidth * MULTIPLIER;
 
 		// Set the new values on the element's style
 		result.style.width = `${newWidth}rem`;
@@ -1001,7 +1013,7 @@ function changeTileSize(isFirstPageLoad) {
 
 		// Loop over each element in imageSidebar to set display property
 		imageSidebar.forEach(subtitle => {
-			if (multiplier < 1) {
+			if (MULTIPLIER < 1) {
 				subtitle.style.display = "none";
 			} else {
 				subtitle.style.display = null;
@@ -1009,7 +1021,7 @@ function changeTileSize(isFirstPageLoad) {
 		});
 
 		thumbnailOverlays.forEach(thumbnailOverlay => {
-			if (multiplier < 1) {
+			if (MULTIPLIER < 1) {
 				thumbnailOverlay.classList.add('imageSidebarHidden');
 			} else {
 				thumbnailOverlay.classList.remove('imageSidebarHidden');
@@ -1018,14 +1030,14 @@ function changeTileSize(isFirstPageLoad) {
 	});
 
 	// storing current slider value to localStorage
-	localStorage.sliderValue = multiplier;
+	localStorage.sliderValue = MULTIPLIER;
 }
 
 // set page to 1 on every page load
-let currentPage = 1;
-const results = document.querySelector('.results')
-let isLoading = false;
-let haveMoreResults = true;
+let CURRENT_PAGE_SIZE = 1;
+const RESULTS = document.querySelector('.results')
+let IS_LOADING = false;
+let HAS_MORE_RESULTS = true;
 
 function loadMore() {
 	const scrollPosition = window.scrollY;
@@ -1034,29 +1046,29 @@ function loadMore() {
 
 	const totalPages = window.totalPages;
 
-	if (haveMoreResults && !isLoading
+	if (HAS_MORE_RESULTS && !IS_LOADING
 		&& window.location.href.includes('view=tiles')
 		&& scrollPosition >= documentHeight - (viewportHeight * 2)) {
-		isLoading = true;
-		currentPage++;
+		IS_LOADING = true;
+		CURRENT_PAGE_SIZE++;
 		// queryParams just passes the searchText, shuffle and view ie queryParams
 		// from first search to getNextResults queries
-		fetch(`/getNextResults${queryString}&page=${currentPage}&multiplier=${multiplier}`)
+		fetch(`/getNextResults${QUERY_STRING}&page=${CURRENT_PAGE_SIZE}&multiplier=${MULTIPLIER}`)
 			.then(response => response.text())
 			.then(html => {
-				if (currentPage > totalPages) {
+				if (CURRENT_PAGE_SIZE > totalPages) {
 					// console.log('no more results');
-					haveMoreResults = false;
+					HAS_MORE_RESULTS = false;
 					showPopup('Stuff no more', 'warn');
 				} else {
-					showPopup(`Fetching page ${currentPage} / ${totalPages}`, 'info', 3000);
+					showPopup(`Fetching page ${CURRENT_PAGE_SIZE} / ${totalPages}`, 'info', 3000);
 				}
 
 				const tempDiv = document.createElement('div');
 				tempDiv.innerHTML = html;
 				while (tempDiv.firstChild) {
 					// remove each child from temp div and add to results div
-					results.appendChild(tempDiv.firstChild);
+					RESULTS.appendChild(tempDiv.firstChild);
 				}
 			})
 			.catch(error => {
@@ -1064,7 +1076,7 @@ function loadMore() {
 				// handle the error appropriately
 			})
 			.finally(() => {
-				isLoading = false;
+				IS_LOADING = false;
 			});
 	}
 }
@@ -1247,24 +1259,24 @@ function showModal(fileLink, firstLoad = false) {
 			console.error(`Error getting file details: ${error}`);
 		});
 
-	modal.style.display = 'block';
+	MODAL.style.display = 'block';
 	if (fileLink.toLowerCase().endsWith('.mp4') || fileLink.toLowerCase().endsWith('.mkv') || fileLink.toLowerCase().endsWith('.webm')) {
-		modalVideoContainer.style.display = 'block';
-		modalImageContainer.style.display = 'none';
-		modalVideo.src = fileLink;
-		modalVideo.play();
+		MODAL_VIDEO_CONTAINER.style.display = 'block';
+		MODAL_IMAGE_CONTAINER.style.display = 'none';
+		MODAL_VIDEO.src = fileLink;
+		MODAL_VIDEO.play();
 	} else {
-		modalVideoContainer.style.display = 'none';
-		modalVideo.pause();
-		modalImageContainer.style.display = 'block';
+		MODAL_VIDEO_CONTAINER.style.display = 'none';
+		MODAL_VIDEO.pause();
+		MODAL_IMAGE_CONTAINER.style.display = 'block';
 		const img = new Image();
 		img.src = fileLink;
 		if (firstLoad) {
-			viewer.load(fileLink);
+			VIEWER.load(fileLink);
 			preloadNeighbors();
 		} else {
 			img.onload = () => {
-				viewer.load(fileLink);
+				VIEWER.load(fileLink);
 				preloadNeighbors();
 			};
 		}
@@ -1273,14 +1285,14 @@ function showModal(fileLink, firstLoad = false) {
 			button.style.opacity = 0;
 		});
 	}
-	modalActive = true;
+	IS_MODAL_ACTIVE = true;
 }
 
 function closeModal() {
-	modal.style.display = 'none';
-	viewer.destroy();
-	modalVideo.pause();
-	modalActive = false;
+	MODAL.style.display = 'none';
+	VIEWER.destroy();
+	MODAL_VIDEO.pause();
+	IS_MODAL_ACTIVE = false;
 	const modalButtons = document.querySelectorAll('.modalButton');
 	modalButtons.forEach(button => {
 		button.style.opacity = 1;
@@ -1306,7 +1318,7 @@ function toggleSidebar(event) {
 
 	if (sidebar.style.right === '0px') {
 		// close sidebar
-		if (sidebarPinned) {
+		if (SIDEBAR_PINNED) {
 			showPopup('Sidebar is pinned', 'info', 1000);
 			return
 		};
@@ -1323,7 +1335,7 @@ function toggleSidebar(event) {
 
 function selectionModeToggle() {
 	let selectionModeCheckbox = document.getElementById('selectionModeCheckbox');
-	selectionMode = selectionModeCheckbox.checked ? "1" : "0";
+	SELECTION_MODE = selectionModeCheckbox.checked ? "1" : "0";
 }
 
 function selectAllImages() {
@@ -1333,7 +1345,7 @@ function selectAllImages() {
 			.getAttribute('data-src').replace(origin, '').replace(/^\//, ''));
 		const imageId = image.id;
 
-		selectedImages.set(imageId, imageLinkRelative)
+		SELECTED_IMAGES.set(imageId, imageLinkRelative)
 		image.classList.add('selectedImage');
 
 		if (image.tagName == 'VIDEO') {
@@ -1346,7 +1358,7 @@ function selectAllImages() {
 }
 
 function deselectAllImages() {
-	selectedImages.clear()
+	SELECTED_IMAGES.clear()
 	const images = document.querySelectorAll('.selectedImage');
 	images.forEach(image => {
 		image.classList.remove('selectedImage');
@@ -1358,8 +1370,8 @@ function invertSelection() {
 	const images = document.querySelectorAll('.resultFile');
 	images.forEach(image => {
 		const imageId = image.id;
-		if (selectedImages.has(imageId)) {
-			selectedImages.delete(imageId);
+		if (SELECTED_IMAGES.has(imageId)) {
+			SELECTED_IMAGES.delete(imageId);
 			image.classList.remove('selectedImage');
 			if (image.tagName == 'VIDEO') {
 				image.parentElement
@@ -1369,7 +1381,7 @@ function invertSelection() {
 		} else {
 			const imageLinkRelative = decodeURIComponent(image
 				.getAttribute('data-src').replace(origin, '').replace(/^\//, ''));
-			selectedImages.set(imageId, imageLinkRelative);
+			SELECTED_IMAGES.set(imageId, imageLinkRelative);
 			image.classList.add('selectedImage');
 			if (image.tagName == 'VIDEO') {
 				image.parentElement
@@ -1389,7 +1401,7 @@ function moveRenameFiles(operation) {
 	// console.log(selectedImages);
 	// console.log(renameBulkInput.value);
 
-	if (selectedImages.size == 0) {
+	if (SELECTED_IMAGES.size == 0) {
 		showPopup('No files selected', 'warn');
 		return;
 	}
@@ -1476,7 +1488,7 @@ function moveRenameFiles(operation) {
 	const formData = {
 		operation: operation,
 		// have to convert map to an Object so it can be serialized into a JSON
-		currentFilePaths: Object.fromEntries(selectedImages),
+		currentFilePaths: Object.fromEntries(SELECTED_IMAGES),
 		argument1: argument1,
 		argument2: argument2
 	}
@@ -1504,7 +1516,7 @@ function moveRenameFiles(operation) {
 				} else if (operation != "delete") {
 					const imageLinkRelative = value.newFilePathRelative;
 					image.src = imageLinkRelative
-					selectedImages.set(imageId, imageLinkRelative)
+					SELECTED_IMAGES.set(imageId, imageLinkRelative)
 					// console.log(selectedImages);
 					// update image title and subtitle
 					idNum = imageId.replace('image', '');
@@ -1516,7 +1528,7 @@ function moveRenameFiles(operation) {
 					elementToRemove = document.getElementById("result" + idNum);
 					elementToRemove.style.opacity = "5%";
 					// clear selected images
-					selectedImages.delete(imageId);
+					SELECTED_IMAGES.delete(imageId);
 					image.classList.remove('selectedImage');
 				}
 			})
