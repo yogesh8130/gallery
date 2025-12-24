@@ -1,0 +1,124 @@
+html {
+	font-size: 100%;
+}
+
+h1 {
+	padding-top: 0.5rem;
+	font-size: 1.5rem;
+}
+
+h2 {
+	font-size: 1rem;
+	padding-bottom: 0.3rem;
+}
+
+#sliderContainer,
+.searchForm,
+.slider {
+	width: -webkit-fill-available;
+}
+
+.results {
+	padding: 0;
+	padding-bottom: 50vh;
+}
+
+/* To permanently show the image title and actions*/
+.imageSidebar {
+	position: static;
+	opacity: 100%;
+	padding: 3px;
+}
+
+.infoDiv {
+	font-size: 1rem;
+}
+
+.rename {
+	width: 2.2rem;
+	height: 2.2rem;
+}
+
+.marquee-container {
+	max-width: calc(100vw - 8rem);
+}
+
+.marquee {
+	overflow: scroll;
+	text-wrap: nowrap;
+	scrollbar-width: none;
+}
+
+#modalCloseButton {
+	position: fixed;
+	right: .2rem;
+	top: 0rem;
+	color: tomato;
+	font-size: 4rem;
+	font-weight: bold;
+	opacity: 30%;
+}
+
+#modalCloseButton:hover,
+#modalCloseButton:focus {
+	color: tomato;
+	text-decoration: none;
+	cursor: pointer;
+	opacity: 100%;
+}
+
+#modalNextButton,
+#modalPreviousButton,
+#modalNextFromResultsButton,
+#modalPreviousFromResultsButton {
+	position: fixed;
+	color: white;
+	font-size: 4rem;
+	font-weight: bold;
+	padding: 0px 20px;
+	opacity: 30%;
+	text-shadow: 2px 2px black;
+}
+
+#modalNextButton {
+	right: .2rem;
+	top: 80%;
+}
+
+#modalPreviousButton {
+	left: .2rem;
+	top: 80%;
+}
+
+#modalNextFromResultsButton {
+	right: .2rem;
+	top: 65%;
+}
+
+#modalPreviousFromResultsButton {
+	left: .2rem;
+	top: 65%;
+}
+
+#modalNextButton:hover,
+#modalNextButton:focus,
+#modalPreviousButton:hover,
+#modalPreviousButton:focus,
+#modalNextFromResultsButton:hover,
+#modalNextFromResultsButton:focus,
+#modalPreviousFromResultsButton:hover,
+#modalPreviousFromResultsButton:focus {
+	color: cornflowerblue;
+	text-decoration: none;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	opacity: 100%;
+}
+
+
+/* common portrait settings */
+.controlsDiv {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+}

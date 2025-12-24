@@ -752,11 +752,12 @@ window.addEventListener('scroll', function (event) {
 
 	if (currentScrollPosition > previousScrollPosition) {
 		// Scrolling down - hide header
-		header.style.top = `-${headerHeight}px`;
-
+		header.classList.remove('pinned');
+		header.classList.add('unpinned');
 	} else {
 		// Scrolling up - show header
-		header.style.top = '0';
+		header.classList.remove('unpinned');
+		header.classList.add('pinned');
 	}
 	scrollTimeout = setTimeout(function () {
 		// this prevents the header from re-showing instantly

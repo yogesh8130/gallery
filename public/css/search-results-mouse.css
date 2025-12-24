@@ -1,0 +1,13 @@
+.result:hover {
+	scale: 102%;
+	z-index: 6;
+	box-shadow: rgb(0, 0, 0) 0px 10px 30px 10px;
+	transition: all 0.2s ease;
+}
+
+.result:hover>.imageSidebar {
+	opacity: 100%;
+	top: 100%;
+	z-index: 7;
+	transition: transform 0.3s ease, opacity 0.5s ease;
+}
