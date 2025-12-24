@@ -224,6 +224,14 @@ function udpateSelectedFilesCount() {
 		} selected`;
 }
 
+function openFullscreen(video) {
+	if (video.requestFullscreen) {
+		video.requestFullscreen();
+	} else if (video.webkitEnterFullscreen) {
+		video.webkitEnterFullscreen();
+	}
+}
+
 
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -531,6 +539,17 @@ document.addEventListener("DOMContentLoaded", function () {
 	modalHammer.on('swipeup', function (event) {
 		if (!IS_VIEWER_ZOOMED)
 			closeModal();
+	});
+
+	const resultsContainerHammer = new Hammer(resultsContainer);
+	resultsContainerHammer.get('swipe').set({
+		direction: Hammer.DIRECTION_HORIZONTAL
+	});
+	resultsContainerHammer.on('swipeleft', (ev) => {
+		// Swipe left on video to make it fullscreen
+		const video = ev.target.closest('video');
+		if (!video) return;
+		openFullscreen(video);
 	});
 });
 
