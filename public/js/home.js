@@ -224,11 +224,28 @@ function udpateSelectedFilesCount() {
 		} selected`;
 }
 
+let SCROLL_Y_BEFORE_FULLSCREEN = 0;
 function openFullscreen(video) {
+	SCROLL_Y_BEFORE_FULLSCREEN = window.scrollY;
 	if (video.requestFullscreen) {
 		video.requestFullscreen();
 	} else if (video.webkitEnterFullscreen) {
 		video.webkitEnterFullscreen();
+	}
+}
+
+document.addEventListener('fullscreenchange', restoreScroll);
+document.addEventListener('webkitfullscreenchange', restoreScroll);
+
+function restoreScroll() {
+	if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+		console.log("retruning");
+		setTimeout(() => {
+			window.scrollTo({
+				top: SCROLL_Y_BEFORE_FULLSCREEN,
+				behavior: 'auto'
+			});
+		}, 1000);
 	}
 }
 
@@ -659,7 +676,8 @@ document.addEventListener('click', function (event) {
 			videoFile.play();
 			pauseOtherVideos(videoFile);
 			// hide header if visible
-			HEADER.style.top = `-${HEADER_HEIGHT}px`;
+			HEADER.classList.remove('pinned');
+			HEADER.classList.add('unpinned');
 		}
 	}
 
@@ -779,13 +797,14 @@ window.addEventListener('scroll', function (event) {
 		return;
 	}
 
-	// console.log("scrolling");
-
+	
 	if (currentScrollPosition > PREVIOUS_SCROLL_POSITION) {
+		// console.log("scrolling down");
 		// Scrolling down - hide header
 		HEADER.classList.remove('pinned');
 		HEADER.classList.add('unpinned');
 	} else {
+		// console.log("scrolling up");
 		// Scrolling up - show header
 		HEADER.classList.remove('unpinned');
 		HEADER.classList.add('pinned');
