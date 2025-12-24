@@ -34,7 +34,9 @@ else
 							id = 'image'+idNum
 							title = imageName
 							src = imageLinkEscaped
-							data-src = imageLinkEscaped)
+							data-src = imageLinkEscaped
+							loading = 'lazy'
+							)
 					else
 						// Generate the thumbnail URL
 						- var thumbnailUrl = '/thumbnail?videoPath=' + encodeURIComponent(imageLinkEscaped)
@@ -42,6 +44,7 @@ else
 						.thumbnailContainer
 							img.thumbnail(
 								src = thumbnailUrl
+								laoding = 'lazy'
 							)
 							span.thumbnailOverlay
 								| ▷ 
@@ -54,6 +57,7 @@ else
 							onplay="pauseOtherVideos(this);"
 							ontimeupdate="updateProgressBar(this);"
 							poster = thumbnailUrl
+							loading = 'lazy'
 						)
 						.progressBarContainer
 						.progressBar
