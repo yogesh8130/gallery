@@ -16,8 +16,6 @@ div.infoDiv.marquee-container
 						target = "_blank")
 						|#{nameSegment}
 			|#{index == nameSegments.length - 1 ? '' : '-'}
-	.marquee.marquee2
-		.subTitle|#{imageResolution} (#{imageSizeReadable})
 	- const pathSegments = folderName.replace(/^\\images/).split('\\').slice(1);
 	- let currentPath = '';
 	.marquee.marquee3(id = 'subTitle'+idNum)
@@ -28,6 +26,8 @@ div.infoDiv.marquee-container
 					href = '/search?view=tiles&searchText=' + encodeURIComponent(currentPath) + '&sortBy=shuffle'
 					target = "_blank")
 					| /#{pathSegment}
+	.marquee.marquee2
+		.subTitle|#{imageResolution} (#{imageSizeReadable})
 div.contextMenu.imageDetailsButton
 	button.contextMenuButton.sidebarButton(onclick="toggleContextMenu(this)" title = "Context Menu")
 		img.contextMenuIcon.actionButtonIcon(src = "/icons/contextMenu.svg")

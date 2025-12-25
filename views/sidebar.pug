@@ -54,33 +54,37 @@ div(id = "sidebar" onclick = "toggleSidebar(event)")
 	div.bulkRow
 		span(id = 'selectedFilesCount') 0 files selected
 	form.bulkRow(id = 'moveForm')
-		input(type = "text" id = 'targetFolderNameInput' name = 'targetFolderNameInput'
+		input(type = "text" id = 'moveFilesInput' name = 'moveFilesInput'
 		placeholder = "Target folder name" autocomplete = 'on'
 		list = "suggestedFolders" oninput = 'updateSuggestedFolders()' onfocus = 'updateSuggestedFolders()')
 		//- to add suggestions for the target folder text box
 		datalist(id="suggestedFolders")
 		button(id = 'moveFilesButton' onclick = 'moveRenameFiles("moveFiles")') Move
 		input(type="submit" hidden)
+	#moveFilesHistory.buttonsFlex(data-operation = 'moveFiles')
 	form.bulkRow(id = 'renameBulkForm')
 		input(type = "text" id = 'renameBulkInput' name = 'renameBulkInput'
 		placeholder = "New Base name" autocomplete = 'on')
 		button(id = 'renameBulkButton' onclick = 'moveRenameFiles("renameBulk")') Rename
-		input(type="submit" hidden)
-	form.bulkRow(id = 'appendToNameForm')
-		input(type = "text" id = 'appendToNameInput' name = 'appendToNameInput'
-		placeholder = "Text, to; append" autocomplete = 'on')
-		button(id = 'appendToNameButton' onclick = 'moveRenameFiles("appendToName")') Append
 		input(type="submit" hidden)
 	form.bulkRow(id = 'prependToNameForm')
 		input(type = "text" id = 'prependToNameInput' name = 'prependToNameInput'
 		placeholder = "Text to prepend" autocomplete = 'on')
 		button(id = 'prependToNameButton' onclick = 'moveRenameFiles("prependToName")') Prepend
 		input(type="submit" hidden)
+	#prependToNameHistory.buttonsFlex(data-operation = 'prependToName')
+	form.bulkRow(id = 'appendToNameForm')
+		input(type = "text" id = 'appendToNameInput' name = 'appendToNameInput'
+		placeholder = "Text, to; append" autocomplete = 'on')
+		button(id = 'appendToNameButton' onclick = 'moveRenameFiles("appendToName")') Append
+		input(type="submit" hidden)
+	#appendToNameHistory.buttonsFlex(data-operation = 'appendToName')
 	form.bulkRow(id = 'removeFromNameForm')
 		input(type = "text" id = 'removeFromNameInput' name = 'removeFromNameInput'
 		placeholder = "Text to remove" autocomplete = 'on')
 		button(id = 'removeFromNameButton' onclick = 'moveRenameFiles("removeFromName")') Remove
 		input(type="submit" hidden)
+	#removeFromNameHistory.buttonsFlex(data-operation = 'removeFromName')
 	form.bulkCol(id = 'replaceInNameForm')
 		div.bulkRow
 			input(type = "text" id = 'textToFindInput' name = 'textToFindInput'

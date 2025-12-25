@@ -25,7 +25,7 @@ else
 				data-padding = padding 
 				style = `${view && view === 'tiles' ? istyle : ""}`
 				)
-			div.imageSidebar(style=(multiplier <= 1) ? 'display: none' : '')
+			div.imageSidebar(style=(multiplier < 1) ? 'display: none' : '')
 				include image-details.pug
 			div.mainContent
 				a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped)

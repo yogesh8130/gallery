@@ -109,7 +109,7 @@ function updateSuggestedFolders() {
 
 	FOLDER_SUGGEST_TIMEOUT = setTimeout(() => {
 		const folderHint = document
-			.getElementById('targetFolderNameInput')
+			.getElementById('moveFilesInput')
 			.value
 			.trim() || '';
 
@@ -234,6 +234,74 @@ function openFullscreen(video) {
 	}
 }
 
+function updateHistoryButtons(argument, operation) {
+	const validOperationsForHistory = ['appendToName', 'prependToName', 'removeFromName', 'moveFiles'];
+
+	// helper function to create buttons
+	function createButton(argument, operation) {
+		const button = document.createElement('button');
+		button.dataset.argumentString = argument;
+		button.title = argument;
+		button.dataset.operation = operation;
+		// make button text limited to 50 char with ellipsis in between the startting 25 and last 25 chars
+		button.textContent = argument.replace('000\\00', '').length > 40 ? `${argument.replace('000\\00', '').slice(0, 20)}...${argument.replace('000\\00', '').slice(-20)}` : argument.replace('000\\00', '');
+		button.classList.add(`${operation}Button`);
+		button.classList.add('historyButton');
+		// console.log(`${operation}History`);
+		document.getElementById(`${operation}History`)?.prepend(button);
+		// add an event listener on the button to call moveRenameFiles() with the buttons data argumentString
+		button.addEventListener('click', (event) => {
+			// cuz somehow the button's dataset is not reliable
+			const operation = event.target.parentElement.dataset.operation;
+			document.getElementById(`${operation}Input`).value = event.target.dataset.argumentString;
+			moveRenameFiles(operation);
+			// destroy self as new button will be created anyways, but not immediately to avoid double click on a wrong button
+			event.target.remove();
+		});
+		return button
+	}
+
+	// if argument is null then read the values from session storage and add the buttons to the respective historyDivs
+	if (!argument) {
+		for (const operation of validOperationsForHistory) {
+			const operationHistory = JSON.parse(localStorage.getItem(operation + 'History'));
+			if (operationHistory) {
+				operationHistory.forEach(appendString => {
+					const button = createButton(appendString, operation);
+					document.getElementById(operation + 'History').prepend(button);
+				});
+			}
+		}
+		return;
+	}
+
+	// add the argument string to the an array in session storage appropriate <operation>History , create one if not found
+	let operationHistory = JSON.parse(localStorage.getItem(`${operation}History`));
+	if (!operationHistory) {
+		operationHistory = [];
+	}
+
+	// remove first if argument already exists and then add it to the array
+	operationHistory = operationHistory.filter(item => item !== argument);
+	operationHistory.push(argument);
+	localStorage.setItem(`${operation}History`, JSON.stringify(operationHistory));
+
+	// remove the last element if the array has more than 10 elements
+	if (operationHistory.length > 10) {
+		operationHistory.shift();
+		localStorage.setItem(`${operation}History`, JSON.stringify(operationHistory));
+	}
+
+	// remove the last item from HistoryDiv if it has more than 10 items
+	const operationHistoryDiv = document.getElementById(`${operation}History`);
+	while (operationHistoryDiv.children.length > 10) {
+		operationHistoryDiv.removeChild(operationHistoryDiv.lastChild);
+	}
+
+	const button = createButton(argument);
+	operationHistoryDiv.prepend(button);
+}
+
 document.addEventListener('fullscreenchange', restoreScroll);
 document.addEventListener('webkitfullscreenchange', restoreScroll);
 
@@ -251,6 +319,8 @@ function restoreScroll() {
 
 
 document.addEventListener("DOMContentLoaded", function () {
+	// read the operation history from local storage and update the history buttons for repective operations forms
+	updateHistoryButtons(null);
 
 	if (SIDEBAR_PINNED) {
 		const mainDiv = document.querySelector('.mainDiv');
@@ -590,7 +660,10 @@ document.addEventListener('keydown', function (event) {
 			document.getElementById('appendToNameInput').focus();
 			break;
 		case 'Escape':
-			closeModal();
+			if (IS_MODAL_ACTIVE)
+				closeModal();
+			else
+				deselectAllImages();
 			break;
 		default:
 			break;
@@ -797,7 +870,7 @@ window.addEventListener('scroll', function (event) {
 		return;
 	}
 
-	
+
 	if (currentScrollPosition > PREVIOUS_SCROLL_POSITION) {
 		// console.log("scrolling down");
 		// Scrolling down - hide header
@@ -1034,8 +1107,8 @@ function changeTileSize(isFirstPageLoad) {
 		MULTIPLIER = parseFloat(slider.value);
 	} else {
 		MULTIPLIER = localStorage.sliderValue;
+		// console.log(`multiplier from local: ${MULTIPLIER}`);
 	}
-	console.log(`multiplier: ${MULTIPLIER}`);
 
 	// Loop over all the result elements
 	results.forEach(result => {
@@ -1049,22 +1122,23 @@ function changeTileSize(isFirstPageLoad) {
 		result.style.width = `${newWidth}rem`;
 		result.style.flexGrow = newWidth;
 
-		// Loop over each element in imageSidebar to set display property
-		imageSidebar.forEach(subtitle => {
-			if (MULTIPLIER < 1) {
-				subtitle.style.display = "none";
-			} else {
-				subtitle.style.display = null;
-			}
-		});
+	});
+	// Loop over each element in imageSidebar to set display property
+	imageSidebar.forEach(subtitle => {
+		// console.log("MULTIPLIER: " + MULTIPLIER);
+		if (MULTIPLIER < 1) {
+			subtitle.style.display = "none";
+		} else {
+			subtitle.style.display = null;
+		}
+	});
 
-		thumbnailOverlays.forEach(thumbnailOverlay => {
-			if (MULTIPLIER < 1) {
-				thumbnailOverlay.classList.add('imageSidebarHidden');
-			} else {
-				thumbnailOverlay.classList.remove('imageSidebarHidden');
-			}
-		});
+	thumbnailOverlays.forEach(thumbnailOverlay => {
+		if (MULTIPLIER < 1) {
+			thumbnailOverlay.classList.add('imageSidebarHidden');
+		} else {
+			thumbnailOverlay.classList.remove('imageSidebarHidden');
+		}
 	});
 
 	// storing current slider value to localStorage
@@ -1087,6 +1161,7 @@ function loadMore() {
 	if (HAS_MORE_RESULTS && !IS_LOADING
 		&& window.location.href.includes('view=tiles')
 		&& scrollPosition >= documentHeight - (viewportHeight * 2)) {
+		// console.log('loadmore');
 		IS_LOADING = true;
 		CURRENT_PAGE_SIZE++;
 		// queryParams just passes the searchText, shuffle and view ie queryParams
@@ -1354,20 +1429,20 @@ function toggleSidebar(event) {
 		return;
 	}
 
-	if (sidebar.style.right === '0px') {
-		// close sidebar
+	if (sidebar.classList.contains('open')) {
 		if (SIDEBAR_PINNED) {
 			showPopup('Sidebar is pinned', 'info', 1000);
 			return
 		};
-		sidebar.style.right = '-300px';
-		sidebarToggleButton.style.right = '0px';
+		sidebar.classList.remove('open');
+		sidebarToggleButton.classList.remove('open');
+		sidebar.classList.add('close');
+		sidebarToggleButton.classList.add('close');
 	} else {
-		// open sidebar
-		sidebar.style.right = '0px';
-		sidebarToggleButton.style.right = '300px';
-		const renameBulkInput = document.getElementById('renameBulkInput');
-		// renameBulkInput.focus();
+		sidebar.classList.remove('close');
+		sidebarToggleButton.classList.remove('close');
+		sidebar.classList.add('open');
+		sidebarToggleButton.classList.add('open');
 	}
 }
 
@@ -1455,6 +1530,7 @@ function moveRenameFiles(operation) {
 			break;
 		case "appendToName":
 			argument1 = document.getElementById('appendToNameInput').value;
+			updateHistoryButtons(argument1, operation);
 			pattern = /^[a-zA-Z0-9 _\-,;#@$&*\(\)]*$/;
 			isValid = pattern.test(argument1);
 			if (!isValid) {
@@ -1468,6 +1544,7 @@ function moveRenameFiles(operation) {
 			break;
 		case "prependToName":
 			argument1 = document.getElementById('prependToNameInput').value;
+			updateHistoryButtons(argument1, operation);
 			pattern = /^[a-zA-Z0-9\- ]*$/;
 			isValid = pattern.test(argument1);
 			if (!isValid) {
@@ -1481,6 +1558,7 @@ function moveRenameFiles(operation) {
 			break
 		case "removeFromName":
 			argument1 = document.getElementById('removeFromNameInput').value;
+			updateHistoryButtons(argument1, operation);
 			if (!argument1) {
 				showPopup('Provide a value first', 'warn');
 				return;
@@ -1505,7 +1583,8 @@ function moveRenameFiles(operation) {
 			}
 			break;
 		case "moveFiles":
-			argument1 = document.getElementById('targetFolderNameInput').value;
+			argument1 = document.getElementById('moveFilesInput').value;
+			updateHistoryButtons(argument1, operation);
 			pattern = /^[a-zA-Z0-9-_\\ ]*$/;
 			isValid = pattern.test(argument1);
 			if (!isValid) {
