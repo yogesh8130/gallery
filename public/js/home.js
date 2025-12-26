@@ -29,6 +29,9 @@ let MODAL_PREV_FROM_SEARCH_BUTTON;
 let HEADER;
 let HEADER_HEIGHT;
 
+let SIDEBAR;
+let SIDEBAR_TOGGLE_BUTTON;
+
 let videoSpeedUpTimeout;
 const SPEEDUP_DELAY = 500;
 const SPEEDUP_RATE = 4;
@@ -319,6 +322,9 @@ function restoreScroll() {
 
 
 document.addEventListener("DOMContentLoaded", function () {
+	SIDEBAR = document.getElementById('sidebar');
+	SIDEBAR_TOGGLE_BUTTON = document.getElementById('sidebarToggleButton');
+
 	// read the operation history from local storage and update the history buttons for repective operations forms
 	updateHistoryButtons(null);
 
@@ -632,11 +638,27 @@ document.addEventListener("DOMContentLoaded", function () {
 	resultsContainerHammer.get('swipe').set({
 		direction: Hammer.DIRECTION_HORIZONTAL
 	});
+	resultsContainerHammer.on('swiperight', (ev) => {
+		// if sidebar is open then close it else fullscreen the video which got swiped on
+		if (document.querySelector('#sidebar.open')) {
+			closeSidebar();
+		} else {
+			// Swipe right on video to make it fullscreen
+			const video = ev.target.closest('video');
+			if (!video) return;
+			openFullscreen(video);
+		}
+	});
 	resultsContainerHammer.on('swipeleft', (ev) => {
-		// Swipe left on video to make it fullscreen
-		const video = ev.target.closest('video');
-		if (!video) return;
-		openFullscreen(video);
+		openSidebar();
+	});
+
+	const sidebarHammer = new Hammer(sidebar);
+	sidebarHammer.get('swipe').set({
+		direction: Hammer.DIRECTION_HORIZONTAL
+	});
+	sidebarHammer.on('swiperight', (ev) => {
+		closeSidebar();
 	});
 });
 
@@ -1430,20 +1452,28 @@ function toggleSidebar(event) {
 	}
 
 	if (sidebar.classList.contains('open')) {
-		if (SIDEBAR_PINNED) {
-			showPopup('Sidebar is pinned', 'info', 1000);
-			return
-		};
-		sidebar.classList.remove('open');
-		sidebarToggleButton.classList.remove('open');
-		sidebar.classList.add('close');
-		sidebarToggleButton.classList.add('close');
+		closeSidebar();
 	} else {
-		sidebar.classList.remove('close');
-		sidebarToggleButton.classList.remove('close');
-		sidebar.classList.add('open');
-		sidebarToggleButton.classList.add('open');
+		openSidebar();
 	}
+}
+
+function closeSidebar() {
+	if (SIDEBAR_PINNED) {
+		showPopup('Sidebar is pinned', 'info', 1000);
+		return
+	};
+	SIDEBAR.classList.remove('open');
+	SIDEBAR_TOGGLE_BUTTON.classList.remove('open');
+	SIDEBAR.classList.add('close');
+	SIDEBAR_TOGGLE_BUTTON.classList.add('close');
+}
+
+function openSidebar() {
+	SIDEBAR.classList.remove('close');
+	SIDEBAR_TOGGLE_BUTTON.classList.remove('close');
+	SIDEBAR.classList.add('open');
+	SIDEBAR_TOGGLE_BUTTON.classList.add('open');
 }
 
 function selectionModeToggle() {

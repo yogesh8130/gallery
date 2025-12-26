@@ -3,3 +3,4 @@ public/images*
 public/thumbs*
 logs/*
 *.db
+*.bak
