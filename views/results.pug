@@ -41,23 +41,23 @@ else
 						// Generate the thumbnail URL
 						- var thumbnailUrl = '/thumbnail?videoPath=' + encodeURIComponent(imageLinkEscaped)
 						// Use a container for the video thumbnail
-						.thumbnailContainer
-							img.thumbnail(
-								src = thumbnailUrl
-								loading = 'lazy'
-							)
-							span.thumbnailOverlay
-								| ▷ 
+						//- .thumbnailContainer
+						//- 	img.thumbnail(
+						//- 		src = thumbnailUrl
+						//- 		loading = 'lazy'
+						//- 	)
+						//- 	span.thumbnailOverlay
+						//- 		| ▷ 
 						video.searchVid.resultFile.videoFile(
 							id = 'image' + idNum
 							data-src = imageLinkEscaped
+							src = imageLinkEscaped
 							controls
 							loop
-							style="display: none;"
 							onplay="pauseOtherVideos(this);"
 							ontimeupdate="updateProgressBar(this);"
 							poster = thumbnailUrl
-							loading = 'lazy'
+							preload = 'auto'
 						)
 						.progressBarContainer
 						.progressBar

@@ -13,6 +13,7 @@ let SELECTION_MODE = 0 // whether click opens an image or selects it
 // To keep track of the image being viewed in modal
 let CURRENT_IMAGE_PATH;
 let CURRENT_IMAGE_ID_NUM;
+let LAST_SELECTED_IMAGE_INDEX;
 
 let VIEWER;
 let IS_VIEWER_ZOOMED = false;
@@ -28,6 +29,8 @@ let MODAL_PREV_FROM_SEARCH_BUTTON;
 
 let HEADER;
 let HEADER_HEIGHT;
+
+let RESULTS_CONTAINER;
 
 let SIDEBAR;
 let SIDEBAR_TOGGLE_BUTTON;
@@ -320,6 +323,54 @@ function restoreScroll() {
 	}
 }
 
+function handleRangeSelection(event) {
+	let currentImageIndex = parseInt(event.target.id.replace('image', ''));
+
+	if (LAST_SELECTED_IMAGE_INDEX < currentImageIndex) {
+		let startingIndex = LAST_SELECTED_IMAGE_INDEX;
+		let endingIndex = currentImageIndex;
+
+		for (let index = startingIndex + 1; index <= endingIndex; index++) {
+			let image = document.getElementById(`image${index}`);
+			// remove localhost:3000 from the starting of image
+			const imageLinkRelative = decodeURIComponent(image.src.replace(origin, '').replace(/^\//, ''));
+			const imageId = image.id;
+
+			if (image.classList.contains('selectedImage')) {
+				SELECTED_IMAGES.delete(imageId);
+				image.classList.remove('selectedImage');
+			} else {
+				SELECTED_IMAGES.set(imageId, imageLinkRelative)
+				image.classList.add('selectedImage');
+				LAST_SELECTED_IMAGE_INDEX = parseInt(image.id.replace('image', ''));
+			}
+		}
+	} else if (LAST_SELECTED_IMAGE_INDEX > currentImageIndex) {
+		let startingIndex = LAST_SELECTED_IMAGE_INDEX;
+		let endingIndex = currentImageIndex;
+
+		for (let index = startingIndex - 1; index >= endingIndex; index--) {
+			let image = document.getElementById(`image${index}`);
+			// remove localhost:3000 from the starting of image
+			const imageLinkRelative = decodeURIComponent(image.src.replace(origin, '').replace(/^\//, ''));
+			const imageId = image.id;
+
+			if (image.classList.contains('selectedImage')) {
+				SELECTED_IMAGES.delete(imageId);
+				image.classList.remove('selectedImage');
+			} else {
+				SELECTED_IMAGES.set(imageId, imageLinkRelative)
+				image.classList.add('selectedImage');
+				LAST_SELECTED_IMAGE_INDEX = parseInt(image.id.replace('image', ''));
+			}
+		}
+	}
+
+	// behave like no image has been selected yet
+	LAST_SELECTED_IMAGE_INDEX = undefined;
+	// console.log(selectedImages);
+}
+
 
 document.addEventListener("DOMContentLoaded", function () {
 	SIDEBAR = document.getElementById('sidebar');
@@ -405,12 +456,10 @@ document.addEventListener("DOMContentLoaded", function () {
 	// MODAL SINGLE IMAGE VIEWER
 
 	// Get the parent element that contains all the images
-	const resultsContainer = document.querySelector('.results');
-
-	let lastSelectedImageIndex;
+	RESULTS_CONTAINER = document.querySelector('.results');
 
 	// Attach a click event listener to the parent element
-	resultsContainer.addEventListener('click', function (event) {
+	RESULTS_CONTAINER.addEventListener('click', function (event) {
 
 		MODAL = document.getElementById("modal");
 		MODAL_IMAGE_CONTAINER = document.querySelector('.modalImageContainer');
@@ -422,76 +471,28 @@ document.addEventListener("DOMContentLoaded", function () {
 		MODAL_NEXT_FROM_SEARCH_BUTTON = document.getElementById('modalNextFromResultsButton');
 		MODAL_PREV_FROM_SEARCH_BUTTON = document.getElementById('modalPreviousFromResultsButton');
 
-		let clickedElement = event.target;
-
-		if (lastSelectedImageIndex > -1 &&
-			clickedElement.classList.contains('resultFile') && event.shiftKey) {
-			let currentImageIndex = parseInt(clickedElement.id.replace('image', ''));
-
-			// let startingIndex = Math.min(lastSelectedImageIndex, currentImageIndex);
-			// let endingIndex = Math.max(lastSelectedImageIndex, currentImageIndex);
-
-			if (lastSelectedImageIndex < currentImageIndex) {
-				startingIndex = lastSelectedImageIndex;
-				endingIndex = currentImageIndex;
-
-				for (let index = startingIndex + 1; index <= endingIndex; index++) {
-					let image = document.getElementById(`image${index}`);
-					// remove localhost:3000 from the starting of image
-					const imageLinkRelative = decodeURIComponent(image.src.replace(origin, '').replace(/^\//, ''));
-					const imageId = image.id;
-
-					if (image.classList.contains('selectedImage')) {
-						SELECTED_IMAGES.delete(imageId);
-						image.classList.remove('selectedImage');
-					} else {
-						SELECTED_IMAGES.set(imageId, imageLinkRelative)
-						image.classList.add('selectedImage');
-						lastSelectedImageIndex = parseInt(image.id.replace('image', ''));
-					}
-				}
-			} else if (lastSelectedImageIndex > currentImageIndex) {
-				startingIndex = lastSelectedImageIndex;
-				endingIndex = currentImageIndex;
-
-				for (let index = startingIndex - 1; index >= endingIndex; index--) {
-					let image = document.getElementById(`image${index}`);
-					// remove localhost:3000 from the starting of image
-					const imageLinkRelative = decodeURIComponent(image.src.replace(origin, '').replace(/^\//, ''));
-					const imageId = image.id;
-
-					if (image.classList.contains('selectedImage')) {
-						SELECTED_IMAGES.delete(imageId);
-						image.classList.remove('selectedImage');
-					} else {
-						SELECTED_IMAGES.set(imageId, imageLinkRelative)
-						image.classList.add('selectedImage');
-						lastSelectedImageIndex = parseInt(image.id.replace('image', ''));
-					}
-				}
-			}
-
-			lastSelectedImageIndex = undefined;
-			// console.log(selectedImages);
-
-		} else if ((clickedElement.classList.contains('resultFile') && event.ctrlKey)
-			|| clickedElement.classList.contains('resultFile') && SELECTION_MODE == 1) {
+		// event.target is the element that was clicked
+		if (LAST_SELECTED_IMAGE_INDEX > -1 &&
+			event.target.classList.contains('resultFile') && event.shiftKey) {
+			handleRangeSelection(event);
+		} else if ((event.target.classList.contains('resultFile') && event.ctrlKey)
+			|| event.target.classList.contains('resultFile') && SELECTION_MODE == 1) {
 			// select unselect with ctrl key OR single left click (if selection mode is on)
-			if (clickedElement.classList.contains('selectedImage')) {
-				SELECTED_IMAGES.delete(clickedElement.id);
-				clickedElement.classList.remove('selectedImage');
-				lastSelectedImageIndex = parseInt(clickedElement.id.replace('image', ''));
+			if (event.target.classList.contains('selectedImage')) {
+				SELECTED_IMAGES.delete(event.target.id);
+				event.target.classList.remove('selectedImage');
+				LAST_SELECTED_IMAGE_INDEX = parseInt(event.target.id.replace('image', ''));
 			} else {
-				SELECTED_IMAGES.set(clickedElement.id,
-					decodeURIComponent(clickedElement.src.replace(origin, '').replace(/^\//, '')));
-				clickedElement.classList.add('selectedImage');
-				lastSelectedImageIndex = parseInt(clickedElement.id.replace('image', ''));
+				SELECTED_IMAGES.set(event.target.id,
+					decodeURIComponent(event.target.src.replace(origin, '').replace(/^\//, '')));
+				event.target.classList.add('selectedImage');
+				LAST_SELECTED_IMAGE_INDEX = parseInt(event.target.id.replace('image', ''));
 				// console.log('lastSelectedImageIndex:', lastSelectedImageIndex);
 			}
 			// console.log(selectedImages);
 
-		} else if (clickedElement.classList.contains('resultFile')
-			&& clickedElement.tagName == 'IMG') {
+		} else if (event.target.classList.contains('resultFile')
+			&& event.target.tagName == 'IMG') {
 			// View Clicked image
 			// setting modal image src to the clicked image
 			VIEWER = new ImageViewer(MODAL_IMAGE_CONTAINER, {
@@ -499,9 +500,9 @@ document.addEventListener("DOMContentLoaded", function () {
 					onZoomChange: onZoomChange
 				}
 			});
-			showModal(clickedElement.src, true);
-			CURRENT_IMAGE_PATH = clickedElement.src;
-			CURRENT_IMAGE_ID_NUM = clickedElement.id.replace('image', '');
+			showModal(event.target.src, true);
+			CURRENT_IMAGE_PATH = event.target.src;
+			CURRENT_IMAGE_ID_NUM = event.target.id.replace('image', '');
 			event.preventDefault(); // this makes the videos play on click and keeps info links working
 		}
 		udpateSelectedFilesCount();
@@ -634,26 +635,70 @@ document.addEventListener("DOMContentLoaded", function () {
 			closeModal();
 	});
 
-	const resultsContainerHammer = new Hammer(resultsContainer);
+	// disable context menu on touch devices for results container
+	// media query for coarse pointer devices (touch)
+	const mediaQuery = window.matchMedia('(pointer: coarse)');
+	if (mediaQuery.matches) {
+		RESULTS_CONTAINER.addEventListener('contextmenu', function (event) {
+			event.preventDefault();
+		});
+	}
+
+	// adding touch gestures to #results using hammer
+	const resultsContainerHammer = new Hammer(RESULTS_CONTAINER);
 	resultsContainerHammer.get('swipe').set({
 		direction: Hammer.DIRECTION_HORIZONTAL
 	});
-	resultsContainerHammer.on('swiperight', (ev) => {
+	resultsContainerHammer.on('swiperight', (event) => {
 		// if sidebar is open then close it else fullscreen the video which got swiped on
 		if (document.querySelector('#sidebar.open')) {
 			closeSidebar();
 		} else {
 			// Swipe right on video to make it fullscreen
-			const video = ev.target.closest('video');
+			const video = event.target.closest('video');
 			if (!video) return;
 			openFullscreen(video);
 		}
 	});
-	resultsContainerHammer.on('swipeleft', (ev) => {
+	resultsContainerHammer.on('swipeleft', (event) => {
 		openSidebar();
 	});
 
-	const sidebarHammer = new Hammer(sidebar);
+	// select / deselect files by long pressing
+	resultsContainerHammer.on('press', (event) => {
+		// console.log('Long press detected', event.target);
+		if (event.target.classList.contains('imageFile')
+			|| (event.target.classList.contains('videoFile') && !event.target.playing)) {
+			event.preventDefault();
+			// if image already selected then deselect
+			if (event.target.classList.contains('selectedImage')) {
+				SELECTED_IMAGES.delete(event.target.id);
+				event.target.classList.remove('selectedImage');
+				LAST_SELECTED_IMAGE_INDEX = parseInt(event.target.id.replace('image', ''));
+			}
+			// select the range of images if there is a last selected image
+			else if (LAST_SELECTED_IMAGE_INDEX > -1) {
+				handleRangeSelection(event);
+			}
+			// if no image selected before then select first image
+			else if (!LAST_SELECTED_IMAGE_INDEX) {
+				SELECTED_IMAGES.set(event.target.id,
+					decodeURIComponent(event.target.src.replace(origin, '').replace(/^\//, '')));
+				event.target.classList.add('selectedImage');
+				LAST_SELECTED_IMAGE_INDEX = parseInt(event.target.id.replace('image', ''));
+			}
+			udpateSelectedFilesCount();
+		}
+	})
+
+	resultsContainerHammer.on('tap', (event) => {
+		if (event.target.classList.contains('imageFile')) {
+			event.preventDefault();
+			showModal(event.target.src, true);
+		}
+	});
+
+	const sidebarHammer = new Hammer(SIDEBAR);
 	sidebarHammer.get('swipe').set({
 		direction: Hammer.DIRECTION_HORIZONTAL
 	});
