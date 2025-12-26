@@ -17,6 +17,7 @@ const COARSE_POINTER_MEDIA_QUERY = window.matchMedia('(pointer: coarse)');
 let CURRENT_IMAGE_PATH;
 let CURRENT_IMAGE_ID_NUM;
 let LAST_SELECTED_IMAGE_INDEX;
+let LAST_VIEWED_IMAGE_ID;
 
 let VIEWER;
 let IS_VIEWER_ZOOMED = false;
@@ -445,7 +446,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 			} else if (event.target.classList.contains('resultFile')
 				&& event.target.tagName == 'IMG') {
-				showModal(event.target.src, true);
+				showModal(event.target.src, true, event.target);
 				CURRENT_IMAGE_ID_NUM = event.target.id.replace('image', '');
 				event.preventDefault(); // this makes the videos play on click and keeps info links working
 			}
@@ -613,7 +614,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			console.log('singleTap');
 			if (event.target.classList.contains('imageFile')) {
 				event.preventDefault();
-				showModal(event.target.src, true);
+				showModal(event.target.src, true, event.target);
 			}
 		});
 
@@ -622,7 +623,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			// console.log('click');
 			if (event.target.classList.contains('imageFile')) {
 				event.preventDefault();
-				showModal(event.target.src, true);
+				showModal(event.target.src, true, event.target);
 			}
 		});
 
@@ -1114,6 +1115,17 @@ function changeTileSize() {
 		MULTIPLIER = 1;
 	}
 
+	// get the imageID at the top of viewport
+	// const elementsAtTop = document.elementsFromPoint(50, 0 + document.querySelector('.header').offsetHeight)
+	// let imageIdAtTop;;
+	// for (element of elementsAtTop) {
+	// 	if (element.classList.contains('resultFile')) {
+	// 		imageIdAtTop = element.id;
+	// 		console.log(imageIdAtTop);
+	// 		console.log(element.src);
+	// 	}
+	// }
+
 	// Loop over all the result elements
 	results.forEach(result => {
 		// Get the current width and flex-grow values
@@ -1136,6 +1148,28 @@ function changeTileSize() {
 		}
 	});
 	console.log("MULTIPLIER: " + MULTIPLIER);
+
+	// scroll back to correct position
+	// if (imageIdAtTop) {
+	// 	const imageElement = document.getElementById(imageIdAtTop);
+	// 	if (imageElement) {
+	// 		imageElement.scrollIntoView({
+	// 			// behavior: 'smooth',
+	// 			block: "start",
+	// 			inline: "nearest"
+	// 		});
+	// 	}
+	// }
+
+	// scroll to last viwed image
+	const lastViewedImage = document.getElementById(LAST_VIEWED_IMAGE_ID);
+	if (lastViewedImage) {
+		lastViewedImage.scrollIntoView({
+			// behavior: 'smooth',
+			block: "start",
+			inline: "nearest"
+		});
+	}
 }
 
 // set page to 1 on every page load
@@ -1348,10 +1382,14 @@ function showPopup(message, level, timeout) {
 	}, timeout);
 }
 
-function showModal(fileLink, firstLoad = false) {
+function showModal(fileLink, firstLoad = false, target = null) {
 	// firstLoad indicates that the function was called froml clicking an image in the vertical scrolling list, so preloading should not be applied
 
 	CURRENT_IMAGE_PATH = fileLink;
+	if (target) {
+		// used to scroll to correct position after changing tile size
+		LAST_VIEWED_IMAGE_ID = target.id;
+	}
 
 	// remove the localhost url part
 	const relativeFilePath = fileLink.replace(origin, '').replace(/^\//, '');
