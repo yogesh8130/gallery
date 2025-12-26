@@ -404,18 +404,16 @@ document.addEventListener("DOMContentLoaded", function () {
 	if (view.value !== 'tiles') {
 		dragToScrollEnable();
 	} else {
-		// load slider values from localStorage
+		// load slider values from storage
 		const slider = document.getElementById('slider')
-		if (localStorage.sliderValue) {
-			MULTIPLIER = localStorage.sliderValue;
+		if (sessionStorage.sliderValue) {
+			slider.value = sessionStorage.sliderValue;
+		} else if (localStorage.sliderValue) {
 			slider.value = localStorage.sliderValue;
-		} else {
-			// console.log('sliderValue not found in local storage');
-			localStorage.sliderValue = 1;
 		}
 
 		// Setting image size as per stored slider value 'on load' i.e. 1
-		changeTileSize(1);
+		changeTileSize();
 
 		// add lazy load listener
 		window.addEventListener('scroll', loadMore);
@@ -701,8 +699,8 @@ document.addEventListener('keydown', function (event) {
 				MODAL_NEXT_FROM_SEARCH_BUTTON.click();
 			} else {
 				const slider = document.getElementById('slider');
-				slider.value -= -(0.1);
-				changeTileSize();
+				slider.stepUp();
+				slider.dispatchEvent(new Event('change'));
 			}
 			break;
 		case 'ArrowLeft':
@@ -712,8 +710,8 @@ document.addEventListener('keydown', function (event) {
 				MODAL_PREV_FROM_SEARCH_BUTTON.click();
 			} else {
 				const slider = document.getElementById('slider');
-				slider.value -= 0.1;
-				changeTileSize();
+				slider.stepDown();
+				slider.dispatchEvent(new Event('change'));
 			}
 			break;
 		case 'Delete':
@@ -1095,18 +1093,25 @@ function switchToTileView() {
 	}
 }
 
-function changeTileSize(isFirstPageLoad) {
-	const slider = document.getElementById('slider');
-	const results = document.querySelectorAll('.result');
-	const imageSidebar = document.querySelectorAll('.imageSidebar');
-	const thumbnailOverlays = document.querySelectorAll('.thumbnailOverlay');
+function updateMultiplier(slider) {
+	// console.log('slider position');
+	// console.log(slider.value);
+	sessionStorage.sliderValue = parseFloat(slider.value);
+	localStorage.sliderValue = parseFloat(slider.value);
+	changeTileSize();
+}
 
-	if (!isFirstPageLoad) {
-		// Get the current slider value
-		MULTIPLIER = parseFloat(slider.value);
-	} else {
+// let SLIDER_TIMEOUT;
+function changeTileSize() {
+	const results = document.querySelectorAll('.result');
+	const imageSidebars = document.querySelectorAll('.imageSidebar');
+
+	if (sessionStorage.sliderValue) {
+		MULTIPLIER = sessionStorage.sliderValue;
+	} else if (localStorage.sliderValue) {
 		MULTIPLIER = localStorage.sliderValue;
-		// console.log(`multiplier from local: ${MULTIPLIER}`);
+	} else {
+		MULTIPLIER = 1;
 	}
 
 	// Loop over all the result elements
@@ -1123,25 +1128,14 @@ function changeTileSize(isFirstPageLoad) {
 
 	});
 	// Loop over each element in imageSidebar to set display property
-	imageSidebar.forEach(subtitle => {
-		// console.log("MULTIPLIER: " + MULTIPLIER);
+	imageSidebars.forEach(imageSidebar => {
 		if (MULTIPLIER < 1) {
-			subtitle.style.display = "none";
+			imageSidebar.classList.add('minimized');
 		} else {
-			subtitle.style.display = null;
+			imageSidebar.classList.remove('minimized');
 		}
 	});
-
-	thumbnailOverlays.forEach(thumbnailOverlay => {
-		if (MULTIPLIER < 1) {
-			thumbnailOverlay.classList.add('imageSidebarHidden');
-		} else {
-			thumbnailOverlay.classList.remove('imageSidebarHidden');
-		}
-	});
-
-	// storing current slider value to localStorage
-	localStorage.sliderValue = MULTIPLIER;
+	console.log("MULTIPLIER: " + MULTIPLIER);
 }
 
 // set page to 1 on every page load

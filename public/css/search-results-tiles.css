@@ -92,6 +92,7 @@ h2 {
 	margin: 2px;
 	position: relative;
 	z-index: 3;
+	transition: all 0.3s ease;
 }
 
 i {
@@ -126,7 +127,7 @@ video {
 }
 
 .imageSidebar {
-	min-width: 15rem;
+	/* min-width: 15rem; */
 	display: flex;
 	position: fixed;
 	top: 90%;

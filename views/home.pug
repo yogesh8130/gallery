@@ -34,11 +34,11 @@ html
 								label(for = "slider") Zoom
 								input.slider(
 									type = "range" 
-									min = "0.2" max="3" 
+									min = "0.3" max="2" 
 									step = "0.1" value="1" 
 									id = "slider"
 									name = slider 
-									oninput = 'changeTileSize()'
+									onchange = 'updateMultiplier(this)'
 									ondblclick = 'this.value = 1; changeTileSize()'
 									title = '<- ArrowLeft - ArrowRight ->'
 									)
