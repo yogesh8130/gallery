@@ -30,7 +30,7 @@ else
 			div.mainContent
 				a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped)
 					if (image.type === 'image')
-						img.searchImg.resultFile(
+						img.searchImg.resultFile.imageFile(
 							id = 'image'+idNum
 							title = imageName
 							src = imageLinkEscaped
@@ -57,7 +57,7 @@ else
 							onplay="pauseOtherVideos(this);"
 							ontimeupdate="updateProgressBar(this);"
 							poster = thumbnailUrl
-							preload = 'auto'
+							preload = 'metadata'
 						)
 						.progressBarContainer
 						.progressBar
