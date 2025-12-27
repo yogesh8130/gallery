@@ -726,9 +726,12 @@ ul {
 	display: none;
 }
 
-.selectedImage {
-	outline: 4px dashed magenta;
-	opacity: 0.5;
+.result:has(.selectedImage) {
+	outline: 2px dashed greenyellow;
+
+	.resultFile {
+		filter: grayscale(1) opacity(0.5);
+	}
 }
 
 .renameFailed {

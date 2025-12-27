@@ -419,8 +419,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			if (LAST_SELECTED_IMAGE_INDEX > -1 &&
 				event.target.classList.contains('resultFile') && event.shiftKey) {
 				handleRangeSelection(event.target);
-			} else if ((event.target.classList.contains('resultFile') && event.ctrlKey)
-				|| event.target.classList.contains('resultFile') && SELECTION_MODE == 1) {
+			} else if (event.target.classList.contains('resultFile') && event.ctrlKey) {
 				// select unselect with ctrl key OR single left click (if selection mode is on)
 				if (event.target.classList.contains('selectedImage')) {
 					deselectImage(event.target);
@@ -1391,11 +1390,6 @@ function openSidebar() {
 	SIDEBAR_TOGGLE_BUTTON.classList.remove('close');
 	SIDEBAR.classList.add('open');
 	SIDEBAR_TOGGLE_BUTTON.classList.add('open');
-}
-
-function selectionModeToggle() {
-	let selectionModeCheckbox = document.getElementById('selectionModeCheckbox');
-	SELECTION_MODE = selectionModeCheckbox.checked ? "1" : "0";
 }
 
 function handleSelectionCheckboxInput(selectionCheckbox) {
