@@ -30,7 +30,7 @@ const {
 } = require('./dbUtils');
 const { log } = require('console');
 
-const searchResultBatchSize = 50;
+const searchResultBatchSize = 100;
 
 module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FOLDER_PATHS) {
 

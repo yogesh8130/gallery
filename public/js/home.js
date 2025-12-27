@@ -1,12 +1,8 @@
 const IS_MOBILE = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 let QUERY_STRING; // stores URLs query part, used for lazy loading (getNextResults)
-const BASE_SIZE = 25;
-const SEARCH_RESULTS_BATCH_SIZE = 50 // should be same as server for correct image id
-let IMAGE_INDEX = 51 // newly loaded images will be assigned id numbers from here on
 let MULTIPLIER = 1 // zoom slider value
 const SELECTED_IMAGES = new Map(); // imageId => imageLink
 let ALL_FILES_SELECTED = false;
-let SUGGESTED_TARGET_FOLDERS = [];
 let IS_MODAL_ACTIVE = false;
 let SELECTION_MODE = 0 // whether click opens an image or selects it
 
@@ -39,7 +35,7 @@ let RESULTS_CONTAINER;
 let SIDEBAR;
 let SIDEBAR_TOGGLE_BUTTON;
 
-let videoSpeedUpTimeout;
+let VIDEO_SPEEDUP_TIMEOUT;
 const SPEEDUP_DELAY = 500;
 const SPEEDUP_RATE = 4;
 
@@ -387,17 +383,6 @@ document.addEventListener("DOMContentLoaded", function () {
 	view.value = queryParams.view || 'tiles';
 	searchText.value = queryParams.searchText;
 
-	// const storedSuggestedTargetFolders = localStorage.getItem('suggestedTargetFolders');
-	// if (storedSuggestedTargetFolders) {
-	// 	suggestedTargetFolders = JSON.parse(storedSuggestedTargetFolders);
-	// 	const datalist = document.getElementById('suggestedFolders');
-	// 	suggestedTargetFolders.forEach((folder) => {
-	// 		const option = document.createElement('option');
-	// 		option.value = folder;
-	// 		datalist.appendChild(option);
-	// 	})
-	// }
-
 	HEADER = document.querySelector('.header');
 	HEADER_HEIGHT = HEADER.offsetHeight;
 
@@ -446,59 +431,76 @@ document.addEventListener("DOMContentLoaded", function () {
 
 			} else if (event.target.classList.contains('resultFile')
 				&& event.target.tagName == 'IMG') {
+				event.preventDefault();
 				showModal(event.target.src, true, event.target);
 				CURRENT_IMAGE_ID_NUM = event.target.id.replace('image', '');
-				event.preventDefault(); // this makes the videos play on click and keeps info links working
+			} else if (event.target.tagName == 'VIDEO') {
+				// videos are handled by mousedown and mouseup events
+				event.preventDefault();
 			}
+			// else if (event.target.classList.contains('resultFile')
+			// 	&& event.target.tagName == 'VIDEO') {
+			// 	event.preventDefault();
+			// 	console.log(event.target.playbackRate);
+			// 	console.log(event.target.paused);
+			// 	console.log(VIDEO_SPEEDUP_TIMEOUT);
+
+			// 	if (event.target.paused) {
+			// 		event.target.play();
+			// 	} else if (!VIDEO_SPEEDUP_TIMEOUT) {
+			// 		console.log('pausing video');
+			// 		event.target.pause();
+			// 	}
+
+			// }
 			udpateSelectedFilesCount();
+		});
 
-			MODAL.onclick = function (event) {
-				if (event.target.classList.contains('iv-image-view')) {
-					closeModal();
-				}
-			}
-
-			MODAL_CLOSE_BUTTON.onclick = function () {
+		MODAL.onclick = function (event) {
+			if (event.target.classList.contains('iv-image-view')) {
 				closeModal();
 			}
+		}
 
-			MODAL_NEXT_BUTTON.onclick = function () {
-				console.log('modal next button pressed');
-				showNextImage();
-			}
+		MODAL_CLOSE_BUTTON.onclick = function () {
+			closeModal();
+		}
 
-			MODAL_PREV_BUTTON.onclick = function () {
-				console.log('modal next button pressed');
-				showPreviousImage();
-			}
+		MODAL_NEXT_BUTTON.onclick = function () {
+			console.log('modal next button pressed');
+			showNextImage();
+		}
 
-			MODAL_NEXT_FROM_SEARCH_BUTTON.onclick = function () {
-				// remove localhost and leading slash
-				CURRENT_IMAGE_PATH = CURRENT_IMAGE_PATH.replace(origin, '').replace(/^\//, '');
+		MODAL_PREV_BUTTON.onclick = function () {
+			console.log('modal next button pressed');
+			showPreviousImage();
+		}
 
-				fetch(`/next${QUERY_STRING}&fromResults=true&currentImagePath=${(CURRENT_IMAGE_PATH)}`)
-					.then(response => response.json())
-					.then(data => {
-						showModal(data.nextImagePath);
-					})
-					.catch(error => console.error(error));
-				CURRENT_IMAGE_ID_NUM++;
-			}
+		MODAL_NEXT_FROM_SEARCH_BUTTON.onclick = function () {
+			// remove localhost and leading slash
+			CURRENT_IMAGE_PATH = CURRENT_IMAGE_PATH.replace(origin, '').replace(/^\//, '');
 
-			MODAL_PREV_FROM_SEARCH_BUTTON.onclick = function () {
-				// remove localhost and leading slash
-				CURRENT_IMAGE_PATH = CURRENT_IMAGE_PATH.replace(origin, '').replace(/^\//, '');
+			fetch(`/next${QUERY_STRING}&fromResults=true&currentImagePath=${(CURRENT_IMAGE_PATH)}`)
+				.then(response => response.json())
+				.then(data => {
+					showModal(data.nextImagePath);
+				})
+				.catch(error => console.error(error));
+			CURRENT_IMAGE_ID_NUM++;
+		}
 
-				fetch(`/previous${QUERY_STRING}&fromResults=true&currentImagePath=${(CURRENT_IMAGE_PATH)}`)
-					.then(response => response.json())
-					.then(data => {
-						showModal(data.previousImagePath);
-					})
-					.catch(error => console.error(error));
-				CURRENT_IMAGE_ID_NUM--;
-			}
+		MODAL_PREV_FROM_SEARCH_BUTTON.onclick = function () {
+			// remove localhost and leading slash
+			CURRENT_IMAGE_PATH = CURRENT_IMAGE_PATH.replace(origin, '').replace(/^\//, '');
 
-		});
+			fetch(`/previous${QUERY_STRING}&fromResults=true&currentImagePath=${(CURRENT_IMAGE_PATH)}`)
+				.then(response => response.json())
+				.then(data => {
+					showModal(data.previousImagePath);
+				})
+				.catch(error => console.error(error));
+			CURRENT_IMAGE_ID_NUM--;
+		}
 	}
 
 	// play video on hover
@@ -732,52 +734,30 @@ document.addEventListener('keydown', function (event) {
 	}
 });
 
-// Mouse click shotcuts
-document.addEventListener('click', function (event) {
-	const target = event.target;
-	// console.log(target);
-	if (target && (target.classList.contains('thumbnail') || target.classList.contains('thumbnailOverlay'))) {
-		target.style.display = 'none';
-		// get nearest video element
-		const videoFile = target.parentNode.nextSibling;
-		if (videoFile) {
-			// populate src from data-src
-			videoFile.src = videoFile.getAttribute('data-src');
-			videoFile.style.display = 'block';
-			videoFile.play();
-			pauseOtherVideos(videoFile);
-			// hide header if visible
-			HEADER.classList.remove('pinned');
-			HEADER.classList.add('unpinned');
-		}
-	}
-
-	if (target && target.tagName === 'VIDEO') {
-		// if playback speed is 2x then prevent the click
-		if (target.playbackRate != 1) {
-			target.playbackRate = 1;
-			event.preventDefault();
-		}
-	}
-})
-
 document.addEventListener('mousedown', function (event) {
 	const target = event.target;
-	// console.log(target);
 	if (target && (target.tagName === 'VIDEO')) {
-		videoSpeedUpTimeout = setTimeout(function () {
-			target.playbackRate = SPEEDUP_RATE;
-		}, SPEEDUP_DELAY);
+		event.preventDefault();
+		if (!target.paused) {
+			VIDEO_SPEEDUP_TIMEOUT = setTimeout(function () {
+				target.playbackRate = SPEEDUP_RATE;
+				VIDEO_SPEEDUP_TIMEOUT = null;
+			}, SPEEDUP_DELAY);
+		}
 	}
 })
 
 document.addEventListener('mouseup', function (event) {
 	const target = event.target;
-	// console.log(target);
 	if (target && (target.tagName === 'VIDEO')) {
-		// if timeout is still set
-		if (videoSpeedUpTimeout) {
-			clearTimeout(videoSpeedUpTimeout);
+		event.preventDefault();
+		if (target.paused) {
+			target.play()
+		} else if (target.playbackRate == 1) {
+			target.pause();
+		}
+		if (target.playbackRate != 1) {
+			target.playbackRate = 1;
 		}
 	}
 })
@@ -797,7 +777,7 @@ document.addEventListener('touchstart', function (event) {
 
 	if (target && (target.tagName === 'VIDEO')) {
 		target.controls = false;
-		videoSpeedUpTimeout = setTimeout(function () {
+		VIDEO_SPEEDUP_TIMEOUT = setTimeout(function () {
 			target.playbackRate = SPEEDUP_RATE;
 			target.controls = false;
 		}, SPEEDUP_DELAY);
@@ -808,8 +788,8 @@ document.addEventListener('touchmove', function (event) {
 	const touch = event.touches[0];
 	const touchMoveY = touch.clientY;
 	// cancel speed up if touch is moved
-	if (touchMoveY && videoSpeedUpTimeout) {
-		clearTimeout(videoSpeedUpTimeout);
+	if (touchMoveY && VIDEO_SPEEDUP_TIMEOUT) {
+		clearTimeout(VIDEO_SPEEDUP_TIMEOUT);
 	}
 })
 
@@ -831,8 +811,8 @@ document.addEventListener('touchend', function (event) {
 
 	if (target && (target.tagName === 'VIDEO') && Math.abs(touchDeltaY) < 10) {
 		// if timeout is still set
-		if (videoSpeedUpTimeout) {
-			clearTimeout(videoSpeedUpTimeout);
+		if (VIDEO_SPEEDUP_TIMEOUT) {
+			clearTimeout(VIDEO_SPEEDUP_TIMEOUT);
 			event.preventDefault();
 		}
 		if (target.playbackRate == SPEEDUP_RATE) {
