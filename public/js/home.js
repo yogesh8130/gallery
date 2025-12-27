@@ -438,6 +438,10 @@ document.addEventListener("DOMContentLoaded", function () {
 				// videos are handled by mousedown and mouseup events
 				event.preventDefault();
 			}
+			if (event.target.classList.contains('resultFile')) {
+				// to record last interacted image, used to scroll to correct position on zoom change
+				LAST_VIEWED_IMAGE_ID = event.target.id;
+			}
 			// else if (event.target.classList.contains('resultFile')
 			// 	&& event.target.tagName == 'VIDEO') {
 			// 	event.preventDefault();
@@ -1146,7 +1150,7 @@ function changeTileSize() {
 	if (lastViewedImage) {
 		lastViewedImage.scrollIntoView({
 			// behavior: 'smooth',
-			block: "start",
+			block: "center",
 			inline: "nearest"
 		});
 	}
