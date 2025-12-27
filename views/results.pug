@@ -14,7 +14,7 @@ else
 		- const baseSize = 25
 		- const width = (image.width * baseSize / image.height)*multiplier
 		- const padding = image.height / image.width * 100
-		- const idNum = (50*(page-1)+index)
+		- const idNum = (SEARCH_RESULTS_BATCH_SIZE*(page-1)+index)
 		- resultStyle = `width: ${width}rem; flex-grow: ${width}`
 		- istyle = `padding-bottom: ${padding}%`
 		div.result(data-width=width
@@ -28,6 +28,10 @@ else
 			div.imageSidebar(class=(multiplier < 1) ? "minimized" : '')
 				include image-details.pug
 			div.mainContent
+				input.selectCheckbox(type="checkbox" id="selectCheckbox"+idNum
+					onclick="handleSelectionCheckboxInput(this)"
+					style = "display: none;"
+					)
 				a.contentLink(data-href='/?imageBackLink=' + imageLinkEscaped)
 					if (image.type === 'image')
 						img.searchImg.resultFile.imageFile(

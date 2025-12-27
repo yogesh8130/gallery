@@ -99,6 +99,13 @@ i {
 	display: block;
 }
 
+input.selectCheckbox {
+	position: absolute;
+	top: 0;
+	left: 2px;
+	z-index: 1;
+}
+
 img,
 video {
 	position: absolute;

@@ -30,7 +30,7 @@ const {
 } = require('./dbUtils');
 const { log } = require('console');
 
-const searchResultBatchSize = 100;
+const SEARCH_RESULTS_BATCH_SIZE = 100;
 
 module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FOLDER_PATHS) {
 
@@ -509,7 +509,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FO
 
 		const totalResultCount = matchingImagePaths.length;
 		const page = req.query.page || 1;
-		const perPage = searchResultBatchSize;
+		const perPage = SEARCH_RESULTS_BATCH_SIZE;
 		const startIndex = (page - 1) * perPage;
 		const endIndex = startIndex + perPage;
 
@@ -540,7 +540,8 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FO
 			sortBy: sortBy,
 			sortAsc: sortAsc,
 			view,
-			multiplier
+			multiplier,
+			SEARCH_RESULTS_BATCH_SIZE
 		});
 	});
 
@@ -573,14 +574,14 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FO
 		}
 
 		const totalResultCount = matchingImagePaths.length;
-		if (totalResultCount <= searchResultBatchSize) {
+		if (totalResultCount <= SEARCH_RESULTS_BATCH_SIZE) {
 			return res.status(404).json({
 				message: 'No more results'
 			});
 		}
 
 		const page = req.query.page || 1;
-		const perPage = searchResultBatchSize;
+		const perPage = SEARCH_RESULTS_BATCH_SIZE;
 		const startIndex = (page - 1) * perPage;
 		const endIndex = startIndex + perPage;
 		const pageImagePaths = matchingImagePaths.slice(startIndex, endIndex);
@@ -602,7 +603,8 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FO
 			page,
 			totalPages,
 			view,
-			multiplier
+			multiplier,
+			SEARCH_RESULTS_BATCH_SIZE
 		});
 	})
 

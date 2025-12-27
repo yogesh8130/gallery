@@ -4,7 +4,7 @@ let MULTIPLIER = 1 // zoom slider value
 const SELECTED_IMAGES = new Map(); // imageId => imageLink
 let ALL_FILES_SELECTED = false;
 let IS_MODAL_ACTIVE = false;
-let SELECTION_MODE = 0 // whether click opens an image or selects it
+let SELECTION_MODE = false; // whether click opens an image or selects it
 
 // media query for coarse pointer devices (touch)
 const COARSE_POINTER_MEDIA_QUERY = window.matchMedia('(pointer: coarse)');
@@ -442,21 +442,6 @@ document.addEventListener("DOMContentLoaded", function () {
 				// to record last interacted image, used to scroll to correct position on zoom change
 				LAST_VIEWED_IMAGE_ID = event.target.id;
 			}
-			// else if (event.target.classList.contains('resultFile')
-			// 	&& event.target.tagName == 'VIDEO') {
-			// 	event.preventDefault();
-			// 	console.log(event.target.playbackRate);
-			// 	console.log(event.target.paused);
-			// 	console.log(VIDEO_SPEEDUP_TIMEOUT);
-
-			// 	if (event.target.paused) {
-			// 		event.target.play();
-			// 	} else if (!VIDEO_SPEEDUP_TIMEOUT) {
-			// 		console.log('pausing video');
-			// 		event.target.pause();
-			// 	}
-
-			// }
 			udpateSelectedFilesCount();
 		});
 
@@ -506,24 +491,6 @@ document.addEventListener("DOMContentLoaded", function () {
 			CURRENT_IMAGE_ID_NUM--;
 		}
 	}
-
-	// play video on hover
-	// resultsContainer.addEventListener('mouseover', function (event) {
-	// 	const target = event.target;
-	// 	if (target.classList.contains('videoFile')) {
-	// 		target.play();
-	// 	} else if (target.classList.contains('thumbnail')) {
-	// 		target.click();
-	// 	}
-	// })
-
-	// // pause video on mouse leave
-	// resultsContainer.addEventListener('mouseout', function (event) {
-	// 	const video = event.target;
-	// 	if (video.classList.contains('videoFile')) {
-	// 		video.pause();
-	// 	}
-	// })
 
 	// prevent the page form reloading when these forms are submitted
 	const moveForm = document.getElementById('moveForm');
@@ -1048,30 +1015,6 @@ function refreshDB() {
 }
 
 function switchToTileView() {
-	// this code used to preserve the set of random images that were being viewed
-	// now it will reload a new set from server because this was slow due to client js processing
-
-	// const switchToTileViewButton = document.getElementById('switchToTileViewButton');
-	// switchToTileViewButton.classList.add('processing')
-
-	// const stylesheet = document.getElementById("stylesheet");
-	// stylesheet.href = "/css/search-results-tiles.css";
-
-	// const ielements = document.querySelectorAll('i');
-	// const resultDivs = document.querySelectorAll('.result');
-
-	// resultDivs.forEach(result => {
-	// 	const width = parseFloat(result.getAttribute('data-width'));
-
-	// 	result.style.width = `${width}rem`;
-	// 	result.style.flexGrow = width;
-	// });
-
-	// ielements.forEach(ielement => {
-	// 	const padding = parseFloat(ielement.getAttribute('data-padding'));
-	// 	ielement.style.paddingBottom = `${padding}%`;
-	// });
-
 	const currenturl = document.location.href;
 	if (!currenturl.includes('view=tiles')) {
 		window.location.href += '&view=tiles'
@@ -1099,17 +1042,6 @@ function changeTileSize() {
 		MULTIPLIER = 1;
 	}
 
-	// get the imageID at the top of viewport
-	// const elementsAtTop = document.elementsFromPoint(50, 0 + document.querySelector('.header').offsetHeight)
-	// let imageIdAtTop;;
-	// for (element of elementsAtTop) {
-	// 	if (element.classList.contains('resultFile')) {
-	// 		imageIdAtTop = element.id;
-	// 		console.log(imageIdAtTop);
-	// 		console.log(element.src);
-	// 	}
-	// }
-
 	// Loop over all the result elements
 	results.forEach(result => {
 		// Get the current width and flex-grow values
@@ -1132,18 +1064,6 @@ function changeTileSize() {
 		}
 	});
 	console.log("MULTIPLIER: " + MULTIPLIER);
-
-	// scroll back to correct position
-	// if (imageIdAtTop) {
-	// 	const imageElement = document.getElementById(imageIdAtTop);
-	// 	if (imageElement) {
-	// 		imageElement.scrollIntoView({
-	// 			// behavior: 'smooth',
-	// 			block: "start",
-	// 			inline: "nearest"
-	// 		});
-	// 	}
-	// }
 
 	// scroll to last viwed image
 	const lastViewedImage = document.getElementById(LAST_VIEWED_IMAGE_ID);
@@ -1188,11 +1108,13 @@ function loadMore() {
 					showPopup(`Fetching page ${CURRENT_PAGE_SIZE} / ${totalPages}`, 'info', 3000);
 				}
 
-				const tempDiv = document.createElement('div');
-				tempDiv.innerHTML = html;
-				while (tempDiv.firstChild) {
-					// remove each child from temp div and add to results div
-					RESULTS.appendChild(tempDiv.firstChild);
+				const template = document.createElement('template');
+				template.innerHTML = html.trim();
+				RESULTS.appendChild(template.content);
+
+				// if SELECTION_MODE then set selectCheckbox(s) to display: block
+				if (SELECTION_MODE) {
+					document.querySelectorAll('.selectCheckbox').forEach(element => element.style.display = 'block');
 				}
 			})
 			.catch(error => {
@@ -1476,12 +1398,27 @@ function selectionModeToggle() {
 	SELECTION_MODE = selectionModeCheckbox.checked ? "1" : "0";
 }
 
+function handleSelectionCheckboxInput(selectionCheckbox) {
+	if (selectionCheckbox.checked) {
+		selectImage(selectionCheckbox.parentElement.querySelector('.resultFile'));
+	} else {
+		deselectImage(selectionCheckbox.parentElement.querySelector('.resultFile'));
+	}
+}
+
 function selectImage(resultFileElement) {
+	// if no selected items yet then set selectCheckbox to display: block
+	if (SELECTED_IMAGES.size == 0) {
+		SELECTION_MODE = true;
+		document.querySelectorAll('.selectCheckbox').forEach(element => element.style.display = 'block');
+	}
+
 	// console.log('selecting image');
 	SELECTED_IMAGES.set(resultFileElement.id,
 		decodeURIComponent(resultFileElement.src.replace(origin, '').replace(/^\//, '')));
 	resultFileElement.classList.add('selectedImage');
 	LAST_SELECTED_IMAGE_INDEX = parseInt(resultFileElement.id.replace('image', ''));
+	document.getElementById(`selectCheckbox${resultFileElement.id.replace('image', '')}`).checked = true;
 	udpateSelectedFilesCount();
 }
 
@@ -1490,7 +1427,14 @@ function deselectImage(resultFileElement) {
 	SELECTED_IMAGES.delete(resultFileElement.id);
 	resultFileElement.classList.remove('selectedImage');
 	LAST_SELECTED_IMAGE_INDEX = undefined;
+	document.getElementById(`selectCheckbox${resultFileElement.id.replace('image', '')}`).checked = false;
 	udpateSelectedFilesCount();
+
+	// if no more selected files then set selectCheckbox to display: none
+	if (SELECTED_IMAGES.size == 0) {
+		SELECTION_MODE = false;
+		document.querySelectorAll('.selectCheckbox').forEach(element => element.style.display = 'none');
+	}
 }
 
 function handleRangeSelection(resultFileElement) {
@@ -1533,27 +1477,16 @@ function handleRangeSelection(resultFileElement) {
 function selectAllImages() {
 	const images = document.querySelectorAll('.resultFile');
 	images.forEach(image => {
-		const imageLinkRelative = decodeURIComponent(image
-			.getAttribute('data-src').replace(origin, '').replace(/^\//, ''));
-		const imageId = image.id;
-
-		SELECTED_IMAGES.set(imageId, imageLinkRelative)
-		image.classList.add('selectedImage');
-
-		if (image.tagName == 'VIDEO') {
-			image.parentElement
-				.querySelector('.thumbnailContainer')
-				.querySelector('.thumbnail').classList.add('selectedImage');
-		}
+		selectImage(image);
 	});
 	udpateSelectedFilesCount()
 }
 
 function deselectAllImages() {
 	SELECTED_IMAGES.clear()
-	const images = document.querySelectorAll('.selectedImage');
+	const images = document.querySelectorAll('.resultFile');
 	images.forEach(image => {
-		image.classList.remove('selectedImage');
+		deselectImage(image);
 	});
 	udpateSelectedFilesCount()
 }
