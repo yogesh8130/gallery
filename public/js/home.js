@@ -511,7 +511,12 @@ document.addEventListener("DOMContentLoaded", function () {
 		// HAMMERTIME!!
 
 		// adding touch gestures to #modal using hammer
-		const modalHammer = new Hammer(MODAL);
+		const modalHammer = new Hammer(MODAL, {
+			recognizers:
+				[
+					[Hammer.Swipe, { direction: Hammer.DIRECTION_HORIZONTAL }]
+				]
+		});
 		modalHammer.get('swipe').set({ direction: Hammer.DIRECTION_ALL });
 		modalHammer.on('swipeleft', function (event) {
 			// console.log('modal swipeleft');
@@ -560,10 +565,19 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
 
 		// adding touch gestures to #results using hammer
-		const resultsContainerHammer = new Hammer(RESULTS_CONTAINER);
+		const resultsContainerHammer = new Hammer(RESULTS_CONTAINER, {
+			recognizers:
+				[
+					[Hammer.Swipe, { direction: Hammer.DIRECTION_HORIZONTAL }],
+					[Hammer.Tap]
+				]
+		});
 		resultsContainerHammer.get('swipe').set({
 			direction: Hammer.DIRECTION_HORIZONTAL
 		});
+
+		resultsContainerHammer.get('tap').recognizeWith('swipe');
+
 		resultsContainerHammer.on('swiperight', (event) => {
 			// console.log('swiperight');
 			// if sidebar is open then close it else fullscreen the video which got swiped on
@@ -599,7 +613,12 @@ document.addEventListener("DOMContentLoaded", function () {
 			}
 		});
 
-		const sidebarHammer = new Hammer(SIDEBAR);
+		const sidebarHammer = new Hammer(SIDEBAR, {
+			recognizers:
+				[
+					[Hammer.Swipe, { direction: Hammer.DIRECTION_HORIZONTAL }]
+				]
+		});
 		sidebarHammer.get('swipe').set({
 			direction: Hammer.DIRECTION_HORIZONTAL
 		});
