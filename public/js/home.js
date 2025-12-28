@@ -312,15 +312,15 @@ document.addEventListener('fullscreenchange', restoreScroll);
 document.addEventListener('webkitfullscreenchange', restoreScroll);
 
 function restoreScroll() {
-	if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-		console.log("retruning");
-		setTimeout(() => {
-			window.scrollTo({
-				top: SCROLL_Y_BEFORE_FULLSCREEN,
-				behavior: 'auto'
+	setTimeout(() => {
+		const lastViewedImage = document.getElementById(LAST_VIEWED_IMAGE_ID);
+		if (lastViewedImage) {
+			lastViewedImage.scrollIntoView({
+				block: "center",
+				inline: "nearest"
 			});
-		}, 1000);
-	}
+		}
+	}, 500); // wait to exit fullscreen
 }
 
 function updateModalImageDetails(imageId) {
@@ -769,6 +769,7 @@ document.addEventListener('mouseup', function (event) {
 		if (target.playbackRate != 1) {
 			target.playbackRate = 1;
 		}
+		LAST_VIEWED_IMAGE_ID = target.id;
 	}
 })
 
@@ -836,6 +837,7 @@ document.addEventListener('touchend', function (event) {
 				target.controls = true;
 			}
 		}
+		LAST_VIEWED_IMAGE_ID = target.id;
 	}
 })
 
