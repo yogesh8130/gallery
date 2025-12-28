@@ -1148,9 +1148,13 @@ function loadMore(params) {
 					showPopup(`Fetching page ${CURRENT_PAGE_NUMBER} / ${totalPages}`, 'info', 3000);
 				}
 
-				const template = document.createElement('template');
-				template.innerHTML = html.trim();
-				RESULTS.appendChild(template.content);
+				const tempDiv = document.createElement('div');
+				tempDiv.innerHTML = html;
+
+				const fragment = document.createDocumentFragment();
+				fragment.append(...tempDiv.children);
+
+				RESULTS.appendChild(fragment);
 
 				// udpate page number
 				const pageNumberSpan = document.getElementById('pageNumber');
