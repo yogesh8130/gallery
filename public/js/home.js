@@ -443,9 +443,9 @@ document.addEventListener("DOMContentLoaded", function () {
 				showPopup('No more stuff', 'warning', 2000);
 				break;
 			}
-			const nextToNextImg = RESULTS_CONTAINER.querySelector(`#image${CURRENT_IMAGE_ID_NUM + 2}`);
-			if (!nextToNextImg) {
-				loadMore();
+			if (!nextImg) {
+				loadMore({ calledFromModal: true });
+				break;
 			}
 			if (nextImg && nextImg.classList.contains('imageFile')) {
 				VIEWER.load(nextImg.src);
@@ -1121,7 +1121,7 @@ const RESULTS = document.querySelector('.results')
 let IS_LOADING = false;
 let HAS_MORE_RESULTS = true;
 
-function loadMore() {
+function loadMore(params) {
 	const scrollPosition = window.scrollY;
 	const documentHeight = document.documentElement.scrollHeight;
 	const viewportHeight = window.innerHeight;
@@ -1130,7 +1130,8 @@ function loadMore() {
 
 	if (HAS_MORE_RESULTS && !IS_LOADING
 		&& window.location.href.includes('view=tiles')
-		&& scrollPosition >= documentHeight - (viewportHeight * 2)) {
+		&& ((scrollPosition >= documentHeight - (viewportHeight * 2))
+			|| params.calledFromModal)) {
 		// console.log('loadmore');
 		IS_LOADING = true;
 		CURRENT_PAGE_NUMBER++;
@@ -1380,10 +1381,6 @@ function showModal(fileLink, firstLoad = false, target = null) {
 				preloadNeighbors();
 			};
 		}
-		const modalButtons = document.querySelectorAll('.modalButton');
-		modalButtons.forEach(button => {
-			button.style.opacity = 0;
-		});
 	}
 	IS_MODAL_ACTIVE = true;
 }
@@ -1393,10 +1390,6 @@ function closeModal() {
 	// VIEWER.destroy();
 	MODAL_VIDEO.pause();
 	IS_MODAL_ACTIVE = false;
-	const modalButtons = document.querySelectorAll('.modalButton');
-	modalButtons.forEach(button => {
-		button.style.opacity = 1;
-	});
 }
 
 function toggleSidebar(event) {

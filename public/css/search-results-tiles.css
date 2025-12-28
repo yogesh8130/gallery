@@ -313,7 +313,6 @@ video {
 	color: white;
 	font-size: 4rem;
 	font-weight: bold;
-	opacity: 10%;
 }
 
 #modalCloseButton:hover,
@@ -333,7 +332,6 @@ video {
 	font-size: 4rem;
 	font-weight: bold;
 	padding: 50px;
-	opacity: 10%;
 }
 
 #modalNextButton {
@@ -371,7 +369,14 @@ video {
 }
 
 .modalButton {
-	transition: all 2s ease;
+	transition: all 0.3s ease;
+	opacity: 0.1;
+	user-select: none;
+	cursor: pointer;
+}
+
+.modalButton.transparent {
+	opacity: 0;
 }
 
 .renameDialog {
