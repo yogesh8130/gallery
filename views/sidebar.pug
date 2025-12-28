@@ -53,7 +53,7 @@ div(id = "sidebar" onclick = "toggleSidebar(event)")
 		span(id = 'selectedFilesCount') 0 files selected
 	form.bulkRow(id = 'moveForm')
 		input(type = "text" id = 'moveFilesInput' name = 'moveFilesInput'
-		placeholder = "Target folder name" autocomplete = 'on'
+		placeholder = "Target folder name" autocomplete = 'on' autocapitalize = 'off'
 		list = "suggestedFolders" oninput = 'updateSuggestedFolders()' onfocus = 'updateSuggestedFolders()')
 		//- to add suggestions for the target folder text box
 		datalist(id="suggestedFolders")
@@ -73,23 +73,23 @@ div(id = "sidebar" onclick = "toggleSidebar(event)")
 	#prependToNameHistory.buttonsFlex(data-operation = 'prependToName')
 	form.bulkRow(id = 'appendToNameForm')
 		input(type = "text" id = 'appendToNameInput' name = 'appendToNameInput'
-		placeholder = "Text, to; append" autocomplete = 'on')
+		placeholder = "Text, to; append" autocomplete = 'on' autocapitalize = 'off')
 		button(id = 'appendToNameButton' onclick = 'moveRenameFiles("appendToName")') Append
 		input(type="submit" hidden)
 	#appendToNameHistory.buttonsFlex(data-operation = 'appendToName')
 	form.bulkRow(id = 'removeFromNameForm')
 		input(type = "text" id = 'removeFromNameInput' name = 'removeFromNameInput'
-		placeholder = "Text to remove" autocomplete = 'on')
+		placeholder = "Text to remove" autocomplete = 'on' autocapitalize = 'off')
 		button(id = 'removeFromNameButton' onclick = 'moveRenameFiles("removeFromName")') Remove
 		input(type="submit" hidden)
 	#removeFromNameHistory.buttonsFlex(data-operation = 'removeFromName')
 	form.bulkCol(id = 'replaceInNameForm')
 		div.bulkRow
 			input(type = "text" id = 'textToFindInput' name = 'textToFindInput'
-			placeholder = "Text to find" autocomplete = 'on')
+			placeholder = "Text to find" autocomplete = 'on' autocapitalize = 'off')
 		div.bulkRow
 			input(type = "text" id = 'textToSubstituteInput' name = 'textToSubstituteInput'
-			placeholder = "Text to substitute" autocomplete = 'on')
+			placeholder = "Text to substitute" autocomplete = 'on' autocapitalize = 'off')
 			button(id = 'replaceInNameButton' onclick = 'moveRenameFiles("replaceInName")') Replace
 			input(type="submit" hidden)
 	div.bulkRow
