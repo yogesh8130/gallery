@@ -104,6 +104,7 @@ input.selectCheckbox {
 	top: 0;
 	left: 2px;
 	z-index: 1;
+	accent-color: greenyellow;
 }
 
 img,

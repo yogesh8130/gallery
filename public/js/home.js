@@ -1095,7 +1095,7 @@ function changeTileSize() {
 }
 
 // set page to 1 on every page load
-let CURRENT_PAGE_SIZE = 1;
+let CURRENT_PAGE_NUMBER = 1;
 const RESULTS = document.querySelector('.results')
 let IS_LOADING = false;
 let HAS_MORE_RESULTS = true;
@@ -1112,23 +1112,27 @@ function loadMore() {
 		&& scrollPosition >= documentHeight - (viewportHeight * 2)) {
 		// console.log('loadmore');
 		IS_LOADING = true;
-		CURRENT_PAGE_SIZE++;
+		CURRENT_PAGE_NUMBER++;
 		// queryParams just passes the searchText, shuffle and view ie queryParams
 		// from first search to getNextResults queries
-		fetch(`/getNextResults${QUERY_STRING}&page=${CURRENT_PAGE_SIZE}&multiplier=${MULTIPLIER}`)
+		fetch(`/getNextResults${QUERY_STRING}&page=${CURRENT_PAGE_NUMBER}&multiplier=${MULTIPLIER}`)
 			.then(response => response.text())
 			.then(html => {
-				if (CURRENT_PAGE_SIZE > totalPages) {
+				if (CURRENT_PAGE_NUMBER > totalPages) {
 					// console.log('no more results');
 					HAS_MORE_RESULTS = false;
 					showPopup('Stuff no more', 'warn');
 				} else {
-					showPopup(`Fetching page ${CURRENT_PAGE_SIZE} / ${totalPages}`, 'info', 3000);
+					showPopup(`Fetching page ${CURRENT_PAGE_NUMBER} / ${totalPages}`, 'info', 3000);
 				}
 
 				const template = document.createElement('template');
 				template.innerHTML = html.trim();
 				RESULTS.appendChild(template.content);
+
+				// udpate page number
+				const pageNumberSpan = document.getElementById('pageNumber');
+				pageNumberSpan.textContent = CURRENT_PAGE_NUMBER;
 
 				// if SELECTION_MODE then set selectCheckbox(s) to display: block
 				if (SELECTION_MODE) {

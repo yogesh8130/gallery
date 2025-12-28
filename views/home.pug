@@ -18,7 +18,7 @@ html
 				div.vertical
 					a(href='/' title = 'HOME')
 						h1 Search Results for "#{searchText}"
-					h2 Showing #{images.length}/#{totalResultCount} results (Page #{page}/#{totalPages})
+					h2 Showing #{images.length}/#{totalResultCount} results (Page #[span#pageNumber #{page}]/#{totalPages})
 				div.controlsDiv
 					.vertical
 						.horizontal
