@@ -331,6 +331,15 @@ function updateModalImageDetails(imageId) {
 	modalImageDetails.innerHTML = imageDetails.innerHTML;
 }
 
+function toggleModalControlsTransparency() {
+	const modalButtons = document.querySelectorAll('.modalButton');
+	modalButtons.forEach(button => {
+		button.classList.toggle('transparent');
+	});
+	const modalImageDetails = document.querySelector('.modalImageDetails');
+	modalImageDetails.classList.toggle('transparent');
+}
+
 document.addEventListener("DOMContentLoaded", function () {
 	RESULTS_CONTAINER = document.querySelector('.results');
 	SIDEBAR = document.getElementById('sidebar');
@@ -476,6 +485,44 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
 	}
 
+	// adding touch gestures to #modal using hammer
+	const modalHammer = new Hammer(MODAL, {
+		recognizers:
+			[
+				[Hammer.Swipe, { direction: Hammer.DIRECTION_HORIZONTAL }],
+				[Hammer.Tap]
+			]
+	});
+	modalHammer.get('tap').recognizeWith('swipe');
+
+	modalHammer.on('tap', function (event) {
+		if (!event.target.classList.contains('modalButton')) {
+			toggleModalControlsTransparency();
+		}
+	});
+
+	modalHammer.get('swipe').set({ direction: Hammer.DIRECTION_ALL });
+	modalHammer.on('swipeleft', function (event) {
+		// console.log('modal swipeleft');
+		if (!IS_VIEWER_ZOOMED)
+			showNextImage();
+	});
+	modalHammer.on('swiperight', function (event) {
+		// console.log('modal swiperight');
+		if (!IS_VIEWER_ZOOMED)
+			showPreviousImage();
+	});
+	modalHammer.on('swipedown', function (event) {
+		// console.log('modal swipedown');
+		if (!IS_VIEWER_ZOOMED)
+			closeModal();
+	});
+	modalHammer.on('swipeup', function (event) {
+		// console.log('modal swipeup');
+		if (!IS_VIEWER_ZOOMED)
+			closeModal();
+	});
+
 	// add click listeners if not in coarse pointer mode (ie using mouse)
 	if (!COARSE_POINTER_MEDIA_QUERY.matches) {
 		// Attach a click event listener to the parent element
@@ -530,35 +577,6 @@ document.addEventListener("DOMContentLoaded", function () {
 	if (COARSE_POINTER_MEDIA_QUERY.matches) {
 
 		// HAMMERTIME!!
-
-		// adding touch gestures to #modal using hammer
-		const modalHammer = new Hammer(MODAL, {
-			recognizers:
-				[
-					[Hammer.Swipe, { direction: Hammer.DIRECTION_HORIZONTAL }]
-				]
-		});
-		modalHammer.get('swipe').set({ direction: Hammer.DIRECTION_ALL });
-		modalHammer.on('swipeleft', function (event) {
-			// console.log('modal swipeleft');
-			if (!IS_VIEWER_ZOOMED)
-				showNextImage();
-		});
-		modalHammer.on('swiperight', function (event) {
-			// console.log('modal swiperight');
-			if (!IS_VIEWER_ZOOMED)
-				showPreviousImage();
-		});
-		modalHammer.on('swipedown', function (event) {
-			// console.log('modal swipedown');
-			if (!IS_VIEWER_ZOOMED)
-				closeModal();
-		});
-		modalHammer.on('swipeup', function (event) {
-			// console.log('modal swipeup');
-			if (!IS_VIEWER_ZOOMED)
-				closeModal();
-		});
 
 		// disable context menu on touch devices for results container
 		RESULTS_CONTAINER.addEventListener('contextmenu', function (event) {

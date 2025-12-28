@@ -375,8 +375,8 @@ video {
 	cursor: pointer;
 }
 
-.modalButton.transparent {
-	opacity: 0;
+.transparent {
+	opacity: 0 !important;
 }
 
 .renameDialog {
