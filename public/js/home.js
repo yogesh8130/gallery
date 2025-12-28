@@ -448,7 +448,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	MODAL_NEXT_FROM_SEARCH_BUTTON.onclick = function () {
 		while (true) {
 			if (!HAS_MORE_RESULTS) {
-				showPopup('No more stuff', 'warning', 2000);
+				showPopup('No more stuff', 'warn', 2000);
 				break;
 			}
 			const nextImg = RESULTS_CONTAINER.querySelector(`#image${CURRENT_IMAGE_ID_NUM + 1}`);
@@ -470,7 +470,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	MODAL_PREV_FROM_SEARCH_BUTTON.onclick = function () {
 		while (true) {
 			if (CURRENT_IMAGE_ID_NUM == 0) {
-				showPopup('Already at the beginning', 'warning', 2000);
+				showPopup('Already at the beginning', 'warn', 2000);
 				break;
 			}
 			const prevImg = RESULTS_CONTAINER.querySelector(`#image${CURRENT_IMAGE_ID_NUM - 1}`);
@@ -1318,6 +1318,9 @@ function pauseOtherVideos(videoElement) {
 }
 
 function showPopup(message, level, timeout) {
+	const popupContainer = document.getElementById('popupContainer');
+	popupContainer.style.visibility = 'visible';
+
 	if (!timeout) {
 		timeout = 5000;
 	}
@@ -1326,33 +1329,16 @@ function showPopup(message, level, timeout) {
 
 	popup.textContent = message;
 
-	// Add the 'popup' class to the popup element
 	popup.classList.add('popup');
 	popup.classList.add(level);
 
-	// Get the number of active popups
-	const activePopups = document.getElementsByClassName('popup').length;
+	popupContainer.appendChild(popup);
 
-	// Calculate the vertical position of the popup
-	const verticalPosition = 20 + (activePopups * 45); // Adjust the value (60) as needed
-
-	// Set the bottom CSS property
-	popup.style.bottom = verticalPosition + 'px';
-
-	// Append the popup element to the body
-	document.body.appendChild(popup);
-
-	// Show the popup
 	setTimeout(function () {
-		popup.style.opacity = '1';
-	}, 100);
-
-	// Hide and remove the popup after 3 seconds
-	setTimeout(function () {
-		popup.style.opacity = '0';
-		setTimeout(function () {
-			document.body.removeChild(popup);
-		}, 300);
+		popup.remove();
+		if (popupContainer.children.length === 0) {
+			popupContainer.style.visibility = 'hidden';
+		}
 	}, timeout);
 }
 
