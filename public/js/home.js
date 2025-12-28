@@ -1556,23 +1556,9 @@ function invertSelection() {
 	images.forEach(image => {
 		const imageId = image.id;
 		if (SELECTED_IMAGES.has(imageId)) {
-			SELECTED_IMAGES.delete(imageId);
-			image.classList.remove('selectedImage');
-			if (image.tagName == 'VIDEO') {
-				image.parentElement
-					.querySelector('.thumbnailContainer')
-					.querySelector('.thumbnail').classList.remove('selectedImage');
-			}
+			deselectImage(image);
 		} else {
-			const imageLinkRelative = decodeURIComponent(image
-				.getAttribute('data-src').replace(origin, '').replace(/^\//, ''));
-			SELECTED_IMAGES.set(imageId, imageLinkRelative);
-			image.classList.add('selectedImage');
-			if (image.tagName == 'VIDEO') {
-				image.parentElement
-					.querySelector('.thumbnailContainer')
-					.querySelector('.thumbnail').classList.add('selectedImage');
-			}
+			selectImage(image);
 		}
 	});
 	udpateSelectedFilesCount()
