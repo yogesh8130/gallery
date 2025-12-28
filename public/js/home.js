@@ -323,6 +323,14 @@ function restoreScroll() {
 	}
 }
 
+function updateModalImageDetails(imageId) {
+	const imageIdNum = parseInt(imageId.toString().replace('image', ''));
+	const modalImageDetails = document.querySelector('.modalImageDetails');
+	const imageDetails = document.querySelector(`#result${imageIdNum} .imageSidebar`);
+
+	modalImageDetails.innerHTML = imageDetails.innerHTML;
+}
+
 document.addEventListener("DOMContentLoaded", function () {
 	RESULTS_CONTAINER = document.querySelector('.results');
 	SIDEBAR = document.getElementById('sidebar');
@@ -441,6 +449,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			}
 			if (nextImg && nextImg.classList.contains('imageFile')) {
 				VIEWER.load(nextImg.src);
+				updateModalImageDetails(nextImg.id);
 				CURRENT_IMAGE_ID_NUM++;
 				break;
 			} else {
@@ -458,8 +467,11 @@ document.addEventListener("DOMContentLoaded", function () {
 			const prevImg = RESULTS_CONTAINER.querySelector(`#image${CURRENT_IMAGE_ID_NUM - 1}`);
 			if (prevImg && prevImg.classList.contains('imageFile')) {
 				VIEWER.load(prevImg.src);
+				updateModalImageDetails(prevImg.id);
 				CURRENT_IMAGE_ID_NUM--;
 				break;
+			} else {
+				CURRENT_IMAGE_ID_NUM--;
 			}
 		}
 	}
@@ -1331,17 +1343,21 @@ function showModal(fileLink, firstLoad = false, target = null) {
 
 	// remove the localhost url part
 	const relativeFilePath = fileLink.replace(origin, '').replace(/^\//, '');
-	const modalImageDetails = document.querySelector('.modalImageDetails');
-	modalImageDetails.innerHTML = '';
-	fetch(`/getFileDetails?relativeFilePath=${relativeFilePath}`)
-		.then(response => response.text())
-		.then(html => {
-			// console.log(html);
-			modalImageDetails.innerHTML = html;
-		})
-		.catch(error => {
-			console.error(`Error getting file details: ${error}`);
-		});
+	if (firstLoad) {
+		updateModalImageDetails(CURRENT_IMAGE_ID_NUM);
+	} else {
+		const modalImageDetails = document.querySelector('.modalImageDetails');
+		modalImageDetails.innerHTML = '';
+		fetch(`/getFileDetails?relativeFilePath=${relativeFilePath}`)
+			.then(response => response.text())
+			.then(html => {
+				// console.log(html);
+				modalImageDetails.innerHTML = html;
+			})
+			.catch(error => {
+				console.error(`Error getting file details: ${error}`);
+			});
+	}
 
 	MODAL.style.display = 'block';
 	if (fileLink.toLowerCase().endsWith('.mp4') || fileLink.toLowerCase().endsWith('.mkv') || fileLink.toLowerCase().endsWith('.webm')) {
