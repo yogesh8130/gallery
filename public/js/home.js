@@ -324,6 +324,7 @@ function restoreScroll() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+	RESULTS_CONTAINER = document.querySelector('.results');
 	SIDEBAR = document.getElementById('sidebar');
 	SIDEBAR_TOGGLE_BUTTON = document.getElementById('sidebarToggleButton');
 	MODAL = document.getElementById("modal");
@@ -407,8 +408,61 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	// MODAL SINGLE IMAGE VIEWER
 
-	// Get the parent element that contains all the images
-	RESULTS_CONTAINER = document.querySelector('.results');
+	MODAL.onclick = function (event) {
+		if (event.target.classList.contains('iv-image-view')) {
+			closeModal();
+		}
+	}
+
+	MODAL_CLOSE_BUTTON.onclick = function () {
+		closeModal();
+	}
+
+	MODAL_NEXT_BUTTON.onclick = function () {
+		console.log('modal next button pressed');
+		showNextImage();
+	}
+
+	MODAL_PREV_BUTTON.onclick = function () {
+		console.log('modal next button pressed');
+		showPreviousImage();
+	}
+
+	MODAL_NEXT_FROM_SEARCH_BUTTON.onclick = function () {
+		while (true) {
+			const nextImg = RESULTS_CONTAINER.querySelector(`#image${CURRENT_IMAGE_ID_NUM + 1}`);
+			if (!nextImg && !HAS_MORE_RESULTS) {
+				showPopup('No more stuff', 'warning', 2000);
+				break;
+			}
+			const nextToNextImg = RESULTS_CONTAINER.querySelector(`#image${CURRENT_IMAGE_ID_NUM + 2}`);
+			if (!nextToNextImg) {
+				loadMore();
+			}
+			if (nextImg && nextImg.classList.contains('imageFile')) {
+				VIEWER.load(nextImg.src);
+				CURRENT_IMAGE_ID_NUM++;
+				break;
+			} else {
+				break;
+			}
+		}
+	}
+
+	MODAL_PREV_FROM_SEARCH_BUTTON.onclick = function () {
+		while (true) {
+			if (CURRENT_IMAGE_ID_NUM == 0) {
+				showPopup('Already at the beginning', 'warning', 2000);
+				break;
+			}
+			const prevImg = RESULTS_CONTAINER.querySelector(`#image${CURRENT_IMAGE_ID_NUM - 1}`);
+			if (prevImg && prevImg.classList.contains('imageFile')) {
+				VIEWER.load(prevImg.src);
+				CURRENT_IMAGE_ID_NUM--;
+				break;
+			}
+		}
+	}
 
 	// add click listeners if not in coarse pointer mode (ie using mouse)
 	if (!COARSE_POINTER_MEDIA_QUERY.matches) {
@@ -432,7 +486,7 @@ document.addEventListener("DOMContentLoaded", function () {
 				&& event.target.tagName == 'IMG') {
 				event.preventDefault();
 				showModal(event.target.src, true, event.target);
-				CURRENT_IMAGE_ID_NUM = event.target.id.replace('image', '');
+				CURRENT_IMAGE_ID_NUM = parseInt(event.target.id.replace('image', ''));
 			} else if (event.target.tagName == 'VIDEO') {
 				// videos are handled by mousedown and mouseup events
 				event.preventDefault();
@@ -444,51 +498,6 @@ document.addEventListener("DOMContentLoaded", function () {
 			udpateSelectedFilesCount();
 		});
 
-		MODAL.onclick = function (event) {
-			if (event.target.classList.contains('iv-image-view')) {
-				closeModal();
-			}
-		}
-
-		MODAL_CLOSE_BUTTON.onclick = function () {
-			closeModal();
-		}
-
-		MODAL_NEXT_BUTTON.onclick = function () {
-			console.log('modal next button pressed');
-			showNextImage();
-		}
-
-		MODAL_PREV_BUTTON.onclick = function () {
-			console.log('modal next button pressed');
-			showPreviousImage();
-		}
-
-		MODAL_NEXT_FROM_SEARCH_BUTTON.onclick = function () {
-			// remove localhost and leading slash
-			CURRENT_IMAGE_PATH = CURRENT_IMAGE_PATH.replace(origin, '').replace(/^\//, '');
-
-			fetch(`/next${QUERY_STRING}&fromResults=true&currentImagePath=${(CURRENT_IMAGE_PATH)}`)
-				.then(response => response.json())
-				.then(data => {
-					showModal(data.nextImagePath);
-				})
-				.catch(error => console.error(error));
-			CURRENT_IMAGE_ID_NUM++;
-		}
-
-		MODAL_PREV_FROM_SEARCH_BUTTON.onclick = function () {
-			// remove localhost and leading slash
-			CURRENT_IMAGE_PATH = CURRENT_IMAGE_PATH.replace(origin, '').replace(/^\//, '');
-
-			fetch(`/previous${QUERY_STRING}&fromResults=true&currentImagePath=${(CURRENT_IMAGE_PATH)}`)
-				.then(response => response.json())
-				.then(data => {
-					showModal(data.previousImagePath);
-				})
-				.catch(error => console.error(error));
-			CURRENT_IMAGE_ID_NUM--;
-		}
 	}
 
 	// prevent the page form reloading when these forms are submitted
@@ -1317,6 +1326,7 @@ function showModal(fileLink, firstLoad = false, target = null) {
 	if (target) {
 		// used to scroll to correct position after changing tile size
 		LAST_VIEWED_IMAGE_ID = target.id;
+		CURRENT_IMAGE_ID_NUM = parseInt(target.id.replace('image', ''));
 	}
 
 	// remove the localhost url part
