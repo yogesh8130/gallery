@@ -37,7 +37,7 @@ let SIDEBAR_TOGGLE_BUTTON;
 
 let LONG_PRESS_TIMEOUT;
 const LONG_PRESS_DELAY = 300;
-const SWIPE_THRESHOLD = 100;
+const SWIPE_THRESHOLD = 50;
 const SPEEDUP_RATE = 4;
 
 const PRELOAD_CACHE = new Map(); // to keep next images pre-loaded
@@ -769,7 +769,6 @@ document.addEventListener("DOMContentLoaded", function () {
 	let MODAL_START_X = 0;
 	let MODAL_START_Y = 0;
 	let MODAL_ACTIVE_POINTER_ID = null;
-	let MODAL_LONG_PRESS_ACTIVATED = false;
 
 	MODAL.addEventListener('pointerdown', function (event) {
 		// event.preventDefault();
@@ -810,7 +809,43 @@ document.addEventListener("DOMContentLoaded", function () {
 		toggleModalControlsTransparency();
 	});
 
+	// SIDEBAR EVENTS
+
+	let SIDEBAR_START_X = 0;
+	let SIDEBAR_ACTIVE_POINTER_ID = null;
+
+	SIDEBAR.addEventListener('pointerdown', function (event) {
+		// event.preventDefault();
+		// showPopup('pointerdown');
+		// console.log(`🔽 pointer down, LONG_PRESS_TIMEOUT: ${LONG_PRESS_TIMEOUT}, LONG_PRESS_ACTIVATED: ${SIDEBAR_LONG_PRESS_ACTIVATED}`);
+		// Ignore secondary buttons (right click, etc.)
+		if (event.button !== 0) {
+			// console.log('secondary button, ignored');
+			return;
+		};
+
+		SIDEBAR_ACTIVE_POINTER_ID = event.pointerId;
+		SIDEBAR_START_X = event.clientX;
+
+		// console.log(`🚫 pointer down, LONG_PRESS_TIMEOUT: ${LONG_PRESS_TIMEOUT}, LONG_PRESS_ACTIVATED: ${SIDEBAR_LONG_PRESS_ACTIVATED}`);
+	});
+
+	SIDEBAR.addEventListener('pointerup', function (event) {
+		// console.log('pointer up');
+		if (event.pointerId !== SIDEBAR_ACTIVE_POINTER_ID) {
+			// console.log('pointer changed, ignored');
+			return
+		};
+
+		const deltaX = event.clientX - SIDEBAR_START_X;
+		if (Math.abs(deltaX) >= SWIPE_THRESHOLD) {
+			// showPopup(`🔺deltaX: ${deltaX}`);
+			resultsContainerSwipeHandler(deltaX > 0 ? 'right' : 'left', event);
+			return;
+		}
+	});
 });
+
 
 // Keyboard shortcuts
 document.addEventListener('keydown', function (event) {

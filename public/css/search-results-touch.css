@@ -153,6 +153,7 @@ h2 {
 
 #sidebar {
 	overflow: hidden;
+	touch-action: pan-y;
 }
 
 .sidebarButton {
