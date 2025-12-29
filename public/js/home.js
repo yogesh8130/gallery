@@ -366,7 +366,8 @@ function resultsContainerSwipeHandler(swipeDirection, event) {
 	if (swipeDirection === 'right') {
 		// showPopup('pointer moved to right 👉');
 		// console.log('pointer moved to right 👉');
-		closeSidebar();
+		if (document.getElementById('sidebar').classList.contains('open')) closeSidebar();
+		else if (event.target && event.target.classList.contains('videoFile')) event.target.requestFullscreen();
 		// pointer moved to left
 	} else if (swipeDirection === 'left') {
 		// showPopup('pointer moved to left 👈');
