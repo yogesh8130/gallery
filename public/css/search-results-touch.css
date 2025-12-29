@@ -21,7 +21,7 @@ h2 {
 .results {
 	padding: 0;
 	padding-bottom: 50vh;
-	touch-action: manipulation;
+	touch-action: pan-y;
 }
 
 /* To permanently show the image title and actions*/
@@ -49,7 +49,7 @@ h2 {
 		padding: 0px;
 	}
 
-	.marquee2{
+	.marquee2 {
 		display: none;
 	}
 }
@@ -81,6 +81,10 @@ h2 {
 	font-size: 4rem;
 	font-weight: bold;
 	opacity: 30%;
+}
+
+#modal {
+	touch-action: none;
 }
 
 #modalCloseButton:hover,
