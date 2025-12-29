@@ -24,7 +24,7 @@ html
 						.horizontal
 							form.searchForm(action = "" method = "get" target = '_blank')
 								input(type = "text" name = 'searchText' id = 'searchText'
-								placeholder = 'Search' onfocus = 'this.select()' 
+								placeholder = 'Search'
 								title = 'F3')
 								input(type = "hidden" name = 'view' id = 'view')
 							button#shuffleButton.sortButton(onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=shuffle&sortAsc=true"`

@@ -21,6 +21,7 @@ h2 {
 .results {
 	padding: 0;
 	padding-bottom: 50vh;
+	touch-action: manipulation;
 }
 
 /* To permanently show the image title and actions*/

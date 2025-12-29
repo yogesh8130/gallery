@@ -35,8 +35,8 @@ let RESULTS_CONTAINER;
 let SIDEBAR;
 let SIDEBAR_TOGGLE_BUTTON;
 
-let VIDEO_SPEEDUP_TIMEOUT;
-const SPEEDUP_DELAY = 500;
+let LONG_PRESS_TIMEOUT;
+const SPEEDUP_DELAY = 300;
 const SPEEDUP_RATE = 4;
 
 const PRELOAD_CACHE = new Map(); // to keep next images pre-loaded
@@ -340,6 +340,26 @@ function toggleModalControlsTransparency() {
 	modalImageDetails.classList.toggle('transparent');
 }
 
+function resultsContainerLongPressHandler(event) {
+	console.log('resultsContainerLongPressHandler(), eventType: ', event.type);
+
+	if (event.target.classList.contains('imageFile')
+		|| (event.target.classList.contains('videoFile') && event.target.paused)) {
+		// if image already selected then deselect
+		if (event.target.classList.contains('selectedImage')) {
+			deselectImage(event.target);
+		}
+		// select the range of images if there is a last selected image
+		else if (LAST_SELECTED_IMAGE_INDEX > -1) {
+			handleRangeSelection(event.target);
+		}
+		// if no image selected before then select first image
+		else if (!LAST_SELECTED_IMAGE_INDEX) {
+			selectImage(event.target)
+		}
+	}
+}
+
 document.addEventListener("DOMContentLoaded", function () {
 	RESULTS_CONTAINER = document.querySelector('.results');
 	SIDEBAR = document.getElementById('sidebar');
@@ -486,78 +506,78 @@ document.addEventListener("DOMContentLoaded", function () {
 	}
 
 	// adding touch gestures to #modal using hammer
-	const modalHammer = new Hammer(MODAL, {
-		recognizers:
-			[
-				[Hammer.Swipe, { direction: Hammer.DIRECTION_HORIZONTAL }],
-				[Hammer.Tap]
-			]
-	});
-	modalHammer.get('tap').recognizeWith('swipe');
+	// const modalHammer = new Hammer(MODAL, {
+	// 	recognizers:
+	// 		[
+	// 			[Hammer.Swipe, { direction: Hammer.DIRECTION_HORIZONTAL }],
+	// 			[Hammer.Tap]
+	// 		]
+	// });
+	// modalHammer.get('tap').recognizeWith('swipe');
 
-	modalHammer.on('tap', function (event) {
-		if (!event.target.classList.contains('modalButton')) {
-			toggleModalControlsTransparency();
+	// modalHammer.on('tap', function (event) {
+	// 	if (!event.target.classList.contains('modalButton')) {
+	// 		toggleModalControlsTransparency();
+	// 	}
+	// });
+
+	// modalHammer.get('swipe').set({ direction: Hammer.DIRECTION_ALL });
+	// modalHammer.on('swipeleft', function (event) {
+	// 	// console.log('modal swipeleft');
+	// 	if (!IS_VIEWER_ZOOMED)
+	// 		showNextImage();
+	// });
+	// modalHammer.on('swiperight', function (event) {
+	// 	// console.log('modal swiperight');
+	// 	if (!IS_VIEWER_ZOOMED)
+	// 		showPreviousImage();
+	// });
+	// modalHammer.on('swipedown', function (event) {
+	// 	// console.log('modal swipedown');
+	// 	if (!IS_VIEWER_ZOOMED)
+	// 		closeModal();
+	// });
+	// modalHammer.on('swipeup', function (event) {
+	// 	// console.log('modal swipeup');
+	// 	if (!IS_VIEWER_ZOOMED)
+	// 		closeModal();
+	// });
+
+	// add click listeners if not in coarse pointer mode(ie using mouse)
+	// if (!COARSE_POINTER_MEDIA_QUERY.matches) {
+	// Attach a click event listener to the parent element
+	RESULTS_CONTAINER.addEventListener('click', function (event) {
+		// console.log('clicked');
+		// event.target is the element that was clicked
+		/* if (LAST_SELECTED_IMAGE_INDEX > -1 &&
+			event.target.classList.contains('resultFile') && event.shiftKey) {
+			handleRangeSelection(event.target);
+		} else if (event.target.classList.contains('resultFile') && event.ctrlKey) {
+			// select unselect with ctrl key OR single left click (if selection mode is on)
+			if (event.target.classList.contains('selectedImage')) {
+				deselectImage(event.target);
+			} else {
+				selectImage(event.target);
+			}
+			// console.log(selectedImages);
+
+		} else if (event.target.classList.contains('resultFile')
+			&& event.target.tagName == 'IMG') {
+			event.preventDefault();
+			showModal(event.target.src, true, event.target);
+			CURRENT_IMAGE_ID_NUM = parseInt(event.target.id.replace('image', ''));
+		} else  */if (event.target.tagName == 'VIDEO') {
+			// videos are handled by mousedown and mouseup events this fucks up with those
+			event.preventDefault();
 		}
+		// if (event.target.classList.contains('resultFile')) {
+		// 	// to record last interacted image, used to scroll to correct position on zoom change
+		// 	LAST_VIEWED_IMAGE_ID = event.target.id;
+		// }
+		// udpateSelectedFilesCount();
 	});
 
-	modalHammer.get('swipe').set({ direction: Hammer.DIRECTION_ALL });
-	modalHammer.on('swipeleft', function (event) {
-		// console.log('modal swipeleft');
-		if (!IS_VIEWER_ZOOMED)
-			showNextImage();
-	});
-	modalHammer.on('swiperight', function (event) {
-		// console.log('modal swiperight');
-		if (!IS_VIEWER_ZOOMED)
-			showPreviousImage();
-	});
-	modalHammer.on('swipedown', function (event) {
-		// console.log('modal swipedown');
-		if (!IS_VIEWER_ZOOMED)
-			closeModal();
-	});
-	modalHammer.on('swipeup', function (event) {
-		// console.log('modal swipeup');
-		if (!IS_VIEWER_ZOOMED)
-			closeModal();
-	});
-
-	// add click listeners if not in coarse pointer mode (ie using mouse)
-	if (!COARSE_POINTER_MEDIA_QUERY.matches) {
-		// Attach a click event listener to the parent element
-		RESULTS_CONTAINER.addEventListener('click', function (event) {
-			// console.log('clicked');
-			// event.target is the element that was clicked
-			if (LAST_SELECTED_IMAGE_INDEX > -1 &&
-				event.target.classList.contains('resultFile') && event.shiftKey) {
-				handleRangeSelection(event.target);
-			} else if (event.target.classList.contains('resultFile') && event.ctrlKey) {
-				// select unselect with ctrl key OR single left click (if selection mode is on)
-				if (event.target.classList.contains('selectedImage')) {
-					deselectImage(event.target);
-				} else {
-					selectImage(event.target);
-				}
-				// console.log(selectedImages);
-
-			} else if (event.target.classList.contains('resultFile')
-				&& event.target.tagName == 'IMG') {
-				event.preventDefault();
-				showModal(event.target.src, true, event.target);
-				CURRENT_IMAGE_ID_NUM = parseInt(event.target.id.replace('image', ''));
-			} else if (event.target.tagName == 'VIDEO') {
-				// videos are handled by mousedown and mouseup events
-				event.preventDefault();
-			}
-			if (event.target.classList.contains('resultFile')) {
-				// to record last interacted image, used to scroll to correct position on zoom change
-				LAST_VIEWED_IMAGE_ID = event.target.id;
-			}
-			udpateSelectedFilesCount();
-		});
-
-	}
+	// }
 
 	// prevent the page form reloading when these forms are submitted
 	const moveForm = document.getElementById('moveForm');
@@ -574,98 +594,82 @@ document.addEventListener("DOMContentLoaded", function () {
 	replaceInNameForm.onsubmit = (event) => { event.preventDefault(); }
 
 	// Touch listeners for touch devices
-	if (COARSE_POINTER_MEDIA_QUERY.matches) {
+	// if (COARSE_POINTER_MEDIA_QUERY.matches) {
 
-		// HAMMERTIME!!
+	// 	// HAMMERTIME!!
 
-		// disable context menu on touch devices for results container
-		RESULTS_CONTAINER.addEventListener('contextmenu', function (event) {
-			// console.log('suppressed contextmenu');
-			event.preventDefault();
-			resultsContainerLongPressHandler(event);
-		});
+	// disable context menu on touch devices for results container
+	RESULTS_CONTAINER.addEventListener('contextmenu', function (event) {
+		// console.log('suppressed contextmenu');
+		event.preventDefault();
+		// resultsContainerLongPressHandler(event);
+	});
 
-		function resultsContainerLongPressHandler(event) {
-			if (event.target.classList.contains('imageFile')
-				|| (event.target.classList.contains('videoFile') && event.target.paused)) {
-				// if image already selected then deselect
-				if (event.target.classList.contains('selectedImage')) {
-					deselectImage(event.target);
-				}
-				// select the range of images if there is a last selected image
-				else if (LAST_SELECTED_IMAGE_INDEX > -1) {
-					handleRangeSelection(event.target);
-				}
-				// if no image selected before then select first image
-				else if (!LAST_SELECTED_IMAGE_INDEX) {
-					selectImage(event.target)
-				}
-			}
-		}
 
-		// adding touch gestures to #results using hammer
-		const resultsContainerHammer = new Hammer(RESULTS_CONTAINER, {
-			recognizers:
-				[
-					[Hammer.Swipe, { direction: Hammer.DIRECTION_HORIZONTAL }],
-					[Hammer.Tap]
-				]
-		});
-		resultsContainerHammer.get('swipe').set({
-			direction: Hammer.DIRECTION_HORIZONTAL
-		});
 
-		resultsContainerHammer.get('tap').recognizeWith('swipe');
+	// 	// adding touch gestures to #results using hammer
+	// 	const resultsContainerHammer = new Hammer(RESULTS_CONTAINER, {
+	// 		recognizers:
+	// 			[
+	// 				[Hammer.Swipe, { direction: Hammer.DIRECTION_HORIZONTAL }],
+	// 				[Hammer.Tap]
+	// 			]
+	// 	});
+	// 	resultsContainerHammer.get('swipe').set({
+	// 		direction: Hammer.DIRECTION_HORIZONTAL
+	// 	});
 
-		resultsContainerHammer.on('swiperight', (event) => {
-			// console.log('swiperight');
-			// if sidebar is open then close it else fullscreen the video which got swiped on
-			if (document.querySelector('#sidebar.open')) {
-				closeSidebar();
-			} else {
-				// Swipe right on video to make it fullscreen
-				const video = event.target.closest('video');
-				if (!video) return;
-				openFullscreen(video);
-			}
-		});
-		resultsContainerHammer.on('swipeleft', (event) => {
-			// console.log('swiperight');
-			openSidebar();
-		});
+	// 	resultsContainerHammer.get('tap').recognizeWith('swipe');
 
-		// tap to preview image
-		resultsContainerHammer.on('tap', (event) => {
-			console.log('singleTap');
-			if (event.target.classList.contains('imageFile')) {
-				event.preventDefault();
-				showModal(event.target.src, true, event.target);
-			}
-		});
+	// 	resultsContainerHammer.on('swiperight', (event) => {
+	// 		// console.log('swiperight');
+	// 		// if sidebar is open then close it else fullscreen the video which got swiped on
+	// 		if (document.querySelector('#sidebar.open')) {
+	// 			closeSidebar();
+	// 		} else {
+	// 			// Swipe right on video to make it fullscreen
+	// 			const video = event.target.closest('video');
+	// 			if (!video) return;
+	// 			openFullscreen(video);
+	// 		}
+	// 	});
+	// 	resultsContainerHammer.on('swipeleft', (event) => {
+	// 		// console.log('swiperight');
+	// 		openSidebar();
+	// 	});
 
-		// click to preview image (sometimes it's registered as click and not tap WTF)
-		RESULTS_CONTAINER.addEventListener('click', (event) => {
-			// console.log('click');
-			if (event.target.classList.contains('imageFile')) {
-				event.preventDefault();
-				showModal(event.target.src, true, event.target);
-			}
-		});
+	// 	// tap to preview image
+	// 	resultsContainerHammer.on('tap', (event) => {
+	// 		console.log('singleTap');
+	// 		if (event.target.classList.contains('imageFile')) {
+	// 			event.preventDefault();
+	// 			showModal(event.target.src, true, event.target);
+	// 		}
+	// 	});
 
-		const sidebarHammer = new Hammer(SIDEBAR, {
-			recognizers:
-				[
-					[Hammer.Swipe, { direction: Hammer.DIRECTION_HORIZONTAL }]
-				]
-		});
-		sidebarHammer.get('swipe').set({
-			direction: Hammer.DIRECTION_HORIZONTAL
-		});
-		sidebarHammer.on('swiperight', (ev) => {
-			// console.log('swiperight sidebar');
-			closeSidebar();
-		});
-	}
+	// 	// click to preview image (sometimes it's registered as click and not tap WTF)
+	// 	RESULTS_CONTAINER.addEventListener('click', (event) => {
+	// 		// console.log('click');
+	// 		if (event.target.classList.contains('imageFile')) {
+	// 			event.preventDefault();
+	// 			showModal(event.target.src, true, event.target);
+	// 		}
+	// 	});
+
+	// 	const sidebarHammer = new Hammer(SIDEBAR, {
+	// 		recognizers:
+	// 			[
+	// 				[Hammer.Swipe, { direction: Hammer.DIRECTION_HORIZONTAL }]
+	// 			]
+	// 	});
+	// 	sidebarHammer.get('swipe').set({
+	// 		direction: Hammer.DIRECTION_HORIZONTAL
+	// 	});
+	// 	sidebarHammer.on('swiperight', (ev) => {
+	// 		// console.log('swiperight sidebar');
+	// 		closeSidebar();
+	// 	});
+	// }
 });
 
 // Keyboard shortcuts
@@ -762,109 +766,143 @@ document.addEventListener('keydown', function (event) {
 	}
 });
 
-document.addEventListener('mousedown', function (event) {
-	const target = event.target;
-	if (target && (target.tagName === 'VIDEO')) {
-		event.preventDefault();
-		if (!target.paused) {
-			VIDEO_SPEEDUP_TIMEOUT = setTimeout(function () {
-				target.playbackRate = SPEEDUP_RATE;
-				VIDEO_SPEEDUP_TIMEOUT = null;
-			}, SPEEDUP_DELAY);
-		}
-	}
-})
+// document.addEventListener('pointerdown', function (event) {
+// 	const target = event.target;
+// 	if (target && (target.tagName === 'VIDEO')) {
+// 		event.preventDefault();
+// 		if (!target.paused) {
+// 			VIDEO_SPEEDUP_TIMEOUT = setTimeout(function () {
+// 				target.playbackRate = SPEEDUP_RATE;
+// 				VIDEO_SPEEDUP_TIMEOUT = null;
+// 			}, SPEEDUP_DELAY);
+// 		}
+// 	}
+// })
 
-document.addEventListener('mouseup', function (event) {
+// document.addEventListener('pointerup', function (event) {
+// 	const target = event.target;
+// 	if (target && (target.tagName === 'VIDEO')) {
+// 		event.preventDefault();
+// 		if (target.paused) {
+// 			target.play()
+// 		} else if (target.playbackRate == 1) {
+// 			target.pause();
+// 		}
+// 		if (target.playbackRate != 1) {
+// 			target.playbackRate = 1;
+// 		}
+// 		LAST_VIEWED_IMAGE_ID = target.id;
+// 	}
+// })
+
+
+let START_X = 0;
+let START_Y = 0;
+let ACTIVE_POINTER_ID = null;
+let LONG_PRESS_ACTIVATED = false;
+
+document.addEventListener('pointerdown', function (event) {
+	event.preventDefault();
+	console.log(`🔽 pointer down, LONG_PRESS_TIMEOUT: ${LONG_PRESS_TIMEOUT}, LONG_PRESS_ACTIVATED: ${LONG_PRESS_ACTIVATED}`);
+	// Ignore secondary buttons (right click, etc.)
+	if (event.button !== 0) {
+		console.log('secondary button, ignored');
+		return;
+	};
+
 	const target = event.target;
-	if (target && (target.tagName === 'VIDEO')) {
+	console.log(target.classList);
+
+	ACTIVE_POINTER_ID = event.pointerId;
+	START_X = event.clientX;
+	START_Y = event.clientY;
+
+	// speed up video
+	if (target && (target.classList.contains('videoFile')) && !target.paused) {
+		console.log('video not paused, setting video speedup timeout');
+		LONG_PRESS_TIMEOUT = setTimeout(function () {
+			console.log(`video sped up ⏩`);
+			target.playbackRate = SPEEDUP_RATE;
+			LONG_PRESS_TIMEOUT = null;
+			LONG_PRESS_ACTIVATED = true;
+		}, SPEEDUP_DELAY);
+		return;
+	}
+	// select/deselect file
+	if (target && (target.classList.contains('resultFile'))) {
+		console.log('checking for long press for file selection');
+		LONG_PRESS_TIMEOUT = setTimeout(function () {
+			resultsContainerLongPressHandler(event)
+			console.log('long press activated, file selected');
+			LONG_PRESS_TIMEOUT = null;
+			LONG_PRESS_ACTIVATED = true;
+		}, SPEEDUP_DELAY);
+		console.log('LONG_PRESS_TIMEOUT');
+		console.log(LONG_PRESS_TIMEOUT);
+
+		return;
+	}
+	console.log(`🚫 pointer down, LONG_PRESS_TIMEOUT: ${LONG_PRESS_TIMEOUT}, LONG_PRESS_ACTIVATED: ${LONG_PRESS_ACTIVATED}`);
+});
+
+// document.addEventListener('pointermove', function (event) {
+// 	console.log('pointer move');
+// 	if (event.pointerId !== ACTIVE_POINTER_ID) return;
+// });
+
+document.addEventListener('pointerup', function (event) {
+	event.preventDefault();
+	console.log(`🔼 pointer up, LONG_PRESS_TIMEOUT: ${LONG_PRESS_TIMEOUT}, LONG_PRESS_ACTIVATED: ${LONG_PRESS_ACTIVATED}, targetType: ${event.target.nodeName}`);
+	if (event.pointerId !== ACTIVE_POINTER_ID) return;
+
+	const target = event.target;
+
+	const endX = event.clientX;
+	const endY = event.clientY;
+
+	const deltaX = endX - START_X;
+	const deltaY = endY - START_Y;
+
+	ACTIVE_POINTER_ID = null;
+
+	if (target && (target.classList.contains('videoFile')) && (!LONG_PRESS_ACTIVATED || !target.paused)) {
 		event.preventDefault();
+		console.log('pointer up on video file');
 		if (target.paused) {
+			console.log(`video is paused hence playing ▶`);
 			target.play()
 		} else if (target.playbackRate == 1) {
+			console.log(`video is playing at 1x hence pausing ⏸`);
 			target.pause();
 		}
 		if (target.playbackRate != 1) {
+			console.log(`video is playing at ${target.playbackRate}x hence resetting to 1x`);
 			target.playbackRate = 1;
 		}
 		LAST_VIEWED_IMAGE_ID = target.id;
 	}
-})
-
-
-let TOUCH_START_X = 0;
-let TOUCH_START_Y = 0;
-let TOUCH_COUNT;
-document.addEventListener('touchstart', function (event) {
-	const target = event.target;
-	// console.log(target);
-	const touch = event.touches[0];
-	TOUCH_START_X = touch.clientX;
-	TOUCH_START_Y = touch.clientY;
-
-	TOUCH_COUNT = event.touches.length;
-
-	if (target && (target.tagName === 'VIDEO')) {
-		target.controls = false;
-		VIDEO_SPEEDUP_TIMEOUT = setTimeout(function () {
-			target.playbackRate = SPEEDUP_RATE;
-			target.controls = false;
-		}, SPEEDUP_DELAY);
+	if (target && (target.classList.contains('imageFile')) && !LONG_PRESS_ACTIVATED) {
+		console.log('pointer up on image file, opening image');
+		showModal(target.src, true, target);
+		LONG_PRESS_ACTIVATED = false;
 	}
-})
-
-document.addEventListener('touchmove', function (event) {
-	const touch = event.touches[0];
-	const touchMoveY = touch.clientY;
-	// cancel speed up if touch is moved
-	if (touchMoveY && VIDEO_SPEEDUP_TIMEOUT) {
-		clearTimeout(VIDEO_SPEEDUP_TIMEOUT);
+	if (LONG_PRESS_TIMEOUT) {
+		console.log('pointer up, clearing long press timeout', LONG_PRESS_TIMEOUT);
+		clearTimeout(LONG_PRESS_TIMEOUT);
+		LONG_PRESS_TIMEOUT = null;
 	}
-})
+	LONG_PRESS_ACTIVATED = false;
+	console.log(`🛑 pointer up, LONG_PRESS_TIMEOUT: ${LONG_PRESS_TIMEOUT}, LONG_PRESS_ACTIVATED: ${LONG_PRESS_ACTIVATED}`);
+});
 
-document.addEventListener('touchend', function (event) {
-	const target = event.target;
-	// console.log(target);
-
-	const touch = event.changedTouches[0];
-	const touchEndX = touch.clientX;
-	const touchEndY = touch.clientY;
-
-	// console.log("touchCount: " + touchCount);
-	// console.log(event.touches.length);
-
-	const touchDeltaX = touchEndX - TOUCH_START_X;
-	const touchDeltaY = touchEndY - TOUCH_START_Y;
-
-	// console.log(touchDeltaX, touchDeltaY);
-
-	if (target && (target.tagName === 'VIDEO') && Math.abs(touchDeltaY) < 10) {
-		// if timeout is still set
-		if (VIDEO_SPEEDUP_TIMEOUT) {
-			clearTimeout(VIDEO_SPEEDUP_TIMEOUT);
-			event.preventDefault();
-		}
-		if (target.playbackRate == SPEEDUP_RATE) {
-			target.playbackRate = 1;
-		} else {
-			// toggle play/pause
-			if (target.paused) {
-				target.play();
-			} else {
-				target.pause();
-				target.controls = true;
-			}
-		}
-		LAST_VIEWED_IMAGE_ID = target.id;
+document.addEventListener('pointercancel', function () {
+	console.log('❌ pointer cancel');
+	if (LONG_PRESS_TIMEOUT) {
+		clearTimeout(LONG_PRESS_TIMEOUT);
+		LONG_PRESS_TIMEOUT = null;
 	}
-})
-
-document.addEventListener('contextmenu', function (event) {
-	const target = event.target;
-	if (target && (target.tagName === 'VIDEO')) {
-		event.preventDefault();
-	}
-})
+	ACTIVE_POINTER_ID = null;
+});
 
 let PREVIOUS_SCROLL_POSITION = 0;
 let SCROLL_TIMEOUT;
@@ -1000,45 +1038,6 @@ function restoreImageLinks() {
 			image.removeAttribute('data-original-href');
 		}
 	}
-}
-
-
-function dragToScrollEnable() {
-	// console.log('enabling drag to scroll');
-
-	let scrollable = document.querySelector('.results');
-	let isDown = false;
-	let startX;
-	let startY;
-	let scrollLeft;
-	let scrollTop;
-
-	scrollable.addEventListener('mousedown', function (e) {
-		isDown = true;
-		startX = e.pageX - scrollable.offsetLeft;
-		startY = e.pageY - scrollable.offsetTop;
-		scrollLeft = scrollable.scrollLeft;
-		scrollTop = scrollable.scrollTop;
-	});
-
-	scrollable.addEventListener('mouseleave', function () {
-		isDown = false;
-	});
-
-	scrollable.addEventListener('mouseup', function () {
-		isDown = false;
-	});
-
-	scrollable.addEventListener('mousemove', function (e) {
-		if (!isDown) return;
-		e.preventDefault();
-		let x = e.pageX - scrollable.offsetLeft;
-		let y = e.pageY - scrollable.offsetTop;
-		let walkX = (x - startX) * 2;
-		let walkY = (y - startY) * 2;
-		scrollable.scrollLeft = scrollLeft - walkX;
-		scrollable.scrollTop = scrollTop - walkY;
-	});
 }
 
 function refreshDB() {
