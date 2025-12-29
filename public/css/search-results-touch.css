@@ -151,6 +151,10 @@ h2 {
 	gap: 5px;
 }
 
+#sidebar {
+	overflow: hidden;
+}
+
 .sidebarButton {
 	border-radius: 4px;
 	width: 2.2rem;
