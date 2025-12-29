@@ -48,7 +48,7 @@ h2 {
 		padding: 0px;
 	}
 
-	.marquee2{
+	.marquee2 {
 		display: none;
 	}
 }
@@ -144,6 +144,10 @@ h2 {
 	display: flex;
 	flex-direction: column;
 	gap: 5px;
+}
+
+#sidebar {
+	overflow: hidden;
 }
 
 .sidebarButton {
