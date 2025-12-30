@@ -388,6 +388,17 @@ function modalSwipeHandler(pointerMovedTo, event) {
 	}
 }
 
+function scrollToCurrentImage() {
+	const currentImage = document.getElementById(`image${CURRENT_IMAGE_ID_NUM}`);
+	if (currentImage) {
+		currentImage.scrollIntoView({
+			behavior: "smooth",
+			block: "center",
+			inline: "nearest"
+		});
+	}
+}
+
 document.addEventListener("DOMContentLoaded", function () {
 	RESULTS_CONTAINER = document.querySelector('.results');
 	SIDEBAR = document.getElementById('sidebar');
@@ -1392,6 +1403,8 @@ function closeModal() {
 	// VIEWER.destroy();
 	MODAL_VIDEO.pause();
 	IS_MODAL_ACTIVE = false;
+
+	scrollToCurrentImage()
 }
 
 function toggleSidebar(event) {
