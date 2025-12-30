@@ -568,6 +568,9 @@ ul {
 	height: 1.2rem;
 }
 
+#sidebar input[type="text"] {
+	width: 100%;
+}
 
 #sidebar button {
 	height: 2.2rem;
