@@ -495,15 +495,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	MODAL_NEXT_FROM_SEARCH_BUTTON.onclick = function () {
 		while (true) {
-			if (!HAS_MORE_RESULTS) {
-				showPopup('No more stuff', 'warn', 2000);
-				break;
-			}
 			const nextImg = RESULTS_CONTAINER.querySelector(`#image${CURRENT_IMAGE_ID_NUM + 1}`);
-			if (!nextImg) {
+			if (!nextImg && HAS_MORE_RESULTS) {
 				loadMore({ calledFromModal: true });
 				break;
 			}
+
 			if (nextImg && nextImg.classList.contains('imageFile')) {
 				VIEWER.load(nextImg.src);
 				updateModalImageDetails(nextImg.id);
@@ -511,6 +508,11 @@ document.addEventListener("DOMContentLoaded", function () {
 				break;
 			} else {
 				CURRENT_IMAGE_ID_NUM++;
+			}
+
+			if (!HAS_MORE_RESULTS) {
+				showPopup('no more stuff to show', 'warn', 1000);
+				break;
 			}
 		}
 	}
