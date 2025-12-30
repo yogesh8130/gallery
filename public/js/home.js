@@ -975,25 +975,11 @@ window.addEventListener('scroll', function (event) {
 function goFullscreen() {
 	const toggleButton = document.getElementById('fullscreenButton');
 
-	const header = document.querySelector('.header');
-	const pageButtons = document.querySelector('.pageButtons');
-
-	if (header.style.display === 'none') {
+	if (document.fullscreenElement !== null) {
 		toggleButton.innerText = '◹'
-		header.style.display = 'flex';
-
-		if (pageButtons) {
-			pageButtons.style.display = 'block';
-		}
 		document.exitFullscreen();
-
 	} else {
 		toggleButton.innerText = '◺'
-		header.style.display = 'none';
-
-		if (pageButtons) {
-			pageButtons.style.display = 'none';
-		}
 		document.documentElement.requestFullscreen();
 	}
 }
