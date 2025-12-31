@@ -16,7 +16,7 @@ div.infoDiv.marquee-container
 						target = "_blank")
 						|#{nameSegment}
 			|#{index == nameSegments.length - 1 ? '' : '-'}
-	- const pathSegments = folderName.replace(/^\\images/).split('\\').slice(1);
+	- const pathSegments = folderName.split('\\').slice(1);
 	- let currentPath = '';
 	.marquee.marquee3(id = 'subTitle'+idNum)
 		each pathSegment, index in pathSegments

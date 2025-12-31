@@ -235,6 +235,11 @@ video {
 
 .marquee3 {
 	margin-right: -7.5rem;
+
+	/* hides the first part of the file path which is always just 'images' */
+	.pathSegment:first-child {
+		display: none;
+	}
 }
 
 .nameSegment,
