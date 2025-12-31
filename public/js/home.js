@@ -788,6 +788,10 @@ document.addEventListener("DOMContentLoaded", function () {
 		// toggle controls if clicking on image
 		if (event.target && event.target.classList.contains('iv-image')) {
 			toggleModalControlsTransparency();
+
+			while (IS_VIEWER_ZOOMED) {
+				VIEWER.resetZoom();
+			}
 		}
 
 	});
