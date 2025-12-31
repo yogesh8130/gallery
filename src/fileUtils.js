@@ -353,10 +353,13 @@ function moveRenameFiles(IMAGE_PATHS, METADATA_MAP,
 		const currentFileName = currentFilePathObj.name;
 		const currentFileExt = currentFilePathObj.ext;
 		let newFileName;
+		let newFileDir = currentFileDir;
 		let newFilePath;
 		// For udpating IMAGE_PATHS and METADATA_MAP
 		let currentFilePathRelative = currentFilePath.replace(PWD + '\\public', '');
 		let newFilePathRelative;
+
+		// console.log(`operation: ${operation}`);
 
 		switch (operation) {
 			case 'delete':
@@ -372,8 +375,7 @@ function moveRenameFiles(IMAGE_PATHS, METADATA_MAP,
 				index++;
 				let indexWithPadding = index.toString().padStart(3, '0');
 				// index is ALWAYS appended during bulkrename
-				newFileName = newFileName + '-' + indexWithPadding;
-				newFilePath = PATH.join(currentFileDir, (newFileName + currentFileExt));
+				newFilePath = PATH.join(currentFileDir, (newFileName + '-' + indexWithPadding + currentFileExt));
 				break;
 			case 'appendToName':
 				const textToAppend = argument1;
@@ -432,15 +434,17 @@ function moveRenameFiles(IMAGE_PATHS, METADATA_MAP,
 				newFilePath = PATH.join(currentFileDir, (newFileName + currentFileExt));
 				break;
 			case 'moveFiles':
-				const targetFolder = argument1;
+				newFileDir = argument1;
+				// removing trailing numbers from the current filename like image-001
+				newFileName = currentFileName.replace(/-\d{3}$/, '');
 				// if targetFolder starts with '/' then treat it as relative to current folder the file sits init is absolute path, else treat it as absolute path within the root directory "images"
-				if (targetFolder.startsWith('\\')) {
+				if (newFileDir.startsWith('\\')) {
 					const currentFolderPath = PATH.dirname(currentFilePath);
-					const targetFolderPath = PATH.resolve(PATH.join(currentFolderPath, targetFolder));
-					newFilePath = PATH.join(targetFolderPath, (currentFileName + currentFileExt));
+					newFileDir = PATH.resolve(PATH.join(currentFolderPath, newFileDir));
+					newFilePath = PATH.join(newFileDir, (currentFileName + currentFileExt));
 				} else {
-					const targetFolderPath = PATH.resolve(PATH.join('.', 'public', 'images', targetFolder));
-					newFilePath = PATH.join(targetFolderPath, (currentFileName + currentFileExt));
+					newFileDir = PATH.resolve(PATH.join('.', 'public', 'images', newFileDir));
+					newFilePath = PATH.join(newFileDir, (currentFileName + currentFileExt));
 				}
 				break;
 			default:
@@ -470,6 +474,7 @@ function moveRenameFiles(IMAGE_PATHS, METADATA_MAP,
 		// FS.renameSync otherwise will overwrite existing file with the new file on collision
 		try {
 			while (true) {
+				// console.log(`newFilePath: ${newFilePath}, index: ${index}, newFileName: ${newFileName}`);
 				// try to access the new file name and keep generating new names by incrementing index
 				// unless we can not access, i.e. name is not used by existing file and error is raised.
 				FS.accessSync(newFilePath);
@@ -479,7 +484,7 @@ function moveRenameFiles(IMAGE_PATHS, METADATA_MAP,
 				// generating a new file name for collision
 				let indexWithPadding = index.toString().padStart(3, '0');
 				let newFileNameWithIndex = newFileName + '-' + indexWithPadding;
-				newFilePath = PATH.join(currentFileDir, (newFileNameWithIndex + currentFileExt));
+				newFilePath = PATH.join(newFileDir, (newFileNameWithIndex + currentFileExt));
 				newFilePath = PATH.normalize(newFilePath);
 			}
 		} catch (err) {
