@@ -600,7 +600,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	// disable context menu on touch devices for results container
 	RESULTS_CONTAINER.addEventListener('contextmenu', function (event) {
 		// console.log('suppressed contextmenu');
-		event.preventDefault();
+		if (COARSE_POINTER_MEDIA_QUERY.matches)
+			event.preventDefault();
 		// resultsContainerLongPressHandler(event);
 	});
 
@@ -1650,7 +1651,7 @@ function moveRenameFiles(operation) {
 		case "replaceInName":
 			argument1 = document.getElementById('textToFindInput').value;
 			argument2 = document.getElementById('textToSubstituteInput').value;
-			pattern = /^[a-zA-Z0-9\- ]*$/;
+			pattern = /^[a-zA-Z0-9\-_ ]*$/;
 			isValid = pattern.test(argument2);
 			if (!isValid) {
 				showPopup('"Text to substitute" contains disallowed characters', 'warn');
