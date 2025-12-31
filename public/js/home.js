@@ -954,6 +954,10 @@ window.addEventListener('scroll', function (event) {
 	}, 500)
 });
 
+screen.orientation.addEventListener("change", (event) => {
+	scrollToCurrentImage();
+});
+
 function goFullscreen() {
 	const toggleButton = document.getElementById('fullscreenButton');
 
