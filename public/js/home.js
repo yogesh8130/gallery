@@ -526,6 +526,7 @@ document.addEventListener("DOMContentLoaded", function () {
 				break;
 			}
 		}
+		scrollToCurrentImage();
 	}
 
 	MODAL_PREV_FROM_SEARCH_BUTTON.onclick = function () {
@@ -544,6 +545,7 @@ document.addEventListener("DOMContentLoaded", function () {
 				CURRENT_IMAGE_ID_NUM--;
 			}
 		}
+		scrollToCurrentImage();
 	}
 
 	// add click listeners if not in coarse pointer mode(ie using mouse)
