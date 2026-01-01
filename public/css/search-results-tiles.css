@@ -779,6 +779,10 @@ button#renameBulkButton {
 	.resultFile {
 		filter: grayscale(1) opacity(0.5);
 	}
+
+	.resultFile:hover {
+		filter: none
+	}
 }
 
 .renameFailed {
