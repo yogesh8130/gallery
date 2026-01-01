@@ -1180,6 +1180,10 @@ function loadMore(params) {
 					showPopup('Stuff no more', 'warn');
 				} else {
 					showPopup(`Fetching page ${CURRENT_PAGE_NUMBER} / ${totalPages}`, 'info', 3000);
+
+					// udpate page number
+					const pageNumberSpan = document.getElementById('pageNumber');
+					pageNumberSpan.textContent = CURRENT_PAGE_NUMBER;
 				}
 
 				const tempDiv = document.createElement('div');
@@ -1190,14 +1194,14 @@ function loadMore(params) {
 
 				RESULTS.appendChild(fragment);
 
-				// udpate page number
-				const pageNumberSpan = document.getElementById('pageNumber');
-				pageNumberSpan.textContent = CURRENT_PAGE_NUMBER;
-
 				// if SELECTION_MODE then set selectCheckbox(s) to display: block
 				if (SELECTION_MODE) {
 					document.querySelectorAll('.selectCheckbox').forEach(element => element.style.display = 'block');
 				}
+
+				// update image count
+				const loadedImageCount = document.getElementById('loadedImageCount');
+				loadedImageCount.textContent = document.querySelectorAll('.result').length;
 			})
 			.catch(error => {
 				console.error(`Error loading more results: ${error}`);
