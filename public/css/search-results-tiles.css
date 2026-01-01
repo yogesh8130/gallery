@@ -592,6 +592,35 @@ ul {
 	background-color: black;
 }
 
+button#deleteButton {
+	background: crimson;
+}
+
+button#moveFilesButton {
+	background: blueviolet;
+}
+
+button#prependToNameButton {
+	background: forestgreen;
+}
+
+button#appendToNameButton {
+	background: royalblue;
+}
+
+button#removeFromNameButton {
+	background: orangered;
+}
+
+button#replaceInNameButton {
+	background: deeppink;
+}
+
+button#renameBulkButton {
+	background: yellow;
+	color: black;
+}
+
 .instructions {
 	color: white;
 	margin: 5px;
