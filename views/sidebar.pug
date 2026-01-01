@@ -54,7 +54,7 @@ div#sidebar (onclick = "toggleSidebar(event)")
 	form.bulkRow(id = 'moveForm')
 		input(type = "text" id = 'moveFilesInput' name = 'moveFilesInput'
 		placeholder = "Target folder name" autocomplete = 'on' autocapitalize = 'off'
-		list = "suggestedFolders" oninput = 'updateSuggestedFolders()' onfocus = 'updateSuggestedFolders()')
+		list = "suggestedFolders" oninput = 'updateSuggestedFolders()')
 		//- to add suggestions for the target folder text box
 		datalist(id="suggestedFolders")
 		button(id = 'moveFilesButton' onclick = 'moveRenameFiles("moveFiles")') Move
