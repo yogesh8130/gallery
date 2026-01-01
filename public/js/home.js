@@ -6,6 +6,8 @@ let ALL_FILES_SELECTED = false;
 let IS_MODAL_ACTIVE = false;
 let SELECTION_MODE = false; // whether click opens an image or selects it
 
+const darkColors = ['blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chocolate', 'coral', 'cornflowerblue', 'crimson', 'darkblue', 'darkcyan', 'darkgoldenrod', 'darkgreen', 'darkmagenta', 'darkolivegreen', 'darkorange', 'darkorchid', 'darkred', 'darkslateblue', 'darkslategrey', 'darkviolet', 'deeppink', 'dodgerblue', 'firebrick', 'forestgreen', 'fuchsia', 'green', 'hotpink', 'indianred', 'indigo', 'lightcoral', 'magenta', 'maroon', 'mediumblue', 'mediumorchid', 'mediumpurple', 'mediumseagreen', 'mediumslateblue', 'mediumvioletred', 'midnightblue', 'navy', 'olive', 'olivedrab', 'orangered', 'orchid', 'palevioletred', 'peru', 'purple', 'rebeccapurple', 'red', 'royalblue', 'saddlebrown', 'salmon', 'seagreen', 'sienna', 'slateblue', 'steelblue', 'teal', 'tomato', 'violet'];
+
 // media query for coarse pointer devices (touch)
 const COARSE_POINTER_MEDIA_QUERY = window.matchMedia('(pointer: coarse)');
 
@@ -254,6 +256,7 @@ function updateHistoryButtons(argument, operation) {
 		button.textContent = argument.replace('000\\00', '').length > 40 ? `${argument.replace('000\\00', '').slice(0, 20)}...${argument.replace('000\\00', '').slice(-20)}` : argument.replace('000\\00', '');
 		button.classList.add(`${operation}Button`);
 		button.classList.add('historyButton');
+		button.style.borderLeft = `3px solid ${getRandom(darkColors)}`;
 		// console.log(`${operation}History`);
 		document.getElementById(`${operation}History`)?.prepend(button);
 		// add an event listener on the button to call moveRenameFiles() with the buttons data argumentString
@@ -397,6 +400,11 @@ function scrollToCurrentImage() {
 			inline: "nearest"
 		});
 	}
+}
+
+function getRandom(arr) {
+	const randomIndex = Math.floor(Math.random() * arr.length);
+	return arr[randomIndex];
 }
 
 document.addEventListener("DOMContentLoaded", function () {
