@@ -521,6 +521,11 @@ input[type='checkbox'] {
 	background-color: rgb(29, 29, 29);
 	border: none;
 	font-size: 1.3rem;
+
+	&.active {
+		color: black;
+		background: white;
+	}
 }
 
 ul {

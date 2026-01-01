@@ -832,6 +832,31 @@ document.addEventListener("DOMContentLoaded", function () {
 			return;
 		}
 	});
+
+	// activate the appropriate sort button
+	const sortByParam = queryParams.sortBy;
+	const sortAscParam = queryParams.sortAsc;
+
+	if (sortByParam === 'path' && sortAscParam === 'true')
+		document.getElementById('sortByPathAsc').classList.add('active');
+	else if (sortByParam === 'path' && sortAscParam === 'false')
+		document.getElementById('sortByPathDesc').classList.add('active');
+	else if (sortByParam === 'name' && sortAscParam === 'true')
+		document.getElementById('sortByNameAsc').classList.add('active');
+	else if (sortByParam === 'name' && sortAscParam === 'false')
+		document.getElementById('sortByNameDesc').classList.add('active');
+	else if (sortByParam === 'size' && sortAscParam === 'true')
+		document.getElementById('sortBySizeAsc').classList.add('active');
+	else if (sortByParam === 'size' && sortAscParam === 'false')
+		document.getElementById('sortBySizeDesc').classList.add('active');
+	else if (sortByParam === 'modifiedTime' && sortAscParam === 'true')
+		document.getElementById('sortByModifiedTimeAsc').classList.add('active');
+	else if (sortByParam === 'modifiedTime' && sortAscParam === 'false')
+		document.getElementById('sortByModifiedTimeDesc').classList.add('active');
+	else if (sortByParam === 'dimensions' && sortAscParam === 'true')
+		document.getElementById('sortByDimensionsAsc').classList.add('active');
+	else if (sortByParam === 'dimensions' && sortAscParam === 'false')
+		document.getElementById('sortByDimensionsDesc').classList.add('active');
 });
 
 
