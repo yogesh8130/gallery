@@ -114,6 +114,10 @@ function pinSidebar() {
 let FOLDER_SUGGEST_TIMEOUT;
 
 function updateSuggestedFolders() {
+	const moveFilesInput = document.getElementById('moveFilesInput');
+	// replace the '/' in text with '\'
+	moveFilesInput.value = moveFilesInput.value.replace(/\//g, '\\');
+
 	clearTimeout(FOLDER_SUGGEST_TIMEOUT);
 
 	FOLDER_SUGGEST_TIMEOUT = setTimeout(() => {
