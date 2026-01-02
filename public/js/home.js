@@ -162,6 +162,8 @@ function buildTree(paths) {
 	return root;
 }
 
+let ACTIVE_FOLDER_NODE;
+let MAX_FOLDER_NAME_LENGTH_MATCHED = 0;
 function renderTree(tree, parentPath = "", currentPath = "") {
 	const ul = document.createElement("ul");
 
@@ -210,6 +212,11 @@ function renderTree(tree, parentPath = "", currentPath = "") {
 		} else {
 			label.classList.add("leaf");
 			li.appendChild(label);
+		}
+
+		if (currentPath.startsWith(fullPath) && fullPath.length > MAX_FOLDER_NAME_LENGTH_MATCHED) {
+			MAX_FOLDER_NAME_LENGTH_MATCHED = fullPath.length;
+			ACTIVE_FOLDER_NODE = label;
 		}
 
 		ul.appendChild(li);
@@ -455,6 +462,8 @@ document.addEventListener("DOMContentLoaded", function () {
 			container.appendChild(
 				renderTree(treeData, "", currentFolder)
 			);
+			ACTIVE_FOLDER_NODE?.classList.add("currentPath");
+			document.querySelector('.currentPath').scrollIntoView({ block: "center", container: "nearest" });
 		});
 
 	// convertin URL query params to

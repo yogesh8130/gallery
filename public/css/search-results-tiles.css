@@ -33,14 +33,23 @@ h2 {
 }
 
 #folderTree {
+	width: 100%;
 	max-width: 100%;
+	max-height: 50vh;
 	overflow: auto;
+	scrollbar-width: none;
 }
 
 #folderTree ul {
 	list-style: none;
 	padding-left: 12px;
 	margin: 0;
+
+	.currentPath {
+		background: dodgerblue;
+		font-weight: bold;
+	}
+
 }
 
 .folder-label {
@@ -48,21 +57,26 @@ h2 {
 	user-select: none;
 	color: white;
 	white-space: nowrap;
+
+	&::before {
+		border-left: 1px solid;
+		border-bottom: 1px solid;
+		padding: 0px 5px;
+		width: 10px;
+	}
 }
 
 .folder-label.collapsible::before {
 	content: "▶";
 	display: inline-block;
-	width: 20px;
 }
 
 .folder-label.collapsible.open::before {
-	content: "▼";
+	content: "◢";
 }
 
 .folder-label.leaf::before {
-	content: "○";
-	width: 20px;
+	content: "▷";
 	display: inline-block;
 }
 
@@ -548,6 +562,10 @@ ul {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 1px;
+}
+
+#sidebar {
+	scrollbar-width: none;
 }
 
 #sidebar .historyButton {
