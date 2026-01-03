@@ -147,14 +147,6 @@ h2 {
 	opacity: 100%;
 }
 
-
-/* common portrait settings */
-.controlsDiv {
-	display: flex;
-	flex-direction: column;
-	gap: 5px;
-}
-
 #sidebar {
 	overflow: hidden;
 	touch-action: pan-y;

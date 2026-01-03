@@ -757,40 +757,46 @@ button#renameBulkButton {
 	cursor: pointer;
 }
 
-/* scaling */
+@media screen and (min-resolution: 100dpi) {
+	html {
+		font-size: 80%;
+	}
+}
 
-@media screen and (orientation: landscape) {
-	/* CSS rules for landscape orientation go here */
+/* pc */
+@media screen and (max-resolution: 100dpi) {
+	html {
+		font-size: 100%;
+	}
+}
 
-	/* phone */
-	@media screen and (min-resolution: 100dpi) {
-		html {
-			font-size: 80%;
-		}
+.header {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	padding-top: 5px;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.controlsDiv {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	height: 100%;
+	gap: .4rem;
+	flex: 1;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+
+	.searchGroup {
+		flex: 1
 	}
 
-	/* pc */
-	@media screen and (max-resolution: 100dpi) {
-		html {
-			font-size: 100%;
-		}
+	.searchForm {
+		flex: 1
 	}
 
-	.header {
-		display: flex;
-		flex-direction: row;
-		justify-content: space-between;
-		padding-top: 5px;
-	}
-
-	.controlsDiv {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		height: 100%;
-		padding-right: 2.5rem;
-		gap: .4rem;
-	}
 }
 
 #switchToTileViewButton {

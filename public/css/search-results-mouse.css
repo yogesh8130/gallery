@@ -1,5 +1,5 @@
 :root {
-	--sidebar-width: 350px;
+	--sidebar-width: 400px;
 }
 
 .result:hover {
@@ -115,6 +115,16 @@
 
 	&.open {
 		transform: translateX(var(--sidebar-width));
+	}
+
+	input {
+		font-size: small;
+		height: 25px;
+	}
+
+	button {
+		font-size: small;
+		height: 25px;
 	}
 }
 

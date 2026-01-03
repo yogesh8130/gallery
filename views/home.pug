@@ -15,20 +15,18 @@ html
 		include sidebar.pug
 		div.mainDiv
 			div.header
-				div.vertical
+				div.vertical.heading
 					a(href='/' title = 'HOME')
-						h1 Search Results for "#{searchText}"
-					h2 Showing #[span#loadedImageCount #{images.length}]/#{totalResultCount} results (Page #[span#pageNumber #{page}]/#{totalPages})
+						h2 Showing #[span#loadedImageCount #{images.length}]/#{totalResultCount} results 
+						h2 (Page #[span#pageNumber #{page}]/#{totalPages})
 				div.controlsDiv
-					.vertical
+					.vertical.searchGroup
 						.horizontal
 							form.searchForm(action = "" method = "get" target = '_blank')
 								input(type = "text" name = 'searchText' id = 'searchText'
 								placeholder = 'Search'
 								title = 'F3')
 								input(type = "hidden" name = 'view' id = 'view')
-							button#shuffleButton.sortButton(onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=shuffle&sortAsc=true"`
-								title = 'Path Ascending') Shuffle
 						.horizontal
 							div.buttonControls#sliderContainer
 								label(for = "slider") Zoom
@@ -44,21 +42,8 @@ html
 									)
 							div.config.buttonControls
 								button.default(id = 'configButton' onclick = "window.open('/config', '_blank')" title = 'settings') &#9881;
-					div.scaleButtons.buttonControls
-						button.default(
-							onclick = 'showAllImagesAtActualSize()'
-							) Actual
-						button.default(
-							onclick = 'showAllImagesStreched()'
-							) Fit
-						button.default(
-							onclick = 'showAllImagesAtDefaultScale()'
-							) Default
-					div.switchViews.buttonControls
-						button.default(
-							id = 'switchToTileViewButton' 
-							onclick = 'switchToTileView()'
-							) Tile View
+							button#shuffleButton.sortButton(onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=shuffle&sortAsc=true"`
+								title = 'Path Ascending') Shuffle
 					.vertical
 						div.sortButtons.buttonControls
 							button.sortButton(id = 'sortByPathAsc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=path&sortAsc=true"`
