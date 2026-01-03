@@ -414,6 +414,16 @@ function updateHistoryButtons(argument, operation) {
 	upsertButton(argument, operation);
 }
 
+function clearHistory() {
+	localStorage.removeItem('appendToNameHistory');
+	localStorage.removeItem('prependToNameHistory');
+	localStorage.removeItem('removeFromNameHistory');
+	localStorage.removeItem('moveFilesHistory');
+
+	document.querySelectorAll('.historyButtonsContainer').forEach(container => {
+		container.innerHTML = '';
+	});
+}
 
 document.addEventListener('fullscreenchange', restoreScroll);
 document.addEventListener('webkitfullscreenchange', restoreScroll);

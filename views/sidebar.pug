@@ -49,6 +49,8 @@ div#sidebar (onclick = "toggleSidebar(event)")
 		title = 'Ctrl + A (Toggle)') De-select all
 		button(id = 'invertSelection' onclick = 'invertSelection()' 
 		title = 'Invert Selection') Invert
+		button(id = 'clearHistory' onclick = 'clearHistory()' 
+		title = 'Clear History Jumplists') Clear History
 	div.bulkRow
 		span(id = 'selectedFilesCount') 0 files selected
 	form.bulkRow(id = 'moveForm')
@@ -59,13 +61,13 @@ div#sidebar (onclick = "toggleSidebar(event)")
 		datalist(id="suggestedFolders")
 		button(id = 'moveFilesButton' onclick = 'moveRenameFiles("moveFiles")') Move
 		input(type="submit" hidden)
-	#moveFilesHistory.buttonsFlex(data-operation = 'moveFiles')
+	#moveFilesHistory.buttonsFlex.historyButtonsContainer(data-operation = 'moveFiles')
 	form.bulkRow(id = 'appendToNameForm')
 		input(type = "text" id = 'appendToNameInput' name = 'appendToNameInput'
 		placeholder = "Text, to; append" autocomplete = 'on' autocapitalize = 'off')
 		button(id = 'appendToNameButton' onclick = 'moveRenameFiles("appendToName")') Append
 		input(type="submit" hidden)
-	#appendToNameHistory.buttonsFlex(data-operation = 'appendToName')
+	#appendToNameHistory.buttonsFlex.historyButtonsContainer(data-operation = 'appendToName')
 	form.bulkRow(id = 'renameBulkForm')
 		input(type = "text" id = 'renameBulkInput' name = 'renameBulkInput'
 		placeholder = "New Base name" autocomplete = 'on')
@@ -76,13 +78,13 @@ div#sidebar (onclick = "toggleSidebar(event)")
 		placeholder = "Text to prepend" autocomplete = 'on')
 		button(id = 'prependToNameButton' onclick = 'moveRenameFiles("prependToName")') Prepend
 		input(type="submit" hidden)
-	#prependToNameHistory.buttonsFlex(data-operation = 'prependToName')
+	#prependToNameHistory.buttonsFlex.historyButtonsContainer(data-operation = 'prependToName')
 	form.bulkRow(id = 'removeFromNameForm')
 		input(type = "text" id = 'removeFromNameInput' name = 'removeFromNameInput'
 		placeholder = "Text to remove" autocomplete = 'on' autocapitalize = 'off')
 		button(id = 'removeFromNameButton' onclick = 'moveRenameFiles("removeFromName")') Remove
 		input(type="submit" hidden)
-	#removeFromNameHistory.buttonsFlex(data-operation = 'removeFromName')
+	#removeFromNameHistory.buttonsFlex.historyButtonsContainer(data-operation = 'removeFromName')
 	form.bulkCol(id = 'replaceInNameForm')
 		div.bulkRow
 			input(type = "text" id = 'textToFindInput' name = 'textToFindInput'
