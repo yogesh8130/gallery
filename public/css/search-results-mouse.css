@@ -1,3 +1,7 @@
+:root {
+	--sidebar-width: 400px;
+}
+
 .result:hover {
 	scale: 102%;
 	z-index: 6;
@@ -89,7 +93,7 @@
 	background-color: rgba(0, 0, 0, .9);
 
 	&.open {
-		transform: translateX(300px);
+		transform: translateX(var(--sidebar-width));
 	}
 }
 
@@ -98,22 +102,22 @@
 	flex-direction: column;
 	gap: 5px;
 	z-index: 10;
-	width: 300px;
+	width: var(--sidebar-width);
 	height: 100%;
 	background-color: rgba(0, 0, 0, .9);
 	position: fixed;
 	top: 0;
-	left: -300px;
+	left: calc(var(--sidebar-width) * -1);
 	transition: all 0.1s ease-in-out;
 	overflow-y: auto;
 	padding: 5px;
 
 	&.open {
-		transform: translateX(300px);
+		transform: translateX(var(--sidebar-width));
 	}
 }
 
 .mainDiv.pinned {
-	margin-left: 300px;
+	margin-left: var(--sidebar-width);
 	transition: all 0.3s ease-in-out;
 }

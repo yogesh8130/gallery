@@ -1,3 +1,7 @@
+:root {
+	--sidebar-width: 400px;
+}
+
 html {
 	font-size: 100%;
 }
@@ -199,7 +203,7 @@ h2 {
 	background-color: rgba(0, 0, 0, .9);
 
 	&.open {
-		transform: translateX(-300px);
+		transform: translateX(calc(var(--sidebar-width) * -1));
 	}
 }
 
@@ -208,18 +212,18 @@ h2 {
 	flex-direction: column;
 	gap: 5px;
 	z-index: 10;
-	width: 300px;
+	width: var(--sidebar-width);
 	height: 100%;
 	background-color: rgba(0, 0, 0, .9);
 	position: fixed;
 	top: 0;
-	right: -300px;
+	right: calc(var(--sidebar-width) * -1);
 	transition: all 0.1s ease-in-out;
 	overflow-y: auto;
 	padding: 5px;
 
 	&.open {
-		transform: translateX(-300px);
+		transform: translateX(calc(var(--sidebar-width) * -1));
 	}
 }
 
@@ -233,4 +237,15 @@ h2 {
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	overflow: hidden;
+}
+
+@media (orientation: portrait) {
+	#sidebar {
+		width: 100%;
+		right: -100%;
+
+		&.open {
+			transform: translateX(-100%);
+		}
+	}
 }

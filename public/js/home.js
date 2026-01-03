@@ -367,6 +367,8 @@ function updateHistoryButtons(argument, operation) {
 			incrementClickCount(operation, argument);
 		}
 
+		const map = getHistoryMap(operation);
+
 		// Alphabetical visual order
 		Array.from(container.children)
 			.sort((a, b) =>
@@ -376,6 +378,15 @@ function updateHistoryButtons(argument, operation) {
 					{ sensitivity: 'base' }
 				)
 			)
+			.forEach(btn => container.appendChild(btn));
+
+
+		// Order by click count from the map
+		Array.from(container.children)
+			.sort((a, b) => {
+				const diff = map[a.dataset.argumentString].clicks - map[b.dataset.argumentString].clicks;
+				return -diff;
+			})
 			.forEach(btn => container.appendChild(btn));
 	}
 
