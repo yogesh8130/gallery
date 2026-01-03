@@ -574,6 +574,15 @@ ul {
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	overflow: hidden;
+	transition: background-color 1000ms ease;
+
+	&.flash-green {
+		background-color: green;
+	}
+
+	&.flash-red {
+		background-color: chocolate;
+	}
 }
 
 #sidebar input {

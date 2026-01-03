@@ -7,6 +7,7 @@ let IS_MODAL_ACTIVE = false;
 let SELECTION_MODE = false; // whether click opens an image or selects it
 
 const darkColors = ['blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chocolate', 'coral', 'cornflowerblue', 'crimson', 'darkblue', 'darkcyan', 'darkgoldenrod', 'darkgreen', 'darkmagenta', 'darkolivegreen', 'darkorange', 'darkorchid', 'darkred', 'darkslateblue', 'darkslategrey', 'darkviolet', 'deeppink', 'dodgerblue', 'firebrick', 'forestgreen', 'fuchsia', 'green', 'hotpink', 'indianred', 'indigo', 'lightcoral', 'magenta', 'maroon', 'mediumblue', 'mediumorchid', 'mediumpurple', 'mediumseagreen', 'mediumslateblue', 'mediumvioletred', 'midnightblue', 'navy', 'olive', 'olivedrab', 'orangered', 'orchid', 'palevioletred', 'peru', 'purple', 'rebeccapurple', 'red', 'royalblue', 'saddlebrown', 'salmon', 'seagreen', 'sienna', 'slateblue', 'steelblue', 'teal', 'tomato', 'violet'];
+MAX_HISTORY_JUMPLIST = 10;
 
 // media query for coarse pointer devices (touch)
 const COARSE_POINTER_MEDIA_QUERY = window.matchMedia('(pointer: coarse)');
@@ -255,73 +256,164 @@ function openFullscreen(video) {
 }
 
 function updateHistoryButtons(argument, operation) {
-	const validOperationsForHistory = ['appendToName', 'prependToName', 'removeFromName', 'moveFiles'];
+	const validOperationsForHistory = [
+		'appendToName',
+		'prependToName',
+		'removeFromName',
+		'moveFiles'
+	];
 
-	// helper function to create buttons
+	// Utilities
+
+	function normalizeArgument(arg) {
+		return arg.replace('000\\00FIN\\', '');
+	}
+
+	function getButtonLabel(arg) {
+		const clean = normalizeArgument(arg);
+		return clean.length > 40
+			? `${clean.slice(0, 20)}...${clean.slice(-20)}`
+			: clean;
+	}
+
+	function getHistoryMap(operation) {
+		return JSON.parse(
+			localStorage.getItem(`${operation}History`)
+		) || {};
+	}
+
+	function saveHistoryMap(operation, map) {
+		localStorage.setItem(
+			`${operation}History`,
+			JSON.stringify(map)
+		);
+	}
+
+	function flashButton(button, className, duration = 1000) {
+		button.classList.remove('flash-green', 'flash-red');
+		void button.offsetWidth; // force reflow
+		button.classList.add(className);
+		setTimeout(() => button.classList.remove(className), duration);
+	}
+
+	// Storage logic (LFU)
+
+	function incrementClickCount(operation, argument) {
+		const map = getHistoryMap(operation);
+		if (!map[argument]) map[argument] = { clicks: 0 };
+		// cap the hit count at 20
+		if (map[argument].clicks < 20) {
+			map[argument].clicks++;
+		}
+		saveHistoryMap(operation, map);
+	}
+
+	function evictLeastUsed(operation, map) {
+		const entries = Object.entries(map);
+		if (!entries.length) return null;
+
+		entries.sort((a, b) => {
+			const diff = a[1].clicks - b[1].clicks;
+			return diff;
+		});
+
+		const [removedArg] = entries[0];
+
+		delete map[removedArg];
+		saveHistoryMap(operation, map);
+		return removedArg;
+	}
+
+	// DOM helpers
+
 	function createButton(argument, operation) {
 		const button = document.createElement('button');
 		button.dataset.argumentString = argument;
-		button.title = argument;
 		button.dataset.operation = operation;
-		// make button text limited to 50 char with ellipsis in between the startting 25 and last 25 chars
-		button.textContent = argument.replace('000\\00', '').length > 40 ? `${argument.replace('000\\00', '').slice(0, 20)}...${argument.replace('000\\00', '').slice(-20)}` : argument.replace('000\\00', '');
-		button.classList.add(`${operation}Button`);
-		button.classList.add('historyButton');
+		button.title = argument;
+		button.textContent = getButtonLabel(argument);
+		button.classList.add(`${operation}Button`, 'historyButton');
 		button.style.borderLeft = `3px solid ${getRandom(darkColors)}`;
-		// console.log(`${operation}History`);
-		document.getElementById(`${operation}History`)?.prepend(button);
-		// add an event listener on the button to call moveRenameFiles() with the buttons data argumentString
+
 		button.addEventListener('click', (event) => {
-			// cuz somehow the button's dataset is not reliable
-			const operation = event.target.parentElement.dataset.operation;
-			document.getElementById(`${operation}Input`).value = event.target.dataset.argumentString;
-			moveRenameFiles(operation);
-			// destroy self as new button will be created anyways, but not immediately to avoid double click on a wrong button
-			event.target.remove();
+			const btn = event.currentTarget;
+			const op = btn.dataset.operation;
+			const arg = btn.dataset.argumentString;
+
+			document.getElementById(`${op}Input`).value = arg;
+			moveRenameFiles(op);
+
+			incrementClickCount(op, arg);
+			flashButton(btn, 'flash-red');
 		});
-		return button
+
+		return button;
 	}
 
-	// if argument is null then read the values from session storage and add the buttons to the respective historyDivs
+	function upsertButton(argument, operation) {
+		const container = document.getElementById(`${operation}History`);
+		if (!container) return;
+
+		let button = container.querySelector(
+			`button[data-argument-string="${CSS.escape(argument)}"]`
+		);
+
+		if (!button) {
+			button = createButton(argument, operation);
+			container.appendChild(button);
+			flashButton(button, 'flash-green');
+		} else {
+			flashButton(button, 'flash-red');
+			incrementClickCount(operation, argument);
+		}
+
+		// Alphabetical visual order
+		Array.from(container.children)
+			.sort((a, b) =>
+				a.dataset.argumentString.localeCompare(
+					b.dataset.argumentString,
+					undefined,
+					{ sensitivity: 'base' }
+				)
+			)
+			.forEach(btn => container.appendChild(btn));
+	}
+
+	// INITIAL LOAD
+
 	if (!argument) {
-		for (const operation of validOperationsForHistory) {
-			const operationHistory = JSON.parse(localStorage.getItem(operation + 'History'));
-			if (operationHistory) {
-				operationHistory.forEach(appendString => {
-					const button = createButton(appendString, operation);
-					document.getElementById(operation + 'History').prepend(button);
-				});
-			}
+		for (const op of validOperationsForHistory) {
+			const map = getHistoryMap(op);
+
+			Object.keys(map)
+				.sort((a, b) =>
+					a.localeCompare(b, undefined, { sensitivity: 'base' })
+				)
+				.forEach(arg => upsertButton(arg, op));
 		}
 		return;
 	}
 
-	// add the argument string to the an array in session storage appropriate <operation>History , create one if not found
-	let operationHistory = JSON.parse(localStorage.getItem(`${operation}History`));
-	if (!operationHistory) {
-		operationHistory = [];
+	// UPDATE FLOW
+
+	const map = getHistoryMap(operation);
+
+	const isNew = !map[argument];
+	if (isNew) {
+		while (Object.keys(map).length > MAX_HISTORY_JUMPLIST) {
+			const removed = evictLeastUsed(operation, map);
+			document.querySelector(
+				`#${operation}History button[data-argument-string="${CSS.escape(removed)}"]`
+			)?.remove();
+		}
+
+		map[argument] = { clicks: 0 };
 	}
 
-	// remove first if argument already exists and then add it to the array
-	operationHistory = operationHistory.filter(item => item !== argument);
-	operationHistory.push(argument);
-	localStorage.setItem(`${operation}History`, JSON.stringify(operationHistory));
-
-	// remove the last element if the array has more than 10 elements
-	if (operationHistory.length > 10) {
-		operationHistory.shift();
-		localStorage.setItem(`${operation}History`, JSON.stringify(operationHistory));
-	}
-
-	// remove the last item from HistoryDiv if it has more than 10 items
-	const operationHistoryDiv = document.getElementById(`${operation}History`);
-	while (operationHistoryDiv.children.length > 10) {
-		operationHistoryDiv.removeChild(operationHistoryDiv.lastChild);
-	}
-
-	const button = createButton(argument);
-	operationHistoryDiv.prepend(button);
+	saveHistoryMap(operation, map);
+	upsertButton(argument, operation);
 }
+
 
 document.addEventListener('fullscreenchange', restoreScroll);
 document.addEventListener('webkitfullscreenchange', restoreScroll);

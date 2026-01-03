@@ -60,6 +60,12 @@ div#sidebar (onclick = "toggleSidebar(event)")
 		button(id = 'moveFilesButton' onclick = 'moveRenameFiles("moveFiles")') Move
 		input(type="submit" hidden)
 	#moveFilesHistory.buttonsFlex(data-operation = 'moveFiles')
+	form.bulkRow(id = 'appendToNameForm')
+		input(type = "text" id = 'appendToNameInput' name = 'appendToNameInput'
+		placeholder = "Text, to; append" autocomplete = 'on' autocapitalize = 'off')
+		button(id = 'appendToNameButton' onclick = 'moveRenameFiles("appendToName")') Append
+		input(type="submit" hidden)
+	#appendToNameHistory.buttonsFlex(data-operation = 'appendToName')
 	form.bulkRow(id = 'renameBulkForm')
 		input(type = "text" id = 'renameBulkInput' name = 'renameBulkInput'
 		placeholder = "New Base name" autocomplete = 'on')
@@ -71,12 +77,6 @@ div#sidebar (onclick = "toggleSidebar(event)")
 		button(id = 'prependToNameButton' onclick = 'moveRenameFiles("prependToName")') Prepend
 		input(type="submit" hidden)
 	#prependToNameHistory.buttonsFlex(data-operation = 'prependToName')
-	form.bulkRow(id = 'appendToNameForm')
-		input(type = "text" id = 'appendToNameInput' name = 'appendToNameInput'
-		placeholder = "Text, to; append" autocomplete = 'on' autocapitalize = 'off')
-		button(id = 'appendToNameButton' onclick = 'moveRenameFiles("appendToName")') Append
-		input(type="submit" hidden)
-	#appendToNameHistory.buttonsFlex(data-operation = 'appendToName')
 	form.bulkRow(id = 'removeFromNameForm')
 		input(type = "text" id = 'removeFromNameInput' name = 'removeFromNameInput'
 		placeholder = "Text to remove" autocomplete = 'on' autocapitalize = 'off')
