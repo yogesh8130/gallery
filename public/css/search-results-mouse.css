@@ -1,5 +1,5 @@
 :root {
-	--sidebar-width: 400px;
+	--sidebar-width: 350px;
 }
 
 .result:hover {
@@ -111,13 +111,18 @@
 	transition: all 0.1s ease-in-out;
 	overflow-y: auto;
 	padding: 5px;
+	resize: horizontal;
 
 	&.open {
 		transform: translateX(var(--sidebar-width));
 	}
 }
 
-.mainDiv.pinned {
-	margin-left: var(--sidebar-width);
+.mainDiv {
+	margin-left: 0;
 	transition: all 0.3s ease-in-out;
+
+	&.pinned {
+		margin-left: var(--sidebar-width);
+	}
 }

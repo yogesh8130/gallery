@@ -550,6 +550,7 @@ ul {
 	display: flex;
 	flex-direction: row;
 	gap: 5px;
+	flex-wrap: wrap;
 }
 
 .bulkCol {

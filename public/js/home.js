@@ -271,8 +271,8 @@ function updateHistoryButtons(argument, operation) {
 
 	function getButtonLabel(arg) {
 		const clean = normalizeArgument(arg);
-		return clean.length > 40
-			? `${clean.slice(0, 20)}...${clean.slice(-20)}`
+		return clean.length > 50
+			? `${clean.slice(0, 25)}...${clean.slice(-25)}`
 			: clean;
 	}
 
@@ -966,6 +966,13 @@ document.addEventListener("DOMContentLoaded", function () {
 			return;
 		}
 	});
+
+	// resize observer on SIDEBAR
+	const resizeObserver = new ResizeObserver(entries => {
+		// update the css variable --sidebar-width
+		document.documentElement.style.setProperty('--sidebar-width', `${entries[0].target.offsetWidth}px`);
+	});
+	resizeObserver.observe(SIDEBAR);
 
 	// activate the appropriate sort button
 	const sortByParam = queryParams.sortBy;
