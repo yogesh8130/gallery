@@ -54,7 +54,6 @@ h2 {
 
 .folder-label {
 	cursor: pointer;
-	user-select: none;
 	color: white;
 	white-space: nowrap;
 

@@ -179,7 +179,7 @@ function renderTree(tree, parentPath = "", currentPath = "") {
 
 		const link = document.createElement("a");
 		link.href = `/search?&searchText=\\images\\${encodeURIComponent(fullPath)}`;
-		link.target = "_blank";
+		// link.target = "_blank"; // open in new tab
 		link.textContent = folder;
 		link.classList.add("folder-link");
 
@@ -733,8 +733,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	// disable context menu on touch devices for results container
 	RESULTS_CONTAINER.addEventListener('contextmenu', function (event) {
-		// console.log('suppressed contextmenu');
-		if (COARSE_POINTER_MEDIA_QUERY.matches)
+		if (COARSE_POINTER_MEDIA_QUERY.matches && event.target.classList.contains('resultFile'))
 			event.preventDefault();
 		// resultsContainerLongPressHandler(event);
 	});
