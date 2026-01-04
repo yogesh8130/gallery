@@ -46,26 +46,26 @@ html
 								title = 'Path Ascending') Shuffle
 					.vertical
 						div.sortButtons.buttonControls
-							button.sortButton(id = 'sortByPathAsc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=path&sortAsc=true"`
+							button.sortButton(id = 'sortByPathAsc' onclick = `newSearch(null, 'path', true, this)`
 							title = 'Path Ascending') Path△
-							button.sortButton(id = 'sortByNameAsc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=name&sortAsc=true"`
+							button.sortButton(id = 'sortByNameAsc' onclick = `newSearch(null, 'name', true, this)`
 							title = 'Name Ascending') Name△
-							button.sortButton(id = 'sortBySizeAsc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=size&sortAsc=true"`
+							button.sortButton(id = 'sortBySizeAsc' onclick = `newSearch(null, 'size', true, this)`
 							title = 'Size Ascending') Size△
-							button.sortButton(id = 'sortByModifiedTimeAsc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=modifiedTime&sortAsc=true"`
+							button.sortButton(id = 'sortByModifiedTimeAsc' onclick = `newSearch(null, 'modifiedTime', true, this)`
 							title = 'Modified Time Ascending') Time△
-							button.sortButton(id = 'sortByDimensionsAsc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=dimensions&sortAsc=true"`
+							button.sortButton(id = 'sortByDimensionsAsc' onclick = `newSearch(null, 'dimensions', true, this)`
 							title = 'Dimensions Ascending') Dim.△
 						div.sortButtons.buttonControls
-							button.sortButton(id = 'sortByPathDesc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=path&sortAsc=false"`
+							button.sortButton(id = 'sortByPathDesc' onclick = `newSearch(null, 'path', false, this)`
 							title = 'Path Descending') Path▽
-							button.sortButton(id = 'sortByNameDesc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=name&sortAsc=false"`
+							button.sortButton(id = 'sortByNameDesc' onclick = `newSearch(null, 'name', false, this)`
 							title = 'Name Descending') Name▽
-							button.sortButton(id = 'sortBySizeDesc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=size&sortAsc=false"`
+							button.sortButton(id = 'sortBySizeDesc' onclick = `newSearch(null, 'size', false, this)`
 							title = 'Size Descending') Size▽
-							button.sortButton(id = 'sortByModifiedTimeDesc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=modifiedTime&sortAsc=false"`
+							button.sortButton(id = 'sortByModifiedTimeDesc' onclick = `newSearch(null, 'modifiedTime', false, this)`
 							title = 'Modified Time Descending') Time▽
-							button.sortButton(id = 'sortByDimensionsDesc' onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=dimensions&sortAsc=false"`
+							button.sortButton(id = 'sortByDimensionsDesc' onclick = `newSearch(null, 'dimensions', false, this)`
 							title = 'Dimensions Descending') Dim.▽
 			//- uncomment this if you want to scroll horizontally with mousewheen
 			//- - div.results(onwheel="this.scrollLeft += event.deltaY * 2" 

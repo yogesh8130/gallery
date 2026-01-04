@@ -1,5 +1,6 @@
 const IS_MOBILE = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 let QUERY_STRING; // stores URLs query part, used for lazy loading (getNextResults)
+const QUERY_PARAMS = {}; // to store the query parameters in the URL
 let MULTIPLIER = 1 // zoom slider value
 const SELECTED_IMAGES = new Map(); // imageId => imageLink
 let ALL_FILES_SELECTED = false;
@@ -582,17 +583,16 @@ document.addEventListener("DOMContentLoaded", function () {
 	// convertin URL query params to
 	QUERY_STRING = window.location.search;
 	const searchParams = new URLSearchParams(QUERY_STRING);
-	const queryParams = {};
 	for (const [key, value] of searchParams) {
-		queryParams[key] = value;
+		QUERY_PARAMS[key] = value;
 	}
 	// console.log(queryString, queryParams);
 
 	// setting form fields on load
 	const view = document.getElementById('view');
 	const searchText = document.getElementById('searchText');
-	view.value = queryParams.view || 'tiles';
-	searchText.value = queryParams.searchText;
+	view.value = QUERY_PARAMS.view || 'tiles';
+	searchText.value = QUERY_PARAMS.searchText;
 
 	HEADER = document.querySelector('.header');
 	HEADER_HEIGHT = HEADER.offsetHeight;
@@ -974,8 +974,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	resizeObserver.observe(SIDEBAR);
 
 	// activate the appropriate sort button
-	const sortByParam = queryParams.sortBy;
-	const sortAscParam = queryParams.sortAsc;
+	const sortByParam = QUERY_PARAMS.sortBy;
+	const sortAscParam = QUERY_PARAMS.sortAsc;
 
 	if (sortByParam === 'path' && sortAscParam === 'true')
 		document.getElementById('sortByPathAsc').classList.add('active');
@@ -1319,6 +1319,57 @@ let CURRENT_PAGE_NUMBER = 1;
 const RESULTS = document.querySelector('.results')
 let IS_LOADING = false;
 let HAS_MORE_RESULTS = true;
+
+function newSearch(urlEncodedSearchText, sortBy = 'shuffle', sortAsc = true, sortButton) {
+	console.log('newSearch');
+	IS_LOADING = true;
+	CURRENT_PAGE_NUMBER = 1;
+	HAS_MORE_RESULTS = true;
+
+	if (!urlEncodedSearchText) {
+		urlEncodedSearchText = QUERY_PARAMS.searchText;
+	}
+
+	fetch(`/search?searchText=${urlEncodedSearchText}&sortBy=${sortBy}&sortAsc=${sortAsc}&spaMode=true`)
+		.then(response => response.text())
+		.then(html => {
+			showPopup(`Loading...`, 'info', 3000);
+			RESULTS.innerHTML = '';
+
+			const tempDiv = document.createElement('div');
+			tempDiv.innerHTML = html;
+
+			const fragment = document.createDocumentFragment();
+			fragment.append(...tempDiv.children);
+
+			RESULTS.appendChild(fragment);
+
+			// if SELECTION_MODE then set selectCheckbox(s) to display: block
+			if (SELECTION_MODE) {
+				document.querySelectorAll('.selectCheckbox').forEach(element => element.style.display = 'block');
+			}
+
+			// update image count
+			const loadedImageCount = document.getElementById('loadedImageCount');
+			loadedImageCount.textContent = document.querySelectorAll('.result').length;
+
+
+			// activate the appropriate sort button
+			if (sortButton) {
+				document.querySelectorAll('.sortButton.active').forEach(element => {
+					element.classList.remove('active');
+				});
+				sortButton.classList.add('active');
+			}
+		})
+		.catch(error => {
+			console.error(`Error loading results: ${error}`);
+			// handle the error appropriately
+		})
+		.finally(() => {
+			IS_LOADING = false;
+		});
+}
 
 function loadMore(params) {
 	const scrollPosition = window.scrollY;

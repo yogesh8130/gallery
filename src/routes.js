@@ -311,6 +311,7 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FO
 
 		let matchingImagePaths = [];
 		let imageList = IMAGE_PATHS;
+		let spaMode = req.query.spaMode;
 		let view = req.query.view;
 		let sortBy = req.query.sortBy;
 		if (!sortBy) {
@@ -530,19 +531,31 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FO
 		// console.log('rendering search results');
 		const multiplier = 1;
 
-		res.render('home', {
-			searchText,
-			totalResultCount,
-			images,
-			// matchingImageIndexes: pageImageIndexes,
-			page,
-			totalPages,
-			sortBy: sortBy,
-			sortAsc: sortAsc,
-			view,
-			multiplier,
-			SEARCH_RESULTS_BATCH_SIZE
-		});
+		if (spaMode) {
+			res.render('results', {
+				totalResultCount,
+				images,
+				page,
+				totalPages,
+				view,
+				multiplier,
+				SEARCH_RESULTS_BATCH_SIZE
+			});
+		} else {
+			res.render('home', {
+				searchText,
+				totalResultCount,
+				images,
+				// matchingImageIndexes: pageImageIndexes,
+				page,
+				totalPages,
+				sortBy: sortBy,
+				sortAsc: sortAsc,
+				view,
+				multiplier,
+				SEARCH_RESULTS_BATCH_SIZE
+			});
+		}
 	});
 
 	router.get('/getNextResults', async (req, res) => {
