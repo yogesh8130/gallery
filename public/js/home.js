@@ -180,11 +180,20 @@ function renderTree(tree, parentPath = "", currentPath = "") {
 
 		const link = document.createElement("a");
 		link.href = `/search?&searchText=\\images\\${encodeURIComponent(fullPath)}`;
+		link.dataset.folderPath = `\\images\\${fullPath}`;
 		// link.target = "_blank"; // open in new tab
 		link.textContent = folder;
 		link.classList.add("folder-link");
-
+		link.classList.add("recursive");
 		label.appendChild(link);
+
+		const nonRecursiveLink = document.createElement("a");
+		nonRecursiveLink.href = `/search?&searchText=\\images\\${encodeURIComponent(fullPath)}\\`;
+		nonRecursiveLink.dataset.folderPath = `\\images\\${fullPath}\\`;
+		nonRecursiveLink.textContent = '\\';
+		nonRecursiveLink.classList.add("folder-link");
+		nonRecursiveLink.classList.add("non-recursive");
+		label.appendChild(nonRecursiveLink);
 
 		let children;
 		if (hasChildren) {
@@ -202,12 +211,6 @@ function renderTree(tree, parentPath = "", currentPath = "") {
 			} else {
 				label.classList.add("open");
 			}
-
-			label.addEventListener("click", (e) => {
-				if (e.target.tagName === "A") return;
-				children.classList.toggle("collapsed");
-				label.classList.toggle("open");
-			});
 
 			li.appendChild(label);
 			li.appendChild(children);
@@ -997,6 +1000,27 @@ document.addEventListener("DOMContentLoaded", function () {
 		document.getElementById('sortByDimensionsAsc').classList.add('active');
 	else if (sortByParam === 'dimensions' && sortAscParam === 'false')
 		document.getElementById('sortByDimensionsDesc').classList.add('active');
+
+
+	// Directory Tree Events
+	document.getElementById('folderTree').addEventListener('click', function (event) {
+		if (event.target?.classList?.contains('folder-link')) {
+			event.preventDefault();
+			newSearch(event.target?.dataset?.folderPath);
+
+			document.querySelector('.currentPath')?.classList.remove('currentPath');
+			event.target?.closest('.folder-label')?.classList.add('currentPath');
+
+		} else if (event.target?.classList?.contains('folder-label')) {
+			// open / close tree
+			event.target.classList.toggle('open');
+			event.target.nextElementSibling.classList.toggle('collapsed');
+		}
+
+		// console.log(event.target?.classList);
+		// console.log(event.target?.dataset?.folderPath);
+
+	})
 });
 
 
@@ -1054,6 +1078,10 @@ document.addEventListener('keydown', function (event) {
 			break;
 		case 't':
 			document.documentElement.scrollTop = 0;
+			break;
+		case 'm':
+			event.preventDefault();
+			document.getElementById('moveFilesInput').focus();
 			break;
 		case 'ArrowRight':
 			if (IS_MODAL_ACTIVE && !event.shiftKey) {
@@ -1301,7 +1329,7 @@ function changeTileSize() {
 			imageSidebar.classList.remove('minimized');
 		}
 	});
-	console.log("MULTIPLIER: " + MULTIPLIER);
+	// console.log("MULTIPLIER: " + MULTIPLIER);
 
 	// scroll to last viwed image
 	const lastViewedImage = document.getElementById(LAST_VIEWED_IMAGE_ID);
@@ -1320,20 +1348,29 @@ const RESULTS = document.querySelector('.results')
 let IS_LOADING = false;
 let HAS_MORE_RESULTS = true;
 
-function newSearch(urlEncodedSearchText, sortBy = 'shuffle', sortAsc = true, sortButton) {
-	console.log('newSearch');
+function newSearch(searchText, sortBy, sortAsc, sortButton) {
+	// console.log('newSearch');
 	IS_LOADING = true;
 	CURRENT_PAGE_NUMBER = 1;
 	HAS_MORE_RESULTS = true;
 
-	if (!urlEncodedSearchText) {
-		urlEncodedSearchText = QUERY_PARAMS.searchText;
-	}
+	const urlParams = new URLSearchParams(window.location.search);
 
-	fetch(`/search?searchText=${urlEncodedSearchText}&sortBy=${sortBy}&sortAsc=${sortAsc}&spaMode=true`)
+	if (!searchText) searchText = urlParams.get('searchText');
+	if (!sortBy) sortBy = urlParams.get('sortBy') || 'shuffle';
+	if (!sortAsc) sortAsc = urlParams.get('sortAsc') || true;
+
+	// update URL
+	const url = new URL(window.location.href);
+	url.searchParams.set('searchText', searchText);
+	url.searchParams.set('sortBy', sortBy);
+	url.searchParams.set('sortAsc', sortAsc);
+	window.history.replaceState({}, '', url);
+
+	fetch(`/search?searchText=${searchText}&sortBy=${sortBy}&sortAsc=${sortAsc}&spaMode=true`)
 		.then(response => response.text())
 		.then(html => {
-			showPopup(`Loading...`, 'info', 3000);
+			showPopup(`Loading...`, 'info', 1000);
 			RESULTS.innerHTML = '';
 
 			const tempDiv = document.createElement('div');
@@ -1349,10 +1386,12 @@ function newSearch(urlEncodedSearchText, sortBy = 'shuffle', sortAsc = true, sor
 				document.querySelectorAll('.selectCheckbox').forEach(element => element.style.display = 'block');
 			}
 
-			// update image count
-			const loadedImageCount = document.getElementById('loadedImageCount');
-			loadedImageCount.textContent = document.querySelectorAll('.result').length;
-
+			// update counts of images and pages
+			document.getElementById('loadedImageCount').textContent = document.querySelectorAll('.result').length;
+			document.getElementById('totalResultCount').textContent = document.getElementById('resultsData').dataset.totalResultCount;
+			document.getElementById('pageNumber').textContent = '1';
+			document.getElementById('totalPages').textContent = document.getElementById('resultsData').dataset.totalPages;
+			window.totalPages = parseInt(document.getElementById('resultsData').dataset.totalPages);
 
 			// activate the appropriate sort button
 			if (sortButton) {
@@ -1361,6 +1400,7 @@ function newSearch(urlEncodedSearchText, sortBy = 'shuffle', sortAsc = true, sor
 				});
 				sortButton.classList.add('active');
 			}
+
 		})
 		.catch(error => {
 			console.error(`Error loading results: ${error}`);
@@ -1368,6 +1408,7 @@ function newSearch(urlEncodedSearchText, sortBy = 'shuffle', sortAsc = true, sor
 		})
 		.finally(() => {
 			IS_LOADING = false;
+			changeTileSize();
 		});
 }
 
@@ -1387,10 +1428,13 @@ function loadMore(params) {
 		CURRENT_PAGE_NUMBER++;
 		// queryParams just passes the searchText, shuffle and view ie queryParams
 		// from first search to getNextResults queries
-		fetch(`/getNextResults${QUERY_STRING}&page=${CURRENT_PAGE_NUMBER}&multiplier=${MULTIPLIER}`)
+
+		// console.log(`loading page number: ${CURRENT_PAGE_NUMBER}, query: ${window.location.search}`);
+
+		fetch(`/getNextResults${window.location.search}&page=${CURRENT_PAGE_NUMBER}&multiplier=${MULTIPLIER}`)
 			.then(response => response.text())
 			.then(html => {
-				if (CURRENT_PAGE_NUMBER > totalPages) {
+				if (CURRENT_PAGE_NUMBER >= totalPages) {
 					// console.log('no more results');
 					HAS_MORE_RESULTS = false;
 					showPopup('Stuff no more', 'warn');
@@ -1766,7 +1810,7 @@ function selectAllImages() {
 
 function deselectAllImages() {
 	SELECTED_IMAGES.clear()
-	const images = document.querySelectorAll('.resultFile');
+	const images = document.querySelectorAll('.resultFile.selectedImage');
 	images.forEach(image => {
 		deselectImage(image);
 	});

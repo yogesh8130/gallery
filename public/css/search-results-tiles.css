@@ -53,15 +53,19 @@ h2 {
 }
 
 .folder-label {
+	display: flex;
 	cursor: pointer;
 	color: white;
-	white-space: nowrap;
 
 	&::before {
 		border-left: 1px solid;
 		border-bottom: 1px solid;
-		padding: 0px 5px;
+		padding: 0px 6px;
 		width: 10px;
+	}
+
+	&:hover {
+		background: blueviolet;
 	}
 }
 
@@ -84,7 +88,19 @@ h2 {
 }
 
 .folder-link {
-	margin-left: 5px;
+
+	&.non-recursive {
+		padding: 0px 10px;
+	}
+
+	&.recursive {
+		padding: 0px 5px;
+		flex: 1;
+	}
+
+	&:hover {
+		background: crimson;
+	}
 }
 
 .results {
@@ -570,12 +586,14 @@ ul {
 }
 
 #sidebar .historyButton {
+	min-width: calc(50% - 1px);
 	font-size: small;
 	height: 20px;
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	overflow: hidden;
 	transition: background-color 1000ms ease;
+	text-align: left;
 
 	&.flash-green {
 		background-color: green;

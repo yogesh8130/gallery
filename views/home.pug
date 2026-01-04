@@ -17,8 +17,8 @@ html
 			div.header
 				div.vertical.heading
 					a(href='/' title = 'HOME')
-						h2 Showing #[span#loadedImageCount #{images.length}]/#{totalResultCount} results 
-						h2 (Page #[span#pageNumber #{page}]/#{totalPages})
+						h2 Showing #[span#loadedImageCount #{images.length}]/#[span#totalResultCount #{totalResultCount}] results 
+						h2 (Page #[span#pageNumber #{page}]/#[span#totalPages #{totalPages}])
 				div.controlsDiv
 					.vertical.searchGroup
 						.horizontal
@@ -42,7 +42,7 @@ html
 									)
 							div.config.buttonControls
 								button.default(id = 'configButton' onclick = "window.open('/config', '_blank')" title = 'settings') &#9881;
-							button#shuffleButton.sortButton(onclick = `window.location.href="/search?searchText=${encodeURIComponent(searchText)}&view=${view}&sortBy=shuffle&sortAsc=true"`
+							button#shuffleButton.sortButton(onclick = `newSearch(null, 'shuffle', true, this)`
 								title = 'Path Ascending') Shuffle
 					.vertical
 						div.sortButtons.buttonControls
