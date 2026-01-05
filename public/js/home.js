@@ -1358,7 +1358,7 @@ function newSearch(searchText, sortBy, sortAsc, sortButton) {
 
 	if (!searchText) searchText = urlParams.get('searchText');
 	if (!sortBy) sortBy = urlParams.get('sortBy') || 'shuffle';
-	if (!sortAsc) sortAsc = urlParams.get('sortAsc') || true;
+	if (sortAsc === null) sortAsc = urlParams.get('sortAsc') || true;
 
 	// update URL
 	const url = new URL(window.location.href);
@@ -1367,10 +1367,14 @@ function newSearch(searchText, sortBy, sortAsc, sortButton) {
 	url.searchParams.set('sortAsc', sortAsc);
 	window.history.replaceState({}, '', url);
 
+	// console.log(`searchText: ${searchText}, sortBy: ${sortBy}, sortAsc: ${sortAsc}`);
+
 	fetch(`/search?searchText=${searchText}&sortBy=${sortBy}&sortAsc=${sortAsc}&spaMode=true`)
 		.then(response => response.text())
 		.then(html => {
 			showPopup(`Loading...`, 'info', 1000);
+			window.scrollTo(0, 0);
+			
 			RESULTS.innerHTML = '';
 
 			const tempDiv = document.createElement('div');
