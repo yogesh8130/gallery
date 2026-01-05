@@ -713,6 +713,10 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FO
 		} else {
 			suggestedFolders = FOLDER_PATHS;
 		}
+
+		// remove duplicates
+		suggestedFolders = [...new Set(suggestedFolders)];
+
 		res.json(suggestedFolders);
 	})
 

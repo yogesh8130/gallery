@@ -179,8 +179,8 @@ function renderTree(tree, parentPath = "", currentPath = "") {
 		label.classList.add("folder-label");
 
 		const link = document.createElement("a");
-		link.href = `/search?&searchText=\\images\\${encodeURIComponent(fullPath)}`;
-		link.dataset.folderPath = `\\images\\${fullPath}`;
+		link.href = `/search?&searchText=\\images\\${encodeURIComponent(fullPath)}\\`;
+		link.dataset.folderPath = `\\images\\${fullPath}\\`;
 		// link.target = "_blank"; // open in new tab
 		link.textContent = folder;
 		link.classList.add("folder-link");
@@ -188,8 +188,8 @@ function renderTree(tree, parentPath = "", currentPath = "") {
 		label.appendChild(link);
 
 		const nonRecursiveLink = document.createElement("a");
-		nonRecursiveLink.href = `/search?&searchText=\\images\\${encodeURIComponent(fullPath)}\\`;
-		nonRecursiveLink.dataset.folderPath = `\\images\\${fullPath}\\`;
+		nonRecursiveLink.href = `/search?&searchText=\\images\\${encodeURIComponent(fullPath)}`;
+		nonRecursiveLink.dataset.folderPath = `\\images\\${fullPath}`;
 		nonRecursiveLink.textContent = '\\';
 		nonRecursiveLink.classList.add("folder-link");
 		nonRecursiveLink.classList.add("non-recursive");
@@ -237,8 +237,8 @@ function refreshDirectoryTree() {
 			const treeData = buildTree(paths);
 			const container = document.getElementById("folderTree");
 
-			const currentFolder =
-				document.getElementById("searchText")?.value?.trim().replace(/^\\images\\/, '') || "";
+			const urlParams = new URLSearchParams(window.location.search);
+			const currentFolder = urlParams.get('searchText').trim().replace(/^\\images\\/, '');
 
 			container.innerHTML = "";
 			container.appendChild(
@@ -324,10 +324,7 @@ function updateHistoryButtons(argument, operation) {
 	function incrementClickCount(operation, argument) {
 		const map = getHistoryMap(operation);
 		if (!map[argument]) map[argument] = { clicks: 0 };
-		// cap the hit count at 20
-		if (map[argument].clicks < 20) {
-			map[argument].clicks++;
-		}
+		map[argument].clicks = map[argument].clicks + 3;
 		saveHistoryMap(operation, map);
 	}
 
@@ -343,6 +340,12 @@ function updateHistoryButtons(argument, operation) {
 		const [removedArg] = entries[0];
 
 		delete map[removedArg];
+
+		// reduce all by 1, else highly clicked entries are never evicted
+		for (const key in map) {
+			map[key].clicks = map[key].clicks - 1;
+		}
+
 		saveHistoryMap(operation, map);
 		return removedArg;
 	}
@@ -1014,6 +1017,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 			document.querySelector('.currentPath')?.classList.remove('currentPath');
 			event.target?.closest('.folder-label')?.classList.add('currentPath');
+			event.target?.closest('.folder-label')?.classList.add('open');
+			event.target?.closest('.folder-label')?.nextElementSibling?.classList.remove('collapsed');
 
 		} else if (event.target?.classList?.contains('folder-label')) {
 			// open / close tree
@@ -1359,6 +1364,10 @@ function newSearch(searchText, sortBy, sortAsc, sortButton) {
 	HAS_MORE_RESULTS = true;
 
 	deselectAllImages();
+	CURRENT_IMAGE_PATH = null;
+	CURRENT_IMAGE_ID_NUM = null;
+	LAST_VIEWED_IMAGE_ID = null;
+	LAST_SELECTED_IMAGE_INDEX = -1;
 
 	const urlParams = new URLSearchParams(window.location.search);
 
@@ -1380,7 +1389,7 @@ function newSearch(searchText, sortBy, sortAsc, sortButton) {
 		.then(response => response.text())
 		.then(html => {
 			showPopup(`Loading...`, 'info', 1000);
-			window.scrollTo(0, 0);
+			document.documentElement.scrollTop = 0;
 
 			RESULTS.innerHTML = '';
 
@@ -1391,11 +1400,6 @@ function newSearch(searchText, sortBy, sortAsc, sortButton) {
 			fragment.append(...tempDiv.children);
 
 			RESULTS.appendChild(fragment);
-
-			// if SELECTION_MODE then set selectCheckbox(s) to display: block
-			if (SELECTION_MODE) {
-				document.querySelectorAll('.selectCheckbox').forEach(element => element.style.display = 'block');
-			}
 
 			// update counts of images and pages
 			document.getElementById('loadedImageCount').textContent = document.querySelectorAll('.result').length;
@@ -1904,7 +1908,7 @@ function moveRenameFiles(operation) {
 		case "prependToName":
 			argument1 = document.getElementById('prependToNameInput').value;
 			updateHistoryButtons(argument1, operation);
-			pattern = /^[a-zA-Z0-9\- ]*$/;
+			pattern = /^[a-zA-Z0-9\-_ ]*$/;
 			isValid = pattern.test(argument1);
 			if (!isValid) {
 				showPopup('text contains disallowed characters', 'warn');
