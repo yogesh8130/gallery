@@ -30,9 +30,10 @@ html
 						.horizontal
 							div.buttonControls#sliderContainer
 								label(for = "slider") Zoom
+								button#increaseZoomButton(onclick = 'document.getElementById("slider").stepDown(); document.getElementById("slider").dispatchEvent(new Event("change"))') ➖
 								input.slider(
 									type = "range" 
-									min = "0.3" max="2" 
+									min = "0.2" max="2" 
 									step = "0.1" value="1" 
 									id = "slider"
 									name = slider 
@@ -40,6 +41,7 @@ html
 									ondblclick = 'this.value = 1; changeTileSize()'
 									title = '<- ArrowLeft - ArrowRight ->'
 									)
+								button#decreaseZoomButton(onclick = 'document.getElementById("slider").stepUp(); document.getElementById("slider").dispatchEvent(new Event("change"))') ➕
 							div.config.buttonControls
 								button.default(id = 'configButton' onclick = "window.open('/config', '_blank')" title = 'settings') &#9881;
 							button#shuffleButton.sortButton(onclick = `newSearch(null, 'shuffle', true, this)`

@@ -1358,6 +1358,8 @@ function newSearch(searchText, sortBy, sortAsc, sortButton) {
 	CURRENT_PAGE_NUMBER = 1;
 	HAS_MORE_RESULTS = true;
 
+	deselectAllImages();
+
 	const urlParams = new URLSearchParams(window.location.search);
 
 	if (!searchText) searchText = urlParams.get('searchText');
