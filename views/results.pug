@@ -18,7 +18,7 @@ else
 		- const idNum = (SEARCH_RESULTS_BATCH_SIZE*(page-1)+index)
 		- resultStyle = `width: ${width}rem; flex-grow: ${width}`
 		- istyle = `padding-bottom: ${padding}%`
-		div.result(id = 'result'+ idNum data-width=width
+		div.result(id = 'result'+ idNum data-width=(image.width * baseSize / image.height)
 			style = `${view && view === 'tiles' ? resultStyle : ""}`
 			)
 			i(

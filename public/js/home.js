@@ -1299,7 +1299,7 @@ function updateMultiplier(slider) {
 function changeTileSize() {
 	const results = document.querySelectorAll('.result');
 	const imageSidebars = document.querySelectorAll('.imageSidebar');
-
+	
 	if (sessionStorage.sliderValue) {
 		MULTIPLIER = sessionStorage.sliderValue;
 	} else if (localStorage.sliderValue) {
@@ -1365,16 +1365,17 @@ function newSearch(searchText, sortBy, sortAsc, sortButton) {
 	url.searchParams.set('searchText', searchText);
 	url.searchParams.set('sortBy', sortBy);
 	url.searchParams.set('sortAsc', sortAsc);
+	url.searchParams.set('view', 'tiles');
 	window.history.replaceState({}, '', url);
 
-	// console.log(`searchText: ${searchText}, sortBy: ${sortBy}, sortAsc: ${sortAsc}`);
+	// console.log(`searchText: ${encodeURIComponent(searchText)}, sortBy: ${sortBy}, sortAsc: ${sortAsc}`);
 
-	fetch(`/search?searchText=${searchText}&sortBy=${sortBy}&sortAsc=${sortAsc}&spaMode=true`)
+	fetch(`/search?searchText=${encodeURIComponent(searchText)}&sortBy=${sortBy}&sortAsc=${sortAsc}&spaMode=true`)
 		.then(response => response.text())
 		.then(html => {
 			showPopup(`Loading...`, 'info', 1000);
 			window.scrollTo(0, 0);
-			
+
 			RESULTS.innerHTML = '';
 
 			const tempDiv = document.createElement('div');
@@ -1444,11 +1445,11 @@ function loadMore(params) {
 					showPopup('Stuff no more', 'warn');
 				} else {
 					showPopup(`Fetching page ${CURRENT_PAGE_NUMBER} / ${totalPages}`, 'info', 3000);
-
-					// udpate page number
-					const pageNumberSpan = document.getElementById('pageNumber');
-					pageNumberSpan.textContent = CURRENT_PAGE_NUMBER;
 				}
+
+				// udpate page number
+				const pageNumberSpan = document.getElementById('pageNumber');
+				pageNumberSpan.textContent = CURRENT_PAGE_NUMBER;
 
 				const tempDiv = document.createElement('div');
 				tempDiv.innerHTML = html;
