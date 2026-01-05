@@ -336,7 +336,7 @@ function renameKey(map, oldKey, newKey) {
 	}
 }
 
-function moveRenameFiles(IMAGE_PATHS, METADATA_MAP,
+function moveRenameFiles(IMAGE_PATHS, METADATA_MAP, FOLDER_PATHS,
 	operation, currentFilePaths, argument1, argument2) {
 
 	let successCount = 0;
@@ -344,6 +344,7 @@ function moveRenameFiles(IMAGE_PATHS, METADATA_MAP,
 	let newImagesData = new Map();
 
 	let index = 0;
+	let newFoldersCreated = false;
 
 	currentFilePaths.forEach((currentFilePath, imageId) => {
 
@@ -460,6 +461,8 @@ function moveRenameFiles(IMAGE_PATHS, METADATA_MAP,
 			console.log(`new file's directory not found, hence creating directory: ${PATH.dirname(newFilePath)}`);
 			try {
 				FS.mkdirSync(PATH.dirname(newFilePath), { recursive: true });
+				newFoldersCreated = true;
+				FOLDER_PATHS.push(PATH.dirname(newFilePath).replace(PWD + '\\public\\images\\', ''));
 			} catch (err) {
 				console.error(`Error creating directory: ${PATH.dirname(newFilePath)}: ${err.message}`);
 				failCount++;
@@ -538,7 +541,8 @@ function moveRenameFiles(IMAGE_PATHS, METADATA_MAP,
 	return {
 		successCount: successCount,
 		failCount: failCount,
-		newImagesData: newImagesData
+		newImagesData: newImagesData,
+		newFoldersCreated: newFoldersCreated
 	};
 }
 

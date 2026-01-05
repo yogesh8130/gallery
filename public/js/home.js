@@ -230,6 +230,25 @@ function renderTree(tree, parentPath = "", currentPath = "") {
 	return ul;
 }
 
+function refreshDirectoryTree() {
+	fetch("/folderPaths")
+		.then(res => res.json())
+		.then(paths => {
+			const treeData = buildTree(paths);
+			const container = document.getElementById("folderTree");
+
+			const currentFolder =
+				document.getElementById("searchText")?.value?.trim().replace(/^\\images\\/, '') || "";
+
+			container.innerHTML = "";
+			container.appendChild(
+				renderTree(treeData, "", currentFolder)
+			);
+			ACTIVE_FOLDER_NODE?.classList.add("currentPath");
+			document.querySelector('.currentPath').scrollIntoView({ block: "center", container: "nearest" });
+		});
+}
+
 function onZoomChange(viewerData) {
 	// console.log(data);
 	if (viewerData.zoomValue > 100) {
@@ -566,22 +585,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	}
 
 	// render directory tree:
-	fetch("/folderPaths")
-		.then(res => res.json())
-		.then(paths => {
-			const treeData = buildTree(paths);
-			const container = document.getElementById("folderTree");
-
-			const currentFolder =
-				document.getElementById("searchText")?.value?.trim().replace(/^\\images\\/, '') || "";
-
-			container.innerHTML = "";
-			container.appendChild(
-				renderTree(treeData, "", currentFolder)
-			);
-			ACTIVE_FOLDER_NODE?.classList.add("currentPath");
-			document.querySelector('.currentPath').scrollIntoView({ block: "center", container: "nearest" });
-		});
+	refreshDirectoryTree();
 
 	// convertin URL query params to
 	QUERY_STRING = window.location.search;
@@ -1299,7 +1303,7 @@ function updateMultiplier(slider) {
 function changeTileSize() {
 	const results = document.querySelectorAll('.result');
 	const imageSidebars = document.querySelectorAll('.imageSidebar');
-	
+
 	if (sessionStorage.sliderValue) {
 		MULTIPLIER = sessionStorage.sliderValue;
 	} else if (localStorage.sliderValue) {
@@ -1978,6 +1982,7 @@ function moveRenameFiles(operation) {
 			// console.log(data);
 			const successCount = data.successCount;
 			const failCount = data.failCount;
+			const newFoldersCreated = data.newFoldersCreated;
 			const newImagesData = new Map(Object.entries(data.newImagesData));
 			newImagesData.forEach((value, imageId) => {
 				const image = document.getElementById(imageId);
@@ -2002,6 +2007,11 @@ function moveRenameFiles(operation) {
 					image.classList.remove('selectedImage');
 				}
 			})
+
+			if (newFoldersCreated) {
+				refreshDirectoryTree();
+			}
+
 			showPopup(`Renamed ${successCount} files`, 'info')
 			if (failCount !== 0) {
 				showPopup(`Failed ${failCount} files`, 'error')

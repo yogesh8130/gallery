@@ -288,18 +288,20 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FO
 			FOLDER_PATHS.unshift(argument1);
 		}
 
-		const fileOperationOutput = moveRenameFiles(IMAGE_PATHS, METADATA_MAP,
+		const fileOperationOutput = moveRenameFiles(IMAGE_PATHS, METADATA_MAP, FOLDER_PATHS,
 			operation, currentFilePaths, argument1, argument2);
 
 		const newImagesData = fileOperationOutput.newImagesData;
 		const successCount = fileOperationOutput.successCount;
 		const failCount = fileOperationOutput.failCount;
+		const newFoldersCreated = fileOperationOutput.newFoldersCreated;
 
 		return res.status(200).json({
 			// have to convert map to an Object so it can be serialized into a JSON
 			newImagesData: Object.fromEntries(newImagesData),
 			successCount: successCount,
-			failCount: failCount
+			failCount: failCount,
+			newFoldersCreated: newFoldersCreated
 		});
 	});
 
