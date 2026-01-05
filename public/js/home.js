@@ -8,7 +8,7 @@ let IS_MODAL_ACTIVE = false;
 let SELECTION_MODE = false; // whether click opens an image or selects it
 
 const darkColors = ['blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chocolate', 'coral', 'cornflowerblue', 'crimson', 'darkblue', 'darkcyan', 'darkgoldenrod', 'darkgreen', 'darkmagenta', 'darkolivegreen', 'darkorange', 'darkorchid', 'darkred', 'darkslateblue', 'darkslategrey', 'darkviolet', 'deeppink', 'dodgerblue', 'firebrick', 'forestgreen', 'fuchsia', 'green', 'hotpink', 'indianred', 'indigo', 'lightcoral', 'magenta', 'maroon', 'mediumblue', 'mediumorchid', 'mediumpurple', 'mediumseagreen', 'mediumslateblue', 'mediumvioletred', 'midnightblue', 'navy', 'olive', 'olivedrab', 'orangered', 'orchid', 'palevioletred', 'peru', 'purple', 'rebeccapurple', 'red', 'royalblue', 'saddlebrown', 'salmon', 'seagreen', 'sienna', 'slateblue', 'steelblue', 'teal', 'tomato', 'violet'];
-MAX_HISTORY_JUMPLIST = 10;
+MAX_HISTORY_JUMPLIST = 9;
 
 // media query for coarse pointer devices (touch)
 const COARSE_POINTER_MEDIA_QUERY = window.matchMedia('(pointer: coarse)');

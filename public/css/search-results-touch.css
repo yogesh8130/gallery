@@ -47,7 +47,7 @@ h2 {
 	.pathSegment,
 	.subTitle,
 	.marquee {
-		font-size: 11px;
+		font-size: 9px;
 		background: none;
 		margin: 0px;
 		padding: 0px;
@@ -220,7 +220,7 @@ h2 {
 }
 
 .buttonsFlex {
-	gap: 5px;
+	gap: 1px;
 }
 
 #sidebar .historyButton {
