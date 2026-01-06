@@ -502,7 +502,6 @@ function moveRenameFiles(IMAGE_PATHS, METADATA_MAP, FOLDER_PATHS,
 				if (operation !== 'delete') {
 					// updating IMAGE_PATHS	and METADATA_MAP
 					IMAGE_PATHS[IMAGE_PATHS.indexOf(currentFilePathRelative)] = newFilePathRelative;
-					IMAGE_PATHS.sort();
 					renameKey(METADATA_MAP, currentFilePathRelative, newFilePathRelative);
 					METADATA_MAP.get(newFilePathRelative).baseName = PATH.basename(newFilePathRelative);
 					METADATA_MAP.get(newFilePathRelative).directory = PATH.dirname(newFilePathRelative);
@@ -538,6 +537,9 @@ function moveRenameFiles(IMAGE_PATHS, METADATA_MAP, FOLDER_PATHS,
 			}
 		}
 	});
+
+	IMAGE_PATHS.sort();
+
 	return {
 		successCount: successCount,
 		failCount: failCount,
