@@ -1149,6 +1149,11 @@ window.addEventListener('scroll', function (event) {
 		// Scrolling down - hide header
 		HEADER.classList.remove('pinned');
 		HEADER.classList.add('unpinned');
+
+		// remove focus from the search bar
+		if (HEADER.contains(document.activeElement)) {
+			document.activeElement.blur();
+		}
 	} else {
 		// console.log("scrolling up");
 		// Scrolling up - show header
@@ -1364,10 +1369,7 @@ function newSearch(searchText, sortBy, sortAsc, sortButton) {
 	HAS_MORE_RESULTS = true;
 
 	deselectAllImages();
-	CURRENT_IMAGE_PATH = null;
-	CURRENT_IMAGE_ID_NUM = null;
 	LAST_VIEWED_IMAGE_ID = null;
-	LAST_SELECTED_IMAGE_INDEX = -1;
 
 	const urlParams = new URLSearchParams(window.location.search);
 
@@ -1730,6 +1732,11 @@ function closeSidebar() {
 	SIDEBAR_TOGGLE_BUTTON.classList.remove('open');
 	SIDEBAR.classList.add('close');
 	SIDEBAR_TOGGLE_BUTTON.classList.add('close');
+
+	// remove focus from sidebar
+	if (SIDEBAR.contains(document.activeElement)) {
+		document.activeElement.blur();
+	}
 }
 
 function openSidebar() {
