@@ -833,6 +833,16 @@ button#renameBulkButton {
 	}
 }
 
+.result {
+	transition: all 0.3s ease, outline 0s ease;
+}
+
+.result:has(.flash-image).result:has(.flash-image) {
+	transition: scale 0s ease;
+	scale: 150%;
+	z-index: 10;
+}
+
 .renameFailed {
 	border-color: crimson;
 }

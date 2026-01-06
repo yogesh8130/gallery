@@ -17,6 +17,7 @@ const COARSE_POINTER_MEDIA_QUERY = window.matchMedia('(pointer: coarse)');
 let CURRENT_IMAGE_PATH;
 let CURRENT_IMAGE_ID_NUM;
 let LAST_SELECTED_IMAGE_INDEX;
+let MAX_SELECTED_IMAGE_INDEX = -1;
 let LAST_VIEWED_IMAGE_ID;
 
 let VIEWER;
@@ -546,20 +547,38 @@ function modalSwipeHandler(pointerMovedTo, event) {
 	}
 }
 
-function scrollToCurrentImage() {
-	const currentImage = document.getElementById(`image${CURRENT_IMAGE_ID_NUM}`);
-	if (currentImage) {
-		currentImage.scrollIntoView({
-			behavior: "smooth",
+function scrollToCurrentImage(resultId) {
+
+	if (resultId) {
+		document.getElementById(resultId).scrollIntoView({
+			// behavior: "smooth",
 			block: "center",
 			inline: "nearest"
 		});
+		flashImage(document.getElementById(resultId).querySelector('.resultFile').id, 100)
+	} else {
+		const currentImage = document.getElementById(`image${CURRENT_IMAGE_ID_NUM}`);
+		if (currentImage) {
+			currentImage.scrollIntoView({
+				// behavior: "smooth",
+				block: "center",
+				inline: "nearest"
+			});
+		}
+		flashImage(currentImage.id, 100)
 	}
+
 }
 
 function getRandom(arr) {
 	const randomIndex = Math.floor(Math.random() * arr.length);
 	return arr[randomIndex];
+}
+
+function flashImage(imageId, duration = 1000) {
+	const image = document.getElementById(imageId);
+	image.classList.add('flash-image');
+	setTimeout(() => image.classList.remove('flash-image'), duration);
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -657,7 +676,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		while (true) {
 			const nextImg = RESULTS_CONTAINER.querySelector(`#image${CURRENT_IMAGE_ID_NUM + 1}`);
 			if (!nextImg && HAS_MORE_RESULTS) {
-				loadMore({ calledFromModal: true });
+				loadMore(null, true);
 				break;
 			}
 
@@ -821,13 +840,26 @@ document.addEventListener("DOMContentLoaded", function () {
 		};
 
 		const deltaX = event.clientX - RESULTS_START_X;
-		if (Math.abs(deltaX) >= SWIPE_THRESHOLD) {
+		if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
 			// showPopup(`🔺deltaX: ${deltaX}`);
 			RESULTS_SWIPE_TRIGGERED = true;
 			resultsContainerSwipeHandler(deltaX > 0 ? 'right' : 'left', event);
 		}
 
+		const deltaY = event.clientY - RESULTS_START_Y;
+		if (deltaY < -5) {
+			// Scrolling down - hide header
+			HEADER.classList.remove('pinned');
+			HEADER.classList.add('unpinned');
+		} else if (deltaY > 5) {
+			// Scrolling up - show header
+			HEADER.classList.remove('unpinned');
+			HEADER.classList.add('pinned');
+		}
+
 	});
+
+	// results container events
 
 	RESULTS_CONTAINER.addEventListener('pointerup', function (event) {
 		if (event.shiftKey || event.ctrlKey) return;
@@ -923,12 +955,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
 		const deltaY = event.clientY - MODAL_START_Y;
 		const deltaX = event.clientX - MODAL_START_X;
-		if (Math.abs(deltaY) >= SWIPE_THRESHOLD) {
+		if (Math.abs(deltaY) > SWIPE_THRESHOLD) {
 			// showPopup(`🔺deltaY: ${deltaY}`);
 			modalSwipeHandler(deltaY > 0 ? 'down' : 'up', event);
 			return;
 		}
-		if (Math.abs(deltaX) >= SWIPE_THRESHOLD) {
+		if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
 			// showPopup(`🔺deltaX: ${deltaX}`);
 			modalSwipeHandler(deltaX > 0 ? 'right' : 'left', event);
 			return;
@@ -974,7 +1006,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		};
 
 		const deltaX = event.clientX - SIDEBAR_START_X;
-		if (Math.abs(deltaX) >= SWIPE_THRESHOLD) {
+		if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
 			// showPopup(`🔺deltaX: ${deltaX}`);
 			resultsContainerSwipeHandler(deltaX > 0 ? 'right' : 'left', event);
 			return;
@@ -1138,37 +1170,52 @@ document.addEventListener('keydown', function (event) {
 
 let PREVIOUS_SCROLL_POSITION = 0;
 let SCROLL_TIMEOUT;
-// stuff to do on scroll
-window.addEventListener('scroll', function (event) {
-	const currentScrollPosition = window.scrollY;
+// stuff to do on scroll 
+// this one causes the header to show/hide when using scrollIntoView on elements hence using wheel and touchmove instead
+// window.addEventListener('scroll', function (event) {
+// 	const currentScrollPosition = window.scrollY;
 
-	if (SCROLL_TIMEOUT) {
-		// to prevent thrashing this function
-		PREVIOUS_SCROLL_POSITION = currentScrollPosition;
-		return;
-	}
+// 	if (SCROLL_TIMEOUT) {
+// 		// to prevent thrashing this function
+// 		PREVIOUS_SCROLL_POSITION = currentScrollPosition;
+// 		return;
+// 	}
 
 
-	if (currentScrollPosition > PREVIOUS_SCROLL_POSITION) {
-		// console.log("scrolling down");
+// 	if (currentScrollPosition > PREVIOUS_SCROLL_POSITION) {
+// 		// console.log("scrolling down");
+// 		// Scrolling down - hide header
+// 		HEADER.classList.remove('pinned');
+// 		HEADER.classList.add('unpinned');
+
+// 		// remove focus from the search bar
+// 		if (HEADER.contains(document.activeElement)) {
+// 			document.activeElement.blur();
+// 		}
+// 	} else {
+// 		// console.log("scrolling up");
+// 		// Scrolling up - show header
+// 		HEADER.classList.remove('unpinned');
+// 		HEADER.classList.add('pinned');
+// 	}
+// 	SCROLL_TIMEOUT = setTimeout(function () {
+// 		// this prevents the header from re-showing instantly
+// 		SCROLL_TIMEOUT = null;
+// 	}, 500)
+// });
+
+// add event listener for mousewheel
+window.addEventListener('wheel', function (event) {
+	// console.log(event.deltaY);
+	if (event.deltaY > 0) {
 		// Scrolling down - hide header
 		HEADER.classList.remove('pinned');
 		HEADER.classList.add('unpinned');
-
-		// remove focus from the search bar
-		if (HEADER.contains(document.activeElement)) {
-			document.activeElement.blur();
-		}
 	} else {
-		// console.log("scrolling up");
 		// Scrolling up - show header
 		HEADER.classList.remove('unpinned');
 		HEADER.classList.add('pinned');
 	}
-	SCROLL_TIMEOUT = setTimeout(function () {
-		// this prevents the header from re-showing instantly
-		SCROLL_TIMEOUT = null;
-	}, 500)
 });
 
 screen.orientation.addEventListener("change", (event) => {
@@ -1370,13 +1417,23 @@ let HAS_MORE_RESULTS = true;
 function newSearch(searchText, sortBy, sortAsc, sortButton) {
 	// console.log('newSearch');
 	IS_LOADING = true;
-	CURRENT_PAGE_NUMBER = 1;
 	HAS_MORE_RESULTS = true;
+	const pagesLoadedBeforeNewSearch = CURRENT_PAGE_NUMBER;
+	CURRENT_PAGE_NUMBER = 1;
 
 	deselectAllImages();
 	LAST_VIEWED_IMAGE_ID = null;
 
+	const nextOfMaxSelectedImageSrc = document.getElementById(`image${MAX_SELECTED_IMAGE_INDEX + 1}`).dataset.src;
+
 	const urlParams = new URLSearchParams(window.location.search);
+
+	let sortUnchanged = false;
+
+	if (sortBy == urlParams.get('sortBy') && sortBy != 'shuffle'
+		&& sortAsc.toString() == urlParams.get('sortAsc').toString()) {
+		sortUnchanged = true;
+	}
 
 	if (!searchText) searchText = urlParams.get('searchText');
 	if (!sortBy) sortBy = urlParams.get('sortBy') || 'shuffle';
@@ -1431,10 +1488,28 @@ function newSearch(searchText, sortBy, sortAsc, sortButton) {
 		.finally(() => {
 			IS_LOADING = false;
 			changeTileSize();
+			if (sortButton && sortUnchanged) {
+				if (pagesLoadedBeforeNewSearch > 1) loadMore(null, true, pagesLoadedBeforeNewSearch);
+
+				// flash the image next to the one last selected, lookup by nextOfMaxSelectedImageSrc
+				const interval = setInterval(() => {
+					if (IS_LOADING) return;
+
+					clearInterval(interval); // ensures single execution
+
+					const resultUpNext = document.querySelector(
+						`[data-src="${nextOfMaxSelectedImageSrc}"]`
+					);
+					if (!resultUpNext) return;
+					scrollToCurrentImage(resultUpNext.id);
+				}, 500);
+
+			}
+			MAX_SELECTED_IMAGE_INDEX = -1;
 		});
 }
 
-function loadMore(params) {
+function loadMore(event, forcedLoad = false, pagesToLoad = 1) {
 	const scrollPosition = window.scrollY;
 	const documentHeight = document.documentElement.scrollHeight;
 	const viewportHeight = window.innerHeight;
@@ -1444,7 +1519,7 @@ function loadMore(params) {
 	if (HAS_MORE_RESULTS && !IS_LOADING
 		&& window.location.href.includes('view=tiles')
 		&& ((scrollPosition >= documentHeight - (viewportHeight * 2))
-			|| params.calledFromModal)) {
+			|| forcedLoad)) {
 		// console.log('loadmore');
 		IS_LOADING = true;
 		CURRENT_PAGE_NUMBER++;
@@ -1491,6 +1566,10 @@ function loadMore(params) {
 			})
 			.finally(() => {
 				IS_LOADING = false;
+				pagesToLoad--;
+				if (pagesToLoad > 1) {
+					loadMore(null, forcedLoad, pagesToLoad);
+				}
 			});
 	}
 }
@@ -1771,6 +1850,9 @@ function selectImage(resultFileElement) {
 		decodeURIComponent(resultFileElement.src.replace(origin, '').replace(/^\//, '')));
 	resultFileElement.classList.add('selectedImage');
 	LAST_SELECTED_IMAGE_INDEX = parseInt(resultFileElement.id.replace('image', ''));
+	if (LAST_SELECTED_IMAGE_INDEX > MAX_SELECTED_IMAGE_INDEX) {
+		MAX_SELECTED_IMAGE_INDEX = LAST_SELECTED_IMAGE_INDEX;
+	}
 	document.getElementById(`selectCheckbox${resultFileElement.id.replace('image', '')}`).checked = true;
 	udpateSelectedFilesCount();
 }

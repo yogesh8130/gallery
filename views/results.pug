@@ -20,6 +20,7 @@ else
 		- istyle = `padding-bottom: ${padding}%`
 		div.result(id = 'result'+ idNum data-width=(image.width * baseSize / image.height)
 			style = `${view && view === 'tiles' ? resultStyle : ""}`
+			data-src = imageLinkEscaped
 			)
 			i(
 				data-padding = padding 
