@@ -555,7 +555,7 @@ function scrollToCurrentImage(resultId) {
 			block: "center",
 			inline: "nearest"
 		});
-		flashImage(document.getElementById(resultId).querySelector('.resultFile').id, 100)
+		animateImage(document.getElementById(resultId).querySelector('.resultFile').id, 600, 'flash-image');
 	} else {
 		const currentImage = document.getElementById(`image${CURRENT_IMAGE_ID_NUM}`);
 		if (currentImage) {
@@ -565,7 +565,7 @@ function scrollToCurrentImage(resultId) {
 				inline: "nearest"
 			});
 		}
-		flashImage(currentImage.id, 100)
+		animateImage(currentImage.id, 100, 'zoomout-image');
 	}
 
 }
@@ -575,10 +575,10 @@ function getRandom(arr) {
 	return arr[randomIndex];
 }
 
-function flashImage(imageId, duration = 1000) {
+function animateImage(imageId, duration = 1000, className = 'flash-image') {
 	const image = document.getElementById(imageId);
-	image.classList.add('flash-image');
-	setTimeout(() => image.classList.remove('flash-image'), duration);
+	image.classList.add(className);
+	setTimeout(() => image.classList.remove(className), duration);
 }
 
 document.addEventListener("DOMContentLoaded", function () {

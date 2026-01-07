@@ -835,9 +835,22 @@ button#renameBulkButton {
 
 .result {
 	transition: all 0.3s ease, outline 0s ease;
+
+	.resultFile {
+		transition: opacity 0.3s ease
+	}
+
 }
 
 .result:has(.flash-image).result:has(.flash-image) {
+	background: white;
+
+	.resultFile {
+		opacity: 10%;
+	}
+}
+
+.result:has(.zoomout-image).result:has(.zoomout-image) {
 	transition: scale 0s ease;
 	scale: 150%;
 	z-index: 10;
