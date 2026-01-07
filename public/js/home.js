@@ -6,6 +6,7 @@ const SELECTED_IMAGES = new Map(); // imageId => imageLink
 let ALL_FILES_SELECTED = false;
 let IS_MODAL_ACTIVE = false;
 let SELECTION_MODE = false; // whether click opens an image or selects it
+let GLOBAL_TRAVERSAL_MODE = true; // makes swipes arrow keys navigate between images as per directory structure instead of shown order
 
 const darkColors = ['blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chocolate', 'coral', 'cornflowerblue', 'crimson', 'darkblue', 'darkcyan', 'darkgoldenrod', 'darkgreen', 'darkmagenta', 'darkolivegreen', 'darkorange', 'darkorchid', 'darkred', 'darkslateblue', 'darkslategrey', 'darkviolet', 'deeppink', 'dodgerblue', 'firebrick', 'forestgreen', 'fuchsia', 'green', 'hotpink', 'indianred', 'indigo', 'lightcoral', 'magenta', 'maroon', 'mediumblue', 'mediumorchid', 'mediumpurple', 'mediumseagreen', 'mediumslateblue', 'mediumvioletred', 'midnightblue', 'navy', 'olive', 'olivedrab', 'orangered', 'orchid', 'palevioletred', 'peru', 'purple', 'rebeccapurple', 'red', 'royalblue', 'saddlebrown', 'salmon', 'seagreen', 'sienna', 'slateblue', 'steelblue', 'teal', 'tomato', 'violet'];
 MAX_HISTORY_JUMPLIST = 9;
@@ -541,9 +542,11 @@ function modalSwipeHandler(pointerMovedTo, event) {
 	if ((pointerMovedTo === 'down' || pointerMovedTo === 'up')) {
 		closeModal();
 	} else if (pointerMovedTo === 'right') {
-		showPreviousImage();
+		if (GLOBAL_TRAVERSAL_MODE) showPreviousImage();
+		else showNextImageFromSearch();
 	} else if (pointerMovedTo === 'left') {
-		showNextImage();
+		if (GLOBAL_TRAVERSAL_MODE) showNextImage();
+		else showPreviousImageFromSearch();
 	}
 }
 
@@ -673,47 +676,11 @@ document.addEventListener("DOMContentLoaded", function () {
 	}
 
 	MODAL_NEXT_FROM_SEARCH_BUTTON.onclick = function () {
-		while (true) {
-			const nextImg = RESULTS_CONTAINER.querySelector(`#image${CURRENT_IMAGE_ID_NUM + 1}`);
-			if (!nextImg && HAS_MORE_RESULTS) {
-				loadMore(null, true);
-				break;
-			}
-
-			if (nextImg && nextImg.classList.contains('imageFile')) {
-				VIEWER.load(nextImg.src);
-				updateModalImageDetails(nextImg.id);
-				CURRENT_IMAGE_ID_NUM++;
-				break;
-			} else {
-				CURRENT_IMAGE_ID_NUM++;
-			}
-
-			if (!HAS_MORE_RESULTS) {
-				showPopup('no more stuff to show', 'warn', 1000);
-				break;
-			}
-		}
-		scrollToCurrentImage();
+		showNextImageFromSearch();
 	}
 
 	MODAL_PREV_FROM_SEARCH_BUTTON.onclick = function () {
-		while (true) {
-			if (CURRENT_IMAGE_ID_NUM == 0) {
-				showPopup('Already at the beginning', 'warn', 2000);
-				break;
-			}
-			const prevImg = RESULTS_CONTAINER.querySelector(`#image${CURRENT_IMAGE_ID_NUM - 1}`);
-			if (prevImg && prevImg.classList.contains('imageFile')) {
-				VIEWER.load(prevImg.src);
-				updateModalImageDetails(prevImg.id);
-				CURRENT_IMAGE_ID_NUM--;
-				break;
-			} else {
-				CURRENT_IMAGE_ID_NUM--;
-			}
-		}
-		scrollToCurrentImage();
+		showPreviousImageFromSearch();
 	}
 
 	// add click listeners if not in coarse pointer mode(ie using mouse)
@@ -1130,10 +1097,13 @@ document.addEventListener('keydown', function (event) {
 			document.getElementById('moveFilesInput').focus();
 			break;
 		case 'ArrowRight':
+			console.log(`pressed right arrow`);
+
 			if (IS_MODAL_ACTIVE && !event.shiftKey) {
-				showNextImage();
+				if (GLOBAL_TRAVERSAL_MODE) showNextImage();
+				else showNextImageFromSearch();
 			} else if (IS_MODAL_ACTIVE && event.shiftKey) {
-				MODAL_NEXT_FROM_SEARCH_BUTTON.click();
+				showNextImageFromSearch();
 			} else {
 				const slider = document.getElementById('slider');
 				slider.stepUp();
@@ -1142,9 +1112,10 @@ document.addEventListener('keydown', function (event) {
 			break;
 		case 'ArrowLeft':
 			if (IS_MODAL_ACTIVE && !event.shiftKey) {
-				showPreviousImage();
+				if (GLOBAL_TRAVERSAL_MODE) showPreviousImage();
+				else showPreviousImageFromSearch();
 			} else if (IS_MODAL_ACTIVE && event.shiftKey) {
-				MODAL_PREV_FROM_SEARCH_BUTTON.click();
+				showPreviousImageFromSearch();
 			} else {
 				const slider = document.getElementById('slider');
 				slider.stepDown();
@@ -1154,10 +1125,10 @@ document.addEventListener('keydown', function (event) {
 		case 'Delete':
 			event.preventDefault();
 			if (IS_MODAL_ACTIVE) {
-				imageLinkRelative = decodeURIComponent(CURRENT_IMAGE_PATH).replace(origin, '').replace(/^\//, '');
-				// console.log("Delete: " + imageLinkRelative + " " + currentImageIdNum);
+				imageLinkRelative = decodeURIComponent(document.getElementById('image' + CURRENT_IMAGE_ID_NUM).dataset.src);
+				// console.log(`imageLinkRelative: ${imageLinkRelative}`);
 				deleteFile(imageLinkRelative, CURRENT_IMAGE_ID_NUM);
-				MODAL_NEXT_FROM_SEARCH_BUTTON.click();
+				showNextImageFromSearch();
 			} else {
 				// bulk deletion (of selected files)
 				moveRenameFiles("delete");
@@ -1424,7 +1395,7 @@ function newSearch(searchText, sortBy, sortAsc, sortButton) {
 	deselectAllImages();
 	LAST_VIEWED_IMAGE_ID = null;
 
-	const nextOfMaxSelectedImageSrc = document.getElementById(`image${MAX_SELECTED_IMAGE_INDEX + 1}`).dataset.src;
+	const nextOfMaxSelectedImageSrc = document.getElementById(`image${MAX_SELECTED_IMAGE_INDEX + 1}`)?.dataset.src;
 
 	const urlParams = new URLSearchParams(window.location.search);
 
@@ -1724,6 +1695,11 @@ function showPopup(message, level, timeout) {
 function showModal(fileLink, firstLoad = false, target = null) {
 	// firstLoad indicates that the function was called froml clicking an image in the vertical scrolling list, so preloading should not be applied
 
+	// release focus if its an input element so arrow keys can work
+	if (document.activeElement.nodeName === 'INPUT') {
+		document.activeElement.blur();
+	}
+
 	CURRENT_IMAGE_PATH = fileLink;
 	if (target) {
 		// used to scroll to correct position after changing tile size
@@ -1961,6 +1937,50 @@ function showPreviousImage() {
 			showModal(data.previousImagePath);
 		})
 		.catch(error => console.error(error));
+}
+
+function showNextImageFromSearch() {
+	while (true) {
+		const nextImg = RESULTS_CONTAINER.querySelector(`#image${CURRENT_IMAGE_ID_NUM + 1}`);
+		if (!nextImg && HAS_MORE_RESULTS) {
+			loadMore(null, true);
+			break;
+		}
+
+		if (nextImg && nextImg.classList.contains('imageFile')) {
+			VIEWER.load(nextImg.src);
+			updateModalImageDetails(nextImg.id);
+			CURRENT_IMAGE_ID_NUM++;
+			break;
+		} else {
+			CURRENT_IMAGE_ID_NUM++;
+		}
+
+		if (!HAS_MORE_RESULTS) {
+			showPopup('no more stuff to show', 'warn', 1000);
+			break;
+		}
+	}
+	scrollToCurrentImage();
+}
+
+function showPreviousImageFromSearch() {
+	while (true) {
+		if (CURRENT_IMAGE_ID_NUM == 0) {
+			showPopup('Already at the beginning', 'warn', 2000);
+			break;
+		}
+		const prevImg = RESULTS_CONTAINER.querySelector(`#image${CURRENT_IMAGE_ID_NUM - 1}`);
+		if (prevImg && prevImg.classList.contains('imageFile')) {
+			VIEWER.load(prevImg.src);
+			updateModalImageDetails(prevImg.id);
+			CURRENT_IMAGE_ID_NUM--;
+			break;
+		} else {
+			CURRENT_IMAGE_ID_NUM--;
+		}
+	}
+	scrollToCurrentImage();
 }
 
 function moveRenameFiles(operation) {

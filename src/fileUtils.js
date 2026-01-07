@@ -236,31 +236,51 @@ async function initializeImagesMetadata(imagePaths, metadataMap) {
 	}
 }
 
+function sortByPath(paths, ascending = true) {
+	const re = /(\d+|\D+)/g;
 
+	function naturalCompare(a, b) {
+		const aParts = String(a).match(re) || [];
+		const bParts = String(b).match(re) || [];
 
-function sortByPath(imagePaths, ascending = true) {
-	// natural sort
-	return imagePaths.sort((a, b) => {
-		const re = /(\d+|\D+)/g;
-		const aParts = a.match(re);
-		const bParts = b.match(re);
 		for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
-			const aPart = aParts[i] || "";
-			const bPart = bParts[i] || "";
-			if (aPart !== bPart) {
-				const aIsNumber = /^\d+$/.test(aPart);
-				const bIsNumber = /^\d+$/.test(bPart);
-				if (aIsNumber && bIsNumber) {
-					return (parseInt(aPart) - parseInt(bPart)) * (ascending ? 1 : -1);
-				} else {
-					return aPart.localeCompare(bPart) * (ascending ? 1 : -1);
+			const ap = aParts[i] || "";
+			const bp = bParts[i] || "";
+
+			if (ap !== bp) {
+				const aNum = /^\d+$/.test(ap);
+				const bNum = /^\d+$/.test(bp);
+
+				if (aNum && bNum) {
+					return parseInt(ap, 10) - parseInt(bp, 10);
 				}
+				return ap.localeCompare(bp);
 			}
 		}
 		return 0;
+	}
+
+	return paths.sort((a, b) => {
+		const aSeg = String(a).replace(/\\/g, "/").split("/").filter(Boolean);
+		const bSeg = String(b).replace(/\\/g, "/").split("/").filter(Boolean);
+
+		const maxLen = Math.max(aSeg.length, bSeg.length);
+
+		for (let i = 0; i < maxLen; i++) {
+			const as = aSeg[i];
+			const bs = bSeg[i];
+
+			// one path ended → shorter path first
+			if (as === undefined) return -1 * (ascending ? 1 : -1);
+			if (bs === undefined) return 1 * (ascending ? 1 : -1);
+
+			const cmp = naturalCompare(as, bs);
+			if (cmp !== 0) return cmp * (ascending ? 1 : -1);
+		}
+
+		return 0;
 	});
 }
-
 
 function sortByName(imagePaths, metadataMap, ascending = true) {
 	// natural sort
