@@ -42,8 +42,8 @@ div#sidebar (onclick = "toggleSidebar(event)")
 	div.bulkRow
 		label(for="pinSidebarCheckbox") Pin Sidebar
 			input(type="checkbox" id="pinSidebarCheckbox" onclick="pinSidebar()")
-		label(for="globalTraversalMode") Global Navigation Mode
-			input(type="checkbox" id="globalTraversalMode" checked onclick="GLOBAL_TRAVERSAL_MODE = this.checked")
+		label(for="globalTraversalModeCheckbox") Global Navigation Mode
+			input(type="checkbox" id="globalTraversalModeCheckbox" onclick="setGlobalTraversalMode(event, this)")
 	div.bulkRow
 		button(id = 'selectAll' onclick = 'selectAllImages()' 
 		title = 'Ctrl + A (Toggle)') Select all

@@ -115,6 +115,16 @@ function pinSidebar() {
 	}
 }
 
+function setGlobalTraversalMode(event, globalTraversalModeCheckbox) {
+	if (globalTraversalModeCheckbox.checked) {
+		GLOBAL_TRAVERSAL_MODE = true;
+	} else {
+		GLOBAL_TRAVERSAL_MODE = false;
+	}
+	localStorage.setItem('globalTraversalMode', GLOBAL_TRAVERSAL_MODE);
+	sessionStorage.setItem('globalTraversalMode', GLOBAL_TRAVERSAL_MODE);
+}
+
 let FOLDER_SUGGEST_TIMEOUT;
 
 function updateSuggestedFolders() {
@@ -247,7 +257,7 @@ function refreshDirectoryTree() {
 				renderTree(treeData, "", currentFolder)
 			);
 			ACTIVE_FOLDER_NODE?.classList.add("currentPath");
-			document.querySelector('.currentPath').scrollIntoView({ block: "center", container: "nearest" });
+			document.querySelector('.currentPath')?.scrollIntoView({ block: "center", container: "nearest" });
 		});
 }
 
@@ -555,7 +565,7 @@ function scrollToCurrentImage(resultId) {
 	if (resultId) {
 		document.getElementById(resultId).scrollIntoView({
 			// behavior: "smooth",
-			block: "center",
+			block: "nearest",
 			inline: "nearest"
 		});
 		animateImage(document.getElementById(resultId).querySelector('.resultFile').id, 600, 'flash-image');
@@ -564,7 +574,7 @@ function scrollToCurrentImage(resultId) {
 		if (currentImage) {
 			currentImage.scrollIntoView({
 				// behavior: "smooth",
-				block: "center",
+				block: "nearest",
 				inline: "nearest"
 			});
 		}
@@ -652,6 +662,15 @@ document.addEventListener("DOMContentLoaded", function () {
 		// add lazy load listener
 		window.addEventListener('scroll', loadMore);
 	}
+
+	if (sessionStorage.globalTraversalMode !== null) {
+		GLOBAL_TRAVERSAL_MODE = JSON.parse(sessionStorage.globalTraversalMode);
+	} else if (localStorage.globalTraversalMode !== null) {
+		GLOBAL_TRAVERSAL_MODE = JSON.parse(localStorage.globalTraversalMode);
+	} else {
+		GLOBAL_TRAVERSAL_MODE = true;
+	}
+	document.getElementById('globalTraversalModeCheckbox').checked = GLOBAL_TRAVERSAL_MODE;
 
 	// MODAL SINGLE IMAGE VIEWER
 
