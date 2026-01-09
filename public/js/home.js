@@ -1421,7 +1421,7 @@ function newSearch(searchText, sortBy, sortAsc, sortButton) {
 	let sortUnchanged = false;
 
 	if (sortBy == urlParams.get('sortBy') && sortBy != 'shuffle'
-		&& sortAsc.toString() == urlParams.get('sortAsc').toString()) {
+		&& sortAsc?.toString() == urlParams.get('sortAsc')?.toString()) {
 		sortUnchanged = true;
 	}
 
