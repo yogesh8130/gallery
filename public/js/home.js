@@ -663,9 +663,9 @@ document.addEventListener("DOMContentLoaded", function () {
 		window.addEventListener('scroll', loadMore);
 	}
 
-	if (sessionStorage.globalTraversalMode !== null) {
+	if (sessionStorage.globalTraversalMode != null) {
 		GLOBAL_TRAVERSAL_MODE = JSON.parse(sessionStorage.globalTraversalMode);
-	} else if (localStorage.globalTraversalMode !== null) {
+	} else if (localStorage.globalTraversalMode != null) {
 		GLOBAL_TRAVERSAL_MODE = JSON.parse(localStorage.globalTraversalMode);
 	} else {
 		GLOBAL_TRAVERSAL_MODE = true;
