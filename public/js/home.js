@@ -1197,9 +1197,13 @@ let SCROLL_TIMEOUT;
 window.addEventListener('wheel', function (event) {
 	// console.log(event.deltaY);
 	if (event.deltaY > 0) {
-		// Scrolling down - hide header
-		HEADER.classList.remove('pinned');
-		HEADER.classList.add('unpinned');
+		if (IS_MODAL_ACTIVE && !IS_VIEWER_ZOOMED) {
+			closeModal();
+		} else {
+			// Scrolling down - hide header
+			HEADER.classList.remove('pinned');
+			HEADER.classList.add('unpinned');
+		}
 	} else {
 		// Scrolling up - show header
 		HEADER.classList.remove('unpinned');
