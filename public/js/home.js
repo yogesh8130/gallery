@@ -578,7 +578,6 @@ function scrollToCurrentImage(resultId) {
 				inline: "nearest"
 			});
 		}
-		animateImage(currentImage.id, 100, 'zoomout-image');
 	}
 
 }
@@ -1445,14 +1444,13 @@ function newSearch(searchText, sortBy, sortAsc, sortButton) {
 			showPopup(`Loading...`, 'info', 1000);
 			document.documentElement.scrollTop = 0;
 
-			RESULTS.innerHTML = '';
-
 			const tempDiv = document.createElement('div');
 			tempDiv.innerHTML = html;
 
 			const fragment = document.createDocumentFragment();
 			fragment.append(...tempDiv.children);
 
+			RESULTS.innerHTML = '';
 			RESULTS.appendChild(fragment);
 
 			// update counts of images and pages
@@ -1744,7 +1742,6 @@ function showModal(fileLink, firstLoad = false, target = null) {
 			});
 	}
 
-	MODAL.style.display = 'block';
 	if (fileLink.toLowerCase().endsWith('.mp4') || fileLink.toLowerCase().endsWith('.mkv') || fileLink.toLowerCase().endsWith('.webm')) {
 		MODAL_VIDEO_CONTAINER.style.display = 'block';
 		MODAL_IMAGE_CONTAINER.style.display = 'none';
@@ -1755,9 +1752,20 @@ function showModal(fileLink, firstLoad = false, target = null) {
 		MODAL_VIDEO.pause();
 		MODAL_IMAGE_CONTAINER.style.display = 'block';
 		const img = new Image();
+
 		img.src = fileLink;
+
+		target ? target.style.viewTransitionName = 'modalZoomIn' : null;
 		if (firstLoad) {
-			VIEWER.load(fileLink);
+			// using view transition for zoom in animation
+			document.startViewTransition(() => {
+				target ? target.style.viewTransitionName = '' : null;
+				MODAL.style.viewTransitionName = 'modalZoomIn';
+				MODAL.style.display = 'block';
+				VIEWER.load(fileLink);
+			}).finished.then(() => {
+				MODAL.style.viewTransitionName = '';
+			})
 			preloadNeighbors();
 		} else {
 			img.onload = () => {
@@ -1770,8 +1778,16 @@ function showModal(fileLink, firstLoad = false, target = null) {
 }
 
 function closeModal() {
-	MODAL.style.display = 'none';
-	// VIEWER.destroy();
+	const target = document.getElementById(`image${CURRENT_IMAGE_ID_NUM}`);
+
+	MODAL.style.viewTransitionName = 'modalZoomOut';
+	document.startViewTransition(() => {
+		MODAL.style.viewTransitionName = '';
+		target.style.viewTransitionName = 'modalZoomOut';
+		MODAL.style.display = 'none';
+	}).finished.then(() => {
+		target.style.viewTransitionName = '';
+	})
 	MODAL_VIDEO.pause();
 	IS_MODAL_ACTIVE = false;
 
