@@ -7,6 +7,7 @@ let ALL_FILES_SELECTED = false;
 let IS_MODAL_ACTIVE = false;
 let SELECTION_MODE = false; // whether click opens an image or selects it
 let GLOBAL_TRAVERSAL_MODE = true; // makes swipes arrow keys navigate between images as per directory structure instead of shown order
+let ANIMATIONS_ENABLED = true;
 
 const darkColors = ['blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chocolate', 'coral', 'cornflowerblue', 'crimson', 'darkblue', 'darkcyan', 'darkgoldenrod', 'darkgreen', 'darkmagenta', 'darkolivegreen', 'darkorange', 'darkorchid', 'darkred', 'darkslateblue', 'darkslategrey', 'darkviolet', 'deeppink', 'dodgerblue', 'firebrick', 'forestgreen', 'fuchsia', 'green', 'hotpink', 'indianred', 'indigo', 'lightcoral', 'magenta', 'maroon', 'mediumblue', 'mediumorchid', 'mediumpurple', 'mediumseagreen', 'mediumslateblue', 'mediumvioletred', 'midnightblue', 'navy', 'olive', 'olivedrab', 'orangered', 'orchid', 'palevioletred', 'peru', 'purple', 'rebeccapurple', 'red', 'royalblue', 'saddlebrown', 'salmon', 'seagreen', 'sienna', 'slateblue', 'steelblue', 'teal', 'tomato', 'violet'];
 MAX_HISTORY_JUMPLIST = 9;
@@ -123,6 +124,16 @@ function setGlobalTraversalMode(event, globalTraversalModeCheckbox) {
 	}
 	localStorage.setItem('globalTraversalMode', GLOBAL_TRAVERSAL_MODE);
 	sessionStorage.setItem('globalTraversalMode', GLOBAL_TRAVERSAL_MODE);
+}
+
+function toggleAnimations(event, animationsCheckbox) {
+	if (animationsCheckbox.checked) {
+		ANIMATIONS_ENABLED = true;
+	} else {
+		ANIMATIONS_ENABLED = false;
+	}
+	localStorage.setItem('animationsEnabled', ANIMATIONS_ENABLED);
+	sessionStorage.setItem('animationsEnabled', ANIMATIONS_ENABLED);
 }
 
 let FOLDER_SUGGEST_TIMEOUT;
@@ -670,6 +681,15 @@ document.addEventListener("DOMContentLoaded", function () {
 		GLOBAL_TRAVERSAL_MODE = true;
 	}
 	document.getElementById('globalTraversalModeCheckbox').checked = GLOBAL_TRAVERSAL_MODE;
+
+	if (sessionStorage.animationsEnabled != null) {
+		ANIMATIONS_ENABLED = JSON.parse(sessionStorage.animationsEnabled);
+	} else if (localStorage.animationsEnabled != null) {
+		ANIMATIONS_ENABLED = JSON.parse(localStorage.animationsEnabled);
+	} else {
+		ANIMATIONS_ENABLED = true;
+	}
+	document.getElementById('animationsCheckbox').checked = ANIMATIONS_ENABLED;
 
 	// MODAL SINGLE IMAGE VIEWER
 
@@ -1391,14 +1411,17 @@ function changeTileSize() {
 	// console.log("MULTIPLIER: " + MULTIPLIER);
 
 	// scroll to last viwed image
-	const lastViewedImage = document.getElementById(LAST_VIEWED_IMAGE_ID);
-	if (lastViewedImage) {
-		lastViewedImage.scrollIntoView({
-			// behavior: 'smooth',
-			block: "center",
-			inline: "nearest"
-		});
-	}
+	setTimeout(() => {
+		const lastViewedImage = document.getElementById(LAST_VIEWED_IMAGE_ID);
+		if (lastViewedImage) {
+			lastViewedImage.scrollIntoView({
+				// behavior: 'smooth',
+				block: "center",
+				inline: "nearest"
+			});
+			animateImage(lastViewedImage.id, 600, 'flash-image');
+		}
+	}, 500);
 }
 
 // set page to 1 on every page load
@@ -1759,17 +1782,24 @@ function showModal(fileLink, firstLoad = false, target = null) {
 
 		img.src = fileLink;
 
-		target ? target.style.viewTransitionName = 'modalZoomIn' : null;
+		if (ANIMATIONS_ENABLED) {
+			target ? target.style.viewTransitionName = 'modalZoomIn' : null;
+		}
 		if (firstLoad) {
-			// using view transition for zoom in animation
-			document.startViewTransition(() => {
-				target ? target.style.viewTransitionName = '' : null;
-				MODAL.style.viewTransitionName = 'modalZoomIn';
+			if (ANIMATIONS_ENABLED) {
+				// using view transition for zoom in animation
+				document.startViewTransition(() => {
+					target ? target.style.viewTransitionName = '' : null;
+					MODAL.style.viewTransitionName = 'modalZoomIn';
+					MODAL.style.display = 'block';
+					VIEWER.load(fileLink);
+				}).finished.then(() => {
+					MODAL.style.viewTransitionName = '';
+				})
+			} else {
 				MODAL.style.display = 'block';
 				VIEWER.load(fileLink);
-			}).finished.then(() => {
-				MODAL.style.viewTransitionName = '';
-			})
+			}
 			preloadNeighbors();
 		} else {
 			img.onload = () => {
@@ -1784,14 +1814,18 @@ function showModal(fileLink, firstLoad = false, target = null) {
 function closeModal() {
 	const target = document.getElementById(`image${CURRENT_IMAGE_ID_NUM}`);
 
-	MODAL.style.viewTransitionName = 'modalZoomOut';
-	document.startViewTransition(() => {
-		MODAL.style.viewTransitionName = '';
-		target.style.viewTransitionName = 'modalZoomOut';
+	if (ANIMATIONS_ENABLED) {
+		MODAL.style.viewTransitionName = 'modalZoomOut';
+		document.startViewTransition(() => {
+			MODAL.style.viewTransitionName = '';
+			target.style.viewTransitionName = 'modalZoomOut';
+			MODAL.style.display = 'none';
+		}).finished.then(() => {
+			target.style.viewTransitionName = '';
+		})
+	} else {
 		MODAL.style.display = 'none';
-	}).finished.then(() => {
-		target.style.viewTransitionName = '';
-	})
+	}
 	MODAL_VIDEO.pause();
 	IS_MODAL_ACTIVE = false;
 
