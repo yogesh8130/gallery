@@ -1,7 +1,7 @@
 // Define the path to the root image folder
 const ROOT_IMAGE_PATH = "./public/images";
 
-const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mkv', '.avi'];
+const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mkv', '.avi', '.mpg', '.mov', '.wmv', '.m4v', '.rm', '.flv', '.divx'];
 const IMAGE_EXTENSIONS = ['.jpeg', '.jpg', '.png', '.webp', '.gif']
 const ALLOWED_EXTENSIONS = [...VIDEO_EXTENSIONS, ...IMAGE_EXTENSIONS];
 

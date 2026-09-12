@@ -564,10 +564,10 @@ function modalSwipeHandler(pointerMovedTo, event) {
 		closeModal();
 	} else if (pointerMovedTo === 'right') {
 		if (GLOBAL_TRAVERSAL_MODE) showPreviousImage();
-		else showNextImageFromSearch();
+		else showPreviousImageFromSearch();
 	} else if (pointerMovedTo === 'left') {
 		if (GLOBAL_TRAVERSAL_MODE) showNextImage();
-		else showPreviousImageFromSearch();
+		else showNextImageFromSearch();
 	}
 }
 

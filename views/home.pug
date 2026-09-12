@@ -27,6 +27,8 @@ html
 								placeholder = 'Search'
 								title = 'F3')
 								input(type = "hidden" name = 'view' id = 'view')
+							button#videosButton.sortButton(onclick = `newSearch('.mp4 || .webm || .avi || .mkv || .mpg || .mov || .wmv || .m4v || .rm || .flv || .divx', 'shuffle', true, this)`
+								title = 'Videos') Videos
 						.horizontal
 							div.buttonControls#sliderContainer
 								label(for = "slider") Zoom
