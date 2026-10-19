@@ -192,63 +192,65 @@ let MAX_FOLDER_NAME_LENGTH_MATCHED = 0;
 function renderTree(tree, parentPath = "", currentPath = "") {
 	const ul = document.createElement("ul");
 
-	Object.keys(tree).sort().forEach(folder => {
-		const li = document.createElement("li");
+	Object.keys(tree)
+		.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
+		.forEach(folder => {
+			const li = document.createElement("li");
 
-		const fullPath = parentPath ? `${parentPath}\\${folder}` : folder;
-		const hasChildren = Object.keys(tree[folder]).length > 0;
+			const fullPath = parentPath ? `${parentPath}\\${folder}` : folder;
+			const hasChildren = Object.keys(tree[folder]).length > 0;
 
-		const label = document.createElement("div");
-		label.classList.add("folder-label");
+			const label = document.createElement("div");
+			label.classList.add("folder-label");
 
-		const link = document.createElement("a");
-		link.href = `/search?&searchText=\\images\\${encodeURIComponent(fullPath)}\\`;
-		link.dataset.folderPath = `\\images\\${fullPath}\\`;
-		// link.target = "_blank"; // open in new tab
-		link.textContent = folder;
-		link.classList.add("folder-link");
-		link.classList.add("recursive");
-		label.appendChild(link);
+			const link = document.createElement("a");
+			link.href = `/search?&searchText=\\images\\${encodeURIComponent(fullPath)}\\`;
+			link.dataset.folderPath = `\\images\\${fullPath}\\`;
+			// link.target = "_blank"; // open in new tab
+			link.textContent = folder;
+			link.classList.add("folder-link");
+			link.classList.add("recursive");
+			label.appendChild(link);
 
-		const nonRecursiveLink = document.createElement("a");
-		nonRecursiveLink.href = `/search?&searchText=\\images\\${encodeURIComponent(fullPath)}`;
-		nonRecursiveLink.dataset.folderPath = `\\images\\${fullPath}`;
-		nonRecursiveLink.textContent = '\\';
-		nonRecursiveLink.classList.add("folder-link");
-		nonRecursiveLink.classList.add("non-recursive");
-		label.appendChild(nonRecursiveLink);
+			const nonRecursiveLink = document.createElement("a");
+			nonRecursiveLink.href = `/search?&searchText=\\images\\${encodeURIComponent(fullPath)}`;
+			nonRecursiveLink.dataset.folderPath = `\\images\\${fullPath}`;
+			nonRecursiveLink.textContent = '\\';
+			nonRecursiveLink.classList.add("folder-link");
+			nonRecursiveLink.classList.add("non-recursive");
+			label.appendChild(nonRecursiveLink);
 
-		let children;
-		if (hasChildren) {
-			label.classList.add("collapsible");
+			let children;
+			if (hasChildren) {
+				label.classList.add("collapsible");
 
-			children = renderTree(tree[folder], fullPath, currentPath);
+				children = renderTree(tree[folder], fullPath, currentPath);
 
-			// expand ONLY if current path is inside this branch
-			const shouldExpand =
-				currentPath === fullPath ||
-				currentPath.startsWith(fullPath + "\\");
+				// expand ONLY if current path is inside this branch
+				const shouldExpand =
+					currentPath === fullPath ||
+					currentPath.startsWith(fullPath + "\\");
 
-			if (!shouldExpand) {
-				children.classList.add("collapsed");
+				if (!shouldExpand) {
+					children.classList.add("collapsed");
+				} else {
+					label.classList.add("open");
+				}
+
+				li.appendChild(label);
+				li.appendChild(children);
 			} else {
-				label.classList.add("open");
+				label.classList.add("leaf");
+				li.appendChild(label);
 			}
 
-			li.appendChild(label);
-			li.appendChild(children);
-		} else {
-			label.classList.add("leaf");
-			li.appendChild(label);
-		}
+			if (currentPath.startsWith(fullPath) && fullPath.length > MAX_FOLDER_NAME_LENGTH_MATCHED) {
+				MAX_FOLDER_NAME_LENGTH_MATCHED = fullPath.length;
+				ACTIVE_FOLDER_NODE = label;
+			}
 
-		if (currentPath.startsWith(fullPath) && fullPath.length > MAX_FOLDER_NAME_LENGTH_MATCHED) {
-			MAX_FOLDER_NAME_LENGTH_MATCHED = fullPath.length;
-			ACTIVE_FOLDER_NODE = label;
-		}
-
-		ul.appendChild(li);
-	});
+			ul.appendChild(li);
+		});
 
 	return ul;
 }
@@ -1111,12 +1113,20 @@ document.addEventListener('keydown', function (event) {
 	} else switch (event.key) {
 		case 'a':
 			event.preventDefault();
-			if (ALL_FILES_SELECTED) {
-				deselectAllImages();
+			if (IS_MODAL_ACTIVE && !event.shiftKey) {
+				if (GLOBAL_TRAVERSAL_MODE) showPreviousImage();
+				else showPreviousImageFromSearch();
+			} else if (IS_MODAL_ACTIVE && event.shiftKey) {
+				if (GLOBAL_TRAVERSAL_MODE) showPreviousImageFromSearch();
+				else showPreviousImage();
 			} else {
-				selectAllImages();
+				if (ALL_FILES_SELECTED) {
+					deselectAllImages();
+				} else {
+					selectAllImages();
+				}
+				ALL_FILES_SELECTED = !ALL_FILES_SELECTED;
 			}
-			ALL_FILES_SELECTED = !ALL_FILES_SELECTED;
 			break;
 		case 'i':
 			invertSelection();
@@ -1135,13 +1145,15 @@ document.addEventListener('keydown', function (event) {
 			document.getElementById('moveFilesInput').focus();
 			break;
 		case 'ArrowRight':
+		case 'd':
 			console.log(`pressed right arrow`);
 
 			if (IS_MODAL_ACTIVE && !event.shiftKey) {
 				if (GLOBAL_TRAVERSAL_MODE) showNextImage();
 				else showNextImageFromSearch();
 			} else if (IS_MODAL_ACTIVE && event.shiftKey) {
-				showNextImageFromSearch();
+				if (GLOBAL_TRAVERSAL_MODE) showNextImageFromSearch();
+				else showNextImage();
 			} else {
 				const slider = document.getElementById('slider');
 				slider.stepUp();
@@ -1153,7 +1165,8 @@ document.addEventListener('keydown', function (event) {
 				if (GLOBAL_TRAVERSAL_MODE) showPreviousImage();
 				else showPreviousImageFromSearch();
 			} else if (IS_MODAL_ACTIVE && event.shiftKey) {
-				showPreviousImageFromSearch();
+				if (GLOBAL_TRAVERSAL_MODE) showPreviousImageFromSearch();
+				else showPreviousImage();
 			} else {
 				const slider = document.getElementById('slider');
 				slider.stepDown();
@@ -1455,13 +1468,13 @@ function newSearch(searchText, sortBy, sortAsc, sortButton) {
 	if (!sortBy) sortBy = urlParams.get('sortBy') || 'shuffle';
 	if (sortAsc === null) sortAsc = urlParams.get('sortAsc') || true;
 
-	// update URL
 	const url = new URL(window.location.href);
 	url.searchParams.set('searchText', searchText);
 	url.searchParams.set('sortBy', sortBy);
 	url.searchParams.set('sortAsc', sortAsc);
 	url.searchParams.set('view', 'tiles');
-	window.history.replaceState({}, '', url);
+	document.title = `${searchText?.replace('\\images\\', '')} - NodeGal`;
+	window.history.pushState({}, '', url);
 
 	// console.log(`searchText: ${encodeURIComponent(searchText)}, sortBy: ${sortBy}, sortAsc: ${sortAsc}`);
 
@@ -1818,7 +1831,8 @@ function closeModal() {
 		MODAL.style.viewTransitionName = 'modalZoomOut';
 		document.startViewTransition(() => {
 			MODAL.style.viewTransitionName = '';
-			target.style.viewTransitionName = 'modalZoomOut';
+			if (target)
+				target.style.viewTransitionName = 'modalZoomOut';
 			MODAL.style.display = 'none';
 		}).finished.then(() => {
 			target.style.viewTransitionName = '';
