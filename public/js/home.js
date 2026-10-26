@@ -2002,6 +2002,31 @@ function invertSelection() {
 	udpateSelectedFilesCount()
 }
 
+async function downloadSelectedFiles() {
+	if (SELECTED_IMAGES.size === 0) {
+		showPopup('No files selected', 'warn');
+		return;
+	}
+
+	const selectedPaths = Array.from(SELECTED_IMAGES.values());
+	for (let index = 0; index < selectedPaths.length; index++) {
+		const relativePath = selectedPaths[index];
+		const normalizedPath = relativePath.replace(/\\/g, '/').replace(/^\/+/, '');
+		const encodedPath = normalizedPath.split('/').map(encodeURIComponent).join('/');
+		const downloadLink = document.createElement('a');
+		downloadLink.href = `/${encodedPath}`;
+		downloadLink.download = normalizedPath.split('/').pop();
+		document.body.appendChild(downloadLink);
+		downloadLink.click();
+		downloadLink.remove();
+
+		// wait for 1 second after every 10 downloads to avoid browser limits
+		if ((index + 1) % 10 === 0 && index + 1 < selectedPaths.length) {
+			await new Promise(resolve => setTimeout(resolve, 1000));
+		}
+	}
+}
+
 function showNextImage() {
 	// remove localhost and leading slash
 	CURRENT_IMAGE_PATH = CURRENT_IMAGE_PATH.replace(origin, '').replace(/^\//, '');

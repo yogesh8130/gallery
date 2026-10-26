@@ -55,6 +55,7 @@ div#sidebar (onclick = "toggleSidebar(event)")
 		title = 'Invert Selection') Invert
 		button(id = 'clearHistory' onclick = 'clearHistory()' 
 		title = 'Clear History Jumplists') Clear History
+		button(id = 'downloadSelectedFilesButton' onclick = 'downloadSelectedFiles()' title = 'Download all selected files') Download
 	div.bulkRow
 		span(id = 'selectedFilesCount') 0 files selected
 	form.bulkRow(id = 'moveForm')
