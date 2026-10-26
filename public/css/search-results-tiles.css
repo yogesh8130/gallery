@@ -320,6 +320,10 @@ video {
 	position: fixed;
 	z-index: 1;
 	display: flex;
+
+	&.transparent {
+		display: none;
+	}
 }
 
 .modalImageDetails .imageDetailsButton {
@@ -343,7 +347,6 @@ video {
 	position: fixed;
 	right: 1.5rem;
 	top: 0rem;
-	color: white;
 	font-size: 4rem;
 	font-weight: bold;
 }
@@ -356,45 +359,37 @@ video {
 	opacity: 100%;
 }
 
+.modalNavigationButtonContainer {
+	position: fixed;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+
+	&.rightButtonContainer {
+		right: 0;
+	}
+
+	&.leftButtonContainer {
+		left: 0;
+	}
+}
+
 #modalNextButton,
 #modalPreviousButton,
 #modalNextFromResultsButton,
 #modalPreviousFromResultsButton {
-	position: fixed;
-	color: white;
 	font-size: 4rem;
 	font-weight: bold;
 	padding: 50px;
 }
 
-#modalNextButton {
-	right: 2rem;
-	top: 50%;
-}
-
-#modalPreviousButton {
-	left: 2rem;
-	top: 50%;
-}
-
-#modalNextFromResultsButton {
-	right: 2rem;
-	top: 30%;
-}
-
-#modalPreviousFromResultsButton {
-	left: 2rem;
-	top: 30%;
-}
-
 #modalNextButton:hover,
-#modalNextButton:focus,
 #modalPreviousButton:hover,
-#modalPreviousButton:focus,
 #modalNextFromResultsButton:hover,
-#modalNextFromResultsButton:focus,
-#modalPreviousFromResultsButton:hover,
-#modalPreviousFromResultsButton:focus {
+#modalPreviousFromResultsButton:hover {
 	color: cornflowerblue;
 	text-decoration: none;
 	cursor: pointer;
@@ -403,14 +398,24 @@ video {
 
 .modalButton {
 	transition: all 0.3s ease;
-	opacity: 0.1;
 	user-select: none;
 	cursor: pointer;
+	color: white;
+
+	&.rightButtonBorder {
+		border-right: .2rem solid rgba(255, 255, 255, 0.30);
+	}
+
+	&.leftButtonBorder {
+		border-left: .2rem solid rgba(255, 255, 255, 0.30);
+	}
+
+	&.transparent {
+		color: #ffffff00;
+	}
 }
 
-.transparent {
-	opacity: 0 !important;
-}
+
 
 .renameDialog {
 	padding: 0;

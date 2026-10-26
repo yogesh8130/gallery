@@ -81,7 +81,6 @@ h2 {
 	position: fixed;
 	right: .2rem;
 	top: 0rem;
-	color: tomato;
 	font-size: 4rem;
 	font-weight: bold;
 	opacity: 30%;
@@ -99,37 +98,19 @@ h2 {
 	opacity: 100%;
 }
 
+.modalNavigationButtonContainer {
+	bottom: 0;
+	top: auto;
+	transform: translateY(-2.5rem);
+}
+
 #modalNextButton,
 #modalPreviousButton,
 #modalNextFromResultsButton,
 #modalPreviousFromResultsButton {
-	position: fixed;
-	color: white;
 	font-size: 4rem;
 	font-weight: bold;
 	padding: 0px 20px;
-	opacity: 30%;
-	text-shadow: 2px 2px black;
-}
-
-#modalNextButton {
-	right: .2rem;
-	top: 80%;
-}
-
-#modalPreviousButton {
-	left: .2rem;
-	top: 80%;
-}
-
-#modalNextFromResultsButton {
-	right: .2rem;
-	top: 65%;
-}
-
-#modalPreviousFromResultsButton {
-	left: .2rem;
-	top: 65%;
 }
 
 #modalNextButton:hover,
@@ -140,11 +121,7 @@ h2 {
 #modalNextFromResultsButton:focus,
 #modalPreviousFromResultsButton:hover,
 #modalPreviousFromResultsButton:focus {
-	color: cornflowerblue;
-	text-decoration: none;
-	cursor: pointer;
-	transition: all 0.3s ease;
-	opacity: 100%;
+	color: #ffffff00;
 }
 
 #sidebar {

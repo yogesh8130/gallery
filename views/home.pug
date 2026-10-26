@@ -124,14 +124,16 @@ html
 				video.modalVideo.videoFile(src = '' controls loop autoplay)
 			span#modalCloseButton.modalButton(title = 'Close')
 				| &times;
-			span#modalNextFromResultsButton.modalButton(title = 'Next from search results (right)')
-				| &RightAngleBracket;
-			span#modalPreviousFromResultsButton.modalButton(title = 'Previous from search results (left)')
-				| &LeftAngleBracket;
-			span#modalNextButton.modalButton(title = 'Next from directory (shift + right)')
-				| &Rang;
-			span#modalPreviousButton.modalButton(title = 'Previous from directory (shift + left)')
-				| &Lang;
+			div.modalNavigationButtonContainer.rightButtonContainer
+				span#modalNextFromResultsButton.modalButton.rightButtonBorder(title = 'Next from search results (right)')
+					| &RightAngleBracket;
+				span#modalNextButton.modalButton.rightButtonBorder(title = 'Next from directory (shift + right)')
+					| &Rang;
+			div.modalNavigationButtonContainer.leftButtonContainer
+				span#modalPreviousFromResultsButton.modalButton.leftButtonBorder(title = 'Previous from search results (left)')
+					| &LeftAngleBracket;
+				span#modalPreviousButton.modalButton.leftButtonBorder(title = 'Previous from directory (shift + left)')
+					| &Lang;
 		div#popupContainer(style = 'visibility: hidden;')
 		script(src = '/js/home.js')
 		script(src = '/js/iv-viewer.js')
