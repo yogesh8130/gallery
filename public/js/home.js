@@ -33,6 +33,7 @@ let MODAL_NEXT_BUTTON;
 let MODAL_PREV_BUTTON;
 let MODAL_NEXT_FROM_SEARCH_BUTTON;
 let MODAL_PREV_FROM_SEARCH_BUTTON;
+let MODAL_IS_OPENING = false;
 
 let HEADER;
 let HEADER_HEIGHT;
@@ -904,8 +905,13 @@ document.addEventListener("DOMContentLoaded", function () {
 		// pointer up on image
 		if (!RESULTS_SWIPE_TRIGGERED && target && (target.classList.contains('imageFile')) && !RESULTS_LONG_PRESS_ACTIVATED) {
 			// console.log('pointer up on image file, opening image');
+			MODAL_IS_OPENING = true;
 			showModal(target.src, true, target);
 			RESULTS_LONG_PRESS_ACTIVATED = false;
+			// add a timer to prevent immediate closing of modal MODAL_IS_OPENING
+			setTimeout(function () {
+				MODAL_IS_OPENING = false;
+			}, 100);
 		}
 
 		if (LONG_PRESS_TIMEOUT) {
@@ -1825,6 +1831,8 @@ function showModal(fileLink, firstLoad = false, target = null) {
 }
 
 function closeModal() {
+	if (MODAL_IS_OPENING) return;
+
 	const target = document.getElementById(`image${CURRENT_IMAGE_ID_NUM}`);
 
 	if (ANIMATIONS_ENABLED) {
