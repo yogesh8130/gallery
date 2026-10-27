@@ -56,6 +56,7 @@ div#sidebar (onclick = "toggleSidebar(event)")
 		button(id = 'clearHistory' onclick = 'clearHistory()' 
 		title = 'Clear History Jumplists') Clear History
 		button(id = 'downloadSelectedFilesButton' onclick = 'downloadSelectedFiles()' title = 'Download all selected files') Download
+		button(id = 'videoPlayerButton' onclick = 'window.open("/vid", "_blank")' title = 'Video Player') Video Player
 	div.bulkRow
 		span(id = 'selectedFilesCount') 0 files selected
 	form.bulkRow(id = 'moveForm')

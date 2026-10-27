@@ -33,6 +33,36 @@ const { log } = require('console');
 const SEARCH_RESULTS_BATCH_SIZE = 100;
 
 module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FOLDER_PATHS) {
+	
+	const getVideoPaths = () => IMAGE_PATHS.filter(imagePath =>
+		VIDEO_EXTENSIONS.includes(PATH.extname(imagePath).toLowerCase())
+	);
+	const normalizeMediaPath = mediaPath => mediaPath.replace(/\\/g, '/').replace(/\/+/g, '/');
+	const getRandomVideoPath = (excludePath) => {
+		const videoPaths = getVideoPaths();
+		if (videoPaths.length === 0) return null;
+		const normalizedExcludePath = excludePath ? normalizeMediaPath(excludePath) : null;
+		const candidates = videoPaths.length > 1
+			? videoPaths.filter(videoPath => normalizeMediaPath(videoPath) !== normalizedExcludePath)
+			: videoPaths;
+		return candidates[Math.floor(Math.random() * candidates.length)];
+	};
+	const toMediaUrl = mediaPath => normalizeMediaPath(mediaPath).split('/').map(encodeURIComponent).join('/');
+
+	router.get('/vid', (req, res) => {
+		const videoPath = getRandomVideoPath();
+		if (!videoPath) return res.status(404).send('No videos found');
+		res.render('video-player', { videoPath: toMediaUrl(videoPath) });
+	});
+
+	router.get('/vid/random', (req, res) => {
+		const excludePath = req.query.exclude
+			? req.query.exclude
+			: null;
+		const videoPath = getRandomVideoPath(excludePath);
+		if (!videoPath) return res.status(404).json({ message: 'No videos found' });
+		res.json({ videoPath: toMediaUrl(videoPath) });
+	});
 
 	// Define a route to handle requests for the home page
 	router.get('/', (req, res) => {

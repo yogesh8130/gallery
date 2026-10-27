@@ -1,0 +1,34 @@
+doctype html
+html
+	head
+		meta(charset="UTF-8")
+		meta(name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover")
+		title Random Video - NodeGal
+		link(rel="stylesheet" href="/css/video-player.css")
+	body
+		main.player(data-video-path=videoPath)
+			video#player.video(autoplay playsinline preload="metadata")
+				source(src=videoPath)
+			div.progressTrack#progressTrack(aria-hidden="true")
+				div.progressFill#progressFill
+			div.overlay
+				div.topBar
+					a.iconButton(href="/" title="Home" aria-label="Home") Home
+					span#status.status(role="status" aria-live="polite")
+				div.centerHint#centerHint(aria-hidden="true")
+					span#centerIcon ▶
+					span#centerText
+				div.bottomControls#bottomControls
+					div.videoDetails#videoDetails
+						div#videoFolder.videoFolder(role="button" tabindex="0" title="Click to copy folder")
+						div#videoName.videoName(role="button" tabindex="0" title="Click to copy filename")
+					input#seekBar.seekBar(type="range" min="0" max="1000" value="0" step="1" aria-label="Seek")
+					div.bottomBar
+						div.controls
+							button.iconButton#previousButton(type="button" title="Previous video" aria-label="Previous video") ‹
+							button.iconButton#playButton(type="button" title="Play or pause" aria-label="Play or pause") ▶
+							button.iconButton#nextButton(type="button" title="Next random video" aria-label="Next random video") ›
+							button.iconButton#loopButton.active(type="button" title="Disable loop" aria-label="Disable loop" aria-pressed="true") ↻
+							a.iconButton#downloadButton(href=videoPath download title="Download video" aria-label="Download video") ⇩
+							button.iconButton#fullscreenButton(type="button" title="Enter fullscreen" aria-label="Enter fullscreen") ⛶
+		script(src="/js/video-player.js")
