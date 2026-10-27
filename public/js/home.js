@@ -1018,11 +1018,18 @@ document.addEventListener("DOMContentLoaded", function () {
 			return
 		};
 
+		SIDEBAR_ACTIVE_POINTER_ID = null;
 		const deltaX = event.clientX - SIDEBAR_START_X;
 		if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
 			// showPopup(`🔺deltaX: ${deltaX}`);
 			resultsContainerSwipeHandler(deltaX > 0 ? 'right' : 'left', event);
 			return;
+		}
+	});
+
+	SIDEBAR.addEventListener('pointercancel', function (event) {
+		if (event.pointerId === SIDEBAR_ACTIVE_POINTER_ID) {
+			SIDEBAR_ACTIVE_POINTER_ID = null;
 		}
 	});
 

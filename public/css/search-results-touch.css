@@ -133,6 +133,10 @@ h2 {
 	touch-action: pan-y;
 }
 
+#folderTree {
+	touch-action: pan-y;
+}
+
 .sidebarButton {
 	border-radius: 4px;
 	width: 2.2rem;
