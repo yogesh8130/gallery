@@ -370,10 +370,22 @@ video {
 
 	&.rightButtonContainer {
 		right: 0;
+
+		& .modalButton {
+			align-self: end;
+			text-align: end;
+			padding-left: 2rem;
+		}
 	}
 
 	&.leftButtonContainer {
 		left: 0;
+
+		& .modalButton {
+			align-self: start;
+			text-align: start;
+			padding-right: 2rem;
+		}
 	}
 }
 
@@ -383,7 +395,6 @@ video {
 #modalPreviousFromResultsButton {
 	font-size: 4rem;
 	font-weight: bold;
-	padding: 50px;
 }
 
 #modalNextButton:hover,
@@ -401,17 +412,19 @@ video {
 	user-select: none;
 	cursor: pointer;
 	color: white;
+	text-shadow: 1px 1px 5px black;
 
 	&.rightButtonBorder {
-		border-right: .2rem solid rgba(255, 255, 255, 0.30);
+		border-right: .2rem groove rgba(255, 255, 255, 0.60);
 	}
 
 	&.leftButtonBorder {
-		border-left: .2rem solid rgba(255, 255, 255, 0.30);
+		border-left: .2rem ridge rgba(255, 255, 255, 0.60);
 	}
 
 	&.transparent {
 		color: #ffffff00;
+		text-shadow: none;
 	}
 }
 

@@ -101,16 +101,19 @@ h2 {
 .modalNavigationButtonContainer {
 	bottom: 0;
 	top: auto;
-	transform: translateY(-2.5rem);
+	transform: translateY(-20vh);
+
+	& .modalButton {
+		width: 100%;
+	}
 }
 
 #modalNextButton,
 #modalPreviousButton,
 #modalNextFromResultsButton,
 #modalPreviousFromResultsButton {
-	font-size: 4rem;
+	font-size: 14vh;
 	font-weight: bold;
-	padding: 0px 20px;
 }
 
 #modalNextButton:hover,
@@ -122,6 +125,7 @@ h2 {
 #modalPreviousFromResultsButton:hover,
 #modalPreviousFromResultsButton:focus {
 	color: #ffffff00;
+	text-shadow: none;
 }
 
 #sidebar {
