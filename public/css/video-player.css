@@ -41,7 +41,7 @@ body {
 	flex-direction: column;
 	justify-content: space-between;
 	padding: max(18px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
-	background: linear-gradient(180deg, rgb(0 0 0 / 58%), transparent 25%, transparent 58%, rgb(0 0 0 / 72%));
+	background: linear-gradient(180deg, rgb(0 0 0 / 58%), transparent 10%, transparent 80%, rgb(0 0 0 / 72%));
 	transition: opacity 180ms ease;
 	pointer-events: none;
 }

@@ -118,21 +118,21 @@ html
 		id = "scrollToTopButton" title = "Scroll to Top (Alt + T)"
 		) ⤒
 		div.modal#modal
-			.modalImageDetails
+			.modalImageDetails.transparent
 			div.modalImageContainer
 			div.modalVideoContainer
 				video.modalVideo.videoFile(src = '' controls loop autoplay)
-			span#modalCloseButton.modalButton(title = 'Close')
+			span#modalCloseButton.modalButton.transparent(title = 'Close')
 				| &times;
 			div.modalNavigationButtonContainer.rightButtonContainer
-				span#modalNextFromResultsButton.modalButton.rightButtonBorder(title = 'Next from search results (right)')
+				span#modalNextFromResultsButton.modalButton.rightButtonBorder.transparent(title = 'Next from search results (right)')
 					| &RightAngleBracket;
-				span#modalNextButton.modalButton.rightButtonBorder(title = 'Next from directory (shift + right)')
+				span#modalNextButton.modalButton.rightButtonBorder.transparent(title = 'Next from directory (shift + right)')
 					| &Rang;
 			div.modalNavigationButtonContainer.leftButtonContainer
-				span#modalPreviousFromResultsButton.modalButton.leftButtonBorder(title = 'Previous from search results (left)')
+				span#modalPreviousFromResultsButton.modalButton.leftButtonBorder.transparent(title = 'Previous from search results (left)')
 					| &LeftAngleBracket;
-				span#modalPreviousButton.modalButton.leftButtonBorder(title = 'Previous from directory (shift + left)')
+				span#modalPreviousButton.modalButton.leftButtonBorder.transparent(title = 'Previous from directory (shift + left)')
 					| &Lang;
 		div#popupContainer(style = 'visibility: hidden;')
 		script(src = '/js/home.js')
