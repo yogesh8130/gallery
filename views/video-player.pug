@@ -13,7 +13,9 @@ html
 				div.progressFill#progressFill
 			div.overlay
 				div.topBar
-					a.iconButton(href="/" title="Home" aria-label="Home") Home
+					div.topActions
+						a.iconButton(href="/" title="Home" aria-label="Home") Home
+						input#videoFilter.videoFilter(type="search" value=filterText placeholder="Filter videos" aria-label="Filter videos")
 					span#status.status(role="status" aria-live="polite")
 				div.centerHint#centerHint(aria-hidden="true")
 					span#centerIcon ▶

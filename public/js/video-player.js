@@ -9,6 +9,7 @@
 	const progressFill = document.getElementById('progressFill');
 	const downloadButton = document.getElementById('downloadButton');
 	const fullscreenButton = document.getElementById('fullscreenButton');
+	const videoFilter = document.getElementById('videoFilter');
 	const status = document.getElementById('status');
 	const videoFolder = document.getElementById('videoFolder');
 	const videoName = document.getElementById('videoName');
@@ -16,9 +17,11 @@
 	const centerIcon = document.getElementById('centerIcon');
 	const centerText = document.getElementById('centerText');
 	const history = [];
+	const initialFilter = videoFilter.value;
 	const initialPath = player.dataset.videoPath;
 	video.loop = true;
 	let currentPath = initialPath;
+	let currentFilter = initialFilter;
 	let pointerStart = null;
 	let holdTimer = null;
 	let heldForSpeed = false;
@@ -118,16 +121,26 @@
 		status.textContent = video.playbackRate > 1 ? `${video.playbackRate}×` : '';
 	};
 
-	const playRandom = async () => {
+	const playRandom = async (filterText = currentFilter, includeCurrent = false) => {
 		try {
-			const response = await fetch(`/vid/random?exclude=${encodeURIComponent(currentPath)}`);
-			if (!response.ok) throw new Error('No videos found');
+			const params = new URLSearchParams({ filter: filterText });
+			if (!includeCurrent) params.set('exclude', currentPath);
+			const response = await fetch(`/vid/random?${params}`);
+			if (!response.ok) throw new Error(response.status === 404 ? 'No videos match this filter' : 'Unable to find a video');
 			const data = await response.json();
-			history.push(currentPath);
+			if (filterText !== currentFilter) history.length = 0;
+			else if (!includeCurrent) history.push(currentPath);
+			currentFilter = filterText;
 			setVideo(data.videoPath);
 		} catch (error) {
 			status.textContent = error.message;
 		}
+	};
+
+	const applyVideoFilter = () => {
+		const nextFilter = videoFilter.value.trim();
+		if (nextFilter === currentFilter) return;
+		playRandom(nextFilter, true);
 	};
 
 	const playPrevious = () => {
@@ -231,11 +244,19 @@
 	};
 
 	previousButton.addEventListener('click', playPrevious);
-	nextButton.addEventListener('click', playRandom);
+	nextButton.addEventListener('click', () => playRandom());
 	playButton.addEventListener('click', togglePlayback);
 	loopButton.addEventListener('click', toggleLoop);
 	makeCopyable(videoFolder, 'Folder');
 	makeCopyable(videoName, 'Filename');
+	videoFilter.addEventListener('change', applyVideoFilter);
+	videoFilter.addEventListener('keydown', event => {
+		if (event.key === 'Enter') {
+			event.preventDefault();
+			applyVideoFilter();
+			videoFilter.blur();
+		}
+	});
 	video.addEventListener('play', updatePlaybackControls);
 	video.addEventListener('pause', updatePlaybackControls);
 	video.addEventListener('ratechange', updatePlaybackControls);
@@ -243,7 +264,7 @@
 		if (!seeking && !scrubbing) updateProgress(video.currentTime);
 	});
 	video.addEventListener('loadedmetadata', () => updateProgress(video.currentTime));
-	video.addEventListener('ended', playRandom);
+	video.addEventListener('ended', () => playRandom());
 	video.addEventListener('click', event => event.preventDefault());
 	player.addEventListener('contextmenu', event => event.preventDefault());
 	player.addEventListener('pointermove', revealControls);

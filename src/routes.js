@@ -38,28 +38,34 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FO
 		VIDEO_EXTENSIONS.includes(PATH.extname(imagePath).toLowerCase())
 	);
 	const normalizeMediaPath = mediaPath => mediaPath.replace(/\\/g, '/').replace(/\/+/g, '/');
-	const getRandomVideoPath = (excludePath) => {
-		const videoPaths = getVideoPaths();
-		if (videoPaths.length === 0) return null;
+	const getRandomVideoPath = (excludePath, filterText = '') => {
+		const filter = filterText.trim().toLowerCase();
+		const matchingVideoPaths = getVideoPaths().filter(videoPath =>
+			normalizeMediaPath(videoPath).toLowerCase().includes(filter)
+		);
+		if (matchingVideoPaths.length === 0) return null;
 		const normalizedExcludePath = excludePath ? normalizeMediaPath(excludePath) : null;
-		const candidates = videoPaths.length > 1
-			? videoPaths.filter(videoPath => normalizeMediaPath(videoPath) !== normalizedExcludePath)
-			: videoPaths;
+		const withoutExcludedPath = matchingVideoPaths.filter(videoPath =>
+			normalizeMediaPath(videoPath) !== normalizedExcludePath
+		);
+		const candidates = withoutExcludedPath.length > 0 ? withoutExcludedPath : matchingVideoPaths;
 		return candidates[Math.floor(Math.random() * candidates.length)];
 	};
 	const toMediaUrl = mediaPath => normalizeMediaPath(mediaPath).split('/').map(encodeURIComponent).join('/');
 
 	router.get('/vid', (req, res) => {
-		const videoPath = getRandomVideoPath();
+		const filterText = typeof req.query.filter === 'string' ? req.query.filter : '';
+		const videoPath = getRandomVideoPath(null, filterText);
 		if (!videoPath) return res.status(404).send('No videos found');
-		res.render('video-player', { videoPath: toMediaUrl(videoPath) });
+		res.render('video-player', { videoPath: toMediaUrl(videoPath), filterText });
 	});
 
 	router.get('/vid/random', (req, res) => {
 		const excludePath = req.query.exclude
 			? req.query.exclude
 			: null;
-		const videoPath = getRandomVideoPath(excludePath);
+		const filterText = typeof req.query.filter === 'string' ? req.query.filter : '';
+		const videoPath = getRandomVideoPath(excludePath, filterText);
 		if (!videoPath) return res.status(404).json({ message: 'No videos found' });
 		res.json({ videoPath: toMediaUrl(videoPath) });
 	});
