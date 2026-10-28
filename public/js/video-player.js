@@ -35,6 +35,7 @@
 	const setVideo = path => {
 		const normalizedPath = decodeURIComponent(path).replace(/\\/g, '/').replace(/\/+/g, '/');
 		currentPath = normalizedPath;
+		video.muted = false;
 		video.src = normalizedPath;
 		downloadButton.href = normalizedPath;
 		const filenameStart = normalizedPath.lastIndexOf('/') + 1;
@@ -43,7 +44,11 @@
 		videoFolder.title = videoFolder.textContent;
 		videoName.title = videoName.textContent;
 		video.load();
-		video.play().catch(() => {
+		video.play().catch(error => {
+			if (error.name !== 'NotAllowedError') {
+				status.textContent = 'Unable to play this video';
+				return;
+			}
 			video.muted = true;
 			video.play().catch(() => {
 				status.textContent = 'Tap to play';
