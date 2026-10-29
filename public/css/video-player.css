@@ -34,6 +34,49 @@ body {
 	touch-action: none;
 }
 
+.unsupportedPreview {
+	display: none;
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
+
+.player.unsupported .unsupportedPreview.loaded {
+	display: block;
+}
+
+.unsupportedMessage {
+	display: none;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	z-index: 4;
+	max-width: calc(100% - 32px);
+	padding: 14px 18px;
+	border: 1px solid rgb(255 255 255 / 35%);
+	border-radius: 8px;
+	background: rgb(16 19 17 / 88%);
+	color: #f3f5ef;
+	font-size: 16px;
+	text-align: center;
+	text-decoration: none;
+	transform: translate(-50%, -50%);
+}
+
+.player.unsupported .unsupportedMessage {
+	display: block;
+}
+
+.unsupportedMessage:hover,
+.unsupportedMessage:focus-visible {
+	border-color: #d3ef67;
+	color: #d3ef67;
+	outline: none;
+}
+
 .overlay {
 	position: absolute;
 	inset: 0;

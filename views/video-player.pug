@@ -9,6 +9,8 @@ html
 		main.player(data-video-path=videoPath)
 			video#player.video(autoplay playsinline preload="metadata")
 				source(src=videoPath)
+			img#unsupportedPreview.unsupportedPreview(alt="Video preview")
+			a#unsupportedMessage.unsupportedMessage(href="#" role="button" tabindex="0" aria-label="Format not supported. Open in VLC") Format not supported. Click to open in VLC
 			div.progressTrack#progressTrack(aria-hidden="true")
 				div.progressFill#progressFill
 			div.overlay

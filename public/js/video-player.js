@@ -11,6 +11,8 @@
 	const fullscreenButton = document.getElementById('fullscreenButton');
 	const mxPlayerButton = document.getElementById('mxPlayerButton');
 	const vlcButton = document.getElementById('vlcButton');
+	const unsupportedPreview = document.getElementById('unsupportedPreview');
+	const unsupportedMessage = document.getElementById('unsupportedMessage');
 	const videoFilter = document.getElementById('videoFilter');
 	const status = document.getElementById('status');
 	const videoFolder = document.getElementById('videoFolder');
@@ -44,11 +46,23 @@
 			`intent://${intentPath}#Intent;scheme=${mediaUrl.protocol.slice(0, -1)};type=video/*;package=${packageName};end`;
 		mxPlayerButton.href = makeIntentUrl('com.mxtech.videoplayer.pro');
 		vlcButton.href = makeIntentUrl('org.videolan.vlc');
+		unsupportedMessage.href = vlcButton.href;
+	};
+
+	const showUnsupportedVideo = () => {
+		if (player.classList.contains('unsupported')) return;
+		player.classList.add('unsupported');
+		unsupportedPreview.classList.remove('loaded');
+		unsupportedPreview.src = `/thumbnail?${new URLSearchParams({ videoPath: currentPath })}`;
+		status.textContent = '';
 	};
 
 	const setVideo = path => {
 		const normalizedPath = decodeURIComponent(path).replace(/\\/g, '/').replace(/\/+/g, '/');
 		currentPath = normalizedPath;
+		player.classList.remove('unsupported');
+		unsupportedPreview.classList.remove('loaded');
+		unsupportedPreview.removeAttribute('src');
 		video.muted = false;
 		video.src = normalizedPath;
 		downloadButton.href = normalizedPath;
@@ -60,16 +74,28 @@
 		videoName.title = videoName.textContent;
 		video.load();
 		video.play().catch(error => {
+			if (error.name === 'NotSupportedError') {
+				showUnsupportedVideo();
+				return;
+			}
 			if (error.name !== 'NotAllowedError') {
 				status.textContent = 'Unable to play this video';
 				return;
 			}
 			video.muted = true;
 			video.play().catch(() => {
-				status.textContent = 'Tap to play';
+				if (video.error && [3, 4].includes(video.error.code)) showUnsupportedVideo();
+				else status.textContent = 'Tap to play';
 			});
 		});
 	};
+
+	unsupportedPreview.addEventListener('load', () => unsupportedPreview.classList.add('loaded'));
+	unsupportedPreview.addEventListener('error', () => unsupportedPreview.classList.remove('loaded'));
+	video.addEventListener('error', () => {
+		if (video.error && [3, 4].includes(video.error.code)) showUnsupportedVideo();
+		else status.textContent = 'Unable to play this video';
+	});
 
 	const updateProgress = time => {
 		if (!Number.isFinite(video.duration) || video.duration <= 0) return;
