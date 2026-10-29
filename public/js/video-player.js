@@ -387,7 +387,10 @@
 		if (heldForSpeed) {
 			video.playbackRate = 1;
 		} else if (swipeAxis === 'vertical') {
-			if (deltaY < 0) playRandom();
+			if (deltaY < 0) {
+				if (!document.fullscreenElement) toggleFullscreen();
+				playRandom();
+			}
 			else playPrevious();
 		} else if (seeking) {
 			if (pointerStart.target !== seekBar) {
