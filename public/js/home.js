@@ -2281,6 +2281,18 @@ function shareExternally(imagePath) {
 	});
 }
 
+document.addEventListener('click', event => {
+	const playerLink = event.target.closest('.androidPlayerIntent');
+	if (!playerLink || !/Android/i.test(navigator.userAgent)) return;
+
+	event.preventDefault();
+	const mediaPath = decodeURIComponent(playerLink.dataset.mediaPath).replace(/\\/g, '/');
+	const mediaUrl = new URL(`/${mediaPath.replace(/^\/+/, '')}`, window.location.origin);
+	const intentPath = `${mediaUrl.host}${mediaUrl.pathname}${mediaUrl.search}`;
+	const intentUrl = `intent://${intentPath}#Intent;scheme=${mediaUrl.protocol.slice(0, -1)};type=video/*;package=${playerLink.dataset.playerPackage};end`;
+	window.location.href = intentUrl;
+});
+
 function updateProgressBar(video) {
 	const progressBar = video.parentNode.querySelector('.progressBar');
 	const progress = (video.currentTime / video.duration) * 100;

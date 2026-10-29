@@ -36,8 +36,8 @@ div.contextMenu.imageDetailsButton
 			href = `${imageLinkEscaped}` target = "_blank"
 		)
 			img.contextMenuIcon.actionButtonIcon(src = "/icons/url.svg")
-		button.extraButton.sidebarButton.shareButton(onclick = `shareExternally('${imageLinkEscaped}')`)
-			img.contextMenuIcon.actionButtonIcon(src = "/icons/share.svg")
+		a.extraButton.sidebarButton.androidPlayerIntent(href = `${imageLinkEscaped}` target = "_blank" data-media-path=imageLinkEscaped data-player-package="com.mxtech.videoplayer.pro" title="Open in MX Player" aria-label="Open in MX Player") MX
+		a.extraButton.sidebarButton.androidPlayerIntent(href = `${imageLinkEscaped}` target = "_blank" data-media-path=imageLinkEscaped data-player-package="org.videolan.vlc" title="Open in VLC" aria-label="Open in VLC") VLC
 div.rename.imageDetailsButton
 	button.renameButton.sidebarButton(onclick = 'showRenameDialog(this)')
 		img.renameIcon.actionButtonIcon(src = "/icons/rename.svg")

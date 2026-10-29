@@ -249,6 +249,17 @@ video {
 	background-color: cornflowerblue;
 }
 
+.androidPlayerIntent {
+	display: grid;
+	place-items: center;
+	width: 2.2rem;
+	height: 2.2rem;
+	color: white;
+	font-size: 0.65rem;
+	font-weight: bold;
+	text-decoration: none;
+}
+
 .subTitle {
 	color: white
 }

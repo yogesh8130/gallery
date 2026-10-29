@@ -239,6 +239,11 @@ body {
 	color: #101311;
 }
 
+.externalPlayerButton {
+	font-size: 12px;
+	font-weight: 600;
+}
+
 .topBar .iconButton {
 	width: auto;
 	min-width: 48px;

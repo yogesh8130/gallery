@@ -9,6 +9,8 @@
 	const progressFill = document.getElementById('progressFill');
 	const downloadButton = document.getElementById('downloadButton');
 	const fullscreenButton = document.getElementById('fullscreenButton');
+	const mxPlayerButton = document.getElementById('mxPlayerButton');
+	const vlcButton = document.getElementById('vlcButton');
 	const videoFilter = document.getElementById('videoFilter');
 	const status = document.getElementById('status');
 	const videoFolder = document.getElementById('videoFolder');
@@ -35,12 +37,22 @@
 	let spaceKeyDown = false;
 	let spaceHeldForSpeed = false;
 
+	const setExternalPlayerLinks = path => {
+		const mediaUrl = new URL(path, window.location.origin);
+		const intentPath = `${mediaUrl.host}${mediaUrl.pathname}${mediaUrl.search}`;
+		const makeIntentUrl = packageName =>
+			`intent://${intentPath}#Intent;scheme=${mediaUrl.protocol.slice(0, -1)};type=video/*;package=${packageName};end`;
+		mxPlayerButton.href = makeIntentUrl('com.mxtech.videoplayer.pro');
+		vlcButton.href = makeIntentUrl('org.videolan.vlc');
+	};
+
 	const setVideo = path => {
 		const normalizedPath = decodeURIComponent(path).replace(/\\/g, '/').replace(/\/+/g, '/');
 		currentPath = normalizedPath;
 		video.muted = false;
 		video.src = normalizedPath;
 		downloadButton.href = normalizedPath;
+		setExternalPlayerLinks(normalizedPath);
 		const filenameStart = normalizedPath.lastIndexOf('/') + 1;
 		videoFolder.textContent = normalizedPath.slice(0, filenameStart - 1) || '/';
 		videoName.textContent = normalizedPath.slice(filenameStart);
