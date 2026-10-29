@@ -343,15 +343,20 @@
 		fullscreenButton.setAttribute('aria-label', fullscreen ? 'Exit fullscreen' : 'Enter fullscreen');
 	});
 
-	video.addEventListener('pointerdown', event => {
+	player.addEventListener('pointerdown', event => {
 		if (event.button !== 0) return;
-		event.preventDefault();
-		video.setPointerCapture(event.pointerId);
-		pointerStart = { x: event.clientX, y: event.clientY, id: event.pointerId, time: video.currentTime };
+		if (event.target === videoFilter) return;
+		pointerStart = {
+			x: event.clientX,
+			y: event.clientY,
+			id: event.pointerId,
+			time: video.currentTime,
+			target: event.target
+		};
 		heldForSpeed = false;
 		seeking = false;
-		holdTimer = setTimeout(() => {
-			if (!video.paused && pointerStart) {
+		if (event.target === video) holdTimer = setTimeout(() => {
+			if (!video.paused && pointerStart?.id === event.pointerId) {
 				video.playbackRate = 4;
 				heldForSpeed = true;
 				showHint('»', '4× speed');
@@ -359,7 +364,7 @@
 		}, 350);
 	});
 
-	video.addEventListener('pointermove', event => {
+	player.addEventListener('pointermove', event => {
 		if (!pointerStart || event.pointerId !== pointerStart.id) return;
 		const deltaX = event.clientX - pointerStart.x;
 		const deltaY = event.clientY - pointerStart.y;
@@ -369,7 +374,7 @@
 			seeking = swipeAxis === 'horizontal';
 		}
 		if (swipeAxis === 'horizontal') {
-			seekBySwipe(deltaX);
+			if (pointerStart.target !== seekBar) seekBySwipe(deltaX);
 		}
 	});
 
@@ -378,16 +383,18 @@
 		clearTimeout(holdTimer);
 		const deltaX = event.clientX - pointerStart.x;
 		const deltaY = event.clientY - pointerStart.y;
-		const wasTap = !heldForSpeed && !swipeAxis && !seeking;
+		const wasVideoTap = pointerStart.target === video && !heldForSpeed && !swipeAxis && !seeking;
 		if (heldForSpeed) {
 			video.playbackRate = 1;
 		} else if (swipeAxis === 'vertical') {
 			if (deltaY < 0) playRandom();
 			else playPrevious();
 		} else if (seeking) {
-			seekBySwipe(deltaX);
-			if (previewTime !== null) video.currentTime = previewTime;
-		} else {
+			if (pointerStart.target !== seekBar) {
+				seekBySwipe(deltaX);
+				if (previewTime !== null) video.currentTime = previewTime;
+			}
+		} else if (wasVideoTap) {
 			togglePlayback();
 		}
 		pointerStart = null;
@@ -395,11 +402,11 @@
 		heldForSpeed = false;
 		seeking = false;
 		swipeAxis = null;
-		if (wasTap) toggleControls();
+		if (wasVideoTap) toggleControls();
 	};
 
-	video.addEventListener('pointerup', finishPointer);
-	video.addEventListener('pointercancel', finishPointer);
+	player.addEventListener('pointerup', finishPointer);
+	player.addEventListener('pointercancel', finishPointer);
 
 	setVideo(initialPath);
 	updateLoopControls();
