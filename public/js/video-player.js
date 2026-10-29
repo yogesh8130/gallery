@@ -109,8 +109,20 @@
 		player.classList.remove('controlsHidden');
 		clearTimeout(controlsTimer);
 		controlsTimer = setTimeout(() => {
-			if (!scrubbing) player.classList.add('controlsHidden');
+			if (!scrubbing && document.activeElement !== videoFilter) player.classList.add('controlsHidden');
 		}, 2200);
+	};
+
+	const toggleControls = () => {
+		if (document.activeElement === videoFilter) {
+			revealControls();
+			return;
+		}
+		if (player.classList.contains('controlsHidden')) revealControls();
+		else {
+			clearTimeout(controlsTimer);
+			player.classList.add('controlsHidden');
+		}
 	};
 
 	const showHint = (icon, text) => {
@@ -223,7 +235,6 @@
 	const handleKeyDown = event => {
 		if (isInteractiveTarget(event.target)) return;
 		if (event.repeat && ['f', 'F', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
-		revealControls();
 
 		if (event.key === 'f' || event.key === 'F') {
 			event.preventDefault();
@@ -264,7 +275,6 @@
 		else togglePlayback();
 		spaceKeyDown = false;
 		spaceHeldForSpeed = false;
-		revealControls();
 	};
 
 	const cancelSpaceHold = () => {
@@ -305,9 +315,9 @@
 	video.addEventListener('ended', () => playRandom());
 	video.addEventListener('click', event => event.preventDefault());
 	player.addEventListener('contextmenu', event => event.preventDefault());
-	player.addEventListener('pointermove', revealControls);
-	player.addEventListener('pointerdown', revealControls);
-	player.addEventListener('touchstart', revealControls, { passive: true });
+	document.addEventListener('pointerdown', event => {
+		if (event.target !== videoFilter && document.activeElement === videoFilter) videoFilter.blur();
+	}, true);
 	seekBar.addEventListener('pointerdown', () => {
 		scrubbing = true;
 		clearTimeout(controlsTimer);
@@ -321,7 +331,6 @@
 		if (previewTime !== null) video.currentTime = previewTime;
 		previewTime = null;
 		scrubbing = false;
-		revealControls();
 	});
 	fullscreenButton.addEventListener('click', toggleFullscreen);
 	document.addEventListener('keydown', handleKeyDown);
@@ -369,6 +378,7 @@
 		clearTimeout(holdTimer);
 		const deltaX = event.clientX - pointerStart.x;
 		const deltaY = event.clientY - pointerStart.y;
+		const wasTap = !heldForSpeed && !swipeAxis && !seeking;
 		if (heldForSpeed) {
 			video.playbackRate = 1;
 		} else if (swipeAxis === 'vertical') {
@@ -385,7 +395,7 @@
 		heldForSpeed = false;
 		seeking = false;
 		swipeAxis = null;
-		revealControls();
+		if (wasTap) toggleControls();
 	};
 
 	video.addEventListener('pointerup', finishPointer);
