@@ -1908,41 +1908,10 @@ function showModal(fileLink, firstLoad = false, target = null) {
 		// used to scroll to correct position after changing tile size
 		LAST_VIEWED_IMAGE_ID = target.id;
 		CURRENT_IMAGE_ID_NUM = parseInt(target.id.replace('image', ''));
-	} else if (new URLSearchParams(window.location.search).get('sortBy') === 'path') {
-		const normalizePath = path => {
-			const withoutOrigin = path.replace(origin, '').replace(/^\//, '');
-			return decodeURIComponent(withoutOrigin).replace(/\//g, '\\').replace(/^\\+/, '');
-		};
-		const currentPath = normalizePath(fileLink);
-		const matchingResult = Array.from(RESULTS_CONTAINER.querySelectorAll('.resultFile'))
-			.find(result => normalizePath(result.dataset.src) === currentPath);
-
-		if (matchingResult) {
-			LAST_VIEWED_IMAGE_ID = matchingResult.id;
-			CURRENT_IMAGE_ID_NUM = parseInt(matchingResult.id.replace('image', ''));
-			scrollToCurrentImage(matchingResult.closest('.result').id);
-		}
 	}
 
-	// remove the localhost url part
-	const relativeFilePath = fileLink.replace(origin, '').replace(/^\//, '');
-	if (firstLoad) {
-		updateModalImageDetails(CURRENT_IMAGE_ID_NUM);
-	} else {
-		const modalImageDetails = document.querySelector('.modalImageDetails');
-		modalImageDetails.innerHTML = '';
-		fetch(`/getFileDetails?relativeFilePath=${relativeFilePath}`)
-			.then(response => response.text())
-			.then(html => {
-				// console.log(html);
-				modalImageDetails.innerHTML = html;
-			})
-			.catch(error => {
-				console.error(`Error getting file details: ${error}`);
-			});
-	}
-
-	if (fileLink.toLowerCase().endsWith('.mp4') || fileLink.toLowerCase().endsWith('.mkv') || fileLink.toLowerCase().endsWith('.webm')) {
+	const isVideo = fileLink.toLowerCase().endsWith('.mp4') || fileLink.toLowerCase().endsWith('.mkv') || fileLink.toLowerCase().endsWith('.webm');
+	if (isVideo) {
 		MODAL_VIDEO_CONTAINER.style.display = 'block';
 		MODAL_IMAGE_CONTAINER.style.display = 'none';
 		MODAL_VIDEO.src = fileLink;
@@ -1970,13 +1939,49 @@ function showModal(fileLink, firstLoad = false, target = null) {
 				MODAL.style.display = 'block';
 				loadModalImage(fileLink);
 			}
-			preloadNeighbors();
 		} else {
 			loadModalImage(fileLink);
-			preloadNeighbors();
 		}
 	}
 	IS_MODAL_ACTIVE = true;
+
+	requestAnimationFrame(() => setTimeout(() => {
+		if (CURRENT_IMAGE_PATH !== fileLink) return;
+
+		if (!target && new URLSearchParams(window.location.search).get('sortBy') === 'path') {
+			const normalizePath = path => {
+				const withoutOrigin = path.replace(origin, '').replace(/^\//, '');
+				return decodeURIComponent(withoutOrigin).replace(/\//g, '\\').replace(/^\\+/, '');
+			};
+			const currentPath = normalizePath(fileLink);
+			const matchingResult = Array.from(RESULTS_CONTAINER.querySelectorAll('.resultFile'))
+				.find(result => normalizePath(result.dataset.src) === currentPath);
+
+			if (matchingResult) {
+				LAST_VIEWED_IMAGE_ID = matchingResult.id;
+				CURRENT_IMAGE_ID_NUM = parseInt(matchingResult.id.replace('image', ''));
+				scrollToCurrentImage(matchingResult.closest('.result').id);
+			}
+		}
+
+		if (firstLoad) {
+			updateModalImageDetails(CURRENT_IMAGE_ID_NUM);
+		} else {
+			const relativeFilePath = fileLink.replace(origin, '').replace(/^\//, '');
+			const modalImageDetails = document.querySelector('.modalImageDetails');
+			modalImageDetails.innerHTML = '';
+			fetch(`/getFileDetails?relativeFilePath=${relativeFilePath}`)
+				.then(response => response.text())
+				.then(html => {
+					if (CURRENT_IMAGE_PATH === fileLink) modalImageDetails.innerHTML = html;
+				})
+				.catch(error => {
+					console.error(`Error getting file details: ${error}`);
+				});
+		}
+
+		if (!isVideo) preloadNeighbors();
+	}, 0));
 }
 
 function closeModal() {
