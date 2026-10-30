@@ -229,7 +229,15 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FO
 		const currentIndex = imageList.indexOf(currentImagePath);
 		// console.log('currentIndex: ' + currentIndex);
 
-		const nextIndex = (currentIndex + 1) % imageList.length;
+		let nextIndex = (currentIndex + 1) % imageList.length;
+		if (req.query.skipVideos === 'true') {
+			let checked = 0;
+			while (checked < imageList.length && VIDEO_EXTENSIONS.includes(PATH.extname(imageList[nextIndex]).toLowerCase())) {
+				nextIndex = (nextIndex + 1) % imageList.length;
+				checked++;
+			}
+			if (checked === imageList.length) return res.status(404).json({ message: 'No images in traversal list' });
+		}
 		const nextImagePath = imageList[nextIndex];
 
 		const filename = PATH.basename(nextImagePath);
@@ -285,7 +293,15 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FO
 		}
 
 		const currentIndex = imageList.indexOf(currentImagePath);
-		const previousIndex = (currentIndex - 1 + imageList.length) % imageList.length;
+		let previousIndex = (currentIndex - 1 + imageList.length) % imageList.length;
+		if (req.query.skipVideos === 'true') {
+			let checked = 0;
+			while (checked < imageList.length && VIDEO_EXTENSIONS.includes(PATH.extname(imageList[previousIndex]).toLowerCase())) {
+				previousIndex = (previousIndex - 1 + imageList.length) % imageList.length;
+				checked++;
+			}
+			if (checked === imageList.length) return res.status(404).json({ message: 'No images in traversal list' });
+		}
 		const previousImagePath = imageList[previousIndex];
 
 		const filename = PATH.basename(previousImagePath);

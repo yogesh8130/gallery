@@ -2174,7 +2174,7 @@ function showNextImage() {
 	// remove localhost and leading slash
 	CURRENT_IMAGE_PATH = CURRENT_IMAGE_PATH.replace(origin, '').replace(/^\//, '');
 
-	fetch(`/next?currentImagePath=${(CURRENT_IMAGE_PATH)}`)
+	fetch(`/next?currentImagePath=${CURRENT_IMAGE_PATH}&skipVideos=true`)
 		.then(response => response.json())
 		.then(data => {
 			showModal(data.nextImagePath);
@@ -2186,7 +2186,7 @@ function showPreviousImage() {
 	// remove localhost and leading slash
 	CURRENT_IMAGE_PATH = CURRENT_IMAGE_PATH.replace(origin, '').replace(/^\//, '');
 
-	fetch(`/previous?currentImagePath=${(CURRENT_IMAGE_PATH)}`)
+	fetch(`/previous?currentImagePath=${CURRENT_IMAGE_PATH}&skipVideos=true`)
 		.then(response => response.json())
 		.then(data => {
 			showModal(data.previousImagePath);
