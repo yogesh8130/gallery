@@ -332,6 +332,22 @@
 		&& target.closest('input, textarea, select, button, a, [contenteditable="true"], [role="button"]');
 
 	const handleKeyDown = event => {
+		if (event.key === 'Escape' && document.activeElement instanceof HTMLElement
+			&& document.activeElement.matches('input:not([type]), input[type="text"], input[type="search"], input[type="email"], input[type="url"], input[type="tel"], input[type="password"], input[type="number"], textarea, [contenteditable="true"]')) {
+			event.preventDefault();
+			document.activeElement.blur();
+			revealControls();
+			return;
+		}
+		if (event.key === 'F2') {
+			event.preventDefault();
+			revealControls();
+			tagsPanel.classList.remove('hidden');
+			tagsToggle.setAttribute('aria-expanded', 'true');
+			renderTagHistory();
+			tagsInput.focus();
+			return;
+		}
 		if (isInteractiveTarget(event.target)) return;
 		if (event.repeat && ['f', 'F', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
 
