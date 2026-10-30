@@ -228,19 +228,21 @@
 			});
 	};
 
-	const rememberTag = tag => {
+	const rememberTags = tags => {
 		const tagHistory = readTagHistory();
-		if (!tagHistory[tag]) {
-			while (Object.keys(tagHistory).length > 9) {
-				const leastUsed = Object.keys(tagHistory).reduce((least, candidate) =>
-					tagHistory[candidate].clicks < tagHistory[least].clicks ? candidate : least
-				);
-				delete tagHistory[leastUsed];
-				Object.values(tagHistory).forEach(entry => entry.clicks--);
+		for (const tag of tags) {
+			if (!tagHistory[tag]) {
+				while (Object.keys(tagHistory).length > 9) {
+					const leastUsed = Object.keys(tagHistory).reduce((least, candidate) =>
+						tagHistory[candidate].clicks < tagHistory[least].clicks ? candidate : least
+					);
+					delete tagHistory[leastUsed];
+					Object.values(tagHistory).forEach(entry => entry.clicks--);
+				}
+				tagHistory[tag] = { clicks: 0 };
+			} else {
+				tagHistory[tag].clicks += 3;
 			}
-			tagHistory[tag] = { clicks: 0 };
-		} else {
-			tagHistory[tag].clicks += 3;
 		}
 		localStorage.setItem('appendToNameHistory', JSON.stringify(tagHistory));
 		renderTagHistory();
@@ -252,12 +254,13 @@
 			status.textContent = 'Enter a tag first';
 			return;
 		}
-		if (!/^[a-zA-Z0-9 _,;#@$&*()\-]*$/.test(value)) {
+		const tags = [...new Set(value.split(/[;,]/).map(part => part.trim()).filter(Boolean))];
+		if (!tags.every(part => /^[a-zA-Z0-9 _#@$&*()\-]*$/.test(part))) {
 			status.textContent = 'Tag contains disallowed characters';
 			return;
 		}
 
-		rememberTag(value);
+		rememberTags(tags);
 		tagsApply.disabled = true;
 		try {
 			const currentUrl = new URL(currentPath, window.location.origin);

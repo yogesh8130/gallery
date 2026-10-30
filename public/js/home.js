@@ -2281,7 +2281,8 @@ function moveRenameFiles(operation) {
 			break;
 		case "appendToName":
 			argument1 = document.getElementById('appendToNameInput').value;
-			updateHistoryButtons(argument1, operation);
+			const appendTags = [...new Set(argument1.split(/[;,]/).map(part => part.trim()).filter(Boolean))];
+			appendTags.forEach(tag => updateHistoryButtons(tag, operation));
 			pattern = /^[a-zA-Z0-9 _\-,;#@$&*\(\)]*$/;
 			isValid = pattern.test(argument1);
 			if (!isValid) {
