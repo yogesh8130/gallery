@@ -106,9 +106,32 @@ body {
 	background: #d3ef67;
 }
 
-.player.controlsHidden .overlay,
+.player.controlsHidden .overlay {
+	background: none;
+}
+
 .player.controlsHidden .bottomControls {
-	opacity: 0;
+	opacity: 1;
+}
+
+.player.controlsHidden .topBar,
+.player.controlsHidden .centerHint {
+	visibility: hidden;
+}
+
+.player.controlsHidden .videoFolder,
+.player.controlsHidden .seekBar,
+.player.controlsHidden .bottomBar {
+	visibility: hidden;
+}
+
+.player.controlsHidden .bottomControls .videoName {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	max-width: min(75vw, 760px);
+	visibility: visible;
+	pointer-events: auto;
 }
 
 .player.controlsHidden .overlay *,
