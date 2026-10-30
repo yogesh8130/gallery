@@ -496,7 +496,9 @@
 		clearTimeout(holdTimer);
 		const deltaX = event.clientX - pointerStart.x;
 		const deltaY = event.clientY - pointerStart.y;
-		const wasVideoTap = pointerStart.target === video && !heldForSpeed && !swipeAxis && !seeking;
+		const wasVideoSurfaceTap = (pointerStart.target === video || pointerStart.target === unsupportedPreview)
+			&& !heldForSpeed && !swipeAxis && !seeking;
+		const wasVideoTap = wasVideoSurfaceTap && pointerStart.target === video;
 		if (heldForSpeed) {
 			video.playbackRate = 1;
 		} else if (swipeAxis === 'vertical') {
@@ -518,7 +520,7 @@
 		heldForSpeed = false;
 		seeking = false;
 		swipeAxis = null;
-		if (wasVideoTap) toggleControls();
+		if (wasVideoSurfaceTap) toggleControls();
 	};
 
 	player.addEventListener('pointerup', finishPointer);
