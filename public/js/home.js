@@ -22,8 +22,19 @@ let LAST_SELECTED_IMAGE_INDEX;
 let MAX_SELECTED_IMAGE_INDEX = -1;
 let LAST_VIEWED_IMAGE_ID;
 
-let VIEWER;
+let MODAL_IMAGE;
 let IS_VIEWER_ZOOMED = false;
+let MODAL_ZOOM_MODE = 'fit';
+let MODAL_IMAGE_SCALE = 1;
+let MODAL_IMAGE_PAN_X = 0;
+let MODAL_IMAGE_PAN_Y = 0;
+let MODAL_IMAGE_LOAD_ID = 0;
+let MODAL_GESTURE = null;
+let MODAL_LAST_TAP = null;
+let MODAL_TAP_TIMER = null;
+let MODAL_WHEEL_BURST_ACTIVE = false;
+let MODAL_WHEEL_BURST_STARTED_ZOOMED = false;
+let MODAL_WHEEL_BURST_TIMER = null;
 let MODAL;
 let MODAL_IMAGE_CONTAINER;
 let MODAL_VIDEO_CONTAINER;
@@ -275,15 +286,77 @@ function refreshDirectoryTree() {
 		});
 }
 
-function onZoomChange(viewerData) {
-	// console.log(data);
-	if (viewerData.zoomValue > 100) {
-		IS_VIEWER_ZOOMED = true
-	} else {
-		IS_VIEWER_ZOOMED = false
-	}
-	// console.log(IS_VIEWER_ZOOMED);
+function getModalFitScale() {
+	if (!MODAL_IMAGE?.naturalWidth || !MODAL_IMAGE?.naturalHeight) return 1;
+	return Math.min(
+		MODAL_IMAGE_CONTAINER.clientWidth / MODAL_IMAGE.naturalWidth,
+		MODAL_IMAGE_CONTAINER.clientHeight / MODAL_IMAGE.naturalHeight
+	);
+}
 
+function renderModalImage() {
+	if (!MODAL_IMAGE?.naturalWidth) return;
+	MODAL_IMAGE.style.width = `${MODAL_IMAGE.naturalWidth}px`;
+	MODAL_IMAGE.style.height = `${MODAL_IMAGE.naturalHeight}px`;
+	const width = MODAL_IMAGE.naturalWidth * MODAL_IMAGE_SCALE;
+	const height = MODAL_IMAGE.naturalHeight * MODAL_IMAGE_SCALE;
+	const maxPanX = Math.max(0, (width - MODAL_IMAGE_CONTAINER.clientWidth) / 2);
+	const maxPanY = Math.max(0, (height - MODAL_IMAGE_CONTAINER.clientHeight) / 2);
+	MODAL_IMAGE_PAN_X = Math.max(-maxPanX, Math.min(maxPanX, MODAL_IMAGE_PAN_X));
+	MODAL_IMAGE_PAN_Y = Math.max(-maxPanY, Math.min(maxPanY, MODAL_IMAGE_PAN_Y));
+	MODAL_IMAGE.style.transform = `translate(-50%, -50%) translate(${MODAL_IMAGE_PAN_X}px, ${MODAL_IMAGE_PAN_Y}px) scale(${MODAL_IMAGE_SCALE})`;
+	IS_VIEWER_ZOOMED = MODAL_ZOOM_MODE !== 'fit';
+}
+
+function setModalZoomMode(mode) {
+	const fitScale = getModalFitScale();
+	const fillScale = Math.max(
+		MODAL_IMAGE_CONTAINER.clientWidth / MODAL_IMAGE.naturalWidth,
+		MODAL_IMAGE_CONTAINER.clientHeight / MODAL_IMAGE.naturalHeight
+	);
+	MODAL_ZOOM_MODE = mode;
+	MODAL_IMAGE_SCALE = mode === 'fit' ? fitScale : mode === 'fill' ? fillScale : 1;
+	MODAL_IMAGE_PAN_X = 0;
+	MODAL_IMAGE_PAN_Y = 0;
+	renderModalImage();
+}
+
+function cycleModalZoomMode() {
+	const nextMode = MODAL_ZOOM_MODE === 'fit' ? 'fill' : MODAL_ZOOM_MODE === 'fill' ? 'actual' : 'fit';
+	setModalZoomMode(nextMode);
+}
+
+function setModalImageScale(scale, anchorX, anchorY, baseScale = MODAL_IMAGE_SCALE, basePanX = MODAL_IMAGE_PAN_X, basePanY = MODAL_IMAGE_PAN_Y) {
+	const fitScale = getModalFitScale();
+	const fillScale = Math.max(
+		MODAL_IMAGE_CONTAINER.clientWidth / MODAL_IMAGE.naturalWidth,
+		MODAL_IMAGE_CONTAINER.clientHeight / MODAL_IMAGE.naturalHeight
+	);
+	MODAL_IMAGE_SCALE = Math.max(fitScale, Math.min(Math.max(1, fillScale) * 8, scale));
+	const scaleRatio = MODAL_IMAGE_SCALE / baseScale;
+	const containerRect = MODAL_IMAGE_CONTAINER.getBoundingClientRect();
+	const offsetX = (anchorX ?? containerRect.left + containerRect.width / 2) - (containerRect.left + containerRect.width / 2);
+	const offsetY = (anchorY ?? containerRect.top + containerRect.height / 2) - (containerRect.top + containerRect.height / 2);
+	MODAL_IMAGE_PAN_X = offsetX - (offsetX - basePanX) * scaleRatio;
+	MODAL_IMAGE_PAN_Y = offsetY - (offsetY - basePanY) * scaleRatio;
+	MODAL_ZOOM_MODE = Math.abs(MODAL_IMAGE_SCALE - fitScale) < fitScale * 0.005 ? 'fit' : 'custom';
+	if (MODAL_ZOOM_MODE === 'fit') {
+		MODAL_IMAGE_SCALE = fitScale;
+		MODAL_IMAGE_PAN_X = 0;
+		MODAL_IMAGE_PAN_Y = 0;
+	}
+	renderModalImage();
+}
+
+function loadModalImage(src) {
+	const loadId = ++MODAL_IMAGE_LOAD_ID;
+	MODAL_IMAGE.onload = () => {
+		if (loadId === MODAL_IMAGE_LOAD_ID) setModalZoomMode('fit');
+	};
+	MODAL_IMAGE.src = src;
+	if (MODAL_IMAGE.complete && MODAL_IMAGE.naturalWidth) {
+		setModalZoomMode('fit');
+	}
 }
 
 function udpateSelectedFilesCount() {
@@ -613,6 +686,17 @@ document.addEventListener("DOMContentLoaded", function () {
 	SIDEBAR_TOGGLE_BUTTON = document.getElementById('sidebarToggleButton');
 	MODAL = document.getElementById("modal");
 	MODAL_IMAGE_CONTAINER = document.querySelector('.modalImageContainer');
+	MODAL_IMAGE = document.createElement('img');
+	MODAL_IMAGE.className = 'modalViewerImage';
+	MODAL_IMAGE_CONTAINER.appendChild(MODAL_IMAGE);
+	window.addEventListener('resize', () => {
+		if (!MODAL_IMAGE.naturalWidth) return;
+		if (MODAL_ZOOM_MODE === 'fit' || MODAL_ZOOM_MODE === 'fill' || MODAL_ZOOM_MODE === 'actual') {
+			setModalZoomMode(MODAL_ZOOM_MODE);
+		} else {
+			renderModalImage();
+		}
+	});
 	MODAL_VIDEO_CONTAINER = document.querySelector('.modalVideoContainer');
 	MODAL_VIDEO = document.querySelector('.modalVideo');
 	MODAL_CLOSE_BUTTON = document.getElementById('modalCloseButton');
@@ -620,12 +704,6 @@ document.addEventListener("DOMContentLoaded", function () {
 	MODAL_PREV_BUTTON = document.getElementById('modalPreviousButton');
 	MODAL_NEXT_FROM_SEARCH_BUTTON = document.getElementById('modalNextFromResultsButton');
 	MODAL_PREV_FROM_SEARCH_BUTTON = document.getElementById('modalPreviousFromResultsButton');
-	VIEWER = new ImageViewer(MODAL_IMAGE_CONTAINER, {
-		listeners: {
-			onZoomChange: onZoomChange
-		}
-	});
-
 	// read the operation history from local storage and update the history buttons for repective operations forms
 	updateHistoryButtons(null);
 
@@ -695,12 +773,6 @@ document.addEventListener("DOMContentLoaded", function () {
 	document.getElementById('animationsCheckbox').checked = ANIMATIONS_ENABLED;
 
 	// MODAL SINGLE IMAGE VIEWER
-
-	MODAL.onclick = function (event) {
-		if (event.target.classList.contains('iv-image-view')) {
-			closeModal();
-		}
-	}
 
 	MODAL_CLOSE_BUTTON.onclick = function () {
 		closeModal();
@@ -938,57 +1010,121 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	// MODAL EVENTS
 
-	let MODAL_START_X = 0;
-	let MODAL_START_Y = 0;
-	let MODAL_ACTIVE_POINTER_ID = null;
-
 	MODAL.addEventListener('pointerdown', function (event) {
-		// event.preventDefault();
-		// showPopup('pointerdown');
-		// console.log(`🔽 pointer down, LONG_PRESS_TIMEOUT: ${LONG_PRESS_TIMEOUT}, LONG_PRESS_ACTIVATED: ${MODAL_LONG_PRESS_ACTIVATED}`);
-		// Ignore secondary buttons (right click, etc.)
-		if (event.button !== 0) {
-			// console.log('secondary button, ignored');
-			return;
+		if ((event.pointerType === 'mouse' && event.button !== 0)
+			|| event.target.closest('.modalButton')
+			|| MODAL_VIDEO_CONTAINER.style.display === 'block') return;
+
+		const now = Date.now();
+		const isDoubleTap = MODAL_LAST_TAP
+			&& now - MODAL_LAST_TAP.time < 350
+			&& Math.hypot(event.clientX - MODAL_LAST_TAP.x, event.clientY - MODAL_LAST_TAP.y) < 50;
+		if (isDoubleTap) clearTimeout(MODAL_TAP_TIMER);
+		MODAL_GESTURE = {
+			pointerId: event.pointerId,
+			startX: event.clientX,
+			startY: event.clientY,
+			startPanX: MODAL_IMAGE_PAN_X,
+			startPanY: MODAL_IMAGE_PAN_Y,
+			startScale: MODAL_IMAGE_SCALE,
+			isDoubleTap,
+			startedOnImage: event.target === MODAL_IMAGE
+				|| event.target === MODAL_IMAGE_CONTAINER
+				|| event.target === MODAL,
+			mode: null
 		};
-
-		MODAL_ACTIVE_POINTER_ID = event.pointerId;
-		MODAL_START_X = event.clientX;
-		MODAL_START_Y = event.clientY;
-
-		// console.log(`🚫 pointer down, LONG_PRESS_TIMEOUT: ${LONG_PRESS_TIMEOUT}, LONG_PRESS_ACTIVATED: ${MODAL_LONG_PRESS_ACTIVATED}`);
+		MODAL.setPointerCapture(event.pointerId);
 	});
 
-	MODAL.addEventListener('pointerup', function (event) {
-		// console.log('pointer up');
-		if (event.pointerId !== MODAL_ACTIVE_POINTER_ID) {
-			// console.log('pointer changed, ignored');
-			return
-		};
-
-		const deltaY = event.clientY - MODAL_START_Y;
-		const deltaX = event.clientX - MODAL_START_X;
-		if (Math.abs(deltaY) > SWIPE_THRESHOLD) {
-			// showPopup(`🔺deltaY: ${deltaY}`);
-			modalSwipeHandler(deltaY > 0 ? 'down' : 'up', event);
-			return;
-		}
-		if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
-			// showPopup(`🔺deltaX: ${deltaX}`);
-			modalSwipeHandler(deltaX > 0 ? 'right' : 'left', event);
-			return;
-		}
-
-		// toggle controls if clicking on image
-		if (event.target && event.target.classList.contains('iv-image')) {
-			toggleModalControlsTransparency();
-
-			while (IS_VIEWER_ZOOMED) {
-				VIEWER.resetZoom();
+	MODAL.addEventListener('pointermove', function (event) {
+		const gesture = MODAL_GESTURE;
+		if (!gesture || event.pointerId !== gesture.pointerId) return;
+		const deltaX = event.clientX - gesture.startX;
+		const deltaY = event.clientY - gesture.startY;
+		if (!gesture.mode && Math.hypot(deltaX, deltaY) > 8) {
+			if (gesture.isDoubleTap && Math.abs(deltaY) > Math.abs(deltaX)) {
+				gesture.mode = 'zoom';
+			} else if (IS_VIEWER_ZOOMED) {
+				gesture.mode = 'pan';
+			} else {
+				gesture.mode = 'swipe';
 			}
 		}
 
+		if (gesture.mode === 'zoom') {
+			setModalImageScale(
+				gesture.startScale * Math.exp(deltaY / Math.max(1, MODAL_IMAGE_CONTAINER.clientHeight) * 5),
+				gesture.startX,
+				gesture.startY,
+				gesture.startScale,
+				gesture.startPanX,
+				gesture.startPanY
+			);
+		} else if (gesture.mode === 'pan') {
+			MODAL_IMAGE_PAN_X = gesture.startPanX + deltaX;
+			MODAL_IMAGE_PAN_Y = gesture.startPanY + deltaY;
+			renderModalImage();
+		}
 	});
+
+	function finishModalGesture(event) {
+		const gesture = MODAL_GESTURE;
+		if (!gesture || event.pointerId !== gesture.pointerId) return;
+		MODAL_GESTURE = null;
+		const deltaX = event.clientX - gesture.startX;
+		const deltaY = event.clientY - gesture.startY;
+		const moved = Math.hypot(deltaX, deltaY) > 8;
+
+		if (gesture.mode === 'zoom' || gesture.mode === 'pan') return;
+		if (gesture.isDoubleTap && !moved) {
+			clearTimeout(MODAL_TAP_TIMER);
+			MODAL_LAST_TAP = null;
+			cycleModalZoomMode();
+			return;
+		}
+		if (moved) {
+			MODAL_LAST_TAP = null;
+			if (Math.abs(deltaY) > SWIPE_THRESHOLD) {
+				modalSwipeHandler(deltaY > 0 ? 'down' : 'up', event);
+			} else if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
+				modalSwipeHandler(deltaX > 0 ? 'right' : 'left', event);
+			}
+			return;
+		}
+
+		if (gesture.startedOnImage) {
+			MODAL_LAST_TAP = { time: Date.now(), x: event.clientX, y: event.clientY };
+			MODAL_TAP_TIMER = setTimeout(() => {
+				toggleModalControlsTransparency();
+				MODAL_LAST_TAP = null;
+			}, 350);
+		}
+	}
+
+	MODAL.addEventListener('pointerup', finishModalGesture);
+	MODAL.addEventListener('pointercancel', function (event) {
+		if (MODAL_GESTURE?.pointerId === event.pointerId) MODAL_GESTURE = null;
+	});
+
+	MODAL.addEventListener('wheel', function (event) {
+		if (!IS_MODAL_ACTIVE || MODAL_VIDEO_CONTAINER.style.display === 'block' || !MODAL_IMAGE.naturalWidth) return;
+		event.preventDefault();
+		if (!MODAL_WHEEL_BURST_ACTIVE) {
+			MODAL_WHEEL_BURST_ACTIVE = true;
+			MODAL_WHEEL_BURST_STARTED_ZOOMED = IS_VIEWER_ZOOMED;
+		}
+		clearTimeout(MODAL_WHEEL_BURST_TIMER);
+		MODAL_WHEEL_BURST_TIMER = setTimeout(() => {
+			MODAL_WHEEL_BURST_ACTIVE = false;
+			MODAL_WHEEL_BURST_STARTED_ZOOMED = false;
+		}, 250);
+
+		if (event.deltaY > 0 && !IS_VIEWER_ZOOMED) {
+			if (!MODAL_WHEEL_BURST_STARTED_ZOOMED) closeModal();
+			return;
+		}
+		setModalImageScale(MODAL_IMAGE_SCALE * Math.exp(-event.deltaY * 0.002), event.clientX, event.clientY);
+	}, { passive: false });
 
 	// SIDEBAR EVENTS
 
@@ -1242,14 +1378,11 @@ let SCROLL_TIMEOUT;
 // add event listener for mousewheel
 window.addEventListener('wheel', function (event) {
 	// console.log(event.deltaY);
+	if (IS_MODAL_ACTIVE) return;
 	if (event.deltaY > 0) {
-		if (IS_MODAL_ACTIVE && !IS_VIEWER_ZOOMED) {
-			closeModal();
-		} else {
-			// Scrolling down - hide header
-			HEADER.classList.remove('pinned');
-			HEADER.classList.add('unpinned');
-		}
+		// Scrolling down - hide header
+		HEADER.classList.remove('pinned');
+		HEADER.classList.add('unpinned');
 	} else {
 		// Scrolling up - show header
 		HEADER.classList.remove('unpinned');
@@ -1804,9 +1937,6 @@ function showModal(fileLink, firstLoad = false, target = null) {
 		MODAL_VIDEO_CONTAINER.style.display = 'none';
 		MODAL_VIDEO.pause();
 		MODAL_IMAGE_CONTAINER.style.display = 'block';
-		const img = new Image();
-
-		img.src = fileLink;
 
 		if (ANIMATIONS_ENABLED) {
 			target ? target.style.viewTransitionName = 'modalZoomIn' : null;
@@ -1818,20 +1948,18 @@ function showModal(fileLink, firstLoad = false, target = null) {
 					target ? target.style.viewTransitionName = '' : null;
 					MODAL.style.viewTransitionName = 'modalZoomIn';
 					MODAL.style.display = 'block';
-					VIEWER.load(fileLink);
+					loadModalImage(fileLink);
 				}).finished.then(() => {
 					MODAL.style.viewTransitionName = '';
 				})
 			} else {
 				MODAL.style.display = 'block';
-				VIEWER.load(fileLink);
+				loadModalImage(fileLink);
 			}
 			preloadNeighbors();
 		} else {
-			img.onload = () => {
-				VIEWER.load(fileLink);
-				preloadNeighbors();
-			};
+			loadModalImage(fileLink);
+			preloadNeighbors();
 		}
 	}
 	IS_MODAL_ACTIVE = true;
@@ -2075,7 +2203,7 @@ function showNextImageFromSearch() {
 		}
 
 		if (nextImg && nextImg.classList.contains('imageFile')) {
-			VIEWER.load(nextImg.src);
+			loadModalImage(nextImg.src);
 			updateModalImageDetails(nextImg.id);
 			CURRENT_IMAGE_ID_NUM++;
 			break;
@@ -2099,7 +2227,7 @@ function showPreviousImageFromSearch() {
 		}
 		const prevImg = RESULTS_CONTAINER.querySelector(`#image${CURRENT_IMAGE_ID_NUM - 1}`);
 		if (prevImg && prevImg.classList.contains('imageFile')) {
-			VIEWER.load(prevImg.src);
+			loadModalImage(prevImg.src);
 			updateModalImageDetails(prevImg.id);
 			CURRENT_IMAGE_ID_NUM--;
 			break;
