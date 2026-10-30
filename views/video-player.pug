@@ -18,6 +18,12 @@ html
 					div.topActions
 						a.iconButton(href="/" title="Home" aria-label="Home") Home
 						input#videoFilter.videoFilter(type="search" value=filterText placeholder="Filter videos" aria-label="Filter videos")
+						button#tagsToggle.iconButton(type="button" aria-expanded="false" aria-controls="tagsPanel") Tags
+						div#tagsPanel.tagsPanel.hidden
+							form#tagsForm.tagsForm
+								input#tagsInput.tagsInput(type="text" placeholder="Text, to; append" autocomplete="on" autocapitalize="off" aria-label="Tags to append")
+								button#tagsApply.tagsApply(type="submit") Append
+							div#tagsHistory.tagsHistory(aria-label="Recent tags")
 					span#status.status(role="status" aria-live="polite")
 				div.centerHint#centerHint(aria-hidden="true")
 					span#centerIcon ▶

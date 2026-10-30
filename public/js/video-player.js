@@ -14,6 +14,12 @@
 	const unsupportedPreview = document.getElementById('unsupportedPreview');
 	const unsupportedMessage = document.getElementById('unsupportedMessage');
 	const videoFilter = document.getElementById('videoFilter');
+	const tagsToggle = document.getElementById('tagsToggle');
+	const tagsPanel = document.getElementById('tagsPanel');
+	const tagsForm = document.getElementById('tagsForm');
+	const tagsInput = document.getElementById('tagsInput');
+	const tagsApply = document.getElementById('tagsApply');
+	const tagsHistory = document.getElementById('tagsHistory');
 	const status = document.getElementById('status');
 	const videoFolder = document.getElementById('videoFolder');
 	const videoName = document.getElementById('videoName');
@@ -109,12 +115,14 @@
 		player.classList.remove('controlsHidden');
 		clearTimeout(controlsTimer);
 		controlsTimer = setTimeout(() => {
-			if (!scrubbing && document.activeElement !== videoFilter) player.classList.add('controlsHidden');
+			if (!scrubbing && document.activeElement !== videoFilter && !tagsPanel.contains(document.activeElement)) {
+				player.classList.add('controlsHidden');
+			}
 		}, 2200);
 	};
 
 	const toggleControls = () => {
-		if (document.activeElement === videoFilter) {
+		if (document.activeElement === videoFilter || tagsPanel.contains(document.activeElement)) {
 			revealControls();
 			return;
 		}
@@ -191,6 +199,97 @@
 		const nextFilter = videoFilter.value.trim();
 		if (nextFilter === currentFilter) return;
 		playRandom(nextFilter, true);
+	};
+
+	const readTagHistory = () => {
+		try {
+			return JSON.parse(localStorage.getItem('appendToNameHistory')) || {};
+		} catch (error) {
+			return {};
+		}
+	};
+
+	const renderTagHistory = () => {
+		const tagHistory = readTagHistory();
+		tagsHistory.replaceChildren();
+		Object.keys(tagHistory)
+			.sort((first, second) => first.localeCompare(second, undefined, { sensitivity: 'base' }))
+			.forEach(tag => {
+				const button = document.createElement('button');
+				button.type = 'button';
+				button.className = 'tagHistoryButton';
+				button.textContent = tag;
+				button.title = tag;
+				button.addEventListener('click', () => {
+					tagsInput.value = tag;
+					applyTags(tag);
+				});
+				tagsHistory.appendChild(button);
+			});
+	};
+
+	const rememberTag = tag => {
+		const tagHistory = readTagHistory();
+		if (!tagHistory[tag]) {
+			while (Object.keys(tagHistory).length > 9) {
+				const leastUsed = Object.keys(tagHistory).reduce((least, candidate) =>
+					tagHistory[candidate].clicks < tagHistory[least].clicks ? candidate : least
+				);
+				delete tagHistory[leastUsed];
+				Object.values(tagHistory).forEach(entry => entry.clicks--);
+			}
+			tagHistory[tag] = { clicks: 0 };
+		} else {
+			tagHistory[tag].clicks += 3;
+		}
+		localStorage.setItem('appendToNameHistory', JSON.stringify(tagHistory));
+		renderTagHistory();
+	};
+
+	const applyTags = async tag => {
+		const value = tag.trim();
+		if (!value) {
+			status.textContent = 'Enter a tag first';
+			return;
+		}
+		if (!/^[a-zA-Z0-9 _,;#@$&*()\-]*$/.test(value)) {
+			status.textContent = 'Tag contains disallowed characters';
+			return;
+		}
+
+		rememberTag(value);
+		tagsApply.disabled = true;
+		try {
+			const currentUrl = new URL(currentPath, window.location.origin);
+			const relativePath = decodeURIComponent(currentUrl.pathname)
+				.replace(/\\/g, '/')
+				.replace(/^\/+/, '')
+				.replace(/\//g, '\\');
+			const response = await fetch('/moveRenameFiles', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					operation: 'appendToName',
+					currentFilePaths: { videoPlayer: relativePath },
+					argument1: value
+				})
+			});
+			if (!response.ok) throw new Error('Unable to append tag');
+			const data = await response.json();
+			const updatedVideo = data.newImagesData?.videoPlayer;
+			if (updatedVideo && updatedVideo !== 'fail') {
+				setVideo(updatedVideo.newFilePathRelative);
+				status.textContent = 'Tag appended';
+			} else if (data.failCount) {
+				status.textContent = 'Unable to append tag';
+			} else {
+				status.textContent = 'Tag already present';
+			}
+		} catch (error) {
+			status.textContent = error.message;
+		} finally {
+			tagsApply.disabled = false;
+		}
 	};
 
 	const playPrevious = () => {
@@ -298,6 +397,20 @@
 	makeCopyable(videoFolder, 'Folder');
 	makeCopyable(videoName, 'Filename');
 	videoFilter.addEventListener('change', applyVideoFilter);
+	tagsToggle.addEventListener('click', () => {
+		const isOpening = tagsPanel.classList.contains('hidden');
+		tagsPanel.classList.toggle('hidden', !isOpening);
+		tagsToggle.setAttribute('aria-expanded', String(isOpening));
+		if (isOpening) {
+			renderTagHistory();
+			tagsInput.focus();
+		}
+	});
+	tagsForm.addEventListener('submit', event => {
+		event.preventDefault();
+		applyTags(tagsInput.value);
+	});
+	renderTagHistory();
 	videoFilter.addEventListener('keydown', event => {
 		if (event.key === 'Enter') {
 			event.preventDefault();

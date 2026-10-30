@@ -135,6 +135,7 @@ body {
 }
 
 .topActions {
+	position: relative;
 	gap: 10px;
 	min-width: 0;
 	pointer-events: auto;
@@ -161,6 +162,95 @@ body {
 .videoFilter:focus-visible {
 	border-color: #d3ef67;
 	outline: 2px solid rgb(211 239 103 / 35%);
+}
+
+.tagsPanel {
+	position: absolute;
+	top: calc(100% + 10px);
+	right: 0;
+	display: grid;
+	gap: 10px;
+	width: min(360px, calc(100vw - 24px));
+	max-height: min(55vh, 420px);
+	padding: 12px;
+	border: 1px solid rgb(255 255 255 / 24%);
+	border-radius: 8px;
+	background: rgb(16 19 17 / 96%);
+	box-shadow: 0 8px 28px rgb(0 0 0 / 45%);
+	overflow: auto;
+	pointer-events: auto;
+}
+
+.tagsPanel.hidden {
+	display: none;
+}
+
+.tagsForm {
+	display: flex;
+	gap: 8px;
+}
+
+.tagsInput {
+	min-width: 0;
+	flex: 1;
+	height: 38px;
+	padding: 0 10px;
+	border: 1px solid rgb(255 255 255 / 30%);
+	border-radius: 5px;
+	background: #101311;
+	color: #f3f5ef;
+	font: inherit;
+	font-size: 14px;
+}
+
+.tagsInput:focus-visible {
+	border-color: #d3ef67;
+	outline: 2px solid rgb(211 239 103 / 35%);
+}
+
+.tagsApply,
+.tagHistoryButton {
+	border: 1px solid rgb(255 255 255 / 24%);
+	border-radius: 5px;
+	background: rgb(255 255 255 / 8%);
+	color: #f3f5ef;
+	font: inherit;
+	cursor: pointer;
+}
+
+.tagsApply {
+	padding: 0 12px;
+	font-size: 13px;
+}
+
+.tagsApply:hover,
+.tagsApply:focus-visible,
+.tagHistoryButton:hover,
+.tagHistoryButton:focus-visible {
+	border-color: #d3ef67;
+	color: #d3ef67;
+	outline: none;
+}
+
+.tagsApply:disabled {
+	opacity: .55;
+	cursor: wait;
+}
+
+.tagsHistory {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.tagHistoryButton {
+	max-width: 100%;
+	padding: 5px 8px;
+	font-size: 12px;
+	text-align: left;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
 }
 
 .bottomControls {
