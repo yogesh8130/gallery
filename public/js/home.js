@@ -1908,6 +1908,20 @@ function showModal(fileLink, firstLoad = false, target = null) {
 		// used to scroll to correct position after changing tile size
 		LAST_VIEWED_IMAGE_ID = target.id;
 		CURRENT_IMAGE_ID_NUM = parseInt(target.id.replace('image', ''));
+	} else if (new URLSearchParams(window.location.search).get('sortBy') === 'path') {
+		const normalizePath = path => {
+			const withoutOrigin = path.replace(origin, '').replace(/^\//, '');
+			return decodeURIComponent(withoutOrigin).replace(/\//g, '\\').replace(/^\\+/, '');
+		};
+		const currentPath = normalizePath(fileLink);
+		const matchingResult = Array.from(RESULTS_CONTAINER.querySelectorAll('.resultFile'))
+			.find(result => normalizePath(result.dataset.src) === currentPath);
+
+		if (matchingResult) {
+			LAST_VIEWED_IMAGE_ID = matchingResult.id;
+			CURRENT_IMAGE_ID_NUM = parseInt(matchingResult.id.replace('image', ''));
+			scrollToCurrentImage(matchingResult.closest('.result').id);
+		}
 	}
 
 	// remove the localhost url part
