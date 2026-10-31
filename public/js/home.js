@@ -8,6 +8,9 @@ let IS_MODAL_ACTIVE = false;
 let SELECTION_MODE = false; // whether click opens an image or selects it
 let GLOBAL_TRAVERSAL_MODE = true; // makes swipes arrow keys navigate between images as per directory structure instead of shown order
 let ANIMATIONS_ENABLED = true;
+let MODAL_FULLSCREEN_ENABLED = false;
+let MODAL_FULLSCREEN_REQUESTED = false;
+let MODAL_FULLSCREEN_PENDING = false;
 
 const darkColors = ['blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chocolate', 'coral', 'cornflowerblue', 'crimson', 'darkblue', 'darkcyan', 'darkgoldenrod', 'darkgreen', 'darkmagenta', 'darkolivegreen', 'darkorange', 'darkorchid', 'darkred', 'darkslateblue', 'darkslategrey', 'darkviolet', 'deeppink', 'dodgerblue', 'firebrick', 'forestgreen', 'fuchsia', 'green', 'hotpink', 'indianred', 'indigo', 'lightcoral', 'magenta', 'maroon', 'mediumblue', 'mediumorchid', 'mediumpurple', 'mediumseagreen', 'mediumslateblue', 'mediumvioletred', 'midnightblue', 'navy', 'olive', 'olivedrab', 'orangered', 'orchid', 'palevioletred', 'peru', 'purple', 'rebeccapurple', 'red', 'royalblue', 'saddlebrown', 'salmon', 'seagreen', 'sienna', 'slateblue', 'steelblue', 'teal', 'tomato', 'violet'];
 MAX_HISTORY_JUMPLIST = 9;
@@ -146,6 +149,41 @@ function toggleAnimations(event, animationsCheckbox) {
 	}
 	localStorage.setItem('animationsEnabled', ANIMATIONS_ENABLED);
 	sessionStorage.setItem('animationsEnabled', ANIMATIONS_ENABLED);
+}
+
+function toggleModalFullscreen(event, fullscreenCheckbox) {
+	MODAL_FULLSCREEN_ENABLED = fullscreenCheckbox.checked;
+	localStorage.setItem('modalFullscreenEnabled', MODAL_FULLSCREEN_ENABLED);
+	sessionStorage.setItem('modalFullscreenEnabled', MODAL_FULLSCREEN_ENABLED);
+
+	if (MODAL_FULLSCREEN_ENABLED && IS_MODAL_ACTIVE) {
+		requestModalFullscreen();
+	} else if (!MODAL_FULLSCREEN_ENABLED) {
+		exitModalFullscreen();
+	}
+}
+
+function requestModalFullscreen() {
+	if (!MODAL_FULLSCREEN_ENABLED || document.fullscreenElement || !MODAL?.requestFullscreen) return;
+
+	MODAL_FULLSCREEN_REQUESTED = true;
+	MODAL_FULLSCREEN_PENDING = true;
+	MODAL.requestFullscreen().then(() => {
+		MODAL_FULLSCREEN_PENDING = false;
+		if (!IS_MODAL_ACTIVE || !MODAL_FULLSCREEN_ENABLED) exitModalFullscreen();
+	}).catch(() => {
+		MODAL_FULLSCREEN_PENDING = false;
+		MODAL_FULLSCREEN_REQUESTED = false;
+	});
+}
+
+function exitModalFullscreen() {
+	if (!MODAL_FULLSCREEN_REQUESTED) return;
+
+	if (document.fullscreenElement === MODAL) {
+		document.exitFullscreen().catch(() => {});
+	}
+	if (!MODAL_FULLSCREEN_PENDING) MODAL_FULLSCREEN_REQUESTED = false;
 }
 
 let FOLDER_SUGGEST_TIMEOUT;
@@ -563,6 +601,11 @@ function clearHistory() {
 
 document.addEventListener('fullscreenchange', restoreScroll);
 document.addEventListener('webkitfullscreenchange', restoreScroll);
+document.addEventListener('fullscreenchange', () => {
+	if (MODAL_FULLSCREEN_REQUESTED && IS_MODAL_ACTIVE && document.fullscreenElement !== MODAL) {
+		closeModal();
+	}
+});
 
 function restoreScroll() {
 	setTimeout(() => {
@@ -771,6 +814,13 @@ document.addEventListener("DOMContentLoaded", function () {
 		ANIMATIONS_ENABLED = true;
 	}
 	document.getElementById('animationsCheckbox').checked = ANIMATIONS_ENABLED;
+
+	if (sessionStorage.modalFullscreenEnabled != null) {
+		MODAL_FULLSCREEN_ENABLED = JSON.parse(sessionStorage.modalFullscreenEnabled);
+	} else if (localStorage.modalFullscreenEnabled != null) {
+		MODAL_FULLSCREEN_ENABLED = JSON.parse(localStorage.modalFullscreenEnabled);
+	}
+	document.getElementById('modalFullscreenCheckbox').checked = MODAL_FULLSCREEN_ENABLED;
 
 	// MODAL SINGLE IMAGE VIEWER
 
@@ -1902,6 +1952,8 @@ function showModal(fileLink, firstLoad = false, target = null) {
 	if (document.activeElement.nodeName === 'INPUT') {
 		document.activeElement.blur();
 	}
+	const wasModalActive = IS_MODAL_ACTIVE;
+	if (!wasModalActive && MODAL_FULLSCREEN_ENABLED) requestModalFullscreen();
 
 	CURRENT_IMAGE_PATH = fileLink;
 	if (target) {
@@ -1987,6 +2039,9 @@ function showModal(fileLink, firstLoad = false, target = null) {
 function closeModal() {
 	if (MODAL_IS_OPENING) return;
 
+	if (CURRENT_IMAGE_ID_NUM != null) {
+		LAST_VIEWED_IMAGE_ID = `image${CURRENT_IMAGE_ID_NUM}`;
+	}
 	const target = document.getElementById(`image${CURRENT_IMAGE_ID_NUM}`);
 
 	if (ANIMATIONS_ENABLED) {
@@ -2004,6 +2059,7 @@ function closeModal() {
 	}
 	MODAL_VIDEO.pause();
 	IS_MODAL_ACTIVE = false;
+	exitModalFullscreen();
 
 	scrollToCurrentImage()
 }
