@@ -30,8 +30,10 @@ html
 					span#centerText
 				div.bottomControls#bottomControls
 					div.videoDetails#videoDetails
-						div#videoFolder.videoFolder(role="button" tabindex="0" title="Click to copy folder")
-						div#videoName.videoName(role="button" tabindex="0" title="Click to copy filename")
+						div.videoIdentity
+							div#videoFolder.videoFolder(role="button" tabindex="0" title="Click to copy folder")
+							div#videoName.videoName(role="button" tabindex="0" title="Click to copy filename")
+						button.timeDisplay#timeDisplay(type="button" title="Switch to remaining time" aria-label="Toggle time display mode") 00:00 / 00:00
 					input#seekBar.seekBar(type="range" min="0" max="1000" value="0" step="1" aria-label="Seek")
 					div.bottomBar
 						div.controls

@@ -6,6 +6,7 @@
 	const playButton = document.getElementById('playButton');
 	const loopButton = document.getElementById('loopButton');
 	const seekBar = document.getElementById('seekBar');
+	const timeDisplay = document.getElementById('timeDisplay');
 	const progressFill = document.getElementById('progressFill');
 	const downloadButton = document.getElementById('downloadButton');
 	const fullscreenButton = document.getElementById('fullscreenButton');
@@ -39,6 +40,7 @@
 	let swipeAxis = null;
 	let scrubbing = false;
 	let previewTime = null;
+	let showRemainingTime = false;
 	let controlsTimer = null;
 	let hintTimer = null;
 	let spaceHoldTimer = null;
@@ -103,12 +105,30 @@
 		else status.textContent = 'Unable to play this video';
 	});
 
+	const formatTime = seconds => {
+		const wholeSeconds = Math.max(0, Math.floor(seconds));
+		const hours = Math.floor(wholeSeconds / 3600);
+		const minutes = Math.floor((wholeSeconds % 3600) / 60);
+		const remainder = wholeSeconds % 60;
+		return hours > 0
+			? `${hours}:${String(minutes).padStart(2, '0')}:${String(remainder).padStart(2, '0')}`
+			: `${String(minutes).padStart(2, '0')}:${String(remainder).padStart(2, '0')}`;
+	};
+
+	const updateTimeDisplay = time => {
+		const duration = video.duration;
+		const current = showRemainingTime ? `-${formatTime(duration - time)}` : formatTime(time);
+		timeDisplay.textContent = `${current} / ${formatTime(duration)}`;
+		timeDisplay.title = showRemainingTime ? 'Switch to elapsed time' : 'Switch to remaining time';
+	};
+
 	const updateProgress = time => {
 		if (!Number.isFinite(video.duration) || video.duration <= 0) return;
 		const progress = Math.max(0, Math.min(1, time / video.duration));
 		seekBar.value = String(Math.round(progress * Number(seekBar.max)));
 		seekBar.style.setProperty('--seek-progress', `${progress * 100}%`);
 		progressFill.style.width = `${progress * 100}%`;
+		updateTimeDisplay(time);
 	};
 
 	const revealControls = () => {
@@ -413,6 +433,10 @@
 	nextButton.addEventListener('click', () => playRandom());
 	playButton.addEventListener('click', togglePlayback);
 	loopButton.addEventListener('click', toggleLoop);
+	timeDisplay.addEventListener('click', () => {
+		showRemainingTime = !showRemainingTime;
+		if (Number.isFinite(video.duration) && video.duration > 0) updateTimeDisplay(video.currentTime);
+	});
 	makeCopyable(videoFolder, 'Folder');
 	makeCopyable(videoName, 'Filename');
 	videoFilter.addEventListener('change', applyVideoFilter);
