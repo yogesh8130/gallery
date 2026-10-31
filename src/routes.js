@@ -38,11 +38,46 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FO
 		VIDEO_EXTENSIONS.includes(PATH.extname(imagePath).toLowerCase())
 	);
 	const normalizeMediaPath = mediaPath => mediaPath.replace(/\\/g, '/').replace(/\/+/g, '/');
-	const getRandomVideoPath = (excludePath, filterText = '') => {
-		const filter = filterText.trim().toLowerCase();
-		const matchingVideoPaths = getVideoPaths().filter(videoPath =>
-			normalizeMediaPath(videoPath).toLowerCase().includes(filter)
-		);
+	const getVideoFilterMatcher = filterText => {
+		const filter = filterText.trim();
+		if (filter.startsWith('??')) {
+			const pattern = new RegExp(filter.slice(2), 'i');
+			return videoPath => pattern.test(normalizeMediaPath(videoPath));
+		}
+
+		if (!filter.includes('&&') && !filter.includes('||') && !filter.includes('!!')) {
+			const normalizedFilter = filter.toLowerCase();
+			return videoPath => normalizeMediaPath(videoPath).toLowerCase().includes(normalizedFilter);
+		}
+
+		const andTerms = [];
+		const orTerms = [];
+		const notTerms = [];
+		let operator = '&&';
+		filter.split(/(&&|\|\||!!)/).forEach(token => {
+			if (token === '&&' || token === '||' || token === '!!') {
+				operator = token;
+				return;
+			}
+
+			const term = token.trim().toLowerCase();
+			if (!term) return;
+			if (operator === '||') orTerms.push(term);
+			else if (operator === '!!') notTerms.push(term);
+			else andTerms.push(term);
+		});
+
+		return videoPath => {
+			const normalizedPath = normalizeMediaPath(videoPath).toLowerCase();
+			const matchesAnd = andTerms.length > 0 && andTerms.every(term => normalizedPath.includes(term));
+			const matchesOr = orTerms.some(term => normalizedPath.includes(term));
+			const matchesAnyPositiveTerm = andTerms.length === 0 && orTerms.length === 0
+				|| matchesAnd || matchesOr;
+			return matchesAnyPositiveTerm && !notTerms.some(term => normalizedPath.includes(term));
+		};
+	};
+	const getRandomVideoPath = (excludePath, filterMatcher) => {
+		const matchingVideoPaths = getVideoPaths().filter(filterMatcher);
 		if (matchingVideoPaths.length === 0) return null;
 		const normalizedExcludePath = excludePath ? normalizeMediaPath(excludePath) : null;
 		const withoutExcludedPath = matchingVideoPaths.filter(videoPath =>
@@ -55,7 +90,13 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FO
 
 	router.get('/vid', (req, res) => {
 		const filterText = typeof req.query.filter === 'string' ? req.query.filter : '';
-		const videoPath = getRandomVideoPath(null, filterText);
+		let filterMatcher;
+		try {
+			filterMatcher = getVideoFilterMatcher(filterText);
+		} catch (error) {
+			return res.status(400).send('Invalid search term (unable to parse as regex)');
+		}
+		const videoPath = getRandomVideoPath(null, filterMatcher);
 		if (!videoPath) return res.status(404).send('No videos found');
 		res.render('video-player', { videoPath: toMediaUrl(videoPath), filterText });
 	});
@@ -65,7 +106,13 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FO
 			? req.query.exclude
 			: null;
 		const filterText = typeof req.query.filter === 'string' ? req.query.filter : '';
-		const videoPath = getRandomVideoPath(excludePath, filterText);
+		let filterMatcher;
+		try {
+			filterMatcher = getVideoFilterMatcher(filterText);
+		} catch (error) {
+			return res.status(400).json({ message: 'Invalid search term (unable to parse as regex)' });
+		}
+		const videoPath = getRandomVideoPath(excludePath, filterMatcher);
 		if (!videoPath) return res.status(404).json({ message: 'No videos found' });
 		res.json({ videoPath: toMediaUrl(videoPath) });
 	});
