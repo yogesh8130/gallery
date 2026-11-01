@@ -80,8 +80,8 @@
 		let accumulatedPath = '';
 
 		searchableComponents.forEach(component => {
-			const separators = [...component.matchAll(/-/g)].map(match => match.index);
-			const terms = component.split('-');
+			const separators = [...component.matchAll(/ - /g)].map(match => match.index);
+			const terms = component.split(' - ');
 			terms.forEach((part, index) => {
 				const term = part.trim();
 				if (!term) return;

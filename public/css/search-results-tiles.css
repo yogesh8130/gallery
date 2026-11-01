@@ -184,6 +184,7 @@ video {
 }
 
 .infoDiv {
+	position: relative;
 	font-size: .8rem;
 	display: flex;
 	flex-grow: 1;
@@ -274,20 +275,67 @@ video {
 
 .marquee3 {
 	margin-right: -7.5rem;
-
-	/* hides the first part of the file path which is always just 'images' */
-	.pathSegment:first-child {
-		display: none;
-	}
 }
 
-.nameSegment,
-.pathSegment {
-	background: #2e2e2e;
-	border-radius: 0.2rem;
+.gallerySearchLabel {
 	margin: 0.1rem;
 	padding: 0 0.2rem;
 	text-wrap: wrap;
+	user-select: none;
+	-webkit-user-select: none;
+	-webkit-touch-callout: none;
+}
+
+.gallerySearchOptions {
+	position: absolute;
+	left: 0;
+	bottom: calc(100% + 0.4rem);
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.3rem;
+	width: max-content;
+	max-width: min(80vw, 32rem);
+	max-height: min(45vh, 18rem);
+	overflow: auto;
+	padding: 0.4rem;
+	border: 1px solid rgb(255 255 255 / 28%);
+	border-radius: 0.35rem;
+	background: rgb(16 19 17 / 94%);
+	box-shadow: 0 3px 14px rgb(0 0 0 / 65%);
+	opacity: 0;
+	transform: translateY(0.6rem);
+	transition: opacity 150ms ease, transform 150ms ease, visibility 150ms ease;
+	visibility: hidden;
+	z-index: 20;
+	user-select: none;
+	-webkit-user-select: none;
+	-webkit-touch-callout: none;
+}
+
+.gallerySearchOptions.visible {
+	opacity: 1;
+	transform: translateY(0);
+	visibility: visible;
+}
+
+.gallerySearchOption {
+	flex: 0 0 auto;
+	padding: 0.3rem 0.55rem;
+	border: 1px solid rgb(255 255 255 / 24%);
+	border-radius: 0.25rem;
+	background: rgb(255 255 255 / 8%);
+	color: white;
+	font: inherit;
+	font-size: 0.85rem;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.gallerySearchOption:hover,
+.gallerySearchOption:focus-visible {
+	border-color: dodgerblue;
+	color: white;
+	outline: none;
 }
 
 .marquee2 {

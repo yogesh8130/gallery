@@ -62,6 +62,8 @@ let LONG_PRESS_TIMEOUT;
 const LONG_PRESS_DELAY = 300;
 const SWIPE_THRESHOLD = 50;
 const SPEEDUP_RATE = 4;
+let GALLERY_SEARCH_GESTURE = null;
+const GALLERY_SUPPRESSED_CLICKS = new WeakSet();
 
 const PRELOAD_CACHE = new Map(); // to keep next images pre-loaded
 const MAX_PRELOAD = 5;
@@ -692,6 +694,131 @@ function resultsContainerLongPressHandler(event) {
 		}
 	}
 }
+
+function getGallerySearchOptions(label) {
+	const folderComponents = label.dataset.folderPath.split('/').filter(Boolean);
+	const filename = label.dataset.imageName.replace(/\.[^/.]+$/, '').replace(/-\d+$/, '');
+	const components = [...folderComponents, filename];
+	const options = [];
+	let accumulatedPath = '';
+
+	components.forEach(component => {
+		const separators = [...component.matchAll(/-/g)].map(match => match.index);
+		component.split('-').forEach((part, index) => {
+			const term = part.trim();
+			if (!term) return;
+			const componentPrefix = index < separators.length
+				? component.slice(0, separators[index]).trim()
+				: component.trim();
+			options.push({ term, path: `${accumulatedPath}/${componentPrefix}` });
+		});
+		accumulatedPath += `/${component}`;
+	});
+
+	return options;
+}
+
+function showGallerySearchOptions(label) {
+	const details = label.closest('.infoDiv');
+	const optionsPanel = details.querySelector('.gallerySearchOptions');
+	document.querySelectorAll('.gallerySearchOptions.visible').forEach(panel => {
+		panel.classList.remove('visible');
+		panel.setAttribute('aria-hidden', 'true');
+	});
+	optionsPanel.replaceChildren();
+	getGallerySearchOptions(label).forEach(option => {
+		const button = document.createElement('button');
+		button.type = 'button';
+		button.className = 'gallerySearchOption';
+		button.textContent = option.term;
+		button.dataset.searchTerm = option.term;
+		button.dataset.searchPath = option.path;
+		button.title = `Search for ${option.term}; hold or right-click to search ${option.path}`;
+		optionsPanel.appendChild(button);
+	});
+	optionsPanel.classList.add('visible');
+	optionsPanel.setAttribute('aria-hidden', 'false');
+}
+
+function searchGalleryTerm(term) {
+	// replace all '/' in term with '\'
+	term = term.replace(/\//g, '\\');
+	window.location.href = `/search?view=tiles&searchText=${encodeURIComponent(term)}&sortBy=shuffle`;
+}
+
+function handleGallerySearchPointerDown(event) {
+	const target = event.target instanceof Element ? event.target : null;
+	const option = target?.closest('.gallerySearchOption');
+	const label = target?.closest('.gallerySearchLabel');
+	if ((!option && !label) || event.button !== 0) return;
+	event.stopImmediatePropagation();
+	GALLERY_SEARCH_GESTURE = {
+		element: option || label,
+		pointerId: event.pointerId,
+		startX: event.clientX,
+		startY: event.clientY,
+		triggered: false,
+		timer: setTimeout(() => {
+			if (option) searchGalleryTerm(option.dataset.searchPath);
+			else showGallerySearchOptions(label);
+			if (GALLERY_SEARCH_GESTURE) GALLERY_SEARCH_GESTURE.triggered = true;
+		}, 400)
+	};
+}
+
+function handleGallerySearchPointerMove(event) {
+	const gesture = GALLERY_SEARCH_GESTURE;
+	if (!gesture || event.pointerId !== gesture.pointerId) return;
+	if (Math.hypot(event.clientX - gesture.startX, event.clientY - gesture.startY) > 12) {
+		clearTimeout(gesture.timer);
+		GALLERY_SEARCH_GESTURE = null;
+	}
+	event.stopImmediatePropagation();
+}
+
+function handleGallerySearchPointerEnd(event) {
+	const gesture = GALLERY_SEARCH_GESTURE;
+	if (!gesture || event.pointerId !== gesture.pointerId) return;
+	clearTimeout(gesture.timer);
+	if (gesture.triggered) {
+		GALLERY_SUPPRESSED_CLICKS.add(gesture.element);
+		setTimeout(() => GALLERY_SUPPRESSED_CLICKS.delete(gesture.element), 0);
+		event.preventDefault();
+	}
+	event.stopImmediatePropagation();
+	GALLERY_SEARCH_GESTURE = null;
+}
+
+document.addEventListener('pointerdown', handleGallerySearchPointerDown, true);
+document.addEventListener('pointermove', handleGallerySearchPointerMove, true);
+document.addEventListener('pointerup', handleGallerySearchPointerEnd, true);
+document.addEventListener('pointercancel', handleGallerySearchPointerEnd, true);
+document.addEventListener('click', event => {
+	const target = event.target instanceof Element ? event.target : null;
+	const option = target?.closest('.gallerySearchOption');
+	const label = target?.closest('.gallerySearchLabel');
+	if (!option && !label) return;
+	if (GALLERY_SUPPRESSED_CLICKS.has(option || label)) {
+		GALLERY_SUPPRESSED_CLICKS.delete(option || label);
+		event.preventDefault();
+		event.stopImmediatePropagation();
+		return;
+	}
+	event.preventDefault();
+	event.stopImmediatePropagation();
+	if (option) searchGalleryTerm(option.dataset.searchTerm);
+	else navigator.clipboard?.writeText(label.dataset.copyText || '');
+}, true);
+document.addEventListener('contextmenu', event => {
+	const target = event.target instanceof Element ? event.target : null;
+	const option = target?.closest('.gallerySearchOption');
+	const label = target?.closest('.gallerySearchLabel');
+	if (!option && !label) return;
+	event.preventDefault();
+	event.stopImmediatePropagation();
+	if (option) searchGalleryTerm(option.dataset.searchPath);
+	else showGallerySearchOptions(label);
+}, true);
 
 function resultsContainerSwipeHandler(swipeDirection, event) {
 	// pointer moved to right

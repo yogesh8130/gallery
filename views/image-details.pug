@@ -1,31 +1,10 @@
 div.infoDiv.marquee-container
-	- const nameSegments = imageName.split('-').slice();
-	- let currentName = '';
-	.marquee.marquee1(onclick = `navigator.clipboard.writeText("${imageName}")` style = "cursor: copy;")
-		each nameSegment, index in nameSegments
-			- currentName += (index == 0 ? '' : '-') + nameSegment
-			.nameSegment
-				- if (index != nameSegments.length - 1)
-					a.imageTitle(
-						href = '/search?view=tiles&searchText=' + encodeURIComponent(currentName) + '&sortBy=shuffle'
-						target = "_blank")
-						|#{nameSegment}
-				- else
-					a.imageTitle(
-						href = '/search?view=tiles&searchText=' + imageLinkEscaped + '>&sortBy=path&sortAsc=true'
-						target = "_blank")
-						|#{nameSegment}
-			|#{index == nameSegments.length - 1 ? '' : '-'}
-	- const pathSegments = folderName.split('\\').slice(1);
-	- let currentPath = '';
-	.marquee.marquee3(id = 'subTitle'+idNum onclick = `navigator.clipboard.writeText("${folderName.substring(imagePath.indexOf('\\',1)).replaceAll('\\', '\\\\')}")` style = "cursor: copy;")
-		each pathSegment, index in pathSegments
-			- currentPath += '\\' + pathSegment
-			.pathSegment
-				a.subTitle(
-					href = '/search?view=tiles&searchText=' + encodeURIComponent(currentPath) + '&sortBy=shuffle'
-					target = "_blank")
-					| /#{pathSegment}
+	- const searchFolderPath = folderName.replace(/\\/g, '/').replace(/^\/?images(?:\/|$)/, '').replace(/^\/+/, '');
+	.marquee.marquee1.gallerySearchLabel(data-gallery-search-label="filename" data-image-name=imageName data-folder-path=searchFolderPath data-copy-text=imageName style = "cursor: copy;")
+		|#{imageName}
+	.marquee.marquee3.gallerySearchLabel(id = 'subTitle'+idNum data-gallery-search-label="folder" data-image-name=imageName data-folder-path=searchFolderPath data-copy-text=searchFolderPath style = "cursor: copy;")
+		|#{searchFolderPath}
+	div.gallerySearchOptions(aria-label="Search name and folder terms" aria-hidden="true")
 	.marquee.marquee2(onclick = `navigator.clipboard.writeText("${imagePath.substring(imagePath.indexOf('\\',1)).replaceAll('\\', '\\\\')}")` style = "cursor: copy;")
 		.subTitle|#{imageResolution} (#{imageSizeReadable})
 div.contextMenu.imageDetailsButton
