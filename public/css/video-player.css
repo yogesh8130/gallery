@@ -129,6 +129,13 @@ body {
 	pointer-events: none;
 }
 
+.player.controlsHidden .videoFolder,
+.player.controlsHidden .videoFolder *,
+.player.controlsHidden .videoName,
+.player.controlsHidden .videoName * {
+	pointer-events: auto;
+}
+
 .topBar,
 .topActions,
 .bottomBar,
@@ -331,6 +338,7 @@ body {
 }
 
 .videoDetails {
+	position: relative;
 	display: flex;
 	align-items: flex-end;
 	justify-content: space-between;
@@ -343,6 +351,57 @@ body {
 	pointer-events: auto;
 }
 
+.pathSearchOptions {
+	position: absolute;
+	left: 0;
+	bottom: calc(100% + 8px);
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	max-width: min(760px, 100%);
+	overflow-x: auto;
+	padding: 6px;
+	border: 1px solid rgb(255 255 255 / 24%);
+	border-radius: 6px;
+	background: rgb(16 19 17 / 88%);
+	backdrop-filter: blur(8px);
+	opacity: 0;
+	transform: translateY(12px);
+	transition: opacity 160ms ease, transform 160ms ease, visibility 160ms ease;
+	visibility: hidden;
+	pointer-events: none;
+	user-select: none;
+	-webkit-user-select: none;
+	-webkit-touch-callout: none;
+}
+
+.pathSearchOptions.visible {
+	opacity: 1;
+	transform: translateY(0);
+	visibility: visible;
+	pointer-events: auto;
+}
+
+.pathSearchOption {
+	flex: 0 0 auto;
+	padding: 6px 10px;
+	border: 1px solid rgb(255 255 255 / 24%);
+	border-radius: 4px;
+	background: rgb(255 255 255 / 8%);
+	color: #f3f5ef;
+	font: inherit;
+	font-size: 13px;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.pathSearchOption:hover,
+.pathSearchOption:focus-visible {
+	border-color: #d3ef67;
+	color: #d3ef67;
+	outline: none;
+}
+
 .videoIdentity {
 	width: min(760px, calc(100% - 124px));
 	min-width: 0;
@@ -353,6 +412,9 @@ body {
 	white-space: normal;
 	overflow-wrap: anywhere;
 	word-break: break-word;
+	user-select: none;
+	-webkit-user-select: none;
+	-webkit-touch-callout: none;
 }
 
 .videoFolder {

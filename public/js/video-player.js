@@ -27,6 +27,7 @@
 	const videoFolder = document.getElementById('videoFolder');
 	const videoName = document.getElementById('videoName');
 	const videoNameText = document.getElementById('videoNameText');
+	const pathSearchOptions = document.getElementById('pathSearchOptions');
 	const videoSize = document.getElementById('videoSize');
 	const playlistPosition = document.getElementById('playlistPosition');
 	const centerHint = document.getElementById('centerHint');
@@ -68,6 +69,59 @@
 		unsupportedMessage.href = vlcButton.href;
 	};
 
+	const stripImageRoot = path => path.replace(/^\/images(?:\/|$)/, '');
+
+	const getPathSearchOptions = path => {
+		const components = stripImageRoot(path).replace(/^\/+/, '').split('/').filter(Boolean);
+		const filename = components.pop() || '';
+		const filenameWithoutExtension = filename.replace(/\.[^/.]+$/, '').replace(/-\d+$/, '');
+		const searchableComponents = [...components, filenameWithoutExtension];
+		const options = [];
+		let accumulatedPath = '';
+
+		searchableComponents.forEach(component => {
+			const separators = [...component.matchAll(/-/g)].map(match => match.index);
+			const terms = component.split('-');
+			terms.forEach((part, index) => {
+				const term = part.trim();
+				if (!term) return;
+				const componentPrefix = index < separators.length
+					? component.slice(0, separators[index]).trim()
+					: component.trim();
+				options.push({ term, path: `${accumulatedPath}/${componentPrefix}` });
+			});
+			accumulatedPath += `/${component}`;
+		});
+
+		return options;
+	};
+
+	const renderPathSearchOptions = () => {
+		pathSearchOptions.replaceChildren();
+		getPathSearchOptions(currentPath).forEach(option => {
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.className = 'pathSearchOption';
+			button.textContent = option.term;
+			button.title = `Search for ${option.term}; hold to search ${option.path}`;
+			button.addEventListener('click', () => searchPath(option.term));
+			attachLongPress(button, () => searchPath(option.path));
+			pathSearchOptions.appendChild(button);
+		});
+	};
+
+	const showPathSearchOptions = () => {
+		renderPathSearchOptions();
+		pathSearchOptions.classList.add('visible');
+		pathSearchOptions.setAttribute('aria-hidden', 'false');
+		revealControls();
+	};
+
+	const hidePathSearchOptions = () => {
+		pathSearchOptions.classList.remove('visible');
+		pathSearchOptions.setAttribute('aria-hidden', 'true');
+	};
+
 	const showUnsupportedVideo = () => {
 		if (player.classList.contains('unsupported')) return;
 		player.classList.add('unsupported');
@@ -88,8 +142,9 @@
 		downloadButton.href = normalizedPath;
 		setExternalPlayerLinks(normalizedPath);
 		const filenameStart = normalizedPath.lastIndexOf('/') + 1;
-		videoFolder.textContent = normalizedPath.slice(0, filenameStart - 1) || '/';
+		videoFolder.textContent = stripImageRoot(normalizedPath.slice(0, filenameStart - 1)) || '/';
 		videoNameText.textContent = normalizedPath.slice(filenameStart);
+		hidePathSearchOptions();
 		videoName.dataset.copyText = videoNameText.textContent;
 		videoSize.textContent = currentDetails.fileSize ? ` (${currentDetails.fileSize})` : '';
 		if (currentDetails.playlistPosition !== undefined && currentDetails.playlistSize !== undefined) {
@@ -214,6 +269,41 @@
 		});
 	};
 
+	const attachLongPress = (element, onLongPress) => {
+		let timer = null;
+		let triggered = false;
+		let startX = 0;
+		let startY = 0;
+		element.addEventListener('pointerdown', event => {
+			if (event.button !== 0) return;
+			startX = event.clientX;
+			startY = event.clientY;
+			triggered = false;
+			timer = setTimeout(() => {
+				triggered = true;
+				onLongPress();
+			}, 400);
+		});
+		element.addEventListener('contextmenu', event => {
+			event.preventDefault();
+			event.stopPropagation();
+			triggered = true;
+			onLongPress();
+		});
+		element.addEventListener('pointermove', event => {
+			if (Math.hypot(event.clientX - startX, event.clientY - startY) > 12) clearTimeout(timer);
+		});
+		['pointerup', 'pointercancel', 'pointerleave'].forEach(type =>
+			element.addEventListener(type, () => clearTimeout(timer))
+		);
+		element.addEventListener('click', event => {
+			if (!triggered) return;
+			triggered = false;
+			event.preventDefault();
+			event.stopImmediatePropagation();
+		}, true);
+	};
+
 	const updatePlaybackControls = () => {
 		playButton.textContent = video.paused ? '▶' : 'Ⅱ';
 		playButton.setAttribute('aria-label', video.paused ? 'Play' : 'Pause');
@@ -251,6 +341,12 @@
 			setPageTitle(nextFilter);
 		}
 		playRandom(nextFilter, true);
+	};
+
+	const searchPath = searchText => {
+		videoFilter.value = searchText;
+		hidePathSearchOptions();
+		applyVideoFilter();
 	};
 
 	const readTagHistory = () => {
@@ -500,6 +596,8 @@
 	});
 	makeCopyable(videoFolder, 'Folder');
 	makeCopyable(videoName, 'Filename');
+	attachLongPress(videoFolder, showPathSearchOptions);
+	attachLongPress(videoName, showPathSearchOptions);
 	videoFilter.addEventListener('change', applyVideoFilter);
 	window.addEventListener('popstate', () => {
 		const filterText = new URLSearchParams(window.location.search).get('filter') || '';
@@ -569,6 +667,7 @@
 	player.addEventListener('pointerdown', event => {
 		if (event.button !== 0) return;
 		if (event.target === videoFilter) return;
+		if (pathSearchOptions.contains(event.target)) return;
 		pointerStart = {
 			x: event.clientX,
 			y: event.clientY,
