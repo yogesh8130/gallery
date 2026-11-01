@@ -62,11 +62,11 @@ div#sidebar (onclick = "toggleSidebar(event)")
 	div.bulkRow
 		span(id = 'selectedFilesCount') 0 files selected
 	form.bulkRow(id = 'moveForm')
-		input(type = "text" id = 'moveFilesInput' name = 'moveFilesInput'
-		placeholder = "Target folder name" autocomplete = 'on' autocapitalize = 'off'
-		list = "suggestedFolders" oninput = 'updateSuggestedFolders()')
-		//- to add suggestions for the target folder text box
-		datalist(id="suggestedFolders")
+		div.customSuggestionField
+			input(type = "text" id = 'moveFilesInput' name = 'moveFilesInput'
+			placeholder = "Target folder name" autocomplete = 'off' autocapitalize = 'off'
+			data-suggestions-url = '/folderPaths' data-suggestions-param = 'folderHint')
+			div.customSuggestions(role = 'listbox' hidden)
 		button(id = 'moveFilesButton' onclick = 'moveRenameFiles("moveFiles")') Move
 		input(type="submit" hidden)
 	#moveFilesHistory.buttonsFlex.historyButtonsContainer(data-operation = 'moveFiles')

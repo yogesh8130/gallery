@@ -189,37 +189,102 @@ function exitModalFullscreen() {
 	if (!MODAL_FULLSCREEN_PENDING) MODAL_FULLSCREEN_REQUESTED = false;
 }
 
-let FOLDER_SUGGEST_TIMEOUT;
+function closeCustomSuggestions(input) {
+	const listbox = input.parentElement.querySelector('.customSuggestions');
+	listbox.hidden = true;
+	input.setAttribute('aria-expanded', 'false');
+	input.removeAttribute('aria-activedescendant');
+	input._activeSuggestionIndex = -1;
+}
 
-function updateSuggestedFolders() {
-	const moveFilesInput = document.getElementById('moveFilesInput');
-	// replace the '/' in text with '\'
-	moveFilesInput.value = moveFilesInput.value.replace(/\//g, '\\');
+function selectCustomSuggestion(input, option) {
+	input.value = option.dataset.value;
+	closeCustomSuggestions(input);
+	input.dispatchEvent(new Event('change', { bubbles: true }));
+}
 
-	clearTimeout(FOLDER_SUGGEST_TIMEOUT);
+function renderCustomSuggestions(input, suggestions) {
+	const listbox = input.parentElement.querySelector('.customSuggestions');
+	listbox.replaceChildren();
+	input._activeSuggestionIndex = -1;
 
-	FOLDER_SUGGEST_TIMEOUT = setTimeout(() => {
-		const folderHint = document
-			.getElementById('moveFilesInput')
-			.value
-			.trim() || '';
+	suggestions.forEach((value, index) => {
+		const option = document.createElement('button');
+		option.type = 'button';
+		option.id = `${listbox.id}-option-${index}`;
+		option.className = 'customSuggestionOption';
+		option.setAttribute('role', 'option');
+		option.setAttribute('aria-selected', 'false');
+		option.dataset.value = value;
+		option.textContent = value;
+		listbox.appendChild(option);
+	});
 
-		const suggestedFoldersDatalist =
-			document.getElementById('suggestedFolders');
+	listbox.hidden = suggestions.length === 0;
+	input.setAttribute('aria-expanded', String(suggestions.length > 0));
+}
 
-		fetch(`/folderPaths?folderHint=${encodeURIComponent(folderHint)}`)
+function updateSuggestedFolders(input) {
+	input.value = input.value.replace(/\//g, '\\');
+	closeCustomSuggestions(input);
+	clearTimeout(input._suggestionTimeout);
+	const requestId = (input._suggestionRequestId || 0) + 1;
+	input._suggestionRequestId = requestId;
+	input._suggestionTimeout = setTimeout(() => {
+		const url = new URL(input.dataset.suggestionsUrl, window.location.origin);
+		url.searchParams.set(input.dataset.suggestionsParam || 'folderHint', input.value.trim());
+
+		fetch(url)
 			.then(response => response.json())
-			.then(data => {
-				suggestedFoldersDatalist.innerHTML = "";
-
-				data.forEach(folder => {
-					const option = document.createElement('option');
-					option.value = folder;
-					suggestedFoldersDatalist.appendChild(option);
-				});
+			.then(suggestions => {
+				if (input._suggestionRequestId === requestId) {
+					renderCustomSuggestions(input, suggestions);
+				}
 			})
 			.catch(console.error);
-	}, 500);
+	}, 300);
+}
+
+function setupCustomSuggestions() {
+	document.querySelectorAll('#sidebar [data-suggestions-url]').forEach((input, index) => {
+		const listbox = input.parentElement.querySelector('.customSuggestions');
+		listbox.id = `customSuggestions-${index}`;
+		input.setAttribute('role', 'combobox');
+		input.setAttribute('aria-autocomplete', 'list');
+		input.setAttribute('aria-controls', listbox.id);
+		input.setAttribute('aria-expanded', 'false');
+
+		input.addEventListener('input', () => updateSuggestedFolders(input));
+		input.addEventListener('keydown', event => {
+			const options = listbox.querySelectorAll('.customSuggestionOption');
+			if (event.key === 'Escape') {
+				closeCustomSuggestions(input);
+			} else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+				if (!options.length || listbox.hidden) return;
+				event.preventDefault();
+				const direction = event.key === 'ArrowDown' ? 1 : -1;
+				const currentIndex = input._activeSuggestionIndex;
+				const nextIndex = currentIndex === -1
+					? (direction > 0 ? 0 : options.length - 1)
+					: (currentIndex + direction + options.length) % options.length;
+				options.forEach(option => option.setAttribute('aria-selected', 'false'));
+				input._activeSuggestionIndex = nextIndex;
+				options[nextIndex].setAttribute('aria-selected', 'true');
+				input.setAttribute('aria-activedescendant', options[nextIndex].id);
+				options[nextIndex].scrollIntoView({ block: 'nearest' });
+			} else if (event.key === 'Enter' && input._activeSuggestionIndex >= 0) {
+				event.preventDefault();
+				selectCustomSuggestion(input, options[input._activeSuggestionIndex]);
+			}
+		});
+
+		listbox.addEventListener('pointerdown', event => event.preventDefault());
+		listbox.addEventListener('click', event => {
+			const option = event.target.closest('.customSuggestionOption');
+			if (option) selectCustomSuggestion(input, option);
+		});
+		input.addEventListener('blur', () => setTimeout(() => closeCustomSuggestions(input), 0));
+	});
 }
 
 function buildTree(paths) {
@@ -742,7 +807,7 @@ function showGallerySearchOptions(label) {
 
 function searchGalleryTerm(term) {
 	// replace all '/' in term with '\'
-	term = term.replace(/\//g, '\\');
+	term = '\\images' + term.replace(/\//g, '\\');
 	window.location.href = `/search?view=tiles&searchText=${encodeURIComponent(term)}&sortBy=shuffle`;
 }
 
@@ -888,6 +953,7 @@ function animateImage(imageId, duration = 1000, className = 'flash-image') {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+	setupCustomSuggestions();
 	RESULTS_CONTAINER = document.querySelector('.results');
 	SIDEBAR = document.getElementById('sidebar');
 	SIDEBAR_TOGGLE_BUTTON = document.getElementById('sidebarToggleButton');

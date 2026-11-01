@@ -1,0 +1,44 @@
+.customSuggestionField {
+	position: relative;
+	flex: 1;
+	min-width: 0;
+}
+
+#sidebar .customSuggestionField input[type="text"] {
+	width: 100%;
+}
+
+.customSuggestions {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	z-index: 20;
+	width: 100%;
+	max-height: min(50vh, 24rem);
+	overflow-y: auto;
+	background: rgb(29, 29, 29);
+	border: 1px solid #777;
+	box-shadow: 0 4px 12px rgb(0 0 0 / 60%);
+}
+
+.customSuggestions[hidden] {
+	display: none;
+}
+
+#sidebar .customSuggestions .customSuggestionOption {
+	display: block;
+	width: 100%;
+	height: auto;
+	min-height: 2rem;
+	padding: .4rem .55rem;
+	color: white;
+	background: rgb(29, 29, 29);
+	text-align: left;
+	white-space: normal;
+	word-break: break-word;
+}
+
+#sidebar .customSuggestions .customSuggestionOption:hover,
+#sidebar .customSuggestions .customSuggestionOption[aria-selected="true"] {
+	background: #4a4a4a;
+}
