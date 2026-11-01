@@ -8,6 +8,12 @@
 	height: 100%;
 	overflow: hidden;
 	background-color: rgba(0, 0, 0, 0.9);
+	touch-action: none;
+}
+
+#modal.zoomed .modalNavigationButtonContainer {
+	opacity: 0.35;
+	pointer-events: none;
 }
 
 .modalImageContainer,
@@ -121,7 +127,7 @@
 #modalPreviousButton,
 #modalNextFromResultsButton,
 #modalPreviousFromResultsButton {
-	font-size: 4rem;
+	font-size: 10vw;
 	font-weight: bold;
 }
 

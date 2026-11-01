@@ -31,6 +31,7 @@ let MODAL_ZOOM_MODE = 'fit';
 let MODAL_IMAGE_SCALE = 1;
 let MODAL_IMAGE_PAN_X = 0;
 let MODAL_IMAGE_PAN_Y = 0;
+let MODAL_PAN_INERTIA_FRAME = null;
 let MODAL_IMAGE_LOAD_ID = 0;
 let MODAL_GESTURE = null;
 let MODAL_LAST_TAP = null;
@@ -344,6 +345,42 @@ function renderModalImage() {
 	MODAL_IMAGE_PAN_Y = Math.max(-maxPanY, Math.min(maxPanY, MODAL_IMAGE_PAN_Y));
 	MODAL_IMAGE.style.transform = `translate(-50%, -50%) translate(${MODAL_IMAGE_PAN_X}px, ${MODAL_IMAGE_PAN_Y}px) scale(${MODAL_IMAGE_SCALE})`;
 	IS_VIEWER_ZOOMED = MODAL_ZOOM_MODE !== 'fit';
+	MODAL?.classList.toggle('zoomed', IS_VIEWER_ZOOMED);
+	MODAL?.querySelectorAll('.modalNavigationButtonContainer .modalButton').forEach(button => {
+		button.setAttribute('aria-disabled', String(IS_VIEWER_ZOOMED));
+	});
+}
+
+function cancelModalPanInertia() {
+	if (MODAL_PAN_INERTIA_FRAME !== null) {
+		cancelAnimationFrame(MODAL_PAN_INERTIA_FRAME);
+		MODAL_PAN_INERTIA_FRAME = null;
+	}
+}
+
+function startModalPanInertia(velocityX, velocityY) {
+	cancelModalPanInertia();
+	let previousTime = performance.now();
+	const animate = now => {
+		const elapsed = Math.min(32, now - previousTime);
+		previousTime = now;
+		const previousPanX = MODAL_IMAGE_PAN_X;
+		const previousPanY = MODAL_IMAGE_PAN_Y;
+		MODAL_IMAGE_PAN_X += velocityX * elapsed;
+		MODAL_IMAGE_PAN_Y += velocityY * elapsed;
+		renderModalImage();
+		if (MODAL_IMAGE_PAN_X !== previousPanX + velocityX * elapsed) velocityX = 0;
+		if (MODAL_IMAGE_PAN_Y !== previousPanY + velocityY * elapsed) velocityY = 0;
+		const decay = Math.exp(-elapsed / 180);
+		velocityX *= decay;
+		velocityY *= decay;
+		if (Math.hypot(velocityX, velocityY) < 0.02) {
+			MODAL_PAN_INERTIA_FRAME = null;
+			return;
+		}
+		MODAL_PAN_INERTIA_FRAME = requestAnimationFrame(animate);
+	};
+	MODAL_PAN_INERTIA_FRAME = requestAnimationFrame(animate);
 }
 
 function setModalZoomMode(mode) {
@@ -1062,11 +1099,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	MODAL.addEventListener('pointerdown', function (event) {
 		if ((event.pointerType === 'mouse' && event.button !== 0)
-			|| event.target.closest('.modalButton')
 			|| MODAL_VIDEO_CONTAINER.style.display === 'block') return;
 
+		cancelModalPanInertia();
+
 		const now = Date.now();
-		const isDoubleTap = MODAL_LAST_TAP
+		const modalButton = event.target.closest('.modalButton');
+		const isDoubleTap = !modalButton && MODAL_LAST_TAP
 			&& now - MODAL_LAST_TAP.time < 350
 			&& Math.hypot(event.clientX - MODAL_LAST_TAP.x, event.clientY - MODAL_LAST_TAP.y) < 50;
 		if (isDoubleTap) clearTimeout(MODAL_TAP_TIMER);
@@ -1077,6 +1116,12 @@ document.addEventListener("DOMContentLoaded", function () {
 			startPanX: MODAL_IMAGE_PAN_X,
 			startPanY: MODAL_IMAGE_PAN_Y,
 			startScale: MODAL_IMAGE_SCALE,
+			lastX: event.clientX,
+			lastY: event.clientY,
+			lastMoveTime: performance.now(),
+			velocityX: 0,
+			velocityY: 0,
+			button: modalButton,
 			isDoubleTap,
 			startedOnImage: event.target === MODAL_IMAGE
 				|| event.target === MODAL_IMAGE_CONTAINER
@@ -1115,6 +1160,15 @@ document.addEventListener("DOMContentLoaded", function () {
 			MODAL_IMAGE_PAN_Y = gesture.startPanY + deltaY;
 			renderModalImage();
 		}
+		if (gesture.mode === 'pan') {
+			const now = performance.now();
+			const elapsed = Math.max(1, now - gesture.lastMoveTime);
+			gesture.velocityX = gesture.velocityX * 1 + ((event.clientX - gesture.lastX) / elapsed) * 0.3;
+			gesture.velocityY = gesture.velocityY * 1 + ((event.clientY - gesture.lastY) / elapsed) * 0.3;
+			gesture.lastX = event.clientX;
+			gesture.lastY = event.clientY;
+			gesture.lastMoveTime = now;
+		}
 	});
 
 	function finishModalGesture(event) {
@@ -1125,7 +1179,17 @@ document.addEventListener("DOMContentLoaded", function () {
 		const deltaY = event.clientY - gesture.startY;
 		const moved = Math.hypot(deltaX, deltaY) > 8;
 
-		if (gesture.mode === 'zoom' || gesture.mode === 'pan') return;
+		if (gesture.mode === 'zoom') return;
+		if (gesture.mode === 'pan') {
+			if (performance.now() - gesture.lastMoveTime < 100) {
+				startModalPanInertia(gesture.velocityX, gesture.velocityY);
+			}
+			return;
+		}
+		if (gesture.button) {
+			gesture.button.click();
+			return;
+		}
 		if (gesture.isDoubleTap && !moved) {
 			clearTimeout(MODAL_TAP_TIMER);
 			MODAL_LAST_TAP = null;
