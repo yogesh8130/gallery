@@ -17,7 +17,7 @@ html
 				div.topBar
 					div.topActions
 						a.iconButton(href="/" title="Home" aria-label="Home") Home
-						input#videoFilter.videoFilter(type="search" value=filterText placeholder="Filter videos" aria-label="Filter videos")
+						input#videoFilter.videoFilter(type="search" value=filterText placeholder="Filter videos" aria-label="Filter videos" autocomplete="on" autocapitalize="off")
 						button#tagsToggle.iconButton(type="button" aria-expanded="false" aria-controls="tagsPanel") Tags
 						div#tagsPanel.tagsPanel.hidden
 							form#tagsForm.tagsForm

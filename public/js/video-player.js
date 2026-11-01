@@ -115,6 +115,10 @@
 		});
 	};
 
+	const setPageTitle = filterText => {
+		document.title = filterText ? `${filterText} - Random Video - NodeGal` : 'Random Video - NodeGal';
+	};
+
 	unsupportedPreview.addEventListener('load', () => unsupportedPreview.classList.add('loaded'));
 	unsupportedPreview.addEventListener('error', () => unsupportedPreview.classList.remove('loaded'));
 	video.addEventListener('error', () => {
@@ -244,6 +248,7 @@
 			if (nextFilter) url.searchParams.set('filter', nextFilter);
 			else url.searchParams.delete('filter');
 			window.history.pushState({}, '', url);
+			setPageTitle(nextFilter);
 		}
 		playRandom(nextFilter, true);
 	};
@@ -499,6 +504,7 @@
 	window.addEventListener('popstate', () => {
 		const filterText = new URLSearchParams(window.location.search).get('filter') || '';
 		videoFilter.value = filterText;
+		setPageTitle(filterText);
 		if (filterText !== currentFilter) playRandom(filterText, true);
 	});
 	tagsToggle.addEventListener('click', () => {
@@ -635,6 +641,7 @@
 		playlistSize: player.dataset.playlistSize,
 		fileSize: player.dataset.fileSize
 	});
+	setPageTitle(initialFilter);
 	updateLoopControls();
 	updateShuffleControls();
 	revealControls();
