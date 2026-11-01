@@ -1,8 +1,10 @@
 (() => {
 	const player = document.querySelector('.player');
 	const video = document.getElementById('player');
+	const resetSearchButton = document.getElementById('resetSearch');
 	const previousButton = document.getElementById('previousButton');
 	const nextButton = document.getElementById('nextButton');
+	const shuffleButton = document.getElementById('shuffleButton');
 	const playButton = document.getElementById('playButton');
 	const loopButton = document.getElementById('loopButton');
 	const seekBar = document.getElementById('seekBar');
@@ -24,6 +26,9 @@
 	const status = document.getElementById('status');
 	const videoFolder = document.getElementById('videoFolder');
 	const videoName = document.getElementById('videoName');
+	const videoNameText = document.getElementById('videoNameText');
+	const videoSize = document.getElementById('videoSize');
+	const playlistPosition = document.getElementById('playlistPosition');
 	const centerHint = document.getElementById('centerHint');
 	const centerIcon = document.getElementById('centerIcon');
 	const centerText = document.getElementById('centerText');
@@ -33,6 +38,12 @@
 	video.loop = true;
 	let currentPath = initialPath;
 	let currentFilter = initialFilter;
+	let shuffleEnabled = true;
+	let currentDetails = {
+		playlistPosition: player.dataset.playlistPosition,
+		playlistSize: player.dataset.playlistSize,
+		fileSize: player.dataset.fileSize
+	};
 	let pointerStart = null;
 	let holdTimer = null;
 	let heldForSpeed = false;
@@ -65,9 +76,10 @@
 		status.textContent = '';
 	};
 
-	const setVideo = path => {
+	const setVideo = (path, details = {}) => {
 		const normalizedPath = decodeURIComponent(path).replace(/\\/g, '/').replace(/\/+/g, '/');
 		currentPath = normalizedPath;
+		currentDetails = { ...currentDetails, ...details };
 		player.classList.remove('unsupported');
 		unsupportedPreview.classList.remove('loaded');
 		unsupportedPreview.removeAttribute('src');
@@ -77,9 +89,14 @@
 		setExternalPlayerLinks(normalizedPath);
 		const filenameStart = normalizedPath.lastIndexOf('/') + 1;
 		videoFolder.textContent = normalizedPath.slice(0, filenameStart - 1) || '/';
-		videoName.textContent = normalizedPath.slice(filenameStart);
+		videoNameText.textContent = normalizedPath.slice(filenameStart);
+		videoName.dataset.copyText = videoNameText.textContent;
+		videoSize.textContent = currentDetails.fileSize ? ` (${currentDetails.fileSize})` : '';
+		if (currentDetails.playlistPosition !== undefined && currentDetails.playlistSize !== undefined) {
+			playlistPosition.textContent = `${currentDetails.playlistPosition} / ${currentDetails.playlistSize}`;
+		}
 		videoFolder.title = videoFolder.textContent;
-		videoName.title = videoName.textContent;
+		videoName.title = videoNameText.textContent;
 		video.load();
 		video.play().catch(error => {
 			if (error.name === 'NotSupportedError') {
@@ -162,7 +179,7 @@
 	};
 
 	const copyText = async (element, description) => {
-		const text = element.textContent;
+		const text = element.dataset.copyText || element.textContent;
 		try {
 			if (navigator.clipboard?.writeText) {
 				await navigator.clipboard.writeText(text);
@@ -199,17 +216,20 @@
 		status.textContent = video.playbackRate > 1 ? `${video.playbackRate}×` : '';
 	};
 
-	const playRandom = async (filterText = currentFilter, includeCurrent = false) => {
+	const playRandom = async (filterText = currentFilter, includeCurrent = false, direction = null) => {
 		try {
 			const params = new URLSearchParams({ filter: filterText });
-			if (!includeCurrent) params.set('exclude', currentPath);
+			if (direction) {
+				params.set('current', currentPath);
+				params.set('direction', String(direction));
+			} else if (!includeCurrent) params.set('exclude', currentPath);
 			const response = await fetch(`/vid/random?${params}`);
 			if (!response.ok) throw new Error(response.status === 404 ? 'No videos match this filter' : 'Unable to find a video');
 			const data = await response.json();
 			if (filterText !== currentFilter) history.length = 0;
-			else if (!includeCurrent) history.push(currentPath);
+			else if (!includeCurrent) history.push({ path: currentPath, details: { ...currentDetails } });
 			currentFilter = filterText;
-			setVideo(data.videoPath);
+			setVideo(data.videoPath, data);
 		} catch (error) {
 			status.textContent = error.message;
 		}
@@ -218,6 +238,13 @@
 	const applyVideoFilter = () => {
 		const nextFilter = videoFilter.value.trim();
 		if (nextFilter === currentFilter) return;
+		const url = new URL(window.location.href);
+		const currentUrlFilter = url.searchParams.get('filter') || '';
+		if (nextFilter !== currentUrlFilter) {
+			if (nextFilter) url.searchParams.set('filter', nextFilter);
+			else url.searchParams.delete('filter');
+			window.history.pushState({}, '', url);
+		}
 		playRandom(nextFilter, true);
 	};
 
@@ -316,8 +343,29 @@
 	};
 
 	const playPrevious = () => {
-		const previousPath = history.pop();
-		if (previousPath) setVideo(previousPath);
+		const previousVideo = history.pop();
+		if (previousVideo) setVideo(previousVideo.path, previousVideo.details);
+	};
+
+	const navigateVideo = direction => {
+		if (!shuffleEnabled) {
+			playRandom(currentFilter, true, direction);
+		} else if (direction > 0) {
+			playRandom();
+		} else {
+			playPrevious();
+		}
+	};
+
+	const updateShuffleControls = () => {
+		shuffleButton.classList.toggle('active', shuffleEnabled);
+		shuffleButton.setAttribute('aria-pressed', String(shuffleEnabled));
+		shuffleButton.title = shuffleEnabled ? 'Disable shuffle' : 'Enable shuffle';
+		shuffleButton.setAttribute('aria-label', shuffleButton.title);
+		previousButton.title = shuffleEnabled ? 'Previous random video' : 'Previous video in directory order';
+		previousButton.setAttribute('aria-label', previousButton.title);
+		nextButton.title = shuffleEnabled ? 'Next random video' : 'Next video in directory order';
+		nextButton.setAttribute('aria-label', nextButton.title);
 	};
 
 	const updateLoopControls = () => {
@@ -379,10 +427,10 @@
 			toggleFullscreen();
 		} else if (event.key === 'ArrowDown') {
 			event.preventDefault();
-			playRandom();
+			navigateVideo(1);
 		} else if (event.key === 'ArrowUp') {
 			event.preventDefault();
-			playPrevious();
+			navigateVideo(-1);
 		} else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
 			event.preventDefault();
 			if (Number.isFinite(video.duration)) {
@@ -429,8 +477,16 @@
 		updateProgress(previewTime);
 	};
 
-	previousButton.addEventListener('click', playPrevious);
-	nextButton.addEventListener('click', () => playRandom());
+	resetSearchButton.addEventListener('click', () => {
+		videoFilter.value = '';
+		applyVideoFilter();
+	});
+	previousButton.addEventListener('click', () => navigateVideo(-1));
+	nextButton.addEventListener('click', () => navigateVideo(1));
+	shuffleButton.addEventListener('click', () => {
+		shuffleEnabled = !shuffleEnabled;
+		updateShuffleControls();
+	});
 	playButton.addEventListener('click', togglePlayback);
 	loopButton.addEventListener('click', toggleLoop);
 	timeDisplay.addEventListener('click', () => {
@@ -440,6 +496,11 @@
 	makeCopyable(videoFolder, 'Folder');
 	makeCopyable(videoName, 'Filename');
 	videoFilter.addEventListener('change', applyVideoFilter);
+	window.addEventListener('popstate', () => {
+		const filterText = new URLSearchParams(window.location.search).get('filter') || '';
+		videoFilter.value = filterText;
+		if (filterText !== currentFilter) playRandom(filterText, true);
+	});
 	tagsToggle.addEventListener('click', () => {
 		const isOpening = tagsPanel.classList.contains('hidden');
 		tagsPanel.classList.toggle('hidden', !isOpening);
@@ -468,7 +529,7 @@
 		if (!seeking && !scrubbing) updateProgress(video.currentTime);
 	});
 	video.addEventListener('loadedmetadata', () => updateProgress(video.currentTime));
-	video.addEventListener('ended', () => playRandom());
+	video.addEventListener('ended', () => navigateVideo(1));
 	video.addEventListener('click', event => event.preventDefault());
 	player.addEventListener('contextmenu', event => event.preventDefault());
 	document.addEventListener('pointerdown', event => {
@@ -547,9 +608,9 @@
 		} else if (swipeAxis === 'vertical') {
 			if (deltaY < 0) {
 				if (!document.fullscreenElement) toggleFullscreen();
-				playRandom();
+				navigateVideo(1);
 			}
-			else playPrevious();
+			else navigateVideo(-1);
 		} else if (seeking) {
 			if (pointerStart.target !== seekBar) {
 				seekBySwipe(deltaX);
@@ -569,7 +630,12 @@
 	player.addEventListener('pointerup', finishPointer);
 	player.addEventListener('pointercancel', finishPointer);
 
-	setVideo(initialPath);
+	setVideo(initialPath, {
+		playlistPosition: player.dataset.playlistPosition,
+		playlistSize: player.dataset.playlistSize,
+		fileSize: player.dataset.fileSize
+	});
 	updateLoopControls();
+	updateShuffleControls();
 	revealControls();
 })();

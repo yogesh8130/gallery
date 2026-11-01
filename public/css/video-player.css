@@ -119,27 +119,9 @@ body {
 	visibility: hidden;
 }
 
-.player.controlsHidden .videoFolder,
 .player.controlsHidden .seekBar,
 .player.controlsHidden .bottomBar {
-	visibility: hidden;
-}
-
-.player.controlsHidden .bottomControls .videoName {
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	max-width: min(calc(100% - 128px), 760px);
-	visibility: visible;
-	pointer-events: auto;
-}
-
-.player.controlsHidden .bottomControls .timeDisplay {
-	position: absolute;
-	right: 0;
-	bottom: 0;
-	visibility: visible;
-	pointer-events: auto;
+	display: none;
 }
 
 .player.controlsHidden .overlay *,
@@ -294,9 +276,9 @@ body {
 
 .bottomControls {
 	position: absolute;
-	right: max(18px, env(safe-area-inset-right));
-	bottom: max(18px, env(safe-area-inset-bottom));
-	left: max(18px, env(safe-area-inset-left));
+	right: max(10px, env(safe-area-inset-right));
+	bottom: max(10px, env(safe-area-inset-bottom));
+	left: max(10px, env(safe-area-inset-left));
 	z-index: 2;
 	transition: opacity 180ms ease;
 	pointer-events: none;
@@ -354,7 +336,7 @@ body {
 	justify-content: space-between;
 	gap: 5px;
 	width: 100%;
-	margin-bottom: 4px;
+	margin-bottom: 0px;
 	font-size: 13px;
 	line-height: 1.35;
 	text-shadow: 1px 1px 3px #000000;
@@ -376,6 +358,21 @@ body {
 .videoFolder {
 	color: rgb(243 245 239 / 72%);
 	font-size: 12px;
+}
+
+.videoSize,
+.playlistPosition {
+	color: rgb(243 245 239 / 72%);
+	font-size: 12px;
+}
+
+.videoTimeline {
+	flex: 0 0 auto;
+	text-align: right;
+}
+
+.playlistPosition {
+	font-variant-numeric: tabular-nums;
 }
 
 .videoFolder,
@@ -400,7 +397,7 @@ body {
 
 .timeDisplay {
 	flex: 0 0 auto;
-	padding: 0 4px;
+	padding: 0;
 	border: 0;
 	background: transparent;
 	color: #f3f5ef;
@@ -446,6 +443,12 @@ body {
 	border-color: #d3ef67;
 	background: #d3ef67;
 	color: #101311;
+}
+
+#previousButton,
+#playButton,
+#nextButton {
+	display: none;
 }
 
 .externalPlayerButton {
@@ -501,9 +504,9 @@ body {
 	}
 
 	.bottomControls {
-		right: max(12px, env(safe-area-inset-right));
-		bottom: max(12px, env(safe-area-inset-bottom));
-		left: max(12px, env(safe-area-inset-left));
+		right: max(10px, env(safe-area-inset-right));
+		bottom: max(10px, env(safe-area-inset-bottom));
+		left: max(10px, env(safe-area-inset-left));
 	}
 
 	.topActions {

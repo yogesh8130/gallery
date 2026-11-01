@@ -6,7 +6,7 @@ html
 		title Random Video - NodeGal
 		link(rel="stylesheet" href="/css/video-player.css")
 	body
-		main.player(data-video-path=videoPath)
+		main.player(data-video-path=videoPath data-playlist-position=playlistPosition data-playlist-size=playlistSize data-file-size=fileSize)
 			video#player.video(autoplay playsinline preload="metadata")
 				source(src=videoPath)
 			img#unsupportedPreview.unsupportedPreview(alt="Video preview")
@@ -33,13 +33,19 @@ html
 						div.videoIdentity
 							div#videoFolder.videoFolder(role="button" tabindex="0" title="Click to copy folder")
 							div#videoName.videoName(role="button" tabindex="0" title="Click to copy filename")
-						button.timeDisplay#timeDisplay(type="button" title="Switch to remaining time" aria-label="Toggle time display mode") 00:00 / 00:00
+								span#videoNameText
+								span#videoSize.videoSize
+						div.videoTimeline
+							div#playlistPosition.playlistPosition
+							button.timeDisplay#timeDisplay(type="button" title="Switch to remaining time" aria-label="Toggle time display mode") 00:00 / 00:00
 					input#seekBar.seekBar(type="range" min="0" max="1000" value="0" step="1" aria-label="Seek")
 					div.bottomBar
 						div.controls
 							button.iconButton#previousButton(type="button" title="Previous video" aria-label="Previous video") ‹
 							button.iconButton#playButton(type="button" title="Play or pause" aria-label="Play or pause") ▶
 							button.iconButton#nextButton(type="button" title="Next random video" aria-label="Next random video") ›
+							button.iconButton#resetSearch(type="button" title="Reset video search" aria-label="Reset video search") ×
+							button.iconButton#shuffleButton.active(type="button" title="Disable shuffle" aria-label="Disable shuffle" aria-pressed="true") ⤨
 							button.iconButton#loopButton.active(type="button" title="Disable loop" aria-label="Disable loop" aria-pressed="true") ↻
 							a.iconButton#downloadButton(href=videoPath download title="Download video" aria-label="Download video") ⇩
 							button.iconButton#fullscreenButton(type="button" title="Enter fullscreen" aria-label="Enter fullscreen") ⛶

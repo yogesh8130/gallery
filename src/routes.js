@@ -76,8 +76,8 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FO
 			return matchesAnyPositiveTerm && !notTerms.some(term => normalizedPath.includes(term));
 		};
 	};
-	const getRandomVideoPath = (excludePath, filterMatcher) => {
-		const matchingVideoPaths = getVideoPaths().filter(filterMatcher);
+	const getMatchingVideoPaths = filterMatcher => getVideoPaths().filter(filterMatcher);
+	const getRandomVideoPath = (matchingVideoPaths, excludePath) => {
 		if (matchingVideoPaths.length === 0) return null;
 		const normalizedExcludePath = excludePath ? normalizeMediaPath(excludePath) : null;
 		const withoutExcludedPath = matchingVideoPaths.filter(videoPath =>
@@ -86,6 +86,11 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FO
 		const candidates = withoutExcludedPath.length > 0 ? withoutExcludedPath : matchingVideoPaths;
 		return candidates[Math.floor(Math.random() * candidates.length)];
 	};
+	const getVideoDetails = (videoPath, matchingVideoPaths) => ({
+		playlistPosition: matchingVideoPaths.findIndex(path => normalizeMediaPath(path) === normalizeMediaPath(videoPath)) + 1,
+		playlistSize: matchingVideoPaths.length,
+		fileSize: METADATA_MAP.get(videoPath)?.sizeReadable || ''
+	});
 	const toMediaUrl = mediaPath => normalizeMediaPath(mediaPath).split('/').map(encodeURIComponent).join('/');
 
 	router.get('/vid', (req, res) => {
@@ -96,9 +101,14 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FO
 		} catch (error) {
 			return res.status(400).send('Invalid search term (unable to parse as regex)');
 		}
-		const videoPath = getRandomVideoPath(null, filterMatcher);
+		const matchingVideoPaths = getMatchingVideoPaths(filterMatcher);
+		const videoPath = getRandomVideoPath(matchingVideoPaths, null);
 		if (!videoPath) return res.status(404).send('No videos found');
-		res.render('video-player', { videoPath: toMediaUrl(videoPath), filterText });
+		res.render('video-player', {
+			videoPath: toMediaUrl(videoPath),
+			filterText,
+			...getVideoDetails(videoPath, matchingVideoPaths)
+		});
 	});
 
 	router.get('/vid/random', (req, res) => {
@@ -112,9 +122,21 @@ module.exports = function (router, IMAGE_PATHS, METADATA_MAP, SEARCH_RESULTS, FO
 		} catch (error) {
 			return res.status(400).json({ message: 'Invalid search term (unable to parse as regex)' });
 		}
-		const videoPath = getRandomVideoPath(excludePath, filterMatcher);
+		const matchingVideoPaths = getMatchingVideoPaths(filterMatcher);
+		const direction = Number(req.query.direction);
+		let videoPath;
+		if (direction === -1 || direction === 1) {
+			const currentPath = normalizeMediaPath(req.query.current || '');
+			const currentIndex = matchingVideoPaths.findIndex(path => normalizeMediaPath(path) === currentPath);
+			const nextIndex = currentIndex < 0
+				? (direction === 1 ? 0 : matchingVideoPaths.length - 1)
+				: (currentIndex + direction + matchingVideoPaths.length) % matchingVideoPaths.length;
+			videoPath = matchingVideoPaths[nextIndex] || null;
+		} else {
+			videoPath = getRandomVideoPath(matchingVideoPaths, excludePath);
+		}
 		if (!videoPath) return res.status(404).json({ message: 'No videos found' });
-		res.json({ videoPath: toMediaUrl(videoPath) });
+		res.json({ videoPath: toMediaUrl(videoPath), ...getVideoDetails(videoPath, matchingVideoPaths) });
 	});
 
 	// Define a route to handle requests for the home page
