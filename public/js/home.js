@@ -1389,6 +1389,10 @@ document.addEventListener("DOMContentLoaded", function () {
 			cycleModalZoomMode();
 			return;
 		}
+		if (!moved && gesture.startedOnImage && event.pointerType === 'mouse') {
+			closeModal();
+			return;
+		}
 		if (moved) {
 			MODAL_LAST_TAP = null;
 			if (Math.abs(deltaY) > SWIPE_THRESHOLD) {
@@ -1399,7 +1403,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			return;
 		}
 
-		if (gesture.startedOnImage) {
+		if (gesture.startedOnImage && event.pointerType !== 'mouse') {
 			MODAL_LAST_TAP = { time: Date.now(), x: event.clientX, y: event.clientY };
 			MODAL_TAP_TIMER = setTimeout(() => {
 				toggleModalControlsTransparency();
@@ -1413,9 +1417,16 @@ document.addEventListener("DOMContentLoaded", function () {
 		if (MODAL_GESTURE?.pointerId === event.pointerId) MODAL_GESTURE = null;
 	});
 
+	MODAL.addEventListener('contextmenu', function (event) {
+		if (!IS_MODAL_ACTIVE || MODAL_VIDEO_CONTAINER.style.display === 'block') return;
+		event.preventDefault();
+		toggleModalControlsTransparency();
+	});
+
 	MODAL.addEventListener('wheel', function (event) {
 		if (!IS_MODAL_ACTIVE || MODAL_VIDEO_CONTAINER.style.display === 'block' || !MODAL_IMAGE.naturalWidth) return;
 		event.preventDefault();
+		const isNewWheelBurst = !MODAL_WHEEL_BURST_ACTIVE;
 		if (!MODAL_WHEEL_BURST_ACTIVE) {
 			MODAL_WHEEL_BURST_ACTIVE = true;
 			MODAL_WHEEL_BURST_STARTED_ZOOMED = IS_VIEWER_ZOOMED;
@@ -1425,6 +1436,18 @@ document.addEventListener("DOMContentLoaded", function () {
 			MODAL_WHEEL_BURST_ACTIVE = false;
 			MODAL_WHEEL_BURST_STARTED_ZOOMED = false;
 		}, 250);
+
+		if (!event.ctrlKey) {
+			if (!isNewWheelBurst) return;
+			if (event.deltaY > 0) {
+				if (GLOBAL_TRAVERSAL_MODE) showNextImage();
+				else showNextImageFromSearch();
+			} else {
+				if (GLOBAL_TRAVERSAL_MODE) showPreviousImage();
+				else showPreviousImageFromSearch();
+			}
+			return;
+		}
 
 		if (event.deltaY > 0 && !IS_VIEWER_ZOOMED) {
 			if (!MODAL_WHEEL_BURST_STARTED_ZOOMED) closeModal();
@@ -1599,6 +1622,9 @@ document.addEventListener('keydown', function (event) {
 		case 'm':
 			event.preventDefault();
 			document.getElementById('moveFilesInput').focus();
+			break;
+		case 'g':
+			document.getElementById('globalTraversalModeCheckbox').click();
 			break;
 		case 'ArrowRight':
 		case 'd':
