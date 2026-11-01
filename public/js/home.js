@@ -807,8 +807,8 @@ function showGallerySearchOptions(label) {
 
 function searchGalleryTerm(term) {
 	// replace all '/' in term with '\'
-	term = '\\images' + term.replace(/\//g, '\\');
-	window.location.href = `/search?view=tiles&searchText=${encodeURIComponent(term)}&sortBy=shuffle`;
+	term = (term.startsWith('/') ? '\\images' : '') + term.replace(/\//g, '\\');
+	window.open(`/search?view=tiles&searchText=${encodeURIComponent(term)}&sortBy=shuffle`, '_blank');
 }
 
 function handleGallerySearchPointerDown(event) {
