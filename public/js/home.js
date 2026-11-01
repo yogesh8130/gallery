@@ -703,8 +703,8 @@ function getGallerySearchOptions(label) {
 	let accumulatedPath = '';
 
 	components.forEach(component => {
-		const separators = [...component.matchAll(/-/g)].map(match => match.index);
-		component.split('-').forEach((part, index) => {
+		const separators = [...component.matchAll(/ - /g)].map(match => match.index);
+		component.split(' - ').forEach((part, index) => {
 			const term = part.trim();
 			if (!term) return;
 			const componentPrefix = index < separators.length

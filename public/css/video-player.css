@@ -103,7 +103,7 @@ body {
 .progressFill {
 	width: 0;
 	height: 100%;
-	background: #d3ef67;
+	background: cornflowerblue;
 }
 
 .player.controlsHidden .overlay {
@@ -188,7 +188,7 @@ body {
 }
 
 .videoFilter:focus-visible {
-	border-color: #d3ef67;
+	border-color: cornflowerblue;
 	outline: 2px solid rgb(211 239 103 / 35%);
 }
 
@@ -232,7 +232,7 @@ body {
 }
 
 .tagsInput:focus-visible {
-	border-color: #d3ef67;
+	border-color: cornflowerblue;
 	outline: 2px solid rgb(211 239 103 / 35%);
 }
 
@@ -255,8 +255,8 @@ body {
 .tagsApply:focus-visible,
 .tagHistoryButton:hover,
 .tagHistoryButton:focus-visible {
-	border-color: #d3ef67;
-	color: #d3ef67;
+	border-color: cornflowerblue;
+	color: cornflowerblue;
 	outline: none;
 }
 
@@ -310,13 +310,13 @@ body {
 .seekBar::-webkit-slider-runnable-track {
 	height: 3px;
 	border-radius: 2px;
-	background: linear-gradient(to right, #d3ef67 var(--seek-progress, 0%), rgb(255 255 255 / 48%) var(--seek-progress, 0%));
+	background: linear-gradient(to right, cornflowerblue var(--seek-progress, 0%), rgb(255 255 255 / 48%) var(--seek-progress, 0%));
 }
 
 .seekBar::-moz-range-track {
 	height: 3px;
 	border-radius: 2px;
-	background: linear-gradient(to right, #d3ef67 var(--seek-progress, 0%), rgb(255 255 255 / 48%) var(--seek-progress, 0%));
+	background: linear-gradient(to right, cornflowerblue var(--seek-progress, 0%), rgb(255 255 255 / 48%) var(--seek-progress, 0%));
 }
 
 .seekBar::-webkit-slider-thumb {
@@ -326,7 +326,7 @@ body {
 	margin-top: -5.5px;
 	border: 0;
 	border-radius: 50%;
-	background: #d3ef67;
+	background: cornflowerblue;
 }
 
 .seekBar::-moz-range-thumb {
@@ -334,7 +334,7 @@ body {
 	height: 14px;
 	border: 0;
 	border-radius: 50%;
-	background: #d3ef67;
+	background: cornflowerblue;
 }
 
 .videoDetails {
@@ -397,8 +397,8 @@ body {
 
 .pathSearchOption:hover,
 .pathSearchOption:focus-visible {
-	border-color: #d3ef67;
-	color: #d3ef67;
+	border-color: cornflowerblue;
+	color: cornflowerblue;
 	outline: none;
 }
 
@@ -446,7 +446,7 @@ body {
 .videoName:hover,
 .videoFolder:focus-visible,
 .videoName:focus-visible {
-	color: #d3ef67;
+	color: cornflowerblue;
 	outline: none;
 }
 
@@ -473,7 +473,7 @@ body {
 
 .timeDisplay:hover,
 .timeDisplay:focus-visible {
-	color: #d3ef67;
+	color: cornflowerblue;
 	outline: none;
 }
 
@@ -494,17 +494,21 @@ body {
 	backdrop-filter: blur(8px);
 }
 
+.iconButton img {
+	width: 25px;
+	height: 25px;
+}
+
 .iconButton:hover,
 .iconButton:focus-visible {
-	background: #d3ef67;
+	background: cornflowerblue;
 	color: #101311;
 	outline: none;
 }
 
 .iconButton.active {
-	border-color: #d3ef67;
-	background: #d3ef67;
-	color: #101311;
+	background: cornflowerblue;
+	color: white;
 }
 
 #previousButton,
