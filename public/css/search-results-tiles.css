@@ -293,8 +293,7 @@ video {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.3rem;
-	width: max-content;
-	max-width: min(80vw, 32rem);
+	width: stretch;
 	max-height: min(45vh, 18rem);
 	overflow: auto;
 	padding: 0.4rem;
