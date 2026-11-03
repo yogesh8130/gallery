@@ -261,16 +261,20 @@ video {
 	text-decoration: none;
 }
 
-.subTitle {
-	color: white
-}
-
 .marquee1,
 .marquee3 {
-	color: white;
 	margin-top: 0.1rem;
 	display: flex;
 	flex-wrap: wrap;
+}
+
+.marquee1 {
+	color: white;
+}
+
+.marquee3,
+.subTitle {
+	color: rgb(160, 160, 160);
 }
 
 .marquee3 {
@@ -279,7 +283,7 @@ video {
 
 .gallerySearchLabel {
 	margin: 0.1rem;
-	padding: 0 0.2rem;
+	padding: 0;
 	text-wrap: wrap;
 	user-select: none;
 	-webkit-user-select: none;
@@ -338,7 +342,6 @@ video {
 }
 
 .marquee2 {
-	padding-left: 2px;
 	padding-top: 2px;
 	font-size: 0.7rem;
 }

@@ -72,9 +72,10 @@ h2 {
 }
 
 .marquee {
-	overflow: scroll;
-	text-wrap: nowrap;
-	scrollbar-width: none;
+	font-size: .7rem;
+	.subTitle {
+		font-size: .5rem;
+	}
 }
 
 #modalCloseButton {
