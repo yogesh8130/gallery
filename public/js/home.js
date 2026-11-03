@@ -1445,8 +1445,8 @@ document.addEventListener("DOMContentLoaded", function () {
 		if (gesture.mode === 'pan') {
 			const now = performance.now();
 			const elapsed = Math.max(1, now - gesture.lastMoveTime);
-			gesture.velocityX = gesture.velocityX * 1 + ((event.clientX - gesture.lastX) / elapsed) * 0.3;
-			gesture.velocityY = gesture.velocityY * 1 + ((event.clientY - gesture.lastY) / elapsed) * 0.3;
+			gesture.velocityX = gesture.velocityX * 0.7 + ((event.clientX - gesture.lastX) / elapsed) * 0.3;
+			gesture.velocityY = gesture.velocityY * 0.7 + ((event.clientY - gesture.lastY) / elapsed) * 0.3;
 			gesture.lastX = event.clientX;
 			gesture.lastY = event.clientY;
 			gesture.lastMoveTime = now;
@@ -1463,7 +1463,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 		if (gesture.mode === 'zoom') return;
 		if (gesture.mode === 'pan') {
-			if (performance.now() - gesture.lastMoveTime < 100) {
+			if (performance.now() - gesture.lastMoveTime < 50) {
 				startModalPanInertia(gesture.velocityX, gesture.velocityY);
 			}
 			return;
