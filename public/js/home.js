@@ -826,6 +826,51 @@ function searchGalleryTerm(term) {
 	window.open(`/search?view=tiles&searchText=${encodeURIComponent(term)}&sortBy=shuffle`, '_blank');
 }
 
+function copyTextWithExecCommand(text) {
+	const textarea = document.createElement('textarea');
+	textarea.value = text;
+	textarea.setAttribute('readonly', '');
+	textarea.style.position = 'fixed';
+	textarea.style.left = '-9999px';
+	document.body.appendChild(textarea);
+
+	try {
+		textarea.focus();
+		textarea.select();
+		textarea.setSelectionRange(0, textarea.value.length);
+		return document.execCommand('copy');
+	} catch {
+		return false;
+	} finally {
+		textarea.remove();
+	}
+}
+
+function copyGalleryLabel(label) {
+	const text = label.dataset.copyText || '';
+	const showCopiedPopup = () => {
+		const copiedType = label.dataset.gallerySearchLabel === 'filename' ? 'Filename' : 'Path';
+		showPopup(`${copiedType} copied`, 'info', 3000);
+	};
+	const copyWithFallback = () => {
+		if (copyTextWithExecCommand(text)) showCopiedPopup();
+		else showPopup('Could not copy to clipboard', 'error');
+	};
+
+	if (!navigator.clipboard?.writeText) {
+		copyWithFallback();
+		return;
+	}
+
+	try {
+		navigator.clipboard.writeText(text)
+			.then(showCopiedPopup)
+			.catch(copyWithFallback);
+	} catch {
+		copyWithFallback();
+	}
+}
+
 function handleGallerySearchPointerDown(event) {
 	const target = event.target instanceof Element ? event.target : null;
 	const option = target?.closest('.gallerySearchOption');
@@ -862,11 +907,16 @@ function handleGallerySearchPointerEnd(event) {
 	const gesture = GALLERY_SEARCH_GESTURE;
 	if (!gesture || event.pointerId !== gesture.pointerId) return;
 	clearTimeout(gesture.timer);
-	if (gesture.triggered) {
+	const shouldCopy = event.type === 'pointerup'
+		&& event.pointerType !== 'mouse'
+		&& gesture.element.classList.contains('gallerySearchLabel')
+		&& !gesture.triggered;
+	if (gesture.triggered || shouldCopy) {
 		GALLERY_SUPPRESSED_CLICKS.add(gesture.element);
 		setTimeout(() => GALLERY_SUPPRESSED_CLICKS.delete(gesture.element), 0);
 		event.preventDefault();
 	}
+	if (shouldCopy) copyGalleryLabel(gesture.element);
 	event.stopImmediatePropagation();
 	GALLERY_SEARCH_GESTURE = null;
 }
@@ -889,7 +939,7 @@ document.addEventListener('click', event => {
 	event.preventDefault();
 	event.stopImmediatePropagation();
 	if (option) searchGalleryTerm(option.dataset.searchTerm);
-	else navigator.clipboard?.writeText(label.dataset.copyText || '');
+	else copyGalleryLabel(label);
 }, true);
 document.addEventListener('contextmenu', event => {
 	const target = event.target instanceof Element ? event.target : null;
