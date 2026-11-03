@@ -289,7 +289,7 @@ video {
 .gallerySearchOptions {
 	position: absolute;
 	left: 0;
-	bottom: calc(100% + 0.4rem);
+	bottom: 100%;
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.3rem;

@@ -783,10 +783,11 @@ function getGallerySearchOptions(label) {
 	return options;
 }
 
-function showGallerySearchOptions(label) {
+function openGallerySearchOptions(label) {
 	const details = label.closest('.infoDiv');
 	const optionsPanel = details.querySelector('.gallerySearchOptions');
 	document.querySelectorAll('.gallerySearchOptions.visible').forEach(panel => {
+		if (panel === optionsPanel) return;
 		panel.classList.remove('visible');
 		panel.setAttribute('aria-hidden', 'true');
 	});
@@ -803,6 +804,20 @@ function showGallerySearchOptions(label) {
 	});
 	optionsPanel.classList.add('visible');
 	optionsPanel.setAttribute('aria-hidden', 'false');
+}
+
+function toggleGallerySearchOptions(label) {
+	const optionsPanel = label.closest('.infoDiv').querySelector('.gallerySearchOptions');
+	if (optionsPanel.classList.contains('visible')) {
+		optionsPanel.classList.remove('visible');
+		optionsPanel.setAttribute('aria-hidden', 'true');
+		return;
+	}
+	openGallerySearchOptions(label);
+}
+
+function isMouseHoverAvailable() {
+	return window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 }
 
 function searchGalleryTerm(term) {
@@ -825,7 +840,7 @@ function handleGallerySearchPointerDown(event) {
 		triggered: false,
 		timer: setTimeout(() => {
 			if (option) searchGalleryTerm(option.dataset.searchPath);
-			else showGallerySearchOptions(label);
+			else toggleGallerySearchOptions(label);
 			if (GALLERY_SEARCH_GESTURE) GALLERY_SEARCH_GESTURE.triggered = true;
 		}, 400)
 	};
@@ -882,7 +897,23 @@ document.addEventListener('contextmenu', event => {
 	event.preventDefault();
 	event.stopImmediatePropagation();
 	if (option) searchGalleryTerm(option.dataset.searchPath);
-	else showGallerySearchOptions(label);
+	else toggleGallerySearchOptions(label);
+}, true);
+document.addEventListener('mouseover', event => {
+	if (!isMouseHoverAvailable()) return;
+	const target = event.target instanceof Element ? event.target : null;
+	const label = target?.closest('.gallerySearchLabel');
+	if (!label || label.contains(event.relatedTarget)) return;
+	openGallerySearchOptions(label);
+}, true);
+document.addEventListener('mouseout', event => {
+	if (!isMouseHoverAvailable()) return;
+	const target = event.target instanceof Element ? event.target : null;
+	const details = target?.closest('.infoDiv');
+	if (!details || details.contains(event.relatedTarget)) return;
+	const optionsPanel = details.querySelector('.gallerySearchOptions');
+	optionsPanel.classList.remove('visible');
+	optionsPanel.setAttribute('aria-hidden', 'true');
 }, true);
 
 function resultsContainerSwipeHandler(swipeDirection, event) {
