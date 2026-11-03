@@ -25,7 +25,7 @@ html
 						.horizontal
 							form.searchForm(action = "" method = "get" target = '_blank')
 								input(type = "text" name = 'searchText' id = 'searchText'
-								placeholder = 'Search'
+								placeholder = 'Search' autocomplete = 'on' autocapitalize = 'off'
 								title = 'F3')
 								input(type = "hidden" name = 'view' id = 'view')
 							button#videosButton.sortButton(onclick = `newSearch('.mp4 || .webm || .avi || .mkv || .mpg || .mov || .wmv || .m4v || .rm || .flv || .divx', 'shuffle', true, this)`

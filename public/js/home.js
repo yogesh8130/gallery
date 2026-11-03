@@ -839,9 +839,11 @@ function handleGallerySearchPointerDown(event) {
 		startY: event.clientY,
 		triggered: false,
 		timer: setTimeout(() => {
+			const gesture = GALLERY_SEARCH_GESTURE;
+			if (!gesture || gesture.pointerId !== event.pointerId) return;
+			gesture.triggered = true;
 			if (option) searchGalleryTerm(option.dataset.searchPath);
 			else toggleGallerySearchOptions(label);
-			if (GALLERY_SEARCH_GESTURE) GALLERY_SEARCH_GESTURE.triggered = true;
 		}, 400)
 	};
 }
@@ -896,6 +898,12 @@ document.addEventListener('contextmenu', event => {
 	if (!option && !label) return;
 	event.preventDefault();
 	event.stopImmediatePropagation();
+	const gesture = GALLERY_SEARCH_GESTURE;
+	if (gesture && gesture.element === (option || label)) {
+		if (gesture.triggered) return;
+		clearTimeout(gesture.timer);
+		gesture.triggered = true;
+	}
 	if (option) searchGalleryTerm(option.dataset.searchPath);
 	else toggleGallerySearchOptions(label);
 }, true);
