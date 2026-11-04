@@ -1469,7 +1469,6 @@ document.addEventListener("DOMContentLoaded", function () {
 			return;
 		}
 		if (gesture.button) {
-			gesture.button.click();
 			return;
 		}
 		if (gesture.isDoubleTap && !moved) {
