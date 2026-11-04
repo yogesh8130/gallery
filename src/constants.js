@@ -2,7 +2,7 @@
 const ROOT_IMAGE_PATH = "./public/images";
 
 const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mkv', '.avi', '.mpg', '.mov', '.wmv', '.m4v', '.rm', '.flv', '.divx'];
-const IMAGE_EXTENSIONS = ['.jpeg', '.jpg', '.png', '.webp', '.gif']
+const IMAGE_EXTENSIONS = ['.jpeg', '.jpg', '.png', '.webp', '.gif', '.jxl']
 const ALLOWED_EXTENSIONS = [...VIDEO_EXTENSIONS, ...IMAGE_EXTENSIONS];
 
 const RENAME_LOG_FILE = './logs/rename.log';
