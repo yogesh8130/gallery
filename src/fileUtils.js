@@ -117,7 +117,10 @@ function initializeImageMetadata(imagePath, metadataMap) {
 		return 1;
 	}
 
-	const fileAttrs = readMediaAttributes(absolutePath);
+	const isJxl = extension.toLowerCase() === '.jxl';
+	const fileAttrs = isJxl
+		? { width: 0, height: 0, mime: 'image/jxl' }
+		: readMediaAttributes(absolutePath);
 	const stats = FS.statSync(absolutePath);
 	const modifiedTime = stats.mtime.toISOString();
 	const sizeBytes = stats.size;
