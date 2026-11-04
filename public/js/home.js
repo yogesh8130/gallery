@@ -10,6 +10,7 @@ let GLOBAL_TRAVERSAL_MODE = true; // makes swipes arrow keys navigate between im
 let ANIMATIONS_ENABLED = true;
 let MODAL_FULLSCREEN_ENABLED = false;
 let MODAL_FULLSCREEN_REQUESTED = false;
+let MODAL_FULLSCREEN_PROMISE;
 let MODAL_FULLSCREEN_PENDING = false;
 
 const darkColors = ['blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chocolate', 'coral', 'cornflowerblue', 'crimson', 'darkblue', 'darkcyan', 'darkgoldenrod', 'darkgreen', 'darkmagenta', 'darkolivegreen', 'darkorange', 'darkorchid', 'darkred', 'darkslateblue', 'darkslategrey', 'darkviolet', 'deeppink', 'dodgerblue', 'firebrick', 'forestgreen', 'fuchsia', 'green', 'hotpink', 'indianred', 'indigo', 'lightcoral', 'magenta', 'maroon', 'mediumblue', 'mediumorchid', 'mediumpurple', 'mediumseagreen', 'mediumslateblue', 'mediumvioletred', 'midnightblue', 'navy', 'olive', 'olivedrab', 'orangered', 'orchid', 'palevioletred', 'peru', 'purple', 'rebeccapurple', 'red', 'royalblue', 'saddlebrown', 'salmon', 'seagreen', 'sienna', 'slateblue', 'steelblue', 'teal', 'tomato', 'violet'];
@@ -162,32 +163,40 @@ function toggleModalFullscreen(event, fullscreenCheckbox) {
 
 	if (MODAL_FULLSCREEN_ENABLED && IS_MODAL_ACTIVE) {
 		requestModalFullscreen();
-	} else if (!MODAL_FULLSCREEN_ENABLED) {
+	} else if (!MODAL_FULLSCREEN_ENABLED && !MODAL_IS_CLOSING) {
 		exitModalFullscreen();
 	}
 }
 
 function requestModalFullscreen() {
-	if (!MODAL_FULLSCREEN_ENABLED || document.fullscreenElement || !MODAL?.requestFullscreen) return;
+	if (MODAL_FULLSCREEN_PENDING) return MODAL_FULLSCREEN_PROMISE;
+	if (!MODAL_FULLSCREEN_ENABLED || document.fullscreenElement || !MODAL?.requestFullscreen) return Promise.resolve(false);
 
 	MODAL_FULLSCREEN_REQUESTED = true;
 	MODAL_FULLSCREEN_PENDING = true;
-	MODAL.requestFullscreen().then(() => {
+	MODAL_FULLSCREEN_PROMISE = MODAL.requestFullscreen().then(() => {
 		MODAL_FULLSCREEN_PENDING = false;
-		if (!IS_MODAL_ACTIVE || !MODAL_FULLSCREEN_ENABLED) exitModalFullscreen();
+		if ((!IS_MODAL_ACTIVE && !MODAL_OPEN_PENDING) || !MODAL_FULLSCREEN_ENABLED) exitModalFullscreen();
+		return true;
 	}).catch(() => {
 		MODAL_FULLSCREEN_PENDING = false;
 		MODAL_FULLSCREEN_REQUESTED = false;
+		return false;
 	});
+	return MODAL_FULLSCREEN_PROMISE;
 }
+let MODAL_IS_CLOSING = false;
+let MODAL_OPEN_PENDING = false;
 
 function exitModalFullscreen() {
-	if (!MODAL_FULLSCREEN_REQUESTED) return;
+	if (!MODAL_FULLSCREEN_REQUESTED) return Promise.resolve();
 
+	let exitPromise = Promise.resolve();
 	if (document.fullscreenElement === MODAL) {
-		document.exitFullscreen().catch(() => {});
+		exitPromise = document.exitFullscreen().catch(() => {});
 	}
 	if (!MODAL_FULLSCREEN_PENDING) MODAL_FULLSCREEN_REQUESTED = false;
+	return exitPromise;
 }
 
 function closeCustomSuggestions(input) {
@@ -1665,10 +1674,14 @@ document.addEventListener('keydown', function (event) {
 			document.getElementById('appendToNameInput').focus();
 			break;
 		case 'Escape':
-			if (IS_MODAL_ACTIVE)
+			if (IS_MODAL_ACTIVE) {
+				if (MODAL_FULLSCREEN_REQUESTED && document.fullscreenElement === MODAL) {
+					event.preventDefault();
+				}
 				closeModal();
-			else
+			} else {
 				deselectAllImages();
+			}
 			break;
 		default:
 			break;
@@ -2317,7 +2330,7 @@ function showPopup(message, level, timeout) {
 	}, timeout);
 }
 
-function showModal(fileLink, firstLoad = false, target = null) {
+async function showModal(fileLink, firstLoad = false, target = null) {
 	// firstLoad indicates that the function was called froml clicking an image in the vertical scrolling list, so preloading should not be applied
 
 	// release focus if its an input element so arrow keys can work
@@ -2325,7 +2338,11 @@ function showModal(fileLink, firstLoad = false, target = null) {
 		document.activeElement.blur();
 	}
 	const wasModalActive = IS_MODAL_ACTIVE;
-	if (!wasModalActive && MODAL_FULLSCREEN_ENABLED) requestModalFullscreen();
+	if (!wasModalActive && MODAL_FULLSCREEN_ENABLED) {
+		MODAL_OPEN_PENDING = true;
+		await requestModalFullscreen();
+		MODAL_OPEN_PENDING = false;
+	}
 
 	CURRENT_IMAGE_PATH = fileLink;
 	if (target) {
@@ -2409,31 +2426,35 @@ function showModal(fileLink, firstLoad = false, target = null) {
 }
 
 function closeModal() {
-	if (MODAL_IS_OPENING) return;
+	if (MODAL_IS_OPENING || MODAL_IS_CLOSING) return;
+	MODAL_IS_CLOSING = true;
 
 	if (CURRENT_IMAGE_ID_NUM != null) {
 		LAST_VIEWED_IMAGE_ID = `image${CURRENT_IMAGE_ID_NUM}`;
 	}
 	const target = document.getElementById(`image${CURRENT_IMAGE_ID_NUM}`);
 
+	let closeTransition = Promise.resolve();
 	if (ANIMATIONS_ENABLED) {
 		MODAL.style.viewTransitionName = 'modalZoomOut';
-		document.startViewTransition(() => {
+		closeTransition = document.startViewTransition(() => {
 			MODAL.style.viewTransitionName = '';
 			if (target)
 				target.style.viewTransitionName = 'modalZoomOut';
 			MODAL.style.display = 'none';
-		}).finished.then(() => {
-			target.style.viewTransitionName = '';
-		})
+		}).finished.catch(() => {});
 	} else {
 		MODAL.style.display = 'none';
 	}
 	MODAL_VIDEO.pause();
 	IS_MODAL_ACTIVE = false;
-	exitModalFullscreen();
-
-	scrollToCurrentImage()
+	closeTransition.finally(() => {
+		if (target) target.style.viewTransitionName = '';
+		exitModalFullscreen().finally(() => {
+			scrollToCurrentImage();
+			MODAL_IS_CLOSING = false;
+		});
+	});
 }
 
 function toggleSidebar(event) {
