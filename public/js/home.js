@@ -59,7 +59,8 @@ let SIDEBAR;
 let SIDEBAR_TOGGLE_BUTTON;
 
 let LONG_PRESS_TIMEOUT;
-const LONG_PRESS_DELAY = 300;
+const LONG_PRESS_DELAY = 200;
+const DOUBLE_TAP_TIMEOUT = 200;
 const SWIPE_THRESHOLD = 50;
 const SPEEDUP_RATE = 4;
 let GALLERY_SEARCH_GESTURE = null;
@@ -1388,7 +1389,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		const now = Date.now();
 		const modalButton = event.target.closest('.modalButton');
 		const isDoubleTap = !modalButton && MODAL_LAST_TAP
-			&& now - MODAL_LAST_TAP.time < 350
+			&& now - MODAL_LAST_TAP.time < DOUBLE_TAP_TIMEOUT
 			&& Math.hypot(event.clientX - MODAL_LAST_TAP.x, event.clientY - MODAL_LAST_TAP.y) < 50;
 		if (isDoubleTap) clearTimeout(MODAL_TAP_TIMER);
 		MODAL_GESTURE = {
@@ -1496,7 +1497,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			MODAL_TAP_TIMER = setTimeout(() => {
 				toggleModalControlsTransparency();
 				MODAL_LAST_TAP = null;
-			}, 350);
+			}, DOUBLE_TAP_TIMEOUT);
 		}
 	}
 
