@@ -1478,7 +1478,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			}
 			return;
 		}
-		if (gesture.button) {
+		if (gesture.button && !moved) {
 			return;
 		}
 		if (gesture.isDoubleTap && !moved) {
