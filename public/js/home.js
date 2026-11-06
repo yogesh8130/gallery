@@ -763,15 +763,13 @@ document.addEventListener('fullscreenchange', () => {
 });
 
 function restoreScroll() {
-	setTimeout(() => {
-		const lastViewedImage = document.getElementById(LAST_VIEWED_IMAGE_ID);
-		if (lastViewedImage) {
-			lastViewedImage.scrollIntoView({
-				block: "center",
-				inline: "nearest"
-			});
-		}
-	}, 500); // wait to exit fullscreen
+	const lastViewedImage = document.getElementById(LAST_VIEWED_IMAGE_ID);
+	if (lastViewedImage) {
+		lastViewedImage.scrollIntoView({
+			block: "center",
+			inline: "nearest"
+		});
+	}
 }
 
 function updateModalImageDetails(imageId) {
