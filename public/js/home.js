@@ -68,42 +68,73 @@ let GALLERY_SEARCH_GESTURE = null;
 const GALLERY_SUPPRESSED_CLICKS = new WeakSet();
 
 const PRELOAD_CACHE = new Map(); // to keep next images pre-loaded
+const MODAL_NEIGHBOR_CACHE = new Map();
 const MAX_PRELOAD = 5;
 function preloadImage(path) {
 	if (PRELOAD_CACHE.has(path)) return;
 
 	const img = new Image();
+	PRELOAD_CACHE.set(path, img);
 	img.src = path;
 
 	img.onload = () => {
-		PRELOAD_CACHE.set(path, img);
 		if (PRELOAD_CACHE.size > MAX_PRELOAD) {
 			const firstKey = PRELOAD_CACHE.keys().next().value;
 			PRELOAD_CACHE.delete(firstKey);
 		}
 	};
+	img.onerror = () => PRELOAD_CACHE.delete(path);
 }
 
-function preloadNeighbors() {
-	if (!CURRENT_IMAGE_PATH) return;
+function normalizeModalPath(path) {
+	return path.replace(origin, '').replace(/^\//, '');
+}
 
-	const cleanPath = CURRENT_IMAGE_PATH.replace(origin, '').replace(/^\//, '');
+function getModalNeighbors(path) {
+	const key = normalizeModalPath(path);
+	if (!MODAL_NEIGHBOR_CACHE.has(key)) {
+		MODAL_NEIGHBOR_CACHE.set(key, { next: null, previous: null });
+	}
+	return MODAL_NEIGHBOR_CACHE.get(key);
+}
 
-	fetch(`/next?currentImagePath=${cleanPath}`)
-		.then(r => r.json())
-		.then(d => {
-			if (d.nextImagePath && isImage(d.nextImagePath)) {
-				preloadImage(d.nextImagePath);
-			}
+function cacheModalNeighbor(path, direction, neighborPath, shouldPreload = true) {
+	if (!path || !neighborPath) return;
+	getModalNeighbors(path)[direction] = neighborPath;
+	if (shouldPreload && isImage(neighborPath)) preloadImage(neighborPath);
+}
+
+function getModalNeighbor(path, direction) {
+	const neighbors = getModalNeighbors(path);
+	if (neighbors[direction]) return Promise.resolve(neighbors[direction]);
+	const promiseKey = `${direction}Promise`;
+	if (neighbors[promiseKey]) return neighbors[promiseKey];
+
+	const url = new URL(`/${direction}`, window.location.origin);
+	url.searchParams.set('currentImagePath', normalizeModalPath(path));
+	url.searchParams.set('skipVideos', 'true');
+	neighbors[promiseKey] = fetch(url)
+		.then(response => {
+			if (!response.ok) throw new Error(`Could not load ${direction} image`);
+			return response.json();
+		})
+		.then(data => {
+			const neighborPath = data[`${direction}ImagePath`];
+			cacheModalNeighbor(path, direction, neighborPath);
+			return neighborPath;
+		})
+		.finally(() => {
+			neighbors[promiseKey] = null;
 		});
+	return neighbors[promiseKey];
+}
 
-	fetch(`/previous?currentImagePath=${cleanPath}`)
-		.then(r => r.json())
-		.then(d => {
-			if (d.previousImagePath && isImage(d.previousImagePath)) {
-				preloadImage(d.previousImagePath);
-			}
-		});
+function preloadNeighbors(direction = null, path = CURRENT_IMAGE_PATH) {
+	if (!path) return;
+	const directions = direction ? [direction] : ['next', 'previous'];
+	directions.forEach(neighborDirection => {
+		getModalNeighbor(path, neighborDirection).catch(console.error);
+	});
 }
 
 function isImage(path) {
@@ -2330,13 +2361,14 @@ function showPopup(message, level, timeout) {
 	}, timeout);
 }
 
-async function showModal(fileLink, firstLoad = false, target = null) {
+async function showModal(fileLink, firstLoad = false, target = null, navigationDirection = null) {
 	// firstLoad indicates that the function was called froml clicking an image in the vertical scrolling list, so preloading should not be applied
 
 	// release focus if its an input element so arrow keys can work
 	if (document.activeElement.nodeName === 'INPUT') {
 		document.activeElement.blur();
 	}
+	const previousImagePath = CURRENT_IMAGE_PATH;
 	const wasModalActive = IS_MODAL_ACTIVE;
 	if (!wasModalActive && MODAL_FULLSCREEN_ENABLED) {
 		MODAL_OPEN_PENDING = true;
@@ -2344,6 +2376,11 @@ async function showModal(fileLink, firstLoad = false, target = null) {
 		MODAL_OPEN_PENDING = false;
 	}
 
+	if (navigationDirection && previousImagePath) {
+		const reverseDirection = navigationDirection === 'next' ? 'previous' : 'next';
+		cacheModalNeighbor(previousImagePath, navigationDirection, fileLink, false);
+		cacheModalNeighbor(fileLink, reverseDirection, previousImagePath, false);
+	}
 	CURRENT_IMAGE_PATH = fileLink;
 	if (target) {
 		// used to scroll to correct position after changing tile size
@@ -2421,7 +2458,7 @@ async function showModal(fileLink, firstLoad = false, target = null) {
 				});
 		}
 
-		if (!isVideo) preloadNeighbors();
+		preloadNeighbors(navigationDirection, fileLink);
 	}, 0));
 }
 
@@ -2639,26 +2676,14 @@ async function downloadSelectedFiles() {
 }
 
 function showNextImage() {
-	// remove localhost and leading slash
-	CURRENT_IMAGE_PATH = CURRENT_IMAGE_PATH.replace(origin, '').replace(/^\//, '');
-
-	fetch(`/next?currentImagePath=${CURRENT_IMAGE_PATH}&skipVideos=true`)
-		.then(response => response.json())
-		.then(data => {
-			showModal(data.nextImagePath);
-		})
+	getModalNeighbor(CURRENT_IMAGE_PATH, 'next')
+		.then(nextImagePath => showModal(nextImagePath, false, null, 'next'))
 		.catch(error => console.error(error));
 }
 
 function showPreviousImage() {
-	// remove localhost and leading slash
-	CURRENT_IMAGE_PATH = CURRENT_IMAGE_PATH.replace(origin, '').replace(/^\//, '');
-
-	fetch(`/previous?currentImagePath=${CURRENT_IMAGE_PATH}&skipVideos=true`)
-		.then(response => response.json())
-		.then(data => {
-			showModal(data.previousImagePath);
-		})
+	getModalNeighbor(CURRENT_IMAGE_PATH, 'previous')
+		.then(previousImagePath => showModal(previousImagePath, false, null, 'previous'))
 		.catch(error => console.error(error));
 }
 
