@@ -441,6 +441,10 @@ function getModalFitScale() {
 	);
 }
 
+function getModalActualScale() {
+	return 1 / (window.devicePixelRatio || 1);
+}
+
 function getModalPanLimits() {
 	const width = MODAL_IMAGE.naturalWidth * MODAL_IMAGE_SCALE;
 	const height = MODAL_IMAGE.naturalHeight * MODAL_IMAGE_SCALE;
@@ -504,7 +508,7 @@ function setModalZoomMode(mode) {
 		MODAL_IMAGE_CONTAINER.clientHeight / MODAL_IMAGE.naturalHeight
 	);
 	MODAL_ZOOM_MODE = mode;
-	MODAL_IMAGE_SCALE = mode === 'fit' ? fitScale : mode === 'fill' ? fillScale : 1;
+	MODAL_IMAGE_SCALE = mode === 'fit' ? fitScale : mode === 'fill' ? fillScale : getModalActualScale();
 	MODAL_IMAGE_PAN_X = 0;
 	MODAL_IMAGE_PAN_Y = 0;
 	renderModalImage();
