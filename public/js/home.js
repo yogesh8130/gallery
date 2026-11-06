@@ -441,16 +441,22 @@ function getModalFitScale() {
 	);
 }
 
+function getModalPanLimits() {
+	const width = MODAL_IMAGE.naturalWidth * MODAL_IMAGE_SCALE;
+	const height = MODAL_IMAGE.naturalHeight * MODAL_IMAGE_SCALE;
+	return {
+		x: Math.max(0, (width - MODAL_IMAGE_CONTAINER.clientWidth) / 2),
+		y: Math.max(0, (height - MODAL_IMAGE_CONTAINER.clientHeight) / 2)
+	};
+}
+
 function renderModalImage() {
 	if (!MODAL_IMAGE?.naturalWidth) return;
 	MODAL_IMAGE.style.width = `${MODAL_IMAGE.naturalWidth}px`;
 	MODAL_IMAGE.style.height = `${MODAL_IMAGE.naturalHeight}px`;
-	const width = MODAL_IMAGE.naturalWidth * MODAL_IMAGE_SCALE;
-	const height = MODAL_IMAGE.naturalHeight * MODAL_IMAGE_SCALE;
-	const maxPanX = Math.max(0, (width - MODAL_IMAGE_CONTAINER.clientWidth) / 2);
-	const maxPanY = Math.max(0, (height - MODAL_IMAGE_CONTAINER.clientHeight) / 2);
-	MODAL_IMAGE_PAN_X = Math.max(-maxPanX, Math.min(maxPanX, MODAL_IMAGE_PAN_X));
-	MODAL_IMAGE_PAN_Y = Math.max(-maxPanY, Math.min(maxPanY, MODAL_IMAGE_PAN_Y));
+	const panLimits = getModalPanLimits();
+	MODAL_IMAGE_PAN_X = Math.max(-panLimits.x, Math.min(panLimits.x, MODAL_IMAGE_PAN_X));
+	MODAL_IMAGE_PAN_Y = Math.max(-panLimits.y, Math.min(panLimits.y, MODAL_IMAGE_PAN_Y));
 	MODAL_IMAGE.style.transform = `translate(-50%, -50%) translate(${MODAL_IMAGE_PAN_X}px, ${MODAL_IMAGE_PAN_Y}px) scale(${MODAL_IMAGE_SCALE})`;
 	IS_VIEWER_ZOOMED = MODAL_ZOOM_MODE !== 'fit';
 	MODAL?.classList.toggle('zoomed', IS_VIEWER_ZOOMED);
@@ -1035,8 +1041,8 @@ function resultsContainerSwipeHandler(swipeDirection, event) {
 	}
 }
 
-function modalSwipeHandler(pointerMovedTo, event) {
-	if (IS_VIEWER_ZOOMED) return;
+function modalSwipeHandler(pointerMovedTo, navigateFromPanEdge = false) {
+	if (IS_VIEWER_ZOOMED && !navigateFromPanEdge) return;
 	// pointer moved to right
 	if ((pointerMovedTo === 'down' || pointerMovedTo === 'up')) {
 		closeModal();
@@ -1463,7 +1469,14 @@ document.addEventListener("DOMContentLoaded", function () {
 			if (gesture.isDoubleTap && Math.abs(deltaY) > Math.abs(deltaX)) {
 				gesture.mode = 'zoom';
 			} else if (IS_VIEWER_ZOOMED) {
-				gesture.mode = 'pan';
+				const panLimits = getModalPanLimits();
+				const horizontal = Math.abs(deltaX) > Math.abs(deltaY);
+				const atPanEdge = horizontal
+					? (deltaX > 0 && gesture.startPanX >= panLimits.x - 1)
+						|| (deltaX < 0 && gesture.startPanX <= -panLimits.x + 1)
+					: (deltaY > 0 && gesture.startPanY >= panLimits.y - 1)
+						|| (deltaY < 0 && gesture.startPanY <= -panLimits.y + 1);
+				gesture.mode = atPanEdge ? 'navigate' : 'pan';
 			} else {
 				gesture.mode = 'swipe';
 			}
@@ -1503,6 +1516,13 @@ document.addEventListener("DOMContentLoaded", function () {
 		const moved = Math.hypot(deltaX, deltaY) > 8;
 
 		if (gesture.mode === 'zoom') return;
+		if (gesture.mode === 'navigate') {
+			const direction = Math.abs(deltaX) > Math.abs(deltaY)
+				? (deltaX > 0 ? 'right' : 'left')
+				: (deltaY > 0 ? 'down' : 'up');
+			modalSwipeHandler(direction, true);
+			return;
+		}
 		if (gesture.mode === 'pan') {
 			if (performance.now() - gesture.lastMoveTime < 50) {
 				startModalPanInertia(gesture.velocityX, gesture.velocityY);
