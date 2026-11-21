@@ -512,6 +512,21 @@ body {
 	color: white;
 }
 
+#shuffleButton.active,
+#loopButton.active {
+	border-color: cornflowerblue;
+	box-shadow: 0 0 0 2px rgb(100 149 237 / 45%);
+}
+
+#shuffleButton:not(.active):hover,
+#shuffleButton:not(.active):focus-visible,
+#loopButton:not(.active):hover,
+#loopButton:not(.active):focus-visible {
+	background: rgb(16 19 17 / 88%);
+	border-color: cornflowerblue;
+	color: #f3f5ef;
+}
+
 #previousButton,
 #playButton,
 #nextButton {

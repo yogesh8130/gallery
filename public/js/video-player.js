@@ -54,6 +54,8 @@
 	let previewTime = null;
 	let showRemainingTime = false;
 	let controlsTimer = null;
+	let videoTapTimer = null;
+	let pendingVideoTap = false;
 	let hintTimer = null;
 	let spaceHoldTimer = null;
 	let spaceKeyDown = false;
@@ -214,7 +216,7 @@
 			if (!scrubbing && document.activeElement !== videoFilter && !tagsPanel.contains(document.activeElement)) {
 				player.classList.add('controlsHidden');
 			}
-		}, 2200);
+		}, 5000);
 	};
 
 	const toggleControls = () => {
@@ -227,6 +229,25 @@
 			clearTimeout(controlsTimer);
 			player.classList.add('controlsHidden');
 		}
+	};
+
+	const handleVideoSurfaceTap = isVideoTap => {
+		if (videoTapTimer) {
+			clearTimeout(videoTapTimer);
+			videoTapTimer = null;
+			if (isVideoTap && pendingVideoTap) {
+				pendingVideoTap = false;
+				togglePlayback();
+				return;
+			}
+			toggleControls();
+		}
+		pendingVideoTap = isVideoTap;
+		videoTapTimer = setTimeout(() => {
+			videoTapTimer = null;
+			pendingVideoTap = false;
+			toggleControls();
+		}, 300);
 	};
 
 	const showHint = (icon, text) => {
@@ -721,15 +742,13 @@
 				seekBySwipe(deltaX);
 				if (previewTime !== null) video.currentTime = previewTime;
 			}
-		} else if (wasVideoTap) {
-			togglePlayback();
 		}
 		pointerStart = null;
 		previewTime = null;
 		heldForSpeed = false;
 		seeking = false;
 		swipeAxis = null;
-		if (wasVideoSurfaceTap) toggleControls();
+		if (wasVideoSurfaceTap) handleVideoSurfaceTap(wasVideoTap);
 	};
 
 	player.addEventListener('pointerup', finishPointer);
