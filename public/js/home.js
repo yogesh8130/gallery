@@ -433,6 +433,50 @@ function refreshDirectoryTree() {
 		});
 }
 
+function showFolderTreeContextMenu(folderLabel, x, y) {
+	const folderLink = folderLabel.querySelector('.folder-link.recursive');
+	if (!folderLink) return;
+
+	let menu = document.getElementById('folderTreeContextMenu');
+	if (!menu) {
+		menu = document.createElement('div');
+		menu.id = 'folderTreeContextMenu';
+		menu.className = 'folderTreeContextMenu';
+		menu.setAttribute('role', 'menu');
+		document.body.appendChild(menu);
+	}
+
+	const createMenuButton = (text, onClick) => {
+		const button = document.createElement('button');
+		button.type = 'button';
+		button.setAttribute('role', 'menuitem');
+		button.textContent = text;
+		button.addEventListener('click', onClick);
+		return button;
+	};
+	const copyButton = (text, value, type) => {
+		const button = createMenuButton(text, event => copyGalleryLabel(event.currentTarget));
+		button.dataset.copyText = value;
+		button.dataset.gallerySearchLabel = type;
+		return button;
+	};
+	const filter = folderLink.dataset.folderPath.replace(/\\/g, '/');
+	const playFolderButton = createMenuButton('Play videos in this folder', () => {
+		window.open(`/vid?${new URLSearchParams({ filter })}`, '_blank', 'noopener');
+	});
+	menu.replaceChildren(
+		playFolderButton,
+		copyButton('Copy folder name', folderLink.textContent, 'filename'),
+		copyButton('Copy full folder path', folderLink.dataset.folderPath, 'path')
+	);
+	menu.hidden = false;
+	menu.style.left = `${x}px`;
+	menu.style.top = `${y}px`;
+	const bounds = menu.getBoundingClientRect();
+	menu.style.left = `${Math.max(8, Math.min(x, window.innerWidth - bounds.width - 8))}px`;
+	menu.style.top = `${Math.max(8, Math.min(y, window.innerHeight - bounds.height - 8))}px`;
+}
+
 function getModalFitScale() {
 	if (!MODAL_IMAGE?.naturalWidth || !MODAL_IMAGE?.naturalHeight) return 1;
 	return Math.min(
@@ -1684,7 +1728,78 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 	// Directory Tree Events
-	document.getElementById('folderTree').addEventListener('click', function (event) {
+	const folderTree = document.getElementById('folderTree');
+	let folderPress = null;
+	let suppressedFolderLabel = null;
+	let clearSuppressedFolderLabelTimer;
+
+	folderTree.addEventListener('pointerdown', event => {
+		if (event.button !== 0) return;
+		const folderLabel = event.target instanceof Element ? event.target.closest('.folder-label') : null;
+		if (!folderLabel) return;
+
+		folderPress = {
+			pointerId: event.pointerId,
+			startX: event.clientX,
+			startY: event.clientY,
+			folderLabel,
+			timer: setTimeout(() => {
+				if (folderPress?.pointerId !== event.pointerId) return;
+				suppressedFolderLabel = folderLabel;
+				clearTimeout(clearSuppressedFolderLabelTimer);
+				clearSuppressedFolderLabelTimer = setTimeout(() => {
+					suppressedFolderLabel = null;
+				}, 1000);
+				showFolderTreeContextMenu(folderLabel, event.clientX, event.clientY);
+			}, 500)
+		};
+	});
+
+	folderTree.addEventListener('pointermove', event => {
+		if (!folderPress || event.pointerId !== folderPress.pointerId) return;
+		if (Math.hypot(event.clientX - folderPress.startX, event.clientY - folderPress.startY) > 10) {
+			clearTimeout(folderPress.timer);
+			folderPress = null;
+		}
+	});
+
+	['pointerup', 'pointercancel', 'pointerleave'].forEach(type => {
+		folderTree.addEventListener(type, event => {
+			if (!folderPress || (event.pointerId != null && event.pointerId !== folderPress.pointerId)) return;
+			clearTimeout(folderPress.timer);
+			folderPress = null;
+		});
+	});
+
+	folderTree.addEventListener('contextmenu', event => {
+		const folderLabel = event.target instanceof Element ? event.target.closest('.folder-label') : null;
+		if (!folderLabel) return;
+		event.preventDefault();
+		clearTimeout(folderPress?.timer);
+		folderPress = null;
+		showFolderTreeContextMenu(folderLabel, event.clientX, event.clientY);
+	});
+
+	document.addEventListener('pointerdown', event => {
+		const menu = document.getElementById('folderTreeContextMenu');
+		if (menu && !menu.contains(event.target)) menu.hidden = true;
+	});
+	document.addEventListener('keydown', event => {
+		if (event.key === 'Escape') {
+			const menu = document.getElementById('folderTreeContextMenu');
+			if (menu) menu.hidden = true;
+		}
+	});
+
+	folderTree.addEventListener('click', function (event) {
+		const clickedFolderLabel = event.target instanceof Element ? event.target.closest('.folder-label') : null;
+		if (clickedFolderLabel && clickedFolderLabel === suppressedFolderLabel) {
+			event.preventDefault();
+			event.stopPropagation();
+			suppressedFolderLabel = null;
+			clearTimeout(clearSuppressedFolderLabelTimer);
+			return;
+		}
 		if (event.target?.classList?.contains('folder-link')) {
 			event.preventDefault();
 			newSearch(event.target?.dataset?.folderPath);

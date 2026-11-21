@@ -38,6 +38,9 @@ h2 {
 	max-height: 50vh;
 	overflow: auto;
 	scrollbar-width: none;
+	user-select: none;
+	-webkit-user-select: none;
+	-webkit-touch-callout: none;
 }
 
 #folderTree ul {
@@ -85,6 +88,39 @@ h2 {
 
 .collapsed {
 	display: none;
+}
+
+.folderTreeContextMenu {
+	position: fixed;
+	z-index: 20;
+	min-width: 190px;
+	padding: 4px;
+	background: #202020;
+	border: 1px solid #666;
+	box-shadow: 0 4px 12px #0009;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+.folderTreeContextMenu[hidden] {
+	display: none;
+}
+
+.folderTreeContextMenu button {
+	width: 100%;
+	padding: 8px 10px;
+	color: white;
+	text-align: left;
+	background: transparent;
+	border: 0;
+	cursor: pointer;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+.folderTreeContextMenu button:hover,
+.folderTreeContextMenu button:focus-visible {
+	background: #444;
 }
 
 .folder-link {
