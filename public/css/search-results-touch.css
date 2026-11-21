@@ -136,6 +136,25 @@ h2 {
 
 #folderTree {
 	touch-action: pan-y;
+	margin-top: 4rem;
+	margin-bottom: 4rem;
+}
+
+#folderTree .folder-label {
+	min-height: 40px;
+	align-items: stretch;
+}
+
+#folderTree .folder-label > .folder-link {
+	align-self: center;
+	min-width: 40px;
+}
+
+#folderTree .folder-label::before {
+	width: 30px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .sidebarButton {
