@@ -2,6 +2,7 @@
 	const player = document.querySelector('.player');
 	const video = document.getElementById('player');
 	const resetSearchButton = document.getElementById('resetSearch');
+	const firstButton = document.getElementById('firstButton');
 	const previousButton = document.getElementById('previousButton');
 	const nextButton = document.getElementById('nextButton');
 	const shuffleButton = document.getElementById('shuffleButton');
@@ -337,11 +338,11 @@
 		status.textContent = video.playbackRate > 1 ? `${video.playbackRate}×` : '';
 	};
 
-	const playRandom = async (filterText = currentFilter, includeCurrent = false, direction = null) => {
+	const playRandom = async (filterText = currentFilter, includeCurrent = false, direction = null, fromPlaylistStart = false) => {
 		try {
 			const params = new URLSearchParams({ filter: filterText });
 			if (direction) {
-				params.set('current', currentPath);
+				params.set('current', fromPlaylistStart ? '' : currentPath);
 				params.set('direction', String(direction));
 			} else if (!includeCurrent) params.set('exclude', currentPath);
 			const response = await fetch(`/vid/random?${params}`);
@@ -485,6 +486,12 @@
 		}
 	};
 
+	const playFirstVideo = () => {
+		shuffleEnabled = false;
+		updateShuffleControls();
+		playRandom(currentFilter, true, 1, true);
+	};
+
 	const updateShuffleControls = () => {
 		shuffleButton.classList.toggle('active', shuffleEnabled);
 		shuffleButton.setAttribute('aria-pressed', String(shuffleEnabled));
@@ -609,6 +616,7 @@
 		videoFilter.value = '';
 		applyVideoFilter();
 	});
+	firstButton.addEventListener('click', playFirstVideo);
 	previousButton.addEventListener('click', () => navigateVideo(-1));
 	nextButton.addEventListener('click', () => navigateVideo(1));
 	shuffleButton.addEventListener('click', () => {

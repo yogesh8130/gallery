@@ -42,6 +42,14 @@ html
 					input#seekBar.seekBar(type="range" min="0" max="1000" value="0" step="1" aria-label="Seek")
 					div.bottomBar
 						div.controls
+							a.iconButton#downloadButton(href=videoPath download title="Download video" aria-label="Download video")
+								img.downloadIcon(src="/icons/download.svg" alt="Download icon")
+							button.iconButton#fullscreenButton(type="button" title="Enter fullscreen" aria-label="Enter fullscreen")
+								img.fullscreenIcon(src="/icons/fullscreen.svg" alt="Fullscreen icon")
+							a.iconButton.externalPlayerButton#mxPlayerButton(href="#" title="Open in MX Player" aria-label="Open in MX Player") MX
+							a.iconButton.externalPlayerButton#vlcButton(href="#" title="Open in VLC" aria-label="Open in VLC") VLC
+							button.iconButton#firstButton(type="button" title="Go to first video" aria-label="Go to first video")
+								img.firstIcon(src="/icons/first.svg" alt="First icon")
 							button.iconButton#previousButton(type="button" title="Previous video" aria-label="Previous video")
 								img.previousIcon(src="/icons/previous.svg" alt="Previous icon")
 							button.iconButton#playButton(type="button" title="Play or pause" aria-label="Play or pause")
@@ -54,10 +62,4 @@ html
 								img.shuffleIcon(src="/icons/shuffle.svg" alt="Shuffle icon")
 							button.iconButton#loopButton.active(type="button" title="Disable loop" aria-label="Disable loop" aria-pressed="true")
 								img.loopIcon(src="/icons/loop.svg" alt="Loop icon")
-							a.iconButton#downloadButton(href=videoPath download title="Download video" aria-label="Download video")
-								img.downloadIcon(src="/icons/download.svg" alt="Download icon")
-							button.iconButton#fullscreenButton(type="button" title="Enter fullscreen" aria-label="Enter fullscreen")
-								img.fullscreenIcon(src="/icons/fullscreen.svg" alt="Fullscreen icon")
-							a.iconButton.externalPlayerButton#mxPlayerButton(href="#" title="Open in MX Player" aria-label="Open in MX Player") MX
-							a.iconButton.externalPlayerButton#vlcButton(href="#" title="Open in VLC" aria-label="Open in VLC") VLC
 		script(src="/js/video-player.js")

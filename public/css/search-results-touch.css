@@ -136,8 +136,8 @@ h2 {
 
 #folderTree {
 	touch-action: pan-y;
-	margin-top: 4rem;
-	margin-bottom: 4rem;
+	margin-top: 2rem;
+	min-height: 60vh;
 }
 
 #folderTree .folder-label {
