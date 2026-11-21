@@ -112,11 +112,15 @@
 		});
 	};
 
-	const showPathSearchOptions = () => {
+	const togglePathSearchOptions = () => {
+		const isVisible = pathSearchOptions.classList.contains('visible');
+		if (isVisible) {
+			hidePathSearchOptions();
+			return;
+		}
 		renderPathSearchOptions();
 		pathSearchOptions.classList.add('visible');
 		pathSearchOptions.setAttribute('aria-hidden', 'false');
-		revealControls();
 	};
 
 	const hidePathSearchOptions = () => {
@@ -308,6 +312,8 @@
 		element.addEventListener('contextmenu', event => {
 			event.preventDefault();
 			event.stopPropagation();
+			if (triggered) return;
+			clearTimeout(timer);
 			triggered = true;
 			onLongPress();
 		});
@@ -617,8 +623,8 @@
 	});
 	makeCopyable(videoFolder, 'Folder');
 	makeCopyable(videoName, 'Filename');
-	attachLongPress(videoFolder, showPathSearchOptions);
-	attachLongPress(videoName, showPathSearchOptions);
+	attachLongPress(videoFolder, togglePathSearchOptions);
+	attachLongPress(videoName, togglePathSearchOptions);
 	videoFilter.addEventListener('change', applyVideoFilter);
 	window.addEventListener('popstate', () => {
 		const filterText = new URLSearchParams(window.location.search).get('filter') || '';

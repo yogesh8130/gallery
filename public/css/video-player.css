@@ -129,6 +129,11 @@ body {
 	pointer-events: none;
 }
 
+.player.controlsHidden .pathSearchOptions.visible,
+.player.controlsHidden .pathSearchOptions.visible * {
+	pointer-events: auto;
+}
+
 .player.controlsHidden .videoFolder,
 .player.controlsHidden .videoFolder *,
 .player.controlsHidden .videoName,
